@@ -249,7 +249,7 @@ private:
 	template <typename OutputIterator>
 	OutputIterator doFind(const QuadNode& node,
 		const TRay& ray, TParam tMin, TParam tMax, OutputIterator result, const TInfo* info,
-		const TVector& tNear, const TVector& tFar, size_t flipMask) const;
+		const TVector& tNear, const TVector& tFar, const TPoint& support, const TVector& invDir, size_t flipMask) const;
 
 	void doNearestNeighbour(const QuadNode& node,
 		const TPoint& point, const TInfo* info, Neighbour& best) const;

@@ -333,22 +333,15 @@ OutputIterator QuadTree<O, OT, SH>::find(const TRay& ray, TParam tMin, TParam tM
 
 	const TPoint min = TObjectTraits::aabbMin(aabb_);
 	const TPoint max = TObjectTraits::aabbMax(aabb_);
-	const TPoint center = this->middle(min, max);
-	TPoint support = TObjectTraits::raySupport(ray);
-	TVector direction = TObjectTraits::rayDirection(ray);
-	const size_t flipMask = this->forcePositiveDirection(center, support, direction);
-	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(direction);
-	TVector tNear;
-	TVector tFar;
-	this->nearAndFar(min, max, support, reciprocalDirection, tNear, tFar);
-	const TValue tNearMax = this->maxComponent(tNear);
-	const TValue tFarMin = this->minComponent(tFar);
-	if (tFarMin < tNearMax || tFarMin <= tMin)
-	{
-		return result;
-	}
+	const TPoint support = TObjectTraits::raySupport(ray);
+	const TVector direction = TObjectTraits::rayDirection(ray);
+	const TVector invDirection = TObjectTraits::vectorReciprocal(direction);
 
-	return doFind(*root_, ray, tMin, tMax, result, info, tNear, tFar, flipMask);
+	TVector tNear = invDirection * (min - support);
+	TVector tFar = invDirection * (max - support);
+	const size_t flipMask = this->forceMinToMax(tNear, tFar);
+
+	return doFind(*root_, ray, tMin, tMax, result, info, tNear, tFar, support, invDirection, flipMask);
 }
 
 
@@ -549,11 +542,13 @@ template <typename OutputIterator>
 OutputIterator QuadTree<O, OT, SH>::doFind(
 	const QuadNode& node,
 	const TRay& ray, TParam tMin, TParam tMax, OutputIterator output, const TInfo* info,
-	const TVector& tNear, const TVector& tFar, size_t flipMask) const
+	const TVector& tNear, const TVector& tFar, const TPoint& support, const TVector& invDir, size_t flipMask) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 
-	if (this->minComponent(tFar) < tMin || this->maxComponent(tNear) > tMax)
+	const TValue tNearMax = this->maxComponent(tNear);
+	const TValue tFarMin = this->minComponent(tFar);
+	if (tNearMax > tFarMin * (1 + num::sign(tFarMin) * 1e-3f))
 	{
 		return output;
 	}
@@ -572,7 +567,14 @@ OutputIterator QuadTree<O, OT, SH>::doFind(
 		return output;
 	}
 
-	const TVector tMiddle = this->middle(tNear, tFar);
+	const TVector tMiddle = invDir * (node.center() - support);
+#if !defined(NDEBUG)
+	for (size_t k = 0; k < dimension; ++k)
+	{
+		LASS_ASSERT(tNear[k] < tMiddle[k] && tMiddle[k] < tFar[k]);
+	}
+#endif
+
 	size_t i = this->entryNode(tNear, tMiddle);
 	do
 	{
@@ -580,7 +582,7 @@ OutputIterator QuadTree<O, OT, SH>::doFind(
 		TVector tChildNear = tNear;
 		TVector tChildFar = tFar;
 		this->childNearAndFar(tChildNear, tChildFar, tMiddle, i);
-		output = doFind(child, ray, tMin, tMax, output, info, tChildNear, tChildFar, flipMask);
+		output = doFind(child, ray, tMin, tMax, output, info, tChildNear, tChildFar, support, invDir, flipMask);
 		i = this->nextNode(i, tChildFar);
 	}
 	while (i != size_t(-1));
@@ -1073,12 +1075,12 @@ void QuadTree<O, OT, SH>::QuadNode::makeChildren()
 			{
 				TObjectTraits::coord(i & mask ? min : max, k, TObjectTraits::coord(center, k));
 
-				// slightly grow the box ...
-				//* 
-				const TValue dx = (TObjectTraits::coord(max, k) - TObjectTraits::coord(min, k)) / 1000;
-				TObjectTraits::coord(min, k, TObjectTraits::coord(min, k) - dx);
-				TObjectTraits::coord(max, k, TObjectTraits::coord(max, k) + dx);
-				/**/
+				// // slightly grow the box ...
+				// //*
+				// const TValue dx = (TObjectTraits::coord(max, k) - TObjectTraits::coord(min, k)) / 1000;
+				// TObjectTraits::coord(min, k, TObjectTraits::coord(min, k) - dx);
+				// TObjectTraits::coord(max, k, TObjectTraits::coord(max, k) + dx);
+				// /**/
 			}
 			new (&children[i]) QuadNode(TObjectTraits::aabbMake(min, max), allocator_);
 		}
