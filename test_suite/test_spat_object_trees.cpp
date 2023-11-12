@@ -197,6 +197,10 @@ void testSpatObjectTrees()
 	}
 	const TAabb bounds(min, max);
 
+	// bounds to generate starting and ending point of rays, 10% larger on each side.
+	TAabb rayBounds = bounds;
+	rayBounds.scale(T(1.2));
+
 	// random generator
 	//
 	std::mt19937_64 generator;
@@ -260,16 +264,13 @@ void testSpatObjectTrees()
 	//
 	for (size_t i = 0; i < numberOfIntersectionValidations; ++i)
 	{
-		TPoint support = bounds.random(generator);
-		TVector direction = TVector::random(generator);
-		TRay ray(support, direction);
-
+		const auto ray = tree_test_helpers::generateTestRay(rayBounds, generator);
 		T bruteT = TNumTraits::infinity;
 		TObjectIterator bruteHit = objectEnd;
 		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
 		{
 			T t;
-			const prim::Result result = prim::intersect(*obj, ray, t);
+			const prim::Result result = prim::intersect(*obj, ray.first, t);
 			if (result != prim::rNone && t < bruteT)
 			{
 				bruteHit = obj;
@@ -277,39 +278,29 @@ void testSpatObjectTrees()
 			}
 		}
 		const bool intersects = bruteHit != objectEnd;
-		tree_test_helpers::IntersectionValidityTest<TRay, TObjectIterator> test(ray, bruteHit, bruteT, intersects);
+		tree_test_helpers::IntersectionValidityTest<TRay, TObjectIterator> test(ray.first, bruteHit, bruteT, intersects);
 		meta::tuple::forEach(trees, test);
 	}
-
 
 	// ray find test
 	//
 	{
-		std::uniform_real_distribution<T> extend_rnd(0, extent);
 		for (size_t i = 0; i < numberOfIntersectionValidations; ++i)
 		{
-			TPoint support = bounds.random(generator);
-			TVector direction = TVector::random(generator);
-			TRay ray(support, direction);
-			T tMin = extend_rnd(generator);
-			T tMax = extend_rnd(generator);
-			if (tMin > tMax)
-			{
-				std::swap(tMin, tMax);
-			}
-
+			const auto ray = tree_test_helpers::generateTestRay(rayBounds, generator);
+			const T tMin = 0;
 			TObjectHits bruteHits;
 			for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
 			{
 				T t;
-				const prim::Result result = prim::intersect(*obj, ray, t, tMin);
-				if (result != prim::rNone && t < tMax)
+				const prim::Result result = prim::intersect(*obj, ray.first, t, tMin);
+				if (result != prim::rNone && t < ray.second)
 				{
 					bruteHits.insert(obj);
 				}
 			}
 
-			tree_test_helpers::RayFindValidityTest<TRay, TObjectHits> test(ray, bruteHits, tMin, tMax);
+			tree_test_helpers::RayFindValidityTest<TRay, TObjectHits> test(ray.first, bruteHits, tMin, ray.second);
 			meta::tuple::forEach(trees, test);
 		}
 	}
