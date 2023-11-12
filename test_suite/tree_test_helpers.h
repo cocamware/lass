@@ -92,6 +92,61 @@ Vector randomExtents(T maxExtents, RandomGenerator& random)
 
 
 
+template <typename T, typename RandomGenerator>
+std::pair<prim::Ray2D<T>, T> generateTestRay(const prim::Aabb2D<T>& bounds, RandomGenerator& rng)
+{
+	std::uniform_real_distribution<T> uniform;
+	std::uniform_int_distribution<size_t> randomAxis(0, 1);
+	const auto support = bounds.random(rng);
+	const auto target = bounds.random(rng);
+	auto direction = target - support;
+
+	const T u = uniform(rng);
+	if (u < 0.1f)
+	{
+		// make sure the ray is parallel to one axis.
+		const size_t axis = randomAxis(rng);
+		direction[axis] = 0;
+	}
+
+	const auto length = direction.norm();
+	direction /= length;
+	return std::make_pair(prim::Ray2D<T>(support, direction), length);
+}
+
+
+
+template <typename T, typename RandomGenerator>
+std::pair<prim::Ray3D<T>, T> generateTestRay(const prim::Aabb3D<T>& bounds, RandomGenerator& rng)
+{
+	std::uniform_real_distribution<T> uniform;
+	std::uniform_int_distribution<size_t> randomAxis(0, 2);
+	const auto support = bounds.random(rng);
+	const auto target = bounds.random(rng);
+	auto direction = target - support;
+
+	const T u = uniform(rng);
+	if (u < 0.1f)
+	{
+		// make sure the ray is parallel to one axis-aligned plane.
+		const size_t axis = randomAxis(rng);
+		direction[axis] = 0;
+	}
+	else if (u < 0.2f)
+	{
+		// make sure the ray is parallel to one axis.
+		const size_t axis = randomAxis(rng);
+		direction[axis] = 0;
+		direction[(axis + 1) % 3] = 0;
+	}
+
+	const auto length = direction.norm();
+	direction /= length;
+	return std::make_pair(prim::Ray3D<T>(support, direction), length);
+}
+
+
+
 template <typename T, typename RandomGenerator, typename OuputIterator>
 OuputIterator generateObjects(
 		const prim::Aabb2D<T>& iBound, T iMaxSize, RandomGenerator& iRandom,size_t iNumber, OuputIterator iObjects)
