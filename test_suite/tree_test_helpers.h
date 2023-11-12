@@ -253,8 +253,8 @@ class IntersectionValidityTest
 {
 public:
 	typedef typename Ray::TValue TValue;
-	IntersectionValidityTest(const Ray& ray, ObjectIterator bruteHit, TValue bruteT):
-		ray_(ray), bruteHit_(bruteHit), bruteT_(bruteT) 
+	IntersectionValidityTest(const Ray& ray, ObjectIterator bruteHit, TValue bruteT, bool intersects):
+		ray_(ray), bruteHit_(bruteHit), bruteT_(bruteT), intersects_(intersects)
 	{
 	}
 	template <typename Tree> void operator()(const Tree& tree) const
@@ -271,11 +271,14 @@ public:
 		{
 			LASS_TEST_CHECK_CLOSE(treeT, bruteT_, TValue(1e-5f));
 		}
+		const bool intersects = tree.intersects(ray_);
+		LASS_TEST_CHECK_EQUAL(intersects, intersects_);
 	}
 private:
 	const Ray& ray_;
 	ObjectIterator bruteHit_;
 	TValue bruteT_;
+	bool intersects_;
 };
 
 
