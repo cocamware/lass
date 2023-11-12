@@ -287,6 +287,29 @@ protected:
 		return flipMask;
 	}
 
+	/* Swap components so that near[k] <= far[k], and return according flipMask.
+	 *
+	 * When traversing the nodes, we always assume that near[k] <= far[k] so that
+	 * we go from "left" to "right" in the tree. If this is not the case, we
+	 * virtually flip the whole tree left to right, and use the flipMask to select
+	 * the correct child nodes.
+	 */
+	static size_t forceMinToMax(TVector& near, TVector& far)
+	{
+		size_t flipMask = 0;
+		if (near.x > far.x)
+		{
+			std::swap(near.x, far.x);
+			flipMask |= 0x1;
+		}
+		if (near.y > far.y)
+		{
+			std::swap(near.y, far.y);
+			flipMask |= 0x2;
+		}
+		return flipMask;
+	}
+
 	static void nearAndFar(const TPoint& min, const TPoint& max, const TPoint& support, 
 		const TVector& reciprocalDirection, TVector& tNear, TVector& tFar)
 	{
@@ -379,6 +402,34 @@ protected:
 				direction[k] = -direction[k];
 				flipMask |= mask;
 			}
+		}
+		return flipMask;
+	}
+
+	/* Swap components so that near[k] <= far[k], and return according flipMask.
+	 *
+	 * When traversing the nodes, we always assume that near[k] <= far[k] so that
+	 * we go from "left" to "right" in the tree. If this is not the case, we
+	 * virtually flip the whole tree left to right, and use the flipMask to select
+	 * the correct child nodes.
+	 */
+	static size_t forceMinToMax(TVector& near, TVector& far)
+	{
+		size_t flipMask = 0;
+		if (near.x > far.x)
+		{
+			std::swap(near.x, far.x);
+			flipMask |= 0x1;
+		}
+		if (near.y > far.y)
+		{
+			std::swap(near.y, far.y);
+			flipMask |= 0x2;
+		}
+		if (near.z > far.z)
+		{
+			std::swap(near.z, far.z);
+			flipMask |= 0x4;
 		}
 		return flipMask;
 	}
