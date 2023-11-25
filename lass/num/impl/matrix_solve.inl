@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -362,8 +362,8 @@ bool cramer2(RandomIterator1 iMatrixRowMajor,
 		LASS_ASSERT(column + 1 != ioColumnLast);
         const T x = column[0];
 		const T y = column[1];		
-		column[0] = inverseDeterminant * (x * m[3] - y * m[2]);
-		column[1] = inverseDeterminant * (m[0] * y - m[1] * x);
+		column[0] = inverseDeterminant * (x * m[3] - y * m[1]);
+		column[1] = inverseDeterminant * (m[0] * y - m[2] * x);
 	}
 	return true;
 }

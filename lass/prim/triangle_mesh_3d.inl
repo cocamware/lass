@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -776,12 +776,19 @@ Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& ray,
 			const typename TUv::TVector dUv_dR = *uvs[1] - uv0;
 			const typename TUv::TVector dUv_dS = *uvs[2] - uv0;
 			context->uv = uv0 + r * dUv_dR + s * dUv_dS;
-		
+
+			// Invert dUv_dR and dUv_dS by solving the following system of equations:
+			// [ du/dr  du/ds ] [ dr/du  dr/dv ] = [ 1  0 ]
+			// [ dv/dr  dv/ds ] [ ds/du  ds/dv ]   [ 0  1 ]
+			//
+			// matrix is row major, but solution is column major
+			//		
 			const TValue matrix[4] = { dUv_dR.x, dUv_dS.x, dUv_dR.y, dUv_dS.y };
 			TValue solution[4] = { 1, 0, 0, 1 };
 			num::impl::cramer2<TValue>(matrix, solution, solution + 4);
-			dRs_dU = TUv(solution[0], solution[2]);
-			dRs_dV = TUv(solution[1], solution[3]);
+			dRs_dU = TUv(solution[0], solution[1]);
+			dRs_dV = TUv(solution[2], solution[3]);
+
 			context->dPoint_dU = dPoint_dR * dRs_dU.x + dPoint_dS * dRs_dU.y;
 			context->dPoint_dV = dPoint_dR * dRs_dV.x + dPoint_dS * dRs_dV.y;
 		}

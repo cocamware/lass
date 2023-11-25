@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2023 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -427,29 +427,113 @@ void testNumMatrixInverse()
 }
 
 
+template <typename T>
+void testNumCramer()
+{
+	constexpr T tol = num::NumTraits<T>::epsilon;
+
+	{
+		// [ 1  2 ] * [ -4   ] = [ 5 ]
+		// [ 3  4 ]   [  4.5 ]   [ 6 ]
+		T a[4] = { 1, 2, 3, 4 };
+		T b[2] = { 5, 6 };
+		LASS_TEST_CHECK(num::impl::cramer2<T>(a, b, b + 2));
+		LASS_TEST_CHECK_CLOSE(b[0], T(-4), tol);
+		LASS_TEST_CHECK_CLOSE(b[1], T(4.5), tol);
+	}
+
+	{
+		// a is row major
+		// b (and x) is column major
+		// 
+		// [ 1  2 ] * [ -2     1  ] = [ 1  0 ]
+		// [ 3  4 ]   [  1.5  -0.5]   [ 0  1 ]
+		T a[4] = { 1, 2, 3, 4 };
+		T b[4] = { 1, 0, 0, 1 };
+		LASS_TEST_CHECK(num::impl::cramer2<T>(a, b, b + 4));
+		LASS_TEST_CHECK_CLOSE(b[0], T(-2), tol);
+		LASS_TEST_CHECK_CLOSE(b[1], T(1.5), tol);
+		LASS_TEST_CHECK_CLOSE(b[2], T(1), tol);
+		LASS_TEST_CHECK_CLOSE(b[3], T(-0.5), tol);
+	}
+
+	{
+		// [ 1  2 ] * [ ?? ] = [ 5 ]
+		// [ 3  6 ]   [ ?? ]   [ 6 ]
+		T a[4] = { 1, 2, 3, 6 };
+		T b[2] = { 5, 6 };
+		LASS_TEST_CHECK(!num::impl::cramer2<T>(a, b, b + 2));
+	}
+
+	{
+		// [ 1  2  3 ] * [ ?? ] = [ 140 ]
+		// [ 4  5  6 ]   [ ?? ]   [ 320 ]
+		// [ 7  8  9 ]   [ ?? ]   [ 500 ]
+		T a[9] = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		T b[3] = { 140, 320, 500 };
+		LASS_TEST_CHECK(!num::impl::cramer3<T>(a, b, b + 3));
+	}
+
+	{
+		// [ 1  2   3 ] * [ 10 ] = [ 140 ]
+		// [ 4  5   6 ]   [ 20 ]   [ 320 ]
+		// [ 7  8  10 ]   [ 30 ]   [ 530 ]
+		T a[9] = { 1, 2, 3, 4, 5, 6, 7, 8, 10 };
+		T b[3] = { 140, 320, 530 };
+		LASS_TEST_CHECK(num::impl::cramer3<T>(a, b, b + 3));
+		LASS_TEST_CHECK_CLOSE(b[0], T(10), tol);
+		LASS_TEST_CHECK_CLOSE(b[1], T(20), tol);
+		LASS_TEST_CHECK_CLOSE(b[2], T(30), tol);
+	}
+
+	{
+		// a is row major
+		// b (and x) is column major
+		// 
+		// [ 1  2  3 ] * [ -2/3  -4/3   1] = [ 1  0  0 ]
+		// [ 6  2  4 ]   [ -2/3  11/3  -2]   [ 0  1  0 ]
+		// [ 7  5  3 ]   [  1    -2     1]   [ 0  0  1 ]
+		T a[9] = { 1, 2, 3, 4, 5, 6, 7, 8, 10 };
+		T b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+		LASS_TEST_CHECK(num::impl::cramer3<T>(a, b, b + 9));
+		LASS_TEST_CHECK_CLOSE(b[0], T(-2) / T(3), tol);
+		LASS_TEST_CHECK_CLOSE(b[1], T(-2) / T(3), tol);
+		LASS_TEST_CHECK_CLOSE(b[2], T(1), tol);
+		LASS_TEST_CHECK_CLOSE(b[3], T(-4) / T(3), tol);
+		LASS_TEST_CHECK_CLOSE(b[4], T(11) / T(3), tol);
+		LASS_TEST_CHECK_CLOSE(b[5], T(-2), tol);
+		LASS_TEST_CHECK_CLOSE(b[6], T(1), tol);
+		LASS_TEST_CHECK_CLOSE(b[7], T(-2), tol);
+		LASS_TEST_CHECK_CLOSE(b[8], T(1), tol);
+	}
+}
+
+
 TUnitTest test_num_matrix_vector()
 {
-	TUnitTest result;
-	result.push_back(LASS_TEST_CASE(testNumMatrix<float>));
-	result.push_back(LASS_TEST_CASE(testNumMatrix< std::complex<float> >));
-	result.push_back(LASS_TEST_CASE(testNumMatrix<double>));
-	result.push_back(LASS_TEST_CASE(testNumMatrix< std::complex<double> >));
-	result.push_back(LASS_TEST_CASE(testNumVector<float>));
-	result.push_back(LASS_TEST_CASE(testNumVector< std::complex<float> >));
-	result.push_back(LASS_TEST_CASE(testNumVector<double>));
-	result.push_back(LASS_TEST_CASE(testNumVector< std::complex<double> >));
-	result.push_back(LASS_TEST_CASE(testNumSolve<double>));
-	result.push_back(LASS_TEST_CASE(testNumSolve< std::complex<double> >));
+	return TUnitTest {
+		LASS_TEST_CASE(testNumMatrix<float>),
+		LASS_TEST_CASE(testNumMatrix< std::complex<float> >),
+		LASS_TEST_CASE(testNumMatrix<double>),
+		LASS_TEST_CASE(testNumMatrix< std::complex<double> >),
+		LASS_TEST_CASE(testNumVector<float>),
+		LASS_TEST_CASE(testNumVector< std::complex<float> >),
+		LASS_TEST_CASE(testNumVector<double>),
+		LASS_TEST_CASE(testNumVector< std::complex<double> >),
+		LASS_TEST_CASE(testNumSolve<double>),
+		LASS_TEST_CASE(testNumSolve< std::complex<double> >),
 
-	result.push_back(LASS_TEST_CASE(testNumMatrixInverse<float>));
-	result.push_back(LASS_TEST_CASE(testNumMatrixInverse<double>));
+		LASS_TEST_CASE(testNumMatrixInverse<float>),
+		LASS_TEST_CASE(testNumMatrixInverse<double>),
 
-	result.push_back(LASS_TEST_CASE(testNumMatrixSolve<float>));
-	result.push_back(LASS_TEST_CASE(testNumMatrixSolve<double>));
-	result.push_back(LASS_TEST_CASE(testNumMatrixSolve< std::complex<float> >));
-	result.push_back(LASS_TEST_CASE(testNumMatrixSolve< std::complex<double> >));
+		LASS_TEST_CASE(testNumMatrixSolve<float>),
+		LASS_TEST_CASE(testNumMatrixSolve<double>),
+		LASS_TEST_CASE(testNumMatrixSolve< std::complex<float> >),
+		LASS_TEST_CASE(testNumMatrixSolve< std::complex<double> >),
 
-	return result;
+		LASS_TEST_CASE(testNumCramer<float>),
+		LASS_TEST_CASE(testNumCramer<double>),
+	};
 }
 
 
