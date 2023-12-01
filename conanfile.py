@@ -169,13 +169,18 @@ class LassConan(ConanFile):
     def layout(self):
         cmake_layout(self)
 
+        # include dirs for local build
         self.cpp.source.includedirs = ["."]
         self.cpp.build.includedirs = ["local"]
+
+        # We generate our own LassConfig.cmake, but we have to tell conan
+        # where it can be found, relative to the package or build dir ...
+        self.cpp.package.builddirs = [os.path.join("share", "Lass")]
         self.cpp.build.builddirs = ["."]
 
     def generate(self):
         python = self.dependencies["syspython"]
- 
+
         tc = CMakeToolchain(self)
         tc.variables["BUILD_SIMD_ALIGNED"] = bool(self.options.simd_aligned)
         tc.variables["BUILD_WITHOUT_ITERATOR_DEBUGGING"] = bool(
@@ -203,10 +208,9 @@ class LassConan(ConanFile):
         try:
             lass_config = self._load_module_from_file("share/Lass/LassConfig.py")
         except FileNotFoundError:
-            lass_config = self._load_module_from_file("build/LassConfig.py")
-            is_editable_mode = True
-        else:
-            is_editable_mode = False
+            lass_config = self._load_module_from_file(
+                os.path.join(self.folders.build, "LassConfig.py")
+            )
 
         if self.settings.build_type == "Debug":
             libs = [
@@ -221,13 +225,8 @@ class LassConan(ConanFile):
         self.cpp_info.libs = [lib for lib in libs if lib]
         self.cpp_info.cxxflags = lass_config.LASS_EXTRA_CXX_FLAGS
 
-        # We generate our own LassConfig.cmake, but we have to tell conan
-        # were it can be found ...
+        # We generate our own LassConfig.cmake
         self.cpp_info.set_property("cmake_find_mode", "none")
-        if is_editable_mode:
-            self.cpp_info.builddirs.append("build")
-        else:
-            self.cpp_info.builddirs.append(os.path.join("share", "Lass"))
 
     def _load_module_from_file(self, filename):
         file_path = Path(self.package_folder) / filename
