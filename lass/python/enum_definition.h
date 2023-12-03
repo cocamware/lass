@@ -49,6 +49,7 @@
 #include "../stde/vector_map.h"
 
 #include <unordered_map>
+#include <optional>
 
 namespace lass
 {
@@ -201,14 +202,14 @@ namespace lass
 			PyObject* build(TEnum value) const
 			{
 				LockGIL LASS_UNUSED(lock);
-				auto it = enumToValue_.find(value);
-				if (it == enumToValue_.end())
+				auto val = this->getValue(value);
+				if (!val)
 				{
 					PyErr_Format(PyExc_ValueError, "%lld is not a valid C++ value for %S", 
 						static_cast<PY_LONG_LONG>(value), type());
 					return nullptr;
 				}
-				TPyObjPtr args = makeTuple(it->second);
+				TPyObjPtr args = makeTuple(*val);
 				return PyObject_Call(type(), args.get(), nullptr);
 			}
 
@@ -227,15 +228,35 @@ namespace lass
 					// o should always be the right type ...
 					return 1;
 				}
-				auto it = valueToEnum_.find(v);
-				if (it == valueToEnum_.end())
+				auto val = getEnum(v);
+				if (!val)
 				{
 					// this should never happen, by construction o _must_ be a valid enumerator
 					PyErr_Format(PyExc_ValueError, "%S is not a valid value for %S", o.get(), type());
 					return 1;
 				}
-				value = it->second;
+				value = *val;
 				return 0;
+			}
+
+			std::optional<TValue> getValue(TEnum enumerator) const
+			{
+				auto it = enumToValue_.find(enumerator);
+				if (it == enumToValue_.end())
+				{
+					return std::nullopt;
+				}
+				return it->second;
+			}
+
+			std::optional<TEnum> getEnum(TValue value) const
+			{
+				auto it = valueToEnum_.find(value);
+				if (it == valueToEnum_.end())
+				{
+					return std::nullopt;
+				}
+				return it->second;
 			}
 
 		protected:
@@ -359,4 +380,3 @@ namespace lass
 	( LASS_CONCATENATE( lassExecutePyClassEnum_, i_cppClass ),\
 		i_cppClass ::_lassPyClassDef.addInnerEnum( &::lass::python::PyExportTraits<t_cppEnum>::enumDefinition ); \
 	)
-
