@@ -152,8 +152,12 @@ class LassConan(ConanFile):
             shutil.copy2(src, dest)
 
     def config_options(self):
-        if str(self.settings.compiler) in ["msvc", "Visual Studio"]:
+        if self.settings.os == "Windows":
             del self.options.fPIC
+
+    def configure(self):
+        if self.options.shared:
+            self.options.rm_safe("fPIC")
 
     def validate(self):
         check_min_cppstd(self, 17)
