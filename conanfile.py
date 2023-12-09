@@ -172,6 +172,9 @@ class LassConan(ConanFile):
         # include dirs for local build
         self.cpp.source.includedirs = ["."]
         self.cpp.build.includedirs = ["local"]
+        subdir = self.cpp.build.libdirs[0]
+        self.cpp.build.libdirs = [os.path.join("lib", subdir)]
+        self.cpp.build.bindirs = [os.path.join("bin", subdir)]
 
         # We generate our own LassConfig.cmake, but we have to tell conan
         # where it can be found, relative to the package or build dir ...

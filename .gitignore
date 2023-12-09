@@ -1,5 +1,6 @@
 # ignore build directories
 /build*/
+/test_package/build*/
 
 # ignore virtual environments
 /venv*/
@@ -44,3 +45,4 @@ __pycache__/
 /.vscode/ipch
 
 /CMakeUserPresets.json
+/test_package/CMakeUserPresets.json
