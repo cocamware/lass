@@ -105,7 +105,7 @@ endif()
 # Always build Release with debug symbols as well
 if(MSVC)
 	add_compile_options("$<$<CONFIG:Release>:/Zi>")
-	add_link_options("$<$<CONFIG:Release>:/DEBUG>")
+	add_link_options("$<$<CONFIG:Release>:/DEBUG>" "$<$<CONFIG:Release>:/OPT:REF>"  "$<$<CONFIG:Release>:/OPT:ICF>")
 else()
 	add_compile_options("$<$<CONFIG:Release>:-g>")
 endif()
