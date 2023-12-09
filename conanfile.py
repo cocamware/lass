@@ -209,12 +209,34 @@ class LassConan(ConanFile):
         # if we're in editable mode, so we'll have to figure it out by simply trying
         # to read LassConfig.py from different locations: from the package dir
         # (non-editable) or build dir (editable)
-        try:
-            lass_config = self._load_module_from_file("share/Lass/LassConfig.py")
-        except FileNotFoundError:
-            lass_config = self._load_module_from_file(
-                os.path.join(self.folders.build, "LassConfig.py")
-            )
+        if conan_version.major == "1":
+            if self.package_folder:
+                lass_config = self._load_module_from_file(
+                    os.path.join(self.package_folder, "share/Lass/LassConfig.py")
+                )
+                self.env_info.PATH.extend(
+                    os.path.join(self.package_folder, bindir)
+                    for bindir in self.cpp.package.bindirs
+                )
+            else:
+                lass_config = self._load_module_from_file(
+                    os.path.join(self.build_folder, "LassConfig.py")
+                )
+                self.env_info.PATH.extend(
+                    os.path.join(self.build_folder, bindir)
+                    for bindir in self.cpp.build.bindirs
+                )
+        else:
+            try:
+                lass_config = self._load_module_from_file(
+                    os.path.join(self.package_folder, "share/Lass/LassConfig.py")
+                )
+            except FileNotFoundError:
+                lass_config = self._load_module_from_file(
+                    os.path.join(
+                        self.package_folder, self.folders.build, "LassConfig.py"
+                    )
+                )
 
         if self.settings.build_type == "Debug":
             libs = [
@@ -233,7 +255,7 @@ class LassConan(ConanFile):
         self.cpp_info.set_property("cmake_find_mode", "none")
 
     def _load_module_from_file(self, filename):
-        file_path = Path(self.package_folder) / filename
+        file_path = Path(filename)
         module_name = file_path.stem
         spec = spec_from_file_location(module_name, file_path)
         module = module_from_spec(spec)
