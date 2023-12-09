@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(Lass VERSION 1.11.0)
 
-if (EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-	include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-	conan_basic_setup()
-endif()
-
 include(cmake/Helpers.cmake)
 
 set(CMAKE_DEBUG_POSTFIX _d)
