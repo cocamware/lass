@@ -31,7 +31,10 @@ if (WIN32)
 else()
 	set(_destination "lib")
 endif()
-
+set_target_properties(pylass
+	PROPERTIES 
+	LIBRARY_OUTPUT_DIRECTORY "${Lass_BINARY_DIR}/${_destination}"
+	)
 install(
 	TARGETS pylass
 	EXPORT LassExports
