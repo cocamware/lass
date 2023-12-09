@@ -190,6 +190,7 @@ class LassConan(ConanFile):
             self.options.without_iterator_debugging
         )
         tc.variables["Lass_PYTHON_VERSION"] = python.options.python_version
+        tc.variables["BUILD_TESTING"] = True
         tc.generate()
 
     def build(self):
