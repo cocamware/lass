@@ -148,7 +148,7 @@ class SysPython(ConanFile):
             if isinstance(value, int):
                 return value
             if isinstance(value, str):
-                value = value.replace("\\", "\\\\").replace('"', '\\"')
+                value = value.replace("\\", "/").replace('"', '\\"')
                 return f'"{value}"'
             if isinstance(value, list):
                 return " ".join(escape(val) for val in value)
