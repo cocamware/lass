@@ -40,7 +40,9 @@ endif()
 # -- deprecated variables ---
 
 function(__lass_deprecated_vars var access)
-    message(DEPRECATION "The variable '${var}' is deprecated.")
+    if (access STREQUAL READ_ACCESS)
+        message(DEPRECATION "The variable '${var}' is deprecated.")
+    endif()
 endfunction()
 
 
