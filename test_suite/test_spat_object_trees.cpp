@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -217,7 +217,7 @@ void testSpatObjectTrees()
 
 	typedef std::set<TObjectIterator> TObjectHits;
 
-	// contain test
+	// contain test and point find test
 	//
 	for (size_t i = 0; i < numberOfContainValidations; ++i)
 	{
@@ -279,6 +279,39 @@ void testSpatObjectTrees()
 
 		tree_test_helpers::IntersectionValidityTest<TRay, TObjectIterator> test(ray, bruteHit, bruteT);
 		meta::tuple::forEach(trees, test);
+	}
+
+
+	// ray find test
+	//
+	{
+		std::uniform_real_distribution<T> extend_rnd(0, extent);
+		for (size_t i = 0; i < numberOfIntersectionValidations; ++i)
+		{
+			TPoint support = bounds.random(generator);
+			TVector direction = TVector::random(generator);
+			TRay ray(support, direction);
+			T tMin = extend_rnd(generator);
+			T tMax = extend_rnd(generator);
+			if (tMin > tMax)
+			{
+				std::swap(tMin, tMax);
+			}
+
+			TObjectHits bruteHits;
+			for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
+			{
+				T t;
+				const prim::Result result = prim::intersect(*obj, ray, t, tMin);
+				if (result != prim::rNone && t < tMax)
+				{
+					bruteHits.insert(obj);
+				}
+			}
+
+			tree_test_helpers::RayFindValidityTest<TRay, TObjectHits> test(ray, bruteHits, tMin, tMax);
+			meta::tuple::forEach(trees, test);
+		}
 	}
 
 	// nearest neighbour test

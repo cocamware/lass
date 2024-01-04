@@ -194,7 +194,9 @@ OutputIterator AabbTree<O, OT, SH>::find(const TRay& ray, TParam tMin, TParam tM
 	{
 		return result;
 	}
-	return doFind(0, ray, tMin, tMax, result, info);
+	const TVector& dir = ray.direction();
+	const TVector invDir = TObjectTraits::vectorReciprocal(dir);
+	return doFind(0, ray, invDir, tMin, tMax, result, info);
 }
 
 
@@ -256,7 +258,7 @@ bool inline AabbTree<O, OT, SH>::intersects(const TRay& ray, TParam tMin, TParam
 	}
 	return false;
 #else
-	return doIntersects(0, ray, tMin, tMax, info);
+	return doIntersects(0, ray, invDir, tMin, tMax, info);
 #endif
 }
 
@@ -488,20 +490,20 @@ OutputIterator AabbTree<O, OT, SH>::doFind(TIndex index, const TAabb& box, Outpu
 
 template <typename O, typename OT, typename SH>
 template <typename OutputIterator>
-OutputIterator AabbTree<O, OT, SH>::doFind(TIndex index, const TRay& ray, TParam tMin, TParam tMax, OutputIterator result, const TInfo* info) const
+OutputIterator AabbTree<O, OT, SH>::doFind(TIndex index, const TRay& ray, const TVector& invDir, TParam tMin, TParam tMax, OutputIterator result, const TInfo* info) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
 	LASS_ASSERT(index < nodes_.size());
 	const Node& node = nodes_[index];
 
-	if (!volumeIntersects(node.aabb(), ray, tMin, tMax))
+	if (!volumeIntersects(node.aabb(), ray, invDir, tMin, tMax))
 	{
 		return result;
 	}
 	if (node.isInternal())
 	{
-		result = doFind(index + 1, ray, tMin, tMax, result, info);
-		return doFind(node.right(), ray, tMin, tMax, result, info);
+		result = doFind(index + 1, ray, invDir, tMin, tMax, result, info);
+		return doFind(node.right(), ray, invDir, tMin, tMax, result, info);
 	}
 	for (TIndex i = node.first(); i != node.last(); ++i)
 	{
