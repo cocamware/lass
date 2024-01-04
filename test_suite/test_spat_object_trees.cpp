@@ -262,24 +262,46 @@ void testSpatObjectTrees()
 
 	// intersection and intersects test
 	//
-	for (size_t i = 0; i < numberOfIntersectionValidations; ++i)
 	{
-		const auto ray = tree_test_helpers::generateTestRay(rayBounds, generator);
-		T bruteT = TNumTraits::infinity;
-		TObjectIterator bruteHit = objectEnd;
-		for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
+		using Hit = typename tree_test_helpers::IntersectionValidityTest<TRay, TObjectIterator>::Hit;
+		for (size_t i = 0; i < numberOfIntersectionValidations; ++i)
 		{
-			T t;
-			const prim::Result result = prim::intersect(*obj, ray.first, t);
-			if (result != prim::rNone && t < bruteT)
+			const auto ray = tree_test_helpers::generateTestRay(rayBounds, generator);
+
+			Hit brute1 { TNumTraits::infinity, objectEnd, false };
+			Hit brute2 { TNumTraits::infinity, objectEnd, false };
+			for (TObjectIterator obj = objectBegin; obj != objectEnd; ++obj)
 			{
-				bruteHit = obj;
-				bruteT = t;
+				T t;
+				const prim::Result result = prim::intersect(*obj, ray.first, t);
+				if (result != prim::rNone)
+				{
+					if (t < brute1.t)
+					{
+						brute2 = brute1;
+						brute1 = Hit { t, obj, true };
+
+						// do we have a second intersection on the same primitive?
+						T t2;
+						const prim::Result result2 = prim::intersect(*obj, ray.first, t2, t);
+						if (result2 != prim::rNone)
+						{
+							LASS_TEST_CHECK(t2 > t && t2 > brute1.t);
+							if (t2 < brute2.t)
+							{
+								brute2 = Hit { t2, obj, true };
+							}
+						}
+					}
+					else if (t < brute2.t)
+					{
+						brute2 = Hit { t, obj, true };
+					}
+				}
 			}
+			tree_test_helpers::IntersectionValidityTest<TRay, TObjectIterator> test(ray.first, brute1, brute2);
+			meta::tuple::forEach(trees, test);
 		}
-		const bool intersects = bruteHit != objectEnd;
-		tree_test_helpers::IntersectionValidityTest<TRay, TObjectIterator> test(ray.first, bruteHit, bruteT, intersects);
-		meta::tuple::forEach(trees, test);
 	}
 
 	// ray find test

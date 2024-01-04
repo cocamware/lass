@@ -239,7 +239,7 @@ template <typename O, typename OT, typename SH>
 bool AabpTree<O, OT, SH>::intersects(
 		const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const
 {
-	LASS_ASSERT(tMax > tMin);
+	LASS_ASSERT(tMax > tMin || (num::isInf(tMin) && num::isInf(tMax)));
 	TValue tNear;
 	if (isEmpty() || !TObjectTraits::aabbIntersect(aabb_, ray, tNear, tMin))
 	{

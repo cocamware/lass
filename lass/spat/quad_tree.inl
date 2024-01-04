@@ -354,22 +354,15 @@ QuadTree<O, OT, SH>::intersect(
 
 	const TPoint min = TObjectTraits::aabbMin(aabb_);
 	const TPoint max = TObjectTraits::aabbMax(aabb_);
-	const TPoint center = this->middle(min, max);
-	TPoint support = TObjectTraits::raySupport(ray);
-	TVector direction = TObjectTraits::rayDirection(ray);
-	const size_t flipMask = this->forcePositiveDirection(center, support, direction);
-	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(direction);
-	TVector tNear;
-	TVector tFar;
-	this->nearAndFar(min, max, support, reciprocalDirection, tNear, tFar);
-	const TValue tNearMax = this->maxComponent(tNear);
-	const TValue tFarMin = this->minComponent(tFar);
-	if (tFarMin < tNearMax || tFarMin <= tMin)
-	{
-		return end_;
-	}
+	const TPoint support = TObjectTraits::raySupport(ray);
+	const TVector direction = TObjectTraits::rayDirection(ray);
+	const TVector invDirection = TObjectTraits::vectorReciprocal(direction);
 
-	return doIntersect(*root_, ray, t, tMin, info, tNear, tFar, flipMask);
+	TVector tNear = invDirection * (min - support);
+	TVector tFar = invDirection * (max - support);
+	const size_t flipMask = this->forceMinToMax(tNear, tFar);
+
+	return doIntersect(*root_, ray, t, tMin, info, tNear, tFar, support, invDirection, flipMask);
 }
 
 
@@ -382,23 +375,15 @@ bool QuadTree<O, OT, SH>::intersects(
 
 	const TPoint min = TObjectTraits::aabbMin(aabb_);
 	const TPoint max = TObjectTraits::aabbMax(aabb_);
-	const TPoint center = this->middle(min, max);
-	//const TVector size = halfDifference(max, min);
-	TPoint support = TObjectTraits::raySupport(ray);
-	TVector direction = TObjectTraits::rayDirection(ray);
-	const size_t flipMask = this->forcePositiveDirection(center, support, direction);
-	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(direction);
-	TVector tNear;
-	TVector tFar;
-	this->nearAndFar(min, max, support, reciprocalDirection, tNear, tFar);
-	const TValue tNearMax = this->maxComponent(tNear);
-	const TValue tFarMin = this->minComponent(tFar);
-	if (tFarMin < tNearMax || tFarMin <= tMin)
-	{
-		return false;
-	}
+	const TPoint support = TObjectTraits::raySupport(ray);
+	const TVector direction = TObjectTraits::rayDirection(ray);
+	const TVector invDirection = TObjectTraits::vectorReciprocal(direction);
 
-	return doIntersects(*root_, ray, tMin, tMax, info, tNear, tFar, flipMask);
+	TVector tNear = invDirection * (min - support);
+	TVector tFar = invDirection * (max - support);
+	const size_t flipMask = this->forceMinToMax(tNear, tFar);
+
+	return doIntersects(*root_, ray, tMin, tMax, info, tNear, tFar, support, invDirection, flipMask);
 }
 
 
@@ -571,7 +556,7 @@ OutputIterator QuadTree<O, OT, SH>::doFind(
 #if !defined(NDEBUG)
 	for (size_t k = 0; k < dimension; ++k)
 	{
-		LASS_ASSERT(tNear[k] < tMiddle[k] && tMiddle[k] < tFar[k]);
+		LASS_ASSERT((tNear[k] < tMiddle[k] && tMiddle[k] < tFar[k]) || (num::isInf(tNear[k]) && num::isInf(tMiddle[k])  && num::isInf(tFar[k])));
 	}
 #endif
 
@@ -595,7 +580,7 @@ OutputIterator QuadTree<O, OT, SH>::doFind(
 /**
  *	Reference: J. Revelles, C. Urena, and M. Lastra. An efficient parametric algorithm for octree 
  *	traversal. In Eighth International Conference in Central Europe on Computer Graphics, 
- *	Visualization and Interactive Digital Media (WSCG 2000), pages 212�-219, Plzen, Czech Republic, 
+ *	Visualization and Interactive Digital Media (WSCG 2000), pages 212--219, Plzen, Czech Republic,
  *	2000.
  */
 template <typename O, typename OT, typename SH>
@@ -603,14 +588,16 @@ const typename QuadTree<O, OT, SH>::TObjectIterator
 QuadTree<O, OT, SH>::doIntersect(
 		const QuadNode& node,
 		const TRay& ray, TReference t, TParam tMin, const TInfo* info,
-		const TVector& tNear, const TVector& tFar, size_t flipMask) const
+		const TVector& tNear, const TVector& tFar, const TPoint& support, const TVector& invDir, size_t flipMask) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
-	if (this->minComponent(tFar) < tMin)
+
+	const TValue tNearMax = std::max(this->maxComponent(tNear), tMin);
+	const TValue tFarMin = this->minComponent(tFar);
+	if (tNearMax > tFarMin * (1 + num::sign(tFarMin) * 1e-3f))
 	{
 		return end_;
 	}
-
 
 	if (node.isLeaf())
 	{
@@ -640,7 +627,14 @@ QuadTree<O, OT, SH>::doIntersect(
 		return best;
 	}
 
-	const TVector tMiddle = this->middle(tNear, tFar);
+	const TVector tMiddle = invDir * (node.center() - support);
+#if !defined(NDEBUG)
+	for (size_t k = 0; k < dimension; ++k)
+	{
+		LASS_ASSERT((tNear[k] < tMiddle[k] && tMiddle[k] < tFar[k]) || (num::isInf(tNear[k]) && num::isInf(tMiddle[k])  && num::isInf(tFar[k])));
+	}
+#endif
+
 	TObjectIterator best = end_;
 	TValue tBest = 0;
 	size_t i = this->entryNode(tNear, tMiddle);
@@ -653,7 +647,7 @@ QuadTree<O, OT, SH>::doIntersect(
 		
 		TValue tCandidate;
 		TObjectIterator candidate = doIntersect(
-			child, ray, tCandidate, tMin, info, tChildNear, tChildFar, flipMask);
+			child, ray, tCandidate, tMin, info, tChildNear, tChildFar, support, invDir, flipMask);
 		if (candidate != end_)
 		{
 			if (best == end_ || tCandidate < tBest)
@@ -663,7 +657,8 @@ QuadTree<O, OT, SH>::doIntersect(
 			}
 		}
 
-		if (best != end_ && tBest < this->minComponent(tChildFar))
+		const TValue tChildFarMin = this->minComponent(tChildFar);
+		if (best != end_ && tBest < tChildFarMin * (1 - num::sign(tFarMin) * 1e-3f))
 		{
 			t = tBest;
 			return best;
@@ -686,10 +681,13 @@ template <typename O, typename OT, typename SH>
 bool QuadTree<O, OT, SH>::doIntersects(
 		const QuadNode& node,
 		const TRay& ray, TParam tMin, TParam tMax, const TInfo* info,
-		const TVector& tNear, const TVector& tFar, size_t flipMask) const
+		const TVector& tNear, const TVector& tFar, const TPoint& support, const TVector& invDir, size_t flipMask) const
 {
 	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
-	if (this->minComponent(tFar) < tMin || this->maxComponent(tNear) > tMax)
+
+	const TValue tNearMax = std::max(this->maxComponent(tNear), tMin);
+	const TValue tFarMin = std::min(this->minComponent(tFar), tMax);
+	if (tNearMax > tFarMin * (1 + num::sign(tFarMin) * 1e-3f))
 	{
 		return false;
 	}
@@ -709,7 +707,14 @@ bool QuadTree<O, OT, SH>::doIntersects(
 		return false;
 	}
 
-	const TVector tMiddle = this->middle(tNear, tFar);
+	const TVector tMiddle = invDir * (node.center() - support);
+#if !defined(NDEBUG)
+	for (size_t k = 0; k < dimension; ++k)
+	{
+		LASS_ASSERT((tNear[k] < tMiddle[k] && tMiddle[k] < tFar[k]) || (num::isInf(tNear[k]) && num::isInf(tMiddle[k])  && num::isInf(tFar[k])));
+	}
+#endif
+
 	size_t i = this->entryNode(tNear, tMiddle);
 	do
 	{
@@ -717,7 +722,7 @@ bool QuadTree<O, OT, SH>::doIntersects(
 		TVector tChildNear = tNear;
 		TVector tChildFar = tFar;
 		this->childNearAndFar(tChildNear, tChildFar, tMiddle, i);
-		if (doIntersects(child, ray, tMin, tMax, info, tChildNear, tChildFar, flipMask))
+		if (doIntersects(child, ray, tMin, tMax, info, tChildNear, tChildFar, support, invDir, flipMask))
 		{
 			return true;
 		}

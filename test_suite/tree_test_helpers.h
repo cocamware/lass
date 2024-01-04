@@ -307,33 +307,58 @@ template <typename Ray, typename ObjectIterator>
 class IntersectionValidityTest
 {
 public:
+	struct Hit
+	{
+		typename Ray::TValue t;
+		ObjectIterator obj;
+		bool intersects;
+	};
+
 	typedef typename Ray::TValue TValue;
-	IntersectionValidityTest(const Ray& ray, ObjectIterator bruteHit, TValue bruteT, bool intersects):
-		ray_(ray), bruteHit_(bruteHit), bruteT_(bruteT), intersects_(intersects)
+	IntersectionValidityTest(const Ray& ray, Hit brute1, Hit brute2):
+		ray_(ray), brute1_(brute1), brute2_(brute2)
 	{
 	}
 	template <typename Tree> void operator()(const Tree& tree) const
 	{
 		typedef typename Ray::TNumTraits TNumTraits;
-		TValue treeT = TNumTraits::infinity;
-		ObjectIterator treeHit = tree.intersect(ray_, treeT);
-		LASS_TEST_CHECK_EQUAL(treeHit, bruteHit_);
-		if (treeT == TNumTraits::infinity)
+
+		Hit tree1 { TNumTraits::infinity, tree.end(), false };
+		tree1.obj = tree.intersect(ray_, tree1.t);
+		tree1.intersects = tree.intersects(ray_);
+
+		LASS_TEST_CHECK_EQUAL(tree1.obj, brute1_.obj);
+		if (tree1.obj == tree.end())
 		{
-			LASS_TEST_CHECK_EQUAL(treeT, bruteT_);
+			LASS_TEST_CHECK_EQUAL(tree1.t, brute1_.t);
 		}
 		else
 		{
-			LASS_TEST_CHECK_CLOSE(treeT, bruteT_, TValue(1e-5f));
+			LASS_TEST_CHECK_CLOSE(tree1.t, brute1_.t, TValue(1e-5f));
 		}
-		const bool intersects = tree.intersects(ray_);
-		LASS_TEST_CHECK_EQUAL(intersects, intersects_);
+		LASS_TEST_CHECK_EQUAL(tree1.intersects, brute1_.intersects);
+
+		// test the second intersection
+
+		Hit tree2 { TNumTraits::infinity, tree.end(), false };
+		tree2.obj = tree.intersect(ray_, tree2.t, tree1.t);
+		tree2.intersects = tree.intersects(ray_, tree1.t);
+
+		LASS_TEST_CHECK_EQUAL(tree2.obj, brute2_.obj);
+		if (tree2.obj == tree.end())
+		{
+			LASS_TEST_CHECK_EQUAL(tree2.t, brute2_.t);
+		}
+		else
+		{
+			LASS_TEST_CHECK_CLOSE(tree2.t, brute2_.t, TValue(1e-5f));
+		}
+		LASS_TEST_CHECK_EQUAL(tree2.intersects, brute2_.intersects);
 	}
 private:
 	const Ray& ray_;
-	ObjectIterator bruteHit_;
-	TValue bruteT_;
-	bool intersects_;
+	Hit brute1_;
+	Hit brute2_;
 };
 
 
