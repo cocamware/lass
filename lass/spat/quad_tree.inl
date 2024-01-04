@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -322,6 +322,36 @@ OutputIterator QuadTree<O, OT, SH>::find(const TAabb& box, OutputIterator result
 
 
 
+/** @warning As this algorithm visits multiple leaf nodes, it may find duplicate objects.
+ *      This algorithm doesn't care.  But if you do, you can use insert_iterators to a set.
+ */
+template <typename O, typename OT, typename SH>
+template <typename OutputIterator>
+OutputIterator QuadTree<O, OT, SH>::find(const TRay& ray, TParam tMin, TParam tMax, OutputIterator result, const TInfo* info) const
+{
+	LASS_ASSERT(root_);
+
+	const TPoint min = TObjectTraits::aabbMin(aabb_);
+	const TPoint max = TObjectTraits::aabbMax(aabb_);
+	const TPoint center = this->middle(min, max);
+	TPoint support = TObjectTraits::raySupport(ray);
+	TVector direction = TObjectTraits::rayDirection(ray);
+	const size_t flipMask = this->forcePositiveDirection(center, support, direction);
+	const TVector reciprocalDirection = TObjectTraits::vectorReciprocal(direction);
+	TVector tNear;
+	TVector tFar;
+	this->nearAndFar(min, max, support, reciprocalDirection, tNear, tFar);
+	const TValue tNearMax = this->maxComponent(tNear);
+	const TValue tFarMin = this->minComponent(tFar);
+	if (tFarMin < tNearMax || tFarMin <= tMin)
+	{
+		return result;
+	}
+
+	return doFind(*root_, ray, tMin, tMax, result, info, tNear, tFar, flipMask);
+}
+
+
 template <typename O, typename OT, typename SH>
 const typename QuadTree<O, OT, SH>::TObjectIterator 
 QuadTree<O, OT, SH>::intersect(
@@ -509,6 +539,52 @@ OutputIterator QuadTree<O, OT, SH>::doFind(
 			output = doFind(node.children[i], box, output, info);
 		}
 	}
+	return output;
+}
+
+
+
+template <typename O, typename OT, typename SH>
+template <typename OutputIterator>
+OutputIterator QuadTree<O, OT, SH>::doFind(
+	const QuadNode& node,
+	const TRay& ray, TParam tMin, TParam tMax, OutputIterator output, const TInfo* info,
+	const TVector& tNear, const TVector& tFar, size_t flipMask) const
+{
+	LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_INIT_NODE(TInfo, info);
+
+	if (this->minComponent(tFar) < tMin || this->maxComponent(tNear) > tMax)
+	{
+		return output;
+	}
+
+	if (node.isLeaf())
+	{
+		const typename TObjectIterators::const_iterator end = node.data.end();
+		for (typename TObjectIterators::const_iterator i = node.data.begin(); i != end; ++i)
+		{
+			LASS_SPAT_OBJECT_TREES_DIAGNOSTICS_VISIT_OBJECT;
+			if (TObjectTraits::objectIntersects(*i, ray, tMin, tMax, info))
+			{
+				*output++ = *i;
+			}
+		}
+		return output;
+	}
+
+	const TVector tMiddle = this->middle(tNear, tFar);
+	size_t i = this->entryNode(tNear, tMiddle);
+	do
+	{
+		const QuadNode& child = node.children[i ^ flipMask];
+		TVector tChildNear = tNear;
+		TVector tChildFar = tFar;
+		this->childNearAndFar(tChildNear, tChildFar, tMiddle, i);
+		output = doFind(child, ray, tMin, tMax, output, info, tChildNear, tChildFar, flipMask);
+		i = this->nextNode(i, tChildFar);
+	}
+	while (i != size_t(-1));
+
 	return output;
 }
 

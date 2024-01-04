@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -155,6 +155,9 @@ public:
 	template <typename OutputIterator>
 	OutputIterator find(const TAabb& box, OutputIterator result, const TInfo* info = 0) const;
 
+	template <typename OutputIterator>
+	OutputIterator find(const TRay& ray, TParam minT, TParam maxT, OutputIterator result, const TInfo* info = 0) const;
+
 	const TObjectIterator intersect(const TRay& ray, TReference t, TParam tMin = 0, 
 		const TInfo* info = 0) const;
 	
@@ -231,17 +234,29 @@ private:
 		void deleteChildren(size_t count);
 	};
 	
-	const TObjectIterator doIntersect(const QuadNode& node, const TRay& ray, TReference t, TParam tMin, 
-		const TInfo* info, const TVector& tNear, const TVector& tFar, size_t flipMask) const;
-	bool doIntersects(const QuadNode& node, const TRay& ray, TParam tMin, TParam tMax, 
-		const TInfo* info, const TVector& tNear, const TVector& tFar, size_t flipMask) const;
+	const TObjectIterator doIntersect(const QuadNode& node,
+		const TRay& ray, TReference t, TParam tMin, const TInfo* info,
+		const TVector& tNear, const TVector& tFar, size_t flipMask) const;
+
+	bool doIntersects(const QuadNode& node,
+		const TRay& ray, TParam tMin, TParam tMax, const TInfo* info,
+		const TVector& tNear, const TVector& tFar, size_t flipMask) const;
+
 	template <typename OutputIterator>
-	OutputIterator doFind(const QuadNode& node, const TAabb& box, OutputIterator result, const TInfo* info) const;
-	void doNearestNeighbour(const QuadNode& node, const TPoint& point, const TInfo* info,
-		Neighbour& best) const;
+	OutputIterator doFind(const QuadNode& node,
+		const TAabb& box, OutputIterator result, const TInfo* info) const;
+
+	template <typename OutputIterator>
+	OutputIterator doFind(const QuadNode& node,
+		const TRay& ray, TParam tMin, TParam tMax, OutputIterator result, const TInfo* info,
+		const TVector& tNear, const TVector& tFar, size_t flipMask) const;
+
+	void doNearestNeighbour(const QuadNode& node,
+		const TPoint& point, const TInfo* info, Neighbour& best) const;
+
 	template <typename RandomIterator>
-	RandomIterator doRangeSearch(const QuadNode& node, const TPoint& target, TReference squaredRadius, 
-		size_t maxCount, RandomIterator first, RandomIterator last, const TInfo* info) const;
+	RandomIterator doRangeSearch(const QuadNode& node,
+		const TPoint& target, TReference squaredRadius, size_t maxCount, RandomIterator first, RandomIterator last, const TInfo* info) const;
 
 	TAabb aabb_;
 	QuadNode*   root_;

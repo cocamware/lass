@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -221,6 +221,32 @@ private:
 	Aabb box_;
 	const ObjectHits& bruteHits_;
 };
+
+
+
+template <typename Ray, typename ObjectHits>
+class RayFindValidityTest
+{
+public:
+	typedef typename Ray::TValue TValue;
+	RayFindValidityTest(const Ray& ray, const ObjectHits& bruteHits, TValue tMin, TValue tMax):
+		ray_(ray), bruteHits_(bruteHits), tMin_(tMin), tMax_(tMax)
+	{
+	}
+	template <typename Tree> void operator()(const Tree& tree) const
+	{
+		ObjectHits treeHits;
+		tree.find(ray_, tMin_, tMax_, std::inserter(treeHits, treeHits.begin()));
+		LASS_TEST_CHECK(treeHits.size() == bruteHits_.size() && std::equal(treeHits.begin(), treeHits.end(), bruteHits_.begin()));
+	}
+private:
+	Ray ray_;
+	const ObjectHits& bruteHits_;
+	TValue tMin_;
+	TValue tMax_;
+};
+
+
 
 template <typename Ray, typename ObjectIterator>
 class IntersectionValidityTest

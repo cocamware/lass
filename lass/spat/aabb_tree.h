@@ -209,7 +209,7 @@ private:
 	template <typename OutputIterator> 
 	OutputIterator doFind(TIndex index, const TAabb& aabb, OutputIterator first, const TInfo* info) const;
 	template <typename OutputIterator> 
-	OutputIterator doFind(TIndex index, const TRay& ray, TParam tMin, TParam tMax, OutputIterator first, const TInfo* info) const;
+	OutputIterator doFind(TIndex index, const TRay& ray, const TVector& invDir, TParam tMin, TParam tMax, OutputIterator first, const TInfo* info) const;
 
 	TObjectIterator doIntersect(TIndex index, const TRay& ray, const TVector& invDir, TReference t, TParam tMin, const TInfo* info) const;
 	bool doIntersects(TIndex iIndex, const TRay& ray, TParam tMin, TParam tMax, const TInfo* info) const;
