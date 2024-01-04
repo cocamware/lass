@@ -236,11 +236,11 @@ private:
 	
 	const TObjectIterator doIntersect(const QuadNode& node,
 		const TRay& ray, TReference t, TParam tMin, const TInfo* info,
-		const TVector& tNear, const TVector& tFar, size_t flipMask) const;
+		const TVector& tNear, const TVector& tFar, const TPoint& support, const TVector& invDir, size_t flipMask) const;
 
 	bool doIntersects(const QuadNode& node,
 		const TRay& ray, TParam tMin, TParam tMax, const TInfo* info,
-		const TVector& tNear, const TVector& tFar, size_t flipMask) const;
+		const TVector& tNear, const TVector& tFar, const TPoint& support, const TVector& invDir, size_t flipMask) const;
 
 	template <typename OutputIterator>
 	OutputIterator doFind(const QuadNode& node,
