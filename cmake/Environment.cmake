@@ -348,7 +348,7 @@ CHECK_FUNCTION_EXISTS("strerror_r" LASS_HAVE_FUNC_STRERROR_R)
 if(LASS_HAVE_FUNC_STRERROR_R)
 	_try_compile_checking(LASS_HAVE_STRERROR_R_CHAR_P "check_strerror_r_char_p.cpp" "strerror_r returns char*")
 endif()
-CHECK_FUNCTION_EXISTS("aligned_alloc" LASS_HAVE_ALIGNED_ALLOC)
+CHECK_SYMBOL_EXISTS("aligned_alloc" "stdlib.h" LASS_HAVE_ALIGNED_ALLOC)
 
 _try_compile_checking(LASS_HAVE_LAMBDA_OPERATOR_NOT "check_lambda_operator_not.cpp" "C++11 lambda has operator!")
 _try_compile_checking(LASS_HAVE_DURATION_OPERATOR_OSTREAM "check_duration_operator_ostream.cpp" "std::chrono::duration has operator<<")
