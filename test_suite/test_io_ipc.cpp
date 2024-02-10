@@ -162,14 +162,18 @@ void runScenario(unsigned long msecSleepParent, unsigned long msecSleepChild)
         const char* lowercase = "this is a string";
         const size_t size = ::strlen(lowercase) + 1;
         io::SharedMemory mem;
-        mem.create(size);
-        char* buf = static_cast<char*>(mem.get());
-        ::strncpy(buf, lowercase, size);
-        buf[size - 1] = 0; // for good measure
+        const bool hasSuccessfullyCreatedSharedMemory = mem.create(size);
+        LASS_TEST_CHECK(hasSuccessfullyCreatedSharedMemory);
+        if (hasSuccessfullyCreatedSharedMemory)
+        {
+            char* buf = static_cast<char*>(mem.get());
+            ::strncpy(buf, lowercase, size);
+            buf[size - 1] = 0; // for good measure
 
-        ipc::Message res = transact(pipe, ipc::Message(ipc::mcUpper, mem.name()));
-        LASS_TEST_CHECK_EQUAL(res.code(), ipc::mcUppered);
-        LASS_TEST_CHECK(strcmp(buf, "THIS IS A STRING") == 0);
+            ipc::Message res = transact(pipe, ipc::Message(ipc::mcUpper, mem.name()));
+            LASS_TEST_CHECK_EQUAL(res.code(), ipc::mcUppered);
+            LASS_TEST_CHECK(strcmp(buf, "THIS IS A STRING") == 0);
+        }
     }
 
     util::Thread::sleep(msecSleepParent);
