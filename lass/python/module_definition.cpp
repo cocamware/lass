@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -188,7 +188,15 @@ void ModuleDefinition::injectClass(impl::ClassDefinition& classDef)
 
 PyObject* ModuleDefinition::inject()
 {
-	LASS_ASSERT(!isInjected_);
+	if (isInjected_)
+	{
+		// this can happen when the module was imported before, and then removed
+		// from sys.modules, and then re-imported. In that case, the module will
+		// be injected again. The only thing we can do is to return the same
+		// module again.
+		Py_INCREF(module_);
+		return module_;
+	}
 	LASS_ASSERT(name_.get());
 	preInject_();
 	methods_.push_back(impl::createPyMethodDef(0, 0, 0, 0));
@@ -223,6 +231,7 @@ PyObject* ModuleDefinition::inject()
 		PyModule_AddStringConstant(module_, (*obj)->name.get(), (*obj)->object.get());
 	}
 	postInject_(module_);
+	Py_INCREF(module_);
 	return module_;
 }
 
