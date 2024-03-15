@@ -15,6 +15,7 @@ function(_try_compile VARIABLE fname msg ok fail)
 			"${Lass_SOURCE_DIR}/cmake/${fname}"
 			CXX_STANDARD "${CMAKE_CXX_STANDARD}"
 			CXX_EXTENSIONS "${CMAKE_CXX_EXTENSIONS}"
+            ${ARGN}
 		)
 		if(${VARIABLE})
 			message(STATUS "${msg} - ${ok}")
@@ -27,11 +28,11 @@ function(_try_compile VARIABLE fname msg ok fail)
 endfunction()
 
 function(_try_compile_looking RESULT_VAR fname what)
-	_try_compile(${RESULT_VAR} "${fname}" "Looking for ${what}" "found" "not found")
+	_try_compile(${RESULT_VAR} "${fname}" "Looking for ${what}" "found" "not found" ${ARGN})
 endfunction()
 
 function(_try_compile_checking RESULT_VAR fname what)
-	_try_compile(${RESULT_VAR} "${fname}" "Checking whether ${what}" "yes" "no")
+	_try_compile(${RESULT_VAR} "${fname}" "Checking whether ${what}" "yes" "no" ${ARGN})
 endfunction()
 
 function(_try_run VARIABLE fname msg ok fail)
@@ -408,9 +409,20 @@ _try_compile_looking(LASS_HAVE_STD_ISNAN "check_std_isnan.cpp" "std::isnan")
 CHECK_TYPE_SIZE(wchar_t WCHAR_T)
 set(LASS_HAVE_WCHAR_T ${HAVE_WCHAR_T})
 CHECK_SYMBOL_EXISTS("_wfopen" "stdio.h" LASS_HAVE_WFOPEN)
-CHECK_FUNCTION_EXISTS("iconv" LASS_HAVE_ICONV)
+_try_compile_looking(LASS_HAVE_ICONV_LIBC "check_iconv.cpp" "iconv without libiconv")
+if(LASS_HAVE_ICONV_LIBC)
+    set(LASS_HAVE_ICONV TRUE)
+else()
+    _try_compile_looking(LASS_HAVE_ICONV_LIBICONV "check_iconv.cpp" "iconv with libiconv"
+        LINK_LIBRARIES iconv)
+    if(LASS_HAVE_ICONV_LIBICONV)
+        set(LASS_HAVE_ICONV TRUE)
+        list(APPEND lass_LIBS iconv)
+    endif()
+endif()
 if(LASS_HAVE_ICONV)
-	_try_compile_checking(LASS_HAVE_ICONV_CONST_CHAR "check_iconv_const_char.cpp" "iconv inbuf parameter is const char**")
+	_try_compile_checking(LASS_HAVE_ICONV_CONST_CHAR "check_iconv_const_char.cpp" "iconv inbuf parameter is const char**"
+    LINK_LIBRARIES ${lass_LIBS})
 endif()
 CHECK_SYMBOL_EXISTS("MultiByteToWideChar" "windows.h" LASS_HAVE_MULTIBYTETOWIDECHAR)
 _try_compile_looking(LASS_HAVE_STD_U8STRING "check_std_u8string.cpp" "std::u8string")
