@@ -201,18 +201,33 @@ public:
         close();
         
         off_t ssize = num::numCast<off_t>(size);
-        
+
         char shmname[] = "/dev/shm/lass-shm.XXXXXX";
-        if (!tryCreate(shmname, ssize))
+        if (tryCreate(shmname, ssize))
         {
-            char tmpname[] = "/tmp/lass-shm.XXXXXX";
-            if (!tryCreate(tmpname, ssize))
+            return mapView(ssize);
+        }
+        
+        char tmpname[] = "/tmp/lass-shm.XXXXXX";
+        if (tryCreate(tmpname, ssize))
+        {
+            return mapView(ssize);
+        }
+
+        if (const char* tmpdir = getenv("TMPDIR"))
+        {
+            const size_t n = ::strlen(tmpdir) + 16;
+            std::vector<char> buf(n + 1);
+            const int written = ::snprintf(buf.data(), buf.size(), "%s/lass-shm.XXXXXX", tmpdir);
+            LASS_ENFORCE(written > 0 && static_cast<size_t>(written) == n);
+            buf[n] = 0;
+            if (tryCreate(buf.data(), ssize))
             {
-                return false; // give up
+                return mapView(ssize);
             }
         }
         
-        return mapView(ssize);
+        return false; // give up
     }
 
     bool open(const char* name)
