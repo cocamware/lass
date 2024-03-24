@@ -64,6 +64,8 @@ Only the following variables are guaranteed to be set in your project:
   Python patch version.
 #]=======================================================================]
 
+message(DEPRECATION "PythonCompat is deprecated. Directly use find_package(Python) instead.")
+
 unset(_PythonCompat_ARGS)
 if(PythonCompat_FIND_VERSION)
     list(APPEND _PythonCompat_ARGS ${PythonCompat_FIND_VERSION})

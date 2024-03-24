@@ -72,7 +72,7 @@ if(Lass_PYTHON_VERSION)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
-find_package(PythonCompat ${_Lass_FIND_PYTHON_ARGS} REQUIRED
+find_package(Python ${_Lass_FIND_PYTHON_ARGS} REQUIRED
              COMPONENTS Interpreter OPTIONAL_COMPONENTS Development)
 mark_as_advanced(CLEAR Python_EXECUTABLE)
 
