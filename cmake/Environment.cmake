@@ -450,6 +450,18 @@ CHECK_SYMBOL_EXISTS("MultiByteToWideChar" "windows.h" LASS_HAVE_MULTIBYTETOWIDEC
 _try_compile_looking(LASS_HAVE_STD_U8STRING "check_std_u8string.cpp" "std::u8string")
 
 
+
+if(NOT DEFINED Lass_HAVE_AVX)
+    if(LASS_HAVE_ARM)
+        set(Lass_HAVE_AVX OFF)
+    else()
+        set(Lass_HAVE_AVX ON)
+    endif()
+endif()
+set(LASS_HAVE_AVX "${Lass_HAVE_AVX}")
+
+
+
 configure_file(
 	"${Lass_SOURCE_DIR}/lass/config/local_config.h.in" 
 	"${Lass_BINARY_DIR}/local/local_config.h"

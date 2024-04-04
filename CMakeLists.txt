@@ -109,6 +109,15 @@ else()
 endif()
 
 
+if(Lass_HAVE_AVX)
+	if(MSVC)
+		add_compile_options("/arch:AVX")
+	else()
+		add_compile_options("-mavx")
+	endif()
+endif()
+
+
 add_subdirectory(lass)
 if(TARGET Lass::lass_python)
 	add_subdirectory(pylass)

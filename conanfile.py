@@ -20,7 +20,7 @@ The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
 The Original Developer is the Initial Developer.
 
 All portions of the code written by the Initial Developer are:
-Copyright (C) 2018-2023 the Initial Developer.
+Copyright (C) 2018-2024 the Initial Developer.
 All Rights Reserved.
 
 Contributor(s):
@@ -113,12 +113,14 @@ class LassConan(ConanFile):
         "fPIC": [True, False],
         "simd_aligned": [True, False],
         "without_iterator_debugging": [True, False],
+        "have_avx": [True, False],
     }
     default_options = {
         "shared": True,
         "fPIC": True,
         "simd_aligned": False,
         "without_iterator_debugging": False,
+        "have_avx": True,
     }
     requires = "syspython/1.0.0@cocamware/stable"
 
@@ -154,6 +156,8 @@ class LassConan(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        if self.settings.arch not in ["x86", "x86_64"]:
+            self.options.rm_safe("have_avx")
 
     def configure(self):
         if self.options.shared:
@@ -195,6 +199,7 @@ class LassConan(ConanFile):
         )
         tc.variables["Lass_PYTHON_VERSION"] = python.options.python_version
         tc.variables["BUILD_TESTING"] = True
+        tc.variables["Lass_HAVE_AVX"] = self.options.get_safe("have_avx", False)
         tc.generate()
 
     def build(self):

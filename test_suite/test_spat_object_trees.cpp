@@ -198,8 +198,9 @@ void testSpatObjectTrees()
 	typedef spat::AabbTree<TObject, TObjectTraits> TAabbTree;
 	typedef spat::AabpTree<TObject, TObjectTraits> TAabpTree;
 	typedef spat::QuadTree<TObject, TObjectTraits> TQuadTree;
+	typedef spat::QbvhTree<TObject, TObjectTraits> TQbvhTree;
 
-	typedef typename meta::type_list::Make<TAabbTree, TAabpTree, TQuadTree>::Type TObjectTreeTypes;
+	typedef typename meta::type_list::Make<TAabbTree, TAabpTree, TQuadTree, TQbvhTree>::Type TObjectTreeTypes;
 	typedef meta::Tuple<TObjectTreeTypes> TObjectTrees;
 
 	// set bounds

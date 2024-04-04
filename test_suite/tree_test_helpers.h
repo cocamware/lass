@@ -46,6 +46,7 @@
 #include "../lass/spat/aabb_tree.h"
 #include "../lass/spat/aabp_tree.h"
 #include "../lass/spat/quad_tree.h"
+#include "../lass/spat/qbvh_tree.h"
 #include "../lass/spat/kd_tree.h"
 #include "../lass/meta/select.h"
 #include "../lass/meta/tuple.h"
