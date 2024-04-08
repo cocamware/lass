@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2021 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -177,6 +177,8 @@ struct LASS_DLL NumTraits<ttype>\
 	static constexpr ttype e = static_cast<ttype>(LASS_NUM_E);\
 	static constexpr ttype sqrt2 = static_cast<ttype>(LASS_NUM_SQRT_2);\
 	static constexpr ttype sqrtPi = static_cast<ttype>(LASS_NUM_SQRT_PI);\
+\
+	static constexpr ttype gamma(unsigned n) { return (static_cast<ttype>(n) * epsilon) / (2 - static_cast<ttype>(n) * epsilon); }\
 };
 
 #define LASS_NUM_DECLARE_COMPLEX_FLOATING_TRAITS( ttype, tname ) \
