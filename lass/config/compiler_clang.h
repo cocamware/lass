@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -57,8 +57,13 @@
 #	define LASS_CHAR_IS_SIGNED 1
 #endif
 
-#define LASS_DLL_IMPORT
-#define LASS_DLL_EXPORT
+#if defined(_MSC_VER)
+#	define LASS_DLL_IMPORT __declspec( dllimport )
+#	define LASS_DLL_EXPORT __declspec( dllexport )
+#else
+#	define LASS_DLL_IMPORT
+#	define LASS_DLL_EXPORT
+#endif
 #define LASS_CALL
 #define LASS_NO_INLINE
 #define LASS_PER_THREAD __thread

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -97,10 +97,10 @@ public:
 	typedef void(*TCallback)(const char* /* filename */, void* /* closure */);
 
 	CrashDumpImpl(const std::string& name, TCallback callback, void* callbackClosure):
-		oldFilter_(0),
 		callback_(callback),
 		callbackClosure_(callbackClosure),
 		mutex_(0),
+		oldFilter_(0),
 		isExiting_(false),
 		isHandlingException_(false)
 	{
@@ -202,7 +202,7 @@ public:
 
 	typedef util::CriticalSection TMutex;
 
-	const HMODULE loadLibrary(const TCHAR* libraryName) const
+	HMODULE loadLibrary(const TCHAR* libraryName) const
 	{
 		HMODULE library = 0;
 
@@ -231,7 +231,7 @@ public:
 		return library;
 	}
 
-	const HMODULE loadSideLibrary(const TCHAR* libraryName, HMODULE me) const
+	HMODULE loadSideLibrary(const TCHAR* libraryName, HMODULE me) const
 	{
 		TCHAR modulePath[bufferSize_];
 		const DWORD pathLength = ::GetModuleFileName(me, modulePath, bufferSize_);
@@ -264,7 +264,7 @@ public:
 	void patchSetUnhandledExceptionFilter(bool patch)
 	{
 		HMODULE kernel32 = LASS_ENFORCE_WINAPI(::GetModuleHandle(_T("kernel32.dll")));
-		void* fun = LASS_ENFORCE_WINAPI(::GetProcAddress(kernel32, "SetUnhandledExceptionFilter"));
+		void* fun = reinterpret_cast<void*>(LASS_ENFORCE_WINAPI(::GetProcAddress(kernel32, "SetUnhandledExceptionFilter")));
 		if (patch)
 		{
 			LASS_ENFORCE(!::IsBadReadPtr(fun, numPatchBytes_));

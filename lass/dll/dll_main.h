@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -55,7 +55,7 @@ namespace dll
 typedef BOOL (*TDllMain)(HINSTANCE, DWORD, LPVOID);
 
 void registerDllMain(TDllMain dllMain);
-const HINSTANCE getLassInstance();
+HINSTANCE getLassInstance();
 
 }
 }

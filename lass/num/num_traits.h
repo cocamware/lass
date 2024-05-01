@@ -60,7 +60,7 @@ namespace num
 {
 
 template<class C>
-struct LASS_DLL NumTraits
+struct NumTraits
 {
 	//typedef C   selfType;               /**< our own type */
 	//typedef C   baseType;               /**< is the base type where selfType is based on */

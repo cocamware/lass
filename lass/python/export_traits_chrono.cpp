@@ -23,7 +23,7 @@
 *	The Original Developer is the Initial Developer.
 *
 *	All portions of the code written by the Initial Developer are:
-*	Copyright (C) 2022-2023 the Initial Developer.
+*	Copyright (C) 2022-2024 the Initial Developer.
 *	All Rights Reserved.
 *
 *	Contributor(s):
@@ -99,7 +99,7 @@ PyObject* PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::bu
 	const std::time_t time = TClock::to_time_t(v - uSec);
 
 	std::tm local;
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 	const errno_t err = localtime_s(&local, &time);
 #else
 	util::impl::lass_reset_errno();
@@ -149,7 +149,7 @@ int PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::get(PyOb
 		0, // tm_wday
 		0, // tm_yday
 		-1, // tm_isdst
-#if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE != LASS_PLATFORM_TYPE_WIN32
 		0, // tm_gmtoff
 		nullptr, // tm_zone
 #endif
@@ -199,7 +199,7 @@ int PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::get(PyOb
 		{
 			return 1;
 		}
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 		const std::time_t t = _mkgmtime(&time);
 #else
 		const std::time_t t = timegm(&time);
@@ -235,7 +235,7 @@ PyObject* PyExportTraits<std::chrono::utc_clock::time_point>::build(const std::c
 	const std::time_t time = std::chrono::system_clock::to_time_t(sysTime - uSec);
 
 	std::tm local;
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 	const errno_t err = gmtime_s(&local, &time);
 #else
 	util::impl::lass_reset_errno();

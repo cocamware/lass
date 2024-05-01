@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *
  *	Contributor(s):
@@ -43,6 +43,7 @@
 #include "lass_common.h"
 #include "message_pipe.h"
 #include "../stde/extended_cstring.h"
+#include "../num/num_cast.h"
 
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #   define NOMINMAX
@@ -67,7 +68,6 @@
 #       include <unistd.h>
 #   endif
 #   include <errno.h>
-#   include "../num/num_cast.h"
 #endif
 
 #include <assert.h>
@@ -86,11 +86,11 @@ namespace impl
 class MessagePipeImpl
 {
 public:
-    enum { infinite = MessagePipe::infinite };
+    static constexpr size_t infinite = MessagePipe::infinite;
 
     MessagePipeImpl(size_t bufferSize):
-        bufferSize_(static_cast<DWORD>(bufferSize)),
-        pipe_(INVALID_HANDLE_VALUE)
+        pipe_(INVALID_HANDLE_VALUE),
+        bufferSize_(static_cast<DWORD>(bufferSize))
     {
         name_[0] = 0;
     }
@@ -126,7 +126,7 @@ public:
         return pipe_ != INVALID_HANDLE_VALUE;
     }
 
-    bool connect(const char* pipeName, size_t msecTimeout=INFINITE)
+    bool connect(const char* pipeName, size_t msecTimeout)
     {
         close();
 
@@ -289,7 +289,7 @@ public:
 private:
     static DWORD dwordTimeout(size_t msecTimeout)
     {
-        return msecTimeout == MessagePipe::infinite ? INFINITE : static_cast<DWORD>(msecTimeout);
+        return msecTimeout == MessagePipe::infinite ? INFINITE : num::numCast<DWORD>(msecTimeout);
     }
 
     bool initOverlapped()
@@ -329,7 +329,7 @@ class MessagePipeImpl
 {
 public:
 
-    enum { infinite = MessagePipe::infinite };
+    static constexpr size_t infinite = MessagePipe::infinite;
 
     MessagePipeImpl(size_t /*bufferSize*/):
         socket_(-1),

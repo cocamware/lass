@@ -23,7 +23,7 @@
 *	The Original Developer is the Initial Developer.
 *
 *	All portions of the code written by the Initial Developer are:
-*	Copyright (C) 2022 the Initial Developer.
+*	Copyright (C) 2022-2024 the Initial Developer.
 *	All Rights Reserved.
 *
 *	Contributor(s):
@@ -45,6 +45,8 @@
 
 #if LASS_HAVE_STD_FILESYSTEM
 
+#if LASS_PLATFORM_TYPE != LASS_PLATFORM_TYPE_WIN32
+
 namespace
 {
 
@@ -61,6 +63,8 @@ int getBytes(PyObject* obj, std::string& v)
 }
 
 }
+
+#endif
 
 
 namespace lass

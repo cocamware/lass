@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -55,7 +55,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #	pragma warning(push)
 #	pragma warning(disable: 4996) // 'vsnprintf': This function or variable may be unsafe.
 #endif
@@ -130,7 +130,7 @@ LASS_DLL std::string LASS_CALL safe_format(const char* format, ...) LASS_EXPERIM
 }
 }
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #	pragma warning(pop)
 #endif
 

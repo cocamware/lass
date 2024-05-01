@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -55,7 +55,7 @@
 #include <process.h>
 #include <windows.h>
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #	pragma warning(push)
 #	pragma warning(disable: 4239) //  nonstandard extension used : 'argument' : conversion from 'T' to 'T&'
 #	pragma warning(disable: 4267) // conversion from 'size_t' to 'unsigned int'
@@ -681,7 +681,7 @@ private:
 }
 }
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #	pragma warning(pop)
 #endif
 

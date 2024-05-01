@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -40,7 +40,7 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #	pragma warning(push)
 #	pragma warning(disable: 4267) // conversion from 'size_t' to 'lass::num::Tuint32', possible loss of data
 #	pragma warning(disable: 4996) // this function or variable may be unsafe
@@ -374,7 +374,7 @@ void DefaultConsumer<T>::operator()(typename util::CallTraits<T>::TParam task)
 
 }
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #	pragma warning(pop)
 #endif
 

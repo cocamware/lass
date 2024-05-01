@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2022-2023 the Initial Developer.
+ *	Copyright (C) 2022-2024 the Initial Developer.
  *	All Rights Reserved.
  *
  *	Contributor(s):
@@ -222,7 +222,7 @@ void testPythonExportTraitsChronoSystemClock()
 		// it has been shifted to local time ...
 		std::time_t time = 0;
 		std::tm local;
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 		LASS_TEST_CHECK_EQUAL(localtime_s(&local, &time), 0);
 #else
 		localtime_r(&time, &local);
@@ -273,7 +273,7 @@ void testPythonExportTraitsChronoSystemClock()
 			0, // tm_wday
 			0, // tm_yday
 			-1, // tm_isdst
-#if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE != LASS_PLATFORM_TYPE_WIN32
 			0, // tm_gmtoff
 			nullptr, // tm_zone
 #endif
@@ -304,7 +304,7 @@ void testPythonExportTraitsChronoSystemClock()
 			0, // tm_wday
 			0, // tm_yday
 			-1, // tm_isdst
-#if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE != LASS_PLATFORM_TYPE_WIN32
 			0, // tm_gmtoff
 			nullptr, // tm_zone
 #endif

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -1137,7 +1137,7 @@ public:
 	{
 #if LASS_HAVE_ALIGNED_ALLOC
 		return ::aligned_alloc(alignment, size);
-#elif LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#elif LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 		return _aligned_malloc(size, alignment);
 #else
 		void* ptr = 0;
@@ -1150,7 +1150,7 @@ public:
 	{
 #if LASS_HAVE_ALIGNED_ALLOC
 		::free(mem);
-#elif LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#elif LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 		_aligned_free(mem);
 #else
 		::free(mem);

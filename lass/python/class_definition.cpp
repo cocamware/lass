@@ -50,7 +50,7 @@
 #include <iostream>
 #include <cstring>
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #	pragma warning(disable: 4996) // This function or variable may be unsafe ...
 #endif
 

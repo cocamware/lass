@@ -47,7 +47,7 @@
 #include "../lass/io/binary_i_memory_map.h"
 #include "../lass/io/binary_i_memory_block.h"
 
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 #	pragma warning(disable: 4996) // 'fopen': This function or variable may be unsafe. Consider using fopen_s instead
 #endif
 

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2013 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -63,7 +63,7 @@ namespace impl
 class LASS_DLL MessagePipe
 {
 public:
-    enum { infinite = size_t(-1) };
+    static constexpr size_t infinite = size_t(-1);
     
     MessagePipe(size_t maxMessageSize = 0);
     ~MessagePipe();
@@ -92,7 +92,7 @@ class TypedMessagePipe
 {
 public:
     typedef MessageType TMessage;
-    enum { infinite = MessagePipe::infinite };
+    static constexpr size_t infinite = MessagePipe::infinite;
     
     TypedMessagePipe(): pipe_(sizeof(TMessage)) {}    
     
