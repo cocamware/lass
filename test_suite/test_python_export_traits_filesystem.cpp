@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2022 the Initial Developer.
+ *	Copyright (C) 2022-2024 the Initial Developer.
  *	All Rights Reserved.
  *
  *	Contributor(s):
@@ -66,7 +66,7 @@ void testPythonExportTraitsPath()
 
 	// Win32 will use wide strings (std::wstring) which works well with Python's (unicode) str type
 	// Others (POSIX) will use narrow strings (std::string) wich works well with Python's bytes type
-	// PyExportTraits<std::filesystem::path> will use Py_FileSystemDefaultEncoding to convert between
+	// PyExportTraits<std::filesystem::path> will use sys.getfilesystemencoding() to convert between
 	// both if necessary, but this test will assume that's UTF-8 (which in practice it almost certainly is).
 	//
 	// The test string is a funny unicode version of "hello/world", both in UTF-16 and UTF-8
@@ -79,7 +79,13 @@ void testPythonExportTraitsPath()
 	static_assert(std::is_same_v<string_type, std::string>);
 	const string_type native{ "/\xe2\x99\x93\xe2\x84\xae\xc5\x82\xca\x9f\xe2\x98\xba/\xd0\xa8\xe2\x98\xba\xd2\x91\xe2\x84\x93\xe1\xb8\x93" };
 #endif
-	LASS_TEST_CHECK_EQUAL(std::string{ Py_FileSystemDefaultEncoding }, std::string{ "utf-8" });
+	{
+		PyObject* getfilesystemencoding = PySys_GetObject("getfilesystemencoding");
+		TPyObjPtr filesystemencoding{ PyObject_CallObject(getfilesystemencoding, nullptr) };
+		std::string fsencoding;
+		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(filesystemencoding.get(), fsencoding), 0);
+		LASS_TEST_CHECK_EQUAL(fsencoding, std::string{ "utf-8" });
+	}
 
 	{
 		// build path

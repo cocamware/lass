@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2022 the Initial Developer.
+ *	Copyright (C) 2022-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -58,7 +58,7 @@ namespace python
  *
  *  Accepts bytes, str or objects that implement the os.PathLike interface (having __fspath__())
  *  If conversion is needed from bytes to str (on Windows) or from str to bytes (on POSIX),
- *  then it is performed using Py_FileSystemDefaultEncoding (which is usually UTF-8, but not always).
+ *  then it is performed using sys.getfilesystemencoding() (which is usually UTF-8, but not always).
  * 
  *  Always converts them to str instances.
  */
