@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -107,6 +107,9 @@ typename Singleton<T, DP>::TInstance* Singleton<T, DP>::instance()
 		}
 	}
 	LASS_ASSERT(one);
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(suppress: 6011) // Dereferencing NULL pointer 'one'
+#endif
 	return one->instance_.get();
 }
 
