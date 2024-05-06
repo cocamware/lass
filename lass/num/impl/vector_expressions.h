@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -91,7 +91,7 @@ public:
 	typedef size_t TSize;
 
 	VScalar(TSize iSize, TParam iValue): value_(iValue), size_(iSize) {}
-	TParam operator[](TSize LASS_UNUSED(iIndex)) const { LASS_ASSERT(iIndex < size_); return value_; }
+	TParam operator[]([[maybe_unused]] TSize iIndex) const { LASS_ASSERT(iIndex < size_); return value_; }
 	TSize size() const { return size_; }
 private:
 	TValue value_;

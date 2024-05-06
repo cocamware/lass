@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -219,7 +219,7 @@ std::pair<void*, size_t> memoryBlock()
 
 
 
-void testIoBinaryIStreamHelper(lass::io::BinaryIStream& stream, lass::io::BinaryIStream::pos_type LASS_UNUSED(max_pos))
+void testIoBinaryIStreamHelper(lass::io::BinaryIStream& stream, [[maybe_unused]] lass::io::BinaryIStream::pos_type max_pos)
 {
 	using pos_type = lass::io::BinaryIStream::pos_type;
 	using off_type = lass::io::BinaryIStream::off_type;

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -105,7 +105,7 @@ void RWLock::unlockw()
 
 void RWLock::unlockr()
 {
-	const int LASS_UNUSED(oldSpinLock) = spinLock_.fetch_add(1);
+	[[maybe_unused]] const int oldSpinLock = spinLock_.fetch_add(1);
 	LASS_ASSERT(oldSpinLock <= maxReaders_);
 }
 
@@ -148,4 +148,3 @@ LockResult RWLock::tryLockw()
 
 } //namespace util
 } //namespace lass
-

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -87,7 +87,7 @@ public:
 		{
 			std::cerr << "[LASS RUN MSG] WARNING: closeSocket() failed: " << error.what();
 		}
-		const int err = ::WSACleanup();
+		[[maybe_unused]] const int err = ::WSACleanup();
 		LASS_ASSERT(err == 0);
 	}
 

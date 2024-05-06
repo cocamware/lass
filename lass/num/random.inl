@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -91,7 +91,7 @@ OutputIterator RandomStandard::getState(OutputIterator first) const
 
 
 template <typename InputIterator>
-void RandomStandard::setState(InputIterator LASS_UNUSED(first), InputIterator LASS_UNUSED(last))
+void RandomStandard::setState([[maybe_unused]] InputIterator first, [[maybe_unused]] InputIterator last)
 {
 	LASS_ASSERT(first == last);
 }
@@ -226,7 +226,7 @@ void RandomMT19937::setState(InputIterator first, InputIterator last)
 	LASS_ASSERT(first != last);
 	index_ = *first++;
 	LASS_ASSERT(first != last);
-	result_type* LASS_UNUSED(end) = std::copy(first, last, state_);
+	[[maybe_unused]] result_type* end = std::copy(first, last, state_);
 	LASS_ASSERT(end == state_ + stateSize_);
 }
 

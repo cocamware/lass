@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -346,7 +346,7 @@ size_t AabbTree<O, OT, SH>::balance(TInputIterator first, TInputIterator last)
 	LASS_ASSERT(middle != first && middle != last);
 
 	const size_t node = addInternalNode(split.aabb);
-	const size_t LASS_UNUSED(left) = balance(first, middle);
+	[[maybe_unused]] const size_t left = balance(first, middle);
 	LASS_ASSERT(left == node + 1);
 	const size_t right = balance(middle, last);
 	nodes_[node].setRight(right);

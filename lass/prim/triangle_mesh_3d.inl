@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -715,7 +715,7 @@ Result TriangleMesh3D<T, BHV, SH>::intersect(
 	if (context)
 	{
 		TValue temp;
-		const Result LASS_UNUSED(r) = triangle->intersect(ray, temp, tMin, context);
+		[[maybe_unused]] const Result r = triangle->intersect(ray, temp, tMin, context);
 		LASS_ASSERT(r == rOne && t == temp);
 	}
 

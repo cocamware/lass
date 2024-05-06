@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -369,7 +369,7 @@ protected:
 	template <typename TStorage> void increment(TStorage& /*pointee*/)
 	{
 		LASS_ASSERT(count_);
-		const TCount LASS_UNUSED(oldCount) = count_->fetch_add(1, std::memory_order_relaxed);
+		[[maybe_unused]] const TCount oldCount = count_->fetch_add(1, std::memory_order_relaxed);
 		LASS_ASSERT(oldCount >= 1); // otherwise the object would not exist
 	}
 
@@ -544,7 +544,7 @@ protected:
 		(pointee->*referenceCounter).store(1, std::memory_order_relaxed);
 	}
 
-	template <typename TStorage> void dispose(TStorage& LASS_UNUSED(pointee))
+	template <typename TStorage> void dispose([[maybe_unused]] TStorage& pointee)
 	{
 		LASS_ASSERT(pointee && (pointee->*referenceCounter).load(std::memory_order_relaxed) == 0);
 	}
@@ -552,7 +552,7 @@ protected:
 	template <typename TStorage> void increment(TStorage& pointee)
 	{
 		LASS_ASSERT(pointee);
-		const TCount LASS_UNUSED(oldCount) = (pointee->*referenceCounter).fetch_add(1, std::memory_order_relaxed);
+		[[maybe_unused]] const TCount oldCount = (pointee->*referenceCounter).fetch_add(1, std::memory_order_relaxed);
 		LASS_ASSERT(oldCount >= 1); // otherwise the object would not exist
 	}
 

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -1144,7 +1144,7 @@ namespace spat
 	{
 		const TVector2D dir = direction(e);
 		PointHandle    iE = pointHandle(e);
-		PointHandle    LASS_UNUSED(iES)= pointHandle(e->sym());
+		[[maybe_unused]] PointHandle iES = pointHandle(e->sym());
 		EdgeHandle		iLE = edgeHandle(e);
 		EdgeHandle		iRE = edgeHandle(e->sym());
 
@@ -1223,8 +1223,8 @@ namespace spat
 
 		*/
 		PointHandle hA = pointHandle(e->oNext()->sym());
-		PointHandle LASS_UNUSED(hB) = pointHandle(e);
-		PointHandle LASS_UNUSED(hC) = pointHandle(e->sym());
+		[[maybe_unused]] PointHandle hB = pointHandle(e);
+		[[maybe_unused]] PointHandle hC = pointHandle(e->sym());
 		PointHandle hD = pointHandle(e->oPrev()->sym());
 
 		TQuadEdge::splice( e, a );

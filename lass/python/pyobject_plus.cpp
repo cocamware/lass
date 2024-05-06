@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -109,7 +109,7 @@ PyObjectPlus::PyObjectPlus(const PyObjectPlus& other)
 	impl::forceObjectType(this, other.ob_type);
 }
 
-PyObjectPlus& PyObjectPlus::operator =(const PyObjectPlus& LASS_UNUSED(iOther))
+PyObjectPlus& PyObjectPlus::operator =([[maybe_unused]] const PyObjectPlus& iOther)
 {
 	LASS_ASSERT(!this->ob_type || this->ob_type == iOther.ob_type);
 #ifdef LASS_PYTHON_INHERITANCE_FROM_EMBEDDING
