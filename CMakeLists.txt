@@ -84,6 +84,8 @@ include(cmake/Environment.cmake)
 # Private compiler options for all targets
 # These typically deal with warnings
 if(MSVC)
+	add_compile_options("/W4")
+	add_compile_options("/wd4251") # class 'X' needs to have dll-interface to be used by clients of class 'Y'
 	if(BUILD_USING_MULTIPLE_PROCESSES)
 		add_compile_options("/MP")
 	endif()
