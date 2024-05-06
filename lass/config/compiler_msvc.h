@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -65,17 +65,6 @@
 #	define LASS_LIB_COMPILER "vc"
 #endif
 
-
-
-// warnings and errors
-//
-#include "pragmas_msvc.h"
-#pragma warning(4: 4061)    // enumerate 'identifier' in switch of enum 'enumeration' is not
-							// explicitly handled by a case label
-#pragma warning(4: 4251)    // class needs to have dll-interface to be used by clients of class 'type2'
-#pragma warning(4: 4505)    // unreferenced local function removed
-#pragma warning(4: 4710)    // inline function was not inlined
-#pragma warning(error: 4035)	// no return value
 
 
 #if !defined(_CHAR_UNSIGNED)
