@@ -72,7 +72,7 @@ platform's package manager. Windows being the exception.
 | Debian Bookworm  | x64                        | 3.25.1 | 3.11.2                                  | gcc 12.2.0, clang 14.0.6               |
 | Ubuntu Focal     | x64                        | 3.16.3 | 3.8.2                                   | gcc 9.3.0, clang 10.0.0                |
 | Ubuntu Yammy     | x64                        | 3.22.1 | 3.10.4                                  | gcc 11.2.0, clang 14.0.0               |
-| Ubuntu Mantic    | x64                        | 3.27.4 | 3.11.6                                  | gcc 13.2.0, clang 16.0.6               |
+| Ubuntu Noble     | x64                        | 3.28.3 | 3.12.3                                  | gcc 13.2.0, clang 18.1.3               |
 | Windows 10       | x86, x64                   | 3.26.5 | 3.8.10, 3.9.13, 3.10.11, 3.11.6, 3.12.0 | vs 2019 (v16.11.31), vs 2022 (v17.7.5) |
 
 [1] armv7l support tested on Raspberry Pi 4 (ARM Cortex-A72, 32-bit Raspbian Bullseye,
