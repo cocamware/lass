@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -62,7 +62,7 @@ template <unsigned N, typename T>
 Modulo<N, T>::Modulo(TParam iValue):
 	value_(static_cast<TValue>(mod(iValue, N)))
 {
-	LASS_ASSERT(static_cast<T>(N) > 0 && static_cast<T>(N) < NumTraits<T>::max);
+	static_assert(static_cast<T>(N) > 0 && static_cast<T>(N) < NumTraits<T>::max);
 }
 
 

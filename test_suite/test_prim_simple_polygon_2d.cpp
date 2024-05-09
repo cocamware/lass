@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -66,8 +66,8 @@ void testPrimSimplePolygon2D()
 	typedef prim::Vector2D<T> TVector;
 	typedef typename TVector::TNumTraits TNumTraits;
 
-	const bool isNoDegenerate = meta::IsSame<DegeneratePolicy, prim::NoDegenerate>::value;
-	const bool isStrictNoDegenerate = meta::IsSame<DegeneratePolicy, prim::StrictNoDegenerate>::value;
+	constexpr bool isNoDegenerate = meta::IsSame<DegeneratePolicy, prim::NoDegenerate>::value;
+	constexpr bool isStrictNoDegenerate = meta::IsSame<DegeneratePolicy, prim::StrictNoDegenerate>::value;
 
 	// empty polygon
 	//
@@ -83,7 +83,7 @@ void testPrimSimplePolygon2D()
 	LASS_TEST_CHECK_NO_THROW(polygon.area());
 	LASS_TEST_CHECK_EQUAL(polygon.signedArea(), TNumTraits::zero);
 	LASS_TEST_CHECK_EQUAL(polygon.area(), TNumTraits::zero);
-	if (isStrictNoDegenerate || isNoDegenerate)
+	if constexpr (isStrictNoDegenerate || isNoDegenerate)
 	{
 		LASS_TEST_CHECK_THROW(polygon.orientation(), util::Exception);
 	}
@@ -106,7 +106,7 @@ void testPrimSimplePolygon2D()
 	LASS_TEST_CHECK_NO_THROW(polygon.add(p0));
 	LASS_TEST_CHECK_EQUAL(polygon[0], p0);
 	LASS_TEST_CHECK_EQUAL(polygon.at(37), p0); // 37 => 0
-	if (isNoDegenerate || isStrictNoDegenerate)
+	if constexpr (isNoDegenerate || isStrictNoDegenerate)
 	{
 		LASS_TEST_CHECK_THROW(polygon.edge(37), util::Exception);
 		LASS_TEST_CHECK_THROW(polygon.vector(37), util::Exception);
@@ -124,7 +124,7 @@ void testPrimSimplePolygon2D()
 	LASS_TEST_CHECK_NO_THROW(polygon.area());
 	LASS_TEST_CHECK_EQUAL(polygon.signedArea(), TNumTraits::zero);
 	LASS_TEST_CHECK_EQUAL(polygon.area(), TNumTraits::zero);
-	if (isStrictNoDegenerate || isNoDegenerate)
+	if constexpr (isStrictNoDegenerate || isNoDegenerate)
 	{
 		LASS_TEST_CHECK_THROW(polygon.orientation(), util::Exception);
 	}
@@ -138,7 +138,7 @@ void testPrimSimplePolygon2D()
 	LASS_TEST_CHECK_EQUAL(polygon.surfaceCentroid().affine(), p0);
 	LASS_TEST_CHECK(polygon.isSimple());
 	LASS_TEST_CHECK(polygon.isConvex());
-	if (isStrictNoDegenerate || isNoDegenerate)
+	if constexpr (isStrictNoDegenerate || isNoDegenerate)
 	{
 		LASS_TEST_CHECK_THROW(polygon.isReflex(37), util::Exception);
 	}
