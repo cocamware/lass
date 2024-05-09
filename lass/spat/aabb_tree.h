@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -192,10 +192,8 @@ private:
 			unsigned right_; // internal
 			unsigned last_; // leaf
 		};
-		enum
-		{
-			sentinelInternal = unsigned(-1)
-		};
+
+		constexpr static unsigned sentinelInternal = unsigned(-1);
 	};
 	typedef std::vector<Node> TNodes;
 

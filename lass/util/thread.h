@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -207,10 +207,7 @@ class LASS_DLL Thread: NonCopyable
 {
 public:
 
-	enum 
-	{ 
-		anyProcessor = size_t(-1) /**< argument for Thread::bind to unbind the thread so it runs on any processor */
-	};
+	constexpr static size_t anyProcessor = size_t(-1); /**< argument for Thread::bind to unbind the thread so it runs on any processor */
 
 	virtual ~Thread();
 	

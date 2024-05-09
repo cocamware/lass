@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -82,7 +82,7 @@ struct SplitInfo
 	typedef typename ObjectTraits::TValue TValue;
 	typedef size_t TAxis;
 
-	enum { dontSplit = size_t(-1) };
+	constexpr static TAxis dontSplit = size_t(-1);
 
 	SplitInfo(const TAabb& aabb, TValue x, TAxis axis):
 		aabb(aabb), x(x), axis(axis)
