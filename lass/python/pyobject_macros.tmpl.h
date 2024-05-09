@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -718,7 +718,7 @@ $[
  *		documentation of class as shown in Python (zero terminated C string)
  */
 #define PY_INJECT_CLASS_IN_MODULE( t_cppClass, i_module, s_doc ) \
-	if (s_doc) t_cppClass::_lassPyClassDef.setDoc(s_doc);\
+	t_cppClass::_lassPyClassDef.setDocIfNotNull(s_doc);\
 	i_module.injectClass(t_cppClass::_lassPyClassDef); 
 
 /** @ingroup Python
@@ -800,7 +800,7 @@ $[
  */
 #define PY_CLASS_INNER_CLASS_EX( t_outerCppClass, t_innerCppClass, s_name, s_doc, i_uniqueClassId )\
 	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE(lassPythonImplExecuteBeforeMain_, i_uniqueClassId),\
-		if (s_doc) { t_innerCppClass::_lassPyClassDef.setDoc(s_doc); } \
+		t_innerCppClass::_lassPyClassDef.setDocIfNotNull(s_doc);\
 		t_outerCppClass::_lassPyClassDef.addInnerClass(t_innerCppClass::_lassPyClassDef);\
 	)
 

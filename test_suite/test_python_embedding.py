@@ -19,7 +19,7 @@
 # The Original Developer is the Initial Developer.
 #
 # All portions of the code written by the Initial Developer are:
-# Copyright (C) 2022 the Initial Developer.
+# Copyright (C) 2022-2024 the Initial Developer.
 # All Rights Reserved.
 #
 # Contributor(s):
@@ -38,6 +38,8 @@
 import datetime
 import sys
 import unittest
+import inspect
+
 def echo(*xs):
 	sys.stdout.write(' '.join(map(str, xs)) + '\n')
 
@@ -463,6 +465,7 @@ class TestStaticMembers(unittest.TestCase):
 	def testInnerClasses(self):
 		innerClass = embedding.Bar.InnerClass("the answer is 42")
 		self.assertEqual(innerClass.talkTo("Arthur"), "Arthur, the answer is 42.\n")
+		self.assertEqual(inspect.getdoc(embedding.Bar.InnerClass), "InnerClass of Bar")
 	def testStaticMethods(self):
 		self.assertEqual(embedding.Bar.aStaticMethod(3.14), 3)
 
@@ -820,6 +823,13 @@ class TestDatetime(unittest.TestCase):
 
 		dt7 = datetime.datetime(2022, 10, 17)
 		self.assertEqual(embedding.testSystemClock(dt7.date()), dt7)
+
+
+
+class TestInjectedClass(unittest.TestCase):
+	def testInjectedClass(self):
+		self.assertEqual(inspect.getdoc(embedding.InjectedClass), "Class injected into module")
+
 
 
 import sys

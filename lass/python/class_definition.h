@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -156,6 +156,7 @@ namespace lass
 				const char* name() const { return type_.tp_name; }
 				const char* doc() const { return type_.tp_doc; }
 				void setDoc(const char* doc) { type_.tp_doc = const_cast<char*>(doc); } ///< @a doc must be valid until another one is set
+				void setDocIfNotNull(const char* doc); ///< @a set doc string, but never unset existing doc string if @a doc == nullptr
 
 				void addMethod(const char* name, const char* doc, PyCFunction dispatcher, OverloadLink& overloadChain);
 				void addMethod(const ComparatorSlot& slot, const char* doc, PyCFunction dispatcher, OverloadLink& overloadChain);

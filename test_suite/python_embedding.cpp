@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -656,6 +656,22 @@ PY_CLASS_STATIC_METHOD(PyStdSharedObject, destructed)
 PY_CLASS_STATIC_METHOD(PyStdSharedObject, deleted)
 PY_CLASS_FREE_METHOD_NAME(PyStdSharedObject, stdSharedObjectFreeMethod, "method")
 PY_MODULE_CLASS( embedding, PyStdSharedObject )
+
+
+// Test old way of injecting class into module
+//
+class InjectedClass : public lass::python::PyObjectPlus
+{
+	PY_HEADER(lass::python::PyObjectPlus)
+};
+PY_DECLARE_CLASS(InjectedClass)
+void embeddingPostInject(PyObject*)
+{
+	PY_INJECT_CLASS_IN_MODULE(InjectedClass, embedding, "Class injected into module")
+}
+LASS_EXECUTE_BEFORE_MAIN(
+	embedding.setPostInject(embeddingPostInject);
+)
 
 
 namespace lass
