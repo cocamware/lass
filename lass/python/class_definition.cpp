@@ -162,6 +162,9 @@ ClassDefinition::ClassDefinition(
 #if PY_VERSION_HEX >= 0x03080000 && PY_VERSION_HEX < 0x03090000 // == 3.8
         0,	/*tp_print, only exists in 3.8 for backwards compatibility, bpo-37250 */
 #endif
+#if PY_VERSION_HEX >= 0x030C0000 // >= 3.12
+		0,	/*tp_watched, internal only */
+#endif
 	};
 	type_ = type;
 	methods_.push_back(impl::createPyMethodDef( 0, 0, 0, 0 ));
