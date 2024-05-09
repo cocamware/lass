@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -175,6 +175,22 @@ void testUtilThreadTryLock()
 }
 
 
+template <typename LockType>
+void testUtilThreadReentrantLockHelper(LockType& lock, bool isReentrant)
+{
+	LASS_TRY_LOCK(lock)
+	{
+		LASS_TEST_CHECK(lock.isLocked());
+		LASS_TEST_CHECK(isReentrant);
+	}
+	else
+	{
+		LASS_TEST_CHECK(lock.isLocked());
+		LASS_TEST_CHECK(!isReentrant);
+	}
+}
+
+
 template <typename LockType, bool isReentrant>
 void testUtilThreadReentrantLock()
 {
@@ -185,16 +201,7 @@ void testUtilThreadReentrantLock()
 	LASS_LOCK(lock)
 	{
 		LASS_TEST_CHECK(lock.isLocked());
-		LASS_TRY_LOCK(lock)
-		{
-			LASS_TEST_CHECK(lock.isLocked());
-			LASS_TEST_CHECK(isReentrant);
-		}
-		else
-		{
-			LASS_TEST_CHECK(lock.isLocked());
-			LASS_TEST_CHECK(!isReentrant);
-		}
+		testUtilThreadReentrantLockHelper(lock, isReentrant);
 	}
 
 	LASS_TEST_CHECK(!lock.isLocked());

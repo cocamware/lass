@@ -1044,14 +1044,14 @@ void TriangleMesh3D<T, BHV, SH>::findVertexRing(
 			const TPoint* neighbour2 = 0;
 			while (triangle2)
 			{
-				const size_t k = triangle2->side(&vertex);
-				LASS_ASSERT(k < 3);
-				const size_t kCw = (k + 1) % 3;
-				neighbour2 = triangle2->vertices[kCw];
-				const Triangle* other2 = triangle2->others[k];
-				if (triangle2->creaseLevel[kCw] > 0 || !other2)
+				const size_t k2 = triangle2->side(&vertex);
+				LASS_ASSERT(k2 < 3);
+				const size_t k2Cw = (k2 + 1) % 3;
+				neighbour2 = triangle2->vertices[k2Cw];
+				const Triangle* other2 = triangle2->others[k2];
+				if (triangle2->creaseLevel[k2Cw] > 0 || !other2)
 				{
-					//LASS_ASSERT(triangle2->others[kCw]);
+					//LASS_ASSERT(triangle2->others[k2Cw]);
 					creases.push_back(neighbour2);
 				}
 				triangle2 = other2;

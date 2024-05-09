@@ -23,7 +23,7 @@
 *	The Original Developer is the Initial Developer.
 *
 *	All portions of the code written by the Initial Developer are:
-*	Copyright (C) 2004-2022 the Initial Developer.
+*	Copyright (C) 2004-2024 the Initial Developer.
 *	All Rights Reserved.
 *
 *	Contributor(s):
@@ -62,7 +62,7 @@ namespace
 
 using namespace lass;
 
-const size_t msecTimeout = 60000;
+const size_t msecAcceptTimeout = 60000;
 
 typedef io::TypedMessagePipe<ipc::Message> TMessagePipe;
 
@@ -120,7 +120,7 @@ void runScenario(unsigned long msecSleepParent, unsigned long msecSleepChild)
     util::Thread::sleep(msecSleepParent);
 
     LASS_COUT << "Parent: Accepting subprocess on pipe...\n";
-    if (!pipe.accept(msecTimeout))
+    if (!pipe.accept(msecAcceptTimeout))
     {
         LASS_TEST_ERROR("Accept timeout or error.");
         return;

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -102,18 +102,20 @@ void testPrimSphere3D()
 	LASS_TEST_CHECK_EQUAL(sphere.equation(origin), static_cast<T>(0));
 	LASS_TEST_CHECK_EQUAL(sphere.signedDistance(origin), static_cast<T>(0));
 
-	const TPoint center(1, 2, 3);
-	const T radius = static_cast<T>(4);
+	{
+		const TPoint center(1, 2, 3);
+		const T radius = static_cast<T>(4);
 
-	sphere = TSphere(center, radius);
-	LASS_TEST_CHECK(sphere.isValid());
-	LASS_TEST_CHECK_EQUAL(sphere.center(), center);
-	LASS_TEST_CHECK_EQUAL(sphere.radius(), radius);
-	LASS_TEST_CHECK_EQUAL(sphere.area(), T(4) * TNumTraits::pi * num::sqr(radius));
-	LASS_TEST_CHECK_EQUAL(sphere.volume(), T(4) / T(3) * TNumTraits::pi * num::sqr(radius) * radius);
-	LASS_TEST_CHECK_EQUAL(sphere.classify(center), prim::sInside);
-	LASS_TEST_CHECK_EQUAL(sphere.equation(center), -num::sqr(radius));
-	LASS_TEST_CHECK_EQUAL(sphere.signedDistance(center), -radius);
+		sphere = TSphere(center, radius);
+		LASS_TEST_CHECK(sphere.isValid());
+		LASS_TEST_CHECK_EQUAL(sphere.center(), center);
+		LASS_TEST_CHECK_EQUAL(sphere.radius(), radius);
+		LASS_TEST_CHECK_EQUAL(sphere.area(), T(4) * TNumTraits::pi * num::sqr(radius));
+		LASS_TEST_CHECK_EQUAL(sphere.volume(), T(4) / T(3) * TNumTraits::pi * num::sqr(radius) * radius);
+		LASS_TEST_CHECK_EQUAL(sphere.classify(center), prim::sInside);
+		LASS_TEST_CHECK_EQUAL(sphere.equation(center), -num::sqr(radius));
+		LASS_TEST_CHECK_EQUAL(sphere.signedDistance(center), -radius);
+	}
 
 	{
 		// testing boundingSphere
@@ -165,9 +167,8 @@ void testPrimSphere3D()
 		const auto start = clock.now();
 		for (size_t trial = 0; trial < numTrials; ++trial)
 		{
-			TPoint center = box.random(rng);
-			T radius = uniform(rng);
-
+			const TPoint center = box.random(rng);
+			const T radius = uniform(rng);
 			for (size_t k = 0; k < numPoints; ++k)
 			{
 				const TSample sample(uniform(rng), uniform(rng));

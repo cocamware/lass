@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -97,24 +97,28 @@ void testPrimLineSegment2D()
 	LASS_TEST_CHECK_EQUAL(unbounded.point(T(0)), unbounded.tail());
 	LASS_TEST_CHECK_EQUAL(unbounded.point(T(1)), unbounded.head());
 
-	T t, u;
-	LASS_TEST_CHECK_EQUAL(prim::intersect(bounded, unbounded, t, u), prim::rOne);
-	LASS_TEST_CHECK(t >= T(0) && t <= T(1));
-	LASS_TEST_CHECK(u >= T(0) && u <= T(1));
-	LASS_TEST_CHECK_CLOSE_ARRAY(bounded.point(t), unbounded.point(u), epsilon, 2);
-
-	TPoint p;
-	LASS_TEST_CHECK_EQUAL(prim::intersect(bounded, unbounded, p), prim::rOne);
-	LASS_TEST_CHECK_CLOSE_ARRAY(bounded.point(t), p, epsilon, 2);
-	LASS_TEST_CHECK_CLOSE_ARRAY(unbounded.point(u), p, epsilon, 2);
-
-	std::mt19937_64 random;
-	std::uniform_real_distribution<T> uniform;
-	for (size_t i = 0; i < 100; ++i)
 	{
-		const T t = uniform(random);
-		LASS_TEST_CHECK_CLOSE(bounded.t(bounded.point(t)), t, epsilon);
-		LASS_TEST_CHECK_CLOSE(unbounded.t(unbounded.point(t)), t, epsilon);
+		T t, u;
+		LASS_TEST_CHECK_EQUAL(prim::intersect(bounded, unbounded, t, u), prim::rOne);
+		LASS_TEST_CHECK(t >= T(0) && t <= T(1));
+		LASS_TEST_CHECK(u >= T(0) && u <= T(1));
+		LASS_TEST_CHECK_CLOSE_ARRAY(bounded.point(t), unbounded.point(u), epsilon, 2);
+
+		TPoint p;
+		LASS_TEST_CHECK_EQUAL(prim::intersect(bounded, unbounded, p), prim::rOne);
+		LASS_TEST_CHECK_CLOSE_ARRAY(bounded.point(t), p, epsilon, 2);
+		LASS_TEST_CHECK_CLOSE_ARRAY(unbounded.point(u), p, epsilon, 2);
+	}
+
+	{
+		std::mt19937_64 random;
+		std::uniform_real_distribution<T> uniform;
+		for (size_t i = 0; i < 100; ++i)
+		{
+			const T t = uniform(random);
+			LASS_TEST_CHECK_CLOSE(bounded.t(bounded.point(t)), t, epsilon);
+			LASS_TEST_CHECK_CLOSE(unbounded.t(unbounded.point(t)), t, epsilon);
+		}
 	}
 }
 

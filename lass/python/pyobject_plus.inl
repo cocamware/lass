@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -89,8 +89,8 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
 		{
 			// try as a binary function
 			PyErr_Clear();
-			TPyObjPtr args(Py_BuildValue("(O)", iOther));
-			return DispatcherAddress(iSelf, args.get());
+			TPyObjPtr args2(Py_BuildValue("(O)", iOther));
+			return DispatcherAddress(iSelf, args2.get());
 		}
 		return result;	
 	}

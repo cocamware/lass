@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -126,9 +126,9 @@ void testUtilIdGeneratorConcurrent()
 		consumers.emplace_back(consumer, &idList);
 	}
 	start.store(true, std::memory_order_release);
-	for (auto &consumer: consumers)
+	for (auto &c: consumers)
 	{
-		consumer.join();
+		c.join();
 	}
 
 	TIdList allIds;
