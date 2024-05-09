@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -523,7 +523,6 @@ void testSpatPlanarMesh()
 	testPoly1.add( TPoint2D(60,10) );
 	testPoly1.add( TPoint2D(60,60) );
 	testPoly1.add( TPoint2D(10,60) );
-	ColorEdges colorEdges;
 
 	for (int i=0;i<3;++i)
         testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(5.0+i*10,60.0), TPoint2D(15.0+i*10,60.0) ),intHandles[1],intHandles[1] );
@@ -532,41 +531,43 @@ void testSpatPlanarMesh()
 	for (int i=0;i<3;++i)
         testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(5.0+i*10,62.0), TPoint2D(15.0+i*10,62.0) ),intHandles[1],intHandles[1] );
 
-
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(5.0,20.0), TPoint2D(65.0,20.0) ),intHandles[1],intHandles[1] );
-	colorEdges.stream.open("test2.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(10.0,30.0), TPoint2D(60.0,30.0) ),intHandles[2],intHandles[2] );
-	colorEdges.stream.open("test3.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
-
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(10.0,20.0), TPoint2D(15.0,25.0) ),intHandles[3],intHandles[3] );
-	colorEdges.stream.open("test4.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(8.0,18.0), TPoint2D(35.0,40.0) ),intHandles[3],intHandles[3] );
-	colorEdges.stream.open("test5.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
-	testMesh4.insertSite( TPoint2D(10.0,20.0) );
-	colorEdges.stream.open("test6.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
-
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(60.0,20.0) ),intHandles[4],intHandles[4] );
-	colorEdges.stream.open("test7.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0,60.0) ),intHandles[0],intHandles[0] );
-	colorEdges.stream.open("test8.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
-
-	int ni=0;
-	ni = 0; 
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(ni))*25.0,40.0+num::sin(float(ni))*25.0) ),intHandles[0],intHandles[0] );
-	colorEdges.stream.open("test9.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
-	ni = 1; 
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(ni))*25.0,40.0+num::sin(float(ni))*25.0) ),intHandles[0],intHandles[0] );
-	colorEdges.stream.open("test10.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
-	ni = 2; 
-	testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(ni))*25.0,40.0+num::sin(float(ni))*25.0) ),intHandles[0],intHandles[0] );
-	colorEdges.stream.open("test11.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
-	
-
-	for (int i=0;i<10;++i)
 	{
-		testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(i))*25.0,40.0+num::sin(float(i))*25.0) ),intHandles[0],intHandles[0] );
-		std::string filen = std::string("test")+lass::util::stringCast<std::string>(12+i)+".m";
-		colorEdges.stream.open(filen.c_str());	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
+		ColorEdges colorEdges;
+		testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(5.0,20.0), TPoint2D(65.0,20.0) ),intHandles[1],intHandles[1] );
+		colorEdges.stream.open("test2.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
+		testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(10.0,30.0), TPoint2D(60.0,30.0) ),intHandles[2],intHandles[2] );
+		colorEdges.stream.open("test3.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
+
+		testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(10.0,20.0), TPoint2D(15.0,25.0) ),intHandles[3],intHandles[3] );
+		colorEdges.stream.open("test4.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
+		testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(8.0,18.0), TPoint2D(35.0,40.0) ),intHandles[3],intHandles[3] );
+		colorEdges.stream.open("test5.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
+		testMesh4.insertSite( TPoint2D(10.0,20.0) );
+		colorEdges.stream.open("test6.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
+
+		testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(60.0,20.0) ),intHandles[4],intHandles[4] );
+		colorEdges.stream.open("test7.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
+		testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0,60.0) ),intHandles[0],intHandles[0] );
+		colorEdges.stream.open("test8.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
+
+		int ni=0;
+		ni = 0; 
+		testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(ni))*25.0,40.0+num::sin(float(ni))*25.0) ),intHandles[0],intHandles[0] );
+		colorEdges.stream.open("test9.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
+		ni = 1; 
+		testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(ni))*25.0,40.0+num::sin(float(ni))*25.0) ),intHandles[0],intHandles[0] );
+		colorEdges.stream.open("test10.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
+		ni = 2; 
+		testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(ni))*25.0,40.0+num::sin(float(ni))*25.0) ),intHandles[0],intHandles[0] );
+		colorEdges.stream.open("test11.m");	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
+		
+
+		for (int i=0;i<10;++i)
+		{
+			testMesh4.insertEdge( TPlanarMesh::TLineSegment2D( TPoint2D(30.0,40.0), TPoint2D(30.0+num::cos(float(i))*25.0,40.0+num::sin(float(i))*25.0) ),intHandles[0],intHandles[0] );
+			std::string filen = std::string("test")+lass::util::stringCast<std::string>(12+i)+".m";
+			colorEdges.stream.open(filen.c_str());	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );	colorEdges.stream.close();
+		}
 	}
 
 	testMesh4.setTolerance(TestType(1e-12));
@@ -609,9 +610,12 @@ void testSpatPlanarMesh()
 	testIo << testMesh4;
 	testIo.close();
 
-	colorEdges.stream.open("testPlanarMesh_colored.m");
-	testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );
-	colorEdges.stream.close();
+	{
+		ColorEdges colorEdges;
+		colorEdges.stream.open("testPlanarMesh_colored.m");
+		testMesh4.forAllPrimaryEdges( lass::util::makeCallback( &colorEdges, &ColorEdges::toMatlabOStream )  );
+		colorEdges.stream.close();
+	}
 
     ColorTriangles colorTriangles;
 	colorTriangles.stream.open("testPlanarMesh_coloredFaces.m");

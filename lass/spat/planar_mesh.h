@@ -1364,14 +1364,14 @@ namespace spat
 	typename PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::TEdge* PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle>::bruteForceLocate( const TPoint2D& iPoint ) const
 	{
 		typedef PlanarMesh<T, PointHandle, EdgeHandle, FaceHandle> TPlanarMesh;
-		impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle> bruteLocator( iPoint );
-		const_cast<TPlanarMesh*>(this)->forAllFaces( TEdgeCallback( &bruteLocator, &impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle>::findEdge ) );
-		if (bruteLocator.edge==NULL)
+		impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle> bruteLocator1( iPoint );
+		const_cast<TPlanarMesh*>(this)->forAllFaces( TEdgeCallback( &bruteLocator1, &impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle>::findEdge ) );
+		if (bruteLocator1.edge==NULL)
 		{
-			impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle> bruteLocator( iPoint );
-			const_cast<TPlanarMesh*>(this)->forAllPrimaryEdges( TEdgeCallback( &bruteLocator, &impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle>::findEdge ) );
+			impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle> bruteLocator2( iPoint );
+			const_cast<TPlanarMesh*>(this)->forAllPrimaryEdges( TEdgeCallback( &bruteLocator2, &impl::BrutePointLocator<T, PointHandle, EdgeHandle, FaceHandle>::findEdge ) );
 #if DEBUG_MESH
-			if (bruteLocator.edge==NULL)
+			if (bruteLocator2.edge==NULL)
 			{
 				impl::BrutePointLocatorVerbose<T, PointHandle, EdgeHandle, FaceHandle> bruteLocatorVerbose( iPoint );
 				bruteLocatorVerbose.stream.open("bruteforcelocation.txt");
@@ -1380,9 +1380,9 @@ namespace spat
 				return bruteLocatorVerbose.edge;
 			}
 #endif
-			return bruteLocator.edge;
+			return bruteLocator2.edge;
 		}
-		return bruteLocator.edge;
+		return bruteLocator1.edge;
 	}
 
 	// searches for an exact vertex
@@ -1688,21 +1688,23 @@ continueSearch:
 		if (!startEdge)
 			return NULL;
 		
-		TEdge* e(startEdge);
-		//lass::prim::Side lastSide = iRay.classify(org(e));
-		int vOrder = vertexOrder(e);
-		for (int i=0;i<vOrder+1;++i)
 		{
-			/*
-			lass::prim::Side currentSide = iRay.classify(dest(e));
-			if (lastSide==lass::prim::sRight && lastSide!=currentSide)
-				return e;
-			lastSide = currentSide;
-			*/
-			if (	num::abs(prim::doubleTriangleArea(iRay.support(),iRay.point(T(1)),dest(e)))<tolerance_
-				&&	iRay.t(dest(e)) > T(0) )
-				return e;
-			e = e->oNext();
+			TEdge* e(startEdge);
+			//lass::prim::Side lastSide = iRay.classify(org(e));
+			int vOrder = vertexOrder(e);
+			for (int i=0;i<vOrder+1;++i)
+			{
+				/*
+				lass::prim::Side currentSide = iRay.classify(dest(e));
+				if (lastSide==lass::prim::sRight && lastSide!=currentSide)
+					return e;
+				lastSide = currentSide;
+				*/
+				if (	num::abs(prim::doubleTriangleArea(iRay.support(),iRay.point(T(1)),dest(e)))<tolerance_
+					&&	iRay.t(dest(e)) > T(0) )
+					return e;
+				e = e->oNext();
+			}
 		}
 
 		do	
@@ -1969,12 +1971,12 @@ continueSearch:
 			locate( iPoint );
 			LASS_ASSERT( e!=NULL);
 		}
-		T sqDistOrg	= prim::squaredDistance(org(e),iPoint);
-		T sqDistDest = prim::squaredDistance(dest(e),iPoint);
+		T sqDistOrgEP = prim::squaredDistance(org(e),iPoint);
+		T sqDistDestEP = prim::squaredDistance(dest(e),iPoint);
 
-		if (sqDistOrg<pointDistanceTolerance_*pointDistanceTolerance_)
+		if (sqDistOrgEP<pointDistanceTolerance_*pointDistanceTolerance_)
 			return e;
-		if (sqDistDest<pointDistanceTolerance_*pointDistanceTolerance_)
+		if (sqDistDestEP<pointDistanceTolerance_*pointDistanceTolerance_)
 			return e->sym();
 
 		bool hasLeft = hasLeftFace(e);
@@ -2064,12 +2066,12 @@ continueSearch:
 		{
 			// snap x to e, and check for coincidence:
 			TPoint2D x = snap(iPoint, org(e), dest(e));
-			T sqDistOrg	= prim::squaredDistance(org(e),x);
-			T sqDistDest = prim::squaredDistance(dest(e),x);
+			T sqDistOrgEX	= prim::squaredDistance(org(e),x);
+			T sqDistDestEX = prim::squaredDistance(dest(e),x);
 
-			if (sqDistOrg<pointDistanceTolerance_*pointDistanceTolerance_)
+			if (sqDistOrgEX<pointDistanceTolerance_*pointDistanceTolerance_)
 				return e;
-			if (sqDistDest<pointDistanceTolerance_*pointDistanceTolerance_)
+			if (sqDistDestEX<pointDistanceTolerance_*pointDistanceTolerance_)
 				return e->sym();
 
 			// bummer
@@ -2212,36 +2214,38 @@ continueSearch:
 		}
 		
 		// first case : edge is present, constrain it
-		TEdge* ce = ea;
-		int vOrder = vertexOrder(ea);
-		for (int i=0;i<vOrder;++i)
 		{
-			if (dest(ce)==fbb)
+			TEdge* ce = ea;
+			int vOrder = vertexOrder(ea);
+			for (int i=0;i<vOrder;++i)
 			{
-				ce->quadEdge()->edgeConstrain();
-				setOrientedEdgeHandle( ce, iLeftHandle, iRightHandle, iSegment.vector() );
-				return ce;
+				if (dest(ce)==fbb)
+				{
+					ce->quadEdge()->edgeConstrain();
+					setOrientedEdgeHandle( ce, iLeftHandle, iRightHandle, iSegment.vector() );
+					return ce;
+				}
+				ce = ce->oNext();
 			}
-			ce = ce->oNext();
-		}
-		if (distance(aa,bb)<pointDistanceTolerance_ )
-		{
-			LASS_THROW("insertEdge: both ends map to same vertex within requested numerical precision");
-		}
-		ce = ea;
-		for (int i=0;i<vOrder;++i)
-		{
-			// if is almost in line we also take it
-			if (	prim::dot(direction(ce), iSegment.vector()) > T(0)	
-				&&	num::abs(lass::prim::doubleTriangleArea(dest(ce),faa,fbb))<tolerance_) 
+			if (distance(aa,bb)<pointDistanceTolerance_ )
 			{
-				ce->quadEdge()->edgeConstrain();
-				setOrientedEdgeHandle( ce, iLeftHandle, iRightHandle, iSegment.vector() );
-
-				return insertEdge( TLineSegment2D( dest(ce), fbb), iLeftHandle, iRightHandle, iPointHandle, iForcePointHandle, makeDelaunay );
+				LASS_THROW("insertEdge: both ends map to same vertex within requested numerical precision");
 			}
+			ce = ea;
+			for (int i=0;i<vOrder;++i)
+			{
+				// if is almost in line we also take it
+				if (	prim::dot(direction(ce), iSegment.vector()) > T(0)	
+					&&	num::abs(lass::prim::doubleTriangleArea(dest(ce),faa,fbb))<tolerance_) 
+				{
+					ce->quadEdge()->edgeConstrain();
+					setOrientedEdgeHandle( ce, iLeftHandle, iRightHandle, iSegment.vector() );
 
-			ce = ce->oNext();
+					return insertEdge( TLineSegment2D( dest(ce), fbb), iLeftHandle, iRightHandle, iPointHandle, iForcePointHandle, makeDelaunay );
+				}
+
+				ce = ce->oNext();
+			}
 		}
 		
 		std::vector< TEdge* >	insertedEdges;		// edges having as origin newly inserted points
