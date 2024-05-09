@@ -1590,7 +1590,7 @@ continueSearch:
 		LASS_ASSERT(e!=NULL);
 		lastLocateEdge = e;
 		return e;
-		LASS_THROW( "pointLocate: could not find point");
+		// LASS_THROW( "pointLocate: could not find point");
 	}
 
 
@@ -1722,7 +1722,7 @@ continueSearch:
 		} while (startEdge!=locateEdge);
 
 		LASS_THROW("pointShoot, could not find suitable triangle");
-		return NULL;
+		// return NULL;
 	}
 
 

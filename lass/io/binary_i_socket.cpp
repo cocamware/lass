@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -134,7 +134,7 @@ size_t BinaryISocket::doRead(void* oBegin, size_t iNumberOfBytes)
 BinaryISocket::pos_type BinaryISocket::doTellg() const
 {
 	LASS_THROW("no position in network streams!");
-	return 0;
+	// return 0;
 }
 
 

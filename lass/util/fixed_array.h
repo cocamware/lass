@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -211,13 +211,11 @@ public:
 	reference at(size_type) 
 	{
 		throw std::out_of_range("index out of range in lass::util::FixedArray::at");
-		return *begin();
 	}
 
 	const_reference at(size_type) const
 	{
 		throw std::out_of_range("index out of range in lass::util::FixedArray::at");
-		return *begin();
 	}
 
 	reference front() { return *begin(); }
