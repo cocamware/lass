@@ -86,6 +86,7 @@ include(cmake/Environment.cmake)
 if(MSVC)
 	add_compile_options("/W4")
 	add_compile_options("/wd4251") # class 'X' needs to have dll-interface to be used by clients of class 'Y'
+	add_compile_options("/wd4324") # 'structname': structure was padded due to alignment specifier
 	if(BUILD_USING_MULTIPLE_PROCESSES)
 		add_compile_options("/MP")
 	endif()
