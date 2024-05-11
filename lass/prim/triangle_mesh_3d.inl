@@ -767,6 +767,9 @@ Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& ray,
 
 	if (context)
 	{
+		LASS_ASSERT(r >= 0 && s >= 0 && r + s <= 1);
+		context->point = point0 + r * dPoint_dR + s * dPoint_dS;
+
 		TUv dRs_dU(1, 0);
 		TUv dRs_dV(0, 1);
 		if (uvs[0])
