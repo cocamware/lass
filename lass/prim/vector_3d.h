@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -58,6 +58,7 @@
 
 #include "prim_common.h"
 #include "../io/xml_o_stream.h"
+#include "xyz.h"
 
 
 
@@ -120,6 +121,7 @@ struct LASS_SIMD_ALIGN Vector3D
 	bool isNaN() const;
 	const TValue squaredNorm() const;
 	const TValue norm() const;
+	XYZ majorAxis() const;
 	const Vector3D<T> normal() const;
 	const Vector3D<T> reciprocal() const;
 	const Vector3D<T> project(const Vector3D<T>& other) const;

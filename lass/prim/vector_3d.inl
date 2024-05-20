@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -300,6 +300,29 @@ const typename Vector3D<T>::TValue Vector3D<T>::norm() const
 	return num::sqrt(squaredNorm());
 }
 
+
+
+/** Return axis with the greatest absolute value
+ */
+template<typename T>
+XYZ Vector3D<T>::majorAxis() const
+{
+	const TValue absX = num::abs(x);
+	const TValue absY = num::abs(y);
+	const TValue absZ = num::abs(z);
+	if (absX > absY && absX > absZ)
+	{
+		return XYZ(0);
+	}
+	else if (absY > absZ)
+	{
+		return XYZ(1);
+	}
+	else
+	{
+		return XYZ(2);
+	}
+}
 
 
 /** return a unit vector with same direction/sense as this vector.

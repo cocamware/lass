@@ -701,21 +701,22 @@ void TriangleMesh3D<T, BHV, SH>::autoCrease(unsigned level, TParam maxAngleInRad
 
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
 Result TriangleMesh3D<T, BHV, SH>::intersect(
-		const TRay& ray, TTriangleIterator& triangle,
-		TReference t, TParam tMin, IntersectionContext* context) const
+	const TRay& ray, TTriangleIterator& triangle,
+	TReference t, TParam tMin, IntersectionContext* context) const
 {
 	LASS_ASSERT(tree_.isEmpty() == triangles_.empty());
-	const TTriangleIterator candidate =  tree_.intersect(ray, t, tMin);
+	const TIntersectTriangleWoop intersectWoop(ray.support(), ray.direction());
+	const TTriangleIterator candidate = tree_.intersect(ray, t, tMin, &intersectWoop);
 	if (candidate == triangles_.end())
 	{
 		return rNone;
 	}
 	triangle = candidate;
-	
+
 	if (context)
 	{
 		TValue temp;
-		[[maybe_unused]] const Result r = triangle->intersect(ray, temp, tMin, context);
+		[[maybe_unused]] const Result r = triangle->intersect(intersectWoop, temp, tMin, context);
 		LASS_ASSERT(r == rOne && t == temp);
 	}
 
@@ -728,7 +729,8 @@ template <typename T, template <typename, typename, typename> class BHV, typenam
 bool TriangleMesh3D<T, BHV, SH>::intersects(const TRay& ray, TParam tMin, TParam tMax) const
 {
 	LASS_ASSERT(tree_.isEmpty() == triangles_.empty());
-	return tree_.intersects(ray, tMin, tMax);
+	const TIntersectTriangleWoop intersectWoop(ray.support(), ray.direction());
+	return tree_.intersects(ray, tMin, tMax, &intersectWoop);
 }
 
 
@@ -752,14 +754,24 @@ template <typename T, template <typename, typename, typename> class BHV, typenam
 Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& ray, 
 		TReference t, TParam tMin, IntersectionContext* context) const
 {
+	const TIntersectTriangleWoop intersectWoop(ray.support(), ray.direction());
+	return intersect(intersectWoop, t, tMin, context);
+}
+
+
+
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(
+		const TIntersectTriangleWoop& intersectWoop,
+		TReference t, TParam tMin, IntersectionContext* context) const
+{
 	LASS_ASSERT(vertices[0] && vertices[1] && vertices[2]);
 	const TPoint point0 = *vertices[0];
-	const TVector dPoint_dR = *vertices[1] - point0;
-	const TVector dPoint_dS = *vertices[2] - point0;
+	const TPoint point1 = *vertices[1];
+	const TPoint point2 = *vertices[2];
 
-	TValue r, s;
-	const Result hit = impl::intersectTriangle3D(
-		point0, dPoint_dR, dPoint_dS, ray.support(), ray.direction(), r, s, t, tMin);
+	TValue b[3];
+	const Result hit = intersectWoop(point0, point1, point2, b, t, tMin);
 	if (hit != rOne)
 	{
 		return hit;
@@ -767,18 +779,22 @@ Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& ray,
 
 	if (context)
 	{
-		LASS_ASSERT(r >= 0 && s >= 0 && r + s <= 1);
-		context->point = point0 + r * dPoint_dR + s * dPoint_dS;
+		LASS_ASSERT(b[0] >= 0 && b[1] >= 0 && b[2] >= 0 && num::abs(b[0] + b[1] + b[2] - 1) < TNumTraits::gamma(10));
+		context->point = TPoint(b[0] * point0.position() + b[1] * point1.position() + b[2] * point2.position());
 
+		const TVector dPoint_dR = *vertices[1] - point0;
+		const TVector dPoint_dS = *vertices[2] - point0;
+		const TValue r = b[1];
+		const TValue s = b[2];
 		TUv dRs_dU(1, 0);
 		TUv dRs_dV(0, 1);
 		if (uvs[0])
 		{
 			LASS_ASSERT(uvs[1] && uvs[2]);
 			const TUv uv0 = *uvs[0];
-			const typename TUv::TVector dUv_dR = *uvs[1] - uv0;
-			const typename TUv::TVector dUv_dS = *uvs[2] - uv0;
-			context->uv = uv0 + r * dUv_dR + s * dUv_dS;
+			const TUv uv1 = *uvs[1];
+			const TUv uv2 = *uvs[2];
+			context->uv = TUv(b[0] * uv0.position() + b[1] * uv1.position() + b[2] * uv2.position());
 
 			// Invert dUv_dR and dUv_dS by solving the following system of equations:
 			// [ du/dr  du/ds ] [ dr/du  dr/dv ] = [ 1  0 ]
@@ -786,6 +802,8 @@ Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& ray,
 			//
 			// matrix is row major, but solution is column major
 			//		
+			const typename TUv::TVector dUv_dR = uv1 - uv0;
+			const typename TUv::TVector dUv_dS = uv2 - uv0;
 			const TValue matrix[4] = { dUv_dR.x, dUv_dS.x, dUv_dR.y, dUv_dS.y };
 			TValue solution[4] = { 1, 0, 0, 1 };
 			num::impl::cramer2<TValue>(matrix, solution, solution + 4);
@@ -807,9 +825,11 @@ Result TriangleMesh3D<T, BHV, SH>::Triangle::intersect(const TRay& ray,
 		{
 			LASS_ASSERT(normals[1] && normals[2]);
 			const TVector normal0 = *normals[0];
-			const TVector dNormal_dR = *normals[1] - normal0;
-			const TVector dNormal_dS = *normals[2] - normal0;
-			context->normal = (normal0 + r * dNormal_dR + s * dNormal_dS).normal();
+			const TVector normal1 = *normals[1];
+			const TVector normal2 = *normals[2];
+			context->normal = (b[0] * normal0 + b[1] * normal1 + b[2] * normal2).normal();
+			const TVector dNormal_dR = normal1 - normal0;
+			const TVector dNormal_dS = normal2 - normal0;
 			context->dNormal_dU = dNormal_dR * dRs_dU.x + dNormal_dS * dRs_dU.y;
 			context->dNormal_dV = dNormal_dR * dRs_dV.x + dNormal_dS * dRs_dV.y;
 		}

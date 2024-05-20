@@ -102,6 +102,9 @@ public:
 	typedef typename TPoint::TConstReference TConstReference;
 	typedef typename TPoint::TNumTraits TNumTraits;
 
+	typedef impl::IntersectTriangle3DWoop<TPoint> TIntersectTriangleWoop;
+
+
 	enum 
 	{ 
 		dimension = TPoint::dimension,
@@ -136,6 +139,7 @@ public:
 		size_t attribute;
 
 		Result intersect(const TRay& ray, TReference t, TParam tMin = 0, IntersectionContext* context = 0) const;
+		Result intersect(const TIntersectTriangleWoop& intersectWoop, TReference t, TParam tMin = 0, IntersectionContext* context = 0) const;
 		size_t side(const TPoint* v) const;
 		TValue area() const;
 		TVector geometricNormal() const;
@@ -242,14 +246,16 @@ private:
 			result += *(triangle->vertices[2]);
 			return result;
 		}
-		static bool objectIntersect(TObjectIterator triangle, const TRay& ray, TReference t, TParam tMin, const TInfo*)
+		static bool objectIntersect(TObjectIterator triangle, const TRay& /*ray*/, TReference t, TParam tMin, const TInfo* intersectWoop)
 		{
-			return triangle->intersect(ray, t, tMin) == rOne;
+			LASS_ASSERT(intersectWoop);
+			return triangle->intersect(*static_cast<const TIntersectTriangleWoop*>(intersectWoop), t, tMin) == rOne;
 		}
-		static bool objectIntersects(TObjectIterator triangle, const TRay& ray, TParam tMin, TParam tMax, const TInfo*)
+		static bool objectIntersects(TObjectIterator triangle, const TRay& /*ray*/, TParam tMin, TParam tMax, const TInfo* intersectWoop)
 		{
+			LASS_ASSERT(intersectWoop);
 			TValue t;
-			const Result hit = triangle->intersect(ray, t, tMin);
+			const Result hit = triangle->intersect(*static_cast<const TIntersectTriangleWoop*>(intersectWoop), t, tMin);
 			return hit == rOne && t < tMax;
 		}
 		static bool objectIntersects(TObjectIterator triangle, const TAabb& aabb, const TInfo*)
