@@ -59,16 +59,23 @@ namespace num
 // --- public --------------------------------------------------------------------------------------
 
 template <unsigned N, typename T>
-Modulo<N, T>::Modulo(TParam iValue):
-	value_(static_cast<TValue>(mod(iValue, N)))
+constexpr Modulo<N, T>::Modulo():
+	value_(0)
 {
-	static_assert(static_cast<T>(N) > 0 && static_cast<T>(N) < NumTraits<T>::max);
+}
+
+
+
+template <unsigned N, typename T>
+constexpr Modulo<N, T>::Modulo(TParam value):
+	value_(static_cast<TValue>(mod(value, N)))
+{
 }
 
 
 
 template <unsigned N, typename T> inline
-Modulo<N, T> Modulo<N, T>::operator+() const
+constexpr Modulo<N, T> Modulo<N, T>::operator+() const
 {
 	return *this;
 }
@@ -76,21 +83,19 @@ Modulo<N, T> Modulo<N, T>::operator+() const
 
 
 template <unsigned N, typename T>
-Modulo<N, T> Modulo<N, T>::operator-() const
+constexpr Modulo<N, T> Modulo<N, T>::operator-() const
 {
-	return Modulo<N, T>(-value_);
+	return Modulo<N, T>(
+		value_ == 0 ? 0 : static_cast<T>(N) - value_,
+		false);
 }
 
 
 
 template <unsigned N, typename T>
-Modulo<N, T>& Modulo<N, T>::operator++()
+constexpr Modulo<N, T>& Modulo<N, T>::operator++()
 {
-	++value_;
-	if (value_ == N)
-	{
-		value_ = 0;
-	}
+	value_ = value_ + 1 == static_cast<T>(N) ? 0 : value_ + 1;
 	LASS_ASSERT(isInRange(value_));
 	return *this;
 }
@@ -98,13 +103,9 @@ Modulo<N, T>& Modulo<N, T>::operator++()
 
 
 template <unsigned N, typename T>
-Modulo<N, T>& Modulo<N, T>::operator--()
+constexpr Modulo<N, T>& Modulo<N, T>::operator--()
 {
-	if (value_ == 0)
-	{
-		value_ = N;
-	}
-	--value_;
+	value_ = value_ == 0 ? static_cast<T>(N) - 1 : value_ - 1;
 	LASS_ASSERT(isInRange(value_));
 	return *this;
 }
@@ -112,7 +113,7 @@ Modulo<N, T>& Modulo<N, T>::operator--()
 
 
 template <unsigned N, typename T>
-Modulo<N, T> Modulo<N, T>::operator++(int)
+constexpr Modulo<N, T> Modulo<N, T>::operator++(int)
 {
 	Modulo<N, T> result(*this);
 	++*this;
@@ -122,7 +123,7 @@ Modulo<N, T> Modulo<N, T>::operator++(int)
 
 
 template <unsigned N, typename T>
-Modulo<N, T> Modulo<N, T>::operator--(int)
+constexpr Modulo<N, T> Modulo<N, T>::operator--(int)
 {
 	Modulo<N, T> result(*this);
 	--*this;
@@ -132,9 +133,9 @@ Modulo<N, T> Modulo<N, T>::operator--(int)
 
 
 template <unsigned N, typename T>
-Modulo<N, T>& Modulo<N, T>::operator+=(const Modulo<N, T>& iOther)
+constexpr Modulo<N, T>& Modulo<N, T>::operator+=(const Modulo<N, T>& other)
 {
-	value_ += iOther.value_;
+	value_ += other.value_;
 	if (value_ >= static_cast<T>(N))
 	{
 		value_ -= N;
@@ -146,9 +147,9 @@ Modulo<N, T>& Modulo<N, T>::operator+=(const Modulo<N, T>& iOther)
 
 
 template <unsigned N, typename T>
-Modulo<N, T>& Modulo<N, T>::operator-=(const Modulo<N, T>& iOther)
+constexpr Modulo<N, T>& Modulo<N, T>::operator-=(const Modulo<N, T>& other)
 {
-	value_ -= iOther.value_;
+	value_ -= other.value_;
 	if (value_ < 0)
 	{
 		value_ += N;
@@ -160,41 +161,24 @@ Modulo<N, T>& Modulo<N, T>::operator-=(const Modulo<N, T>& iOther)
 
 
 template <unsigned N, typename T>
-Modulo<N, T>& Modulo<N, T>::operator*=(const Modulo<N, T>& iOther)
+constexpr Modulo<N, T>& Modulo<N, T>::operator*=(const Modulo<N, T>& other)
 {
-	value_ *= iOther.value_;
-	value_ = mod(value_, N);
-	LASS_ASSERT(isInRange(value_));
+	*this = TSelf(value_ * other.value_);
 	return *this;
 }
 
 
 
+/*
 template <unsigned N, typename T>
-Modulo<N, T>& Modulo<N, T>::operator/=(const Modulo<N, T>& iOther)
+constexpr Modulo<N, T>& Modulo<N, T>::operator/=(const Modulo<N, T>& other)
 {
-	value_ /= iOther.value_;
+	value_ /= other.value_;
 	value_ = mod(value_, N);
 	LASS_ASSERT(isInRange(value_));
 	return *this;
 }
-
-
-
-template <unsigned N, typename T> inline
-Modulo<N, T>::operator T() const
-{
-	return value_;
-}
-
-
-
-template <unsigned N, typename T> inline
-typename Modulo<N, T>::TParam Modulo<N, T>::value() const
-{
-	return value_;
-}
-
+*/
 
 
 // --- protected -----------------------------------------------------------------------------------
@@ -203,10 +187,21 @@ typename Modulo<N, T>::TParam Modulo<N, T>::value() const
 
 // --- private -------------------------------------------------------------------------------------
 
+/** private constructor bypassing mod
+ */
 template <unsigned N, typename T>
-bool Modulo<N, T>::isInRange(TParam iValue) const
+constexpr Modulo<N, T>::Modulo(TParam value, bool):
+	value_(value)
 {
-	return iValue >= 0 && iValue < static_cast<T>(N);
+	LASS_ASSERT(isInRange(value));
+}
+
+
+
+template <unsigned N, typename T>
+constexpr bool Modulo<N, T>::isInRange(TParam value) const
+{
+	return value >= 0 && value < static_cast<T>(N);
 }
 
 
@@ -214,69 +209,69 @@ bool Modulo<N, T>::isInRange(TParam iValue) const
 // --- free ----------------------------------------------------------------------------------------
 
 template <unsigned N, typename T>
-bool operator==(const Modulo<N, T>& iA, const Modulo<N, T>& iB)
+constexpr bool operator==(const Modulo<N, T>& a, const Modulo<N, T>& b)
 {
-	return iA.value() == iB.value();
+	return a.value() == b.value();
 }
 
 
 
 template <unsigned N, typename T>
-bool operator!=(const Modulo<N, T>& iA, const Modulo<N, T>& iB)
+constexpr bool operator!=(const Modulo<N, T>& a, const Modulo<N, T>& b)
 {
-	return !(iA == iB);
+	return !(a == b);
 }
 
 
 
 template <unsigned N, typename T>
-bool operator<(const Modulo<N, T>& iA, const Modulo<N, T>& iB)
+constexpr bool operator<(const Modulo<N, T>& a, const Modulo<N, T>& b)
 {
-	return iA.value() < iB.value_();
+	return a.value() < b.value();
 }
 
 
 
 template <unsigned N, typename T>
-bool operator>(const Modulo<N, T>& iA, const Modulo<N, T>& iB)
+constexpr bool operator>(const Modulo<N, T>& a, const Modulo<N, T>& b)
 {
-	return iB < iA;
+	return b < a;
 }
 
 
 
 template <unsigned N, typename T>
-bool operator<=(const Modulo<N, T>& iA, const Modulo<N, T>& iB)
+constexpr bool operator<=(const Modulo<N, T>& a, const Modulo<N, T>& b)
 {
-	return !(iB < iA);
+	return !(b < a);
 }
 
 
 
 template <unsigned N, typename T>
-bool operator>=(const Modulo<N, T>& iA, const Modulo<N, T>& iB)
+constexpr bool operator>=(const Modulo<N, T>& a, const Modulo<N, T>& b)
 {
-	return !(iA < iB);
+	return !(a < b);
 }
 
 
 
 template <unsigned N, typename T>
-std::ostream& operator<<(std::ostream& oS, Modulo<N, T> iM)
+std::ostream& operator<<(std::ostream& stream, const Modulo<N, T>& a)
 {
-	oS << iM.value();
-	return oS;
+	stream << a.value();
+	return stream;
 }
 
 
 
 template <unsigned N, typename T>
-std::istream& operator>>(std::istream& iS, Modulo<N, T>& iM)
+std::istream& operator>>(std::istream& stream, Modulo<N, T>& a)
 {
-	int result;
-	LASS_ENFORCE(iS) >> result;
-	iM = Modulo<N, T>(result);
-	return iS;
+	T result;
+	LASS_ENFORCE(stream) >> result;
+	a = Modulo<N, T>(result);
+	return stream;
 }
 
 

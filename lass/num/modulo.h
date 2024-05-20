@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -78,54 +78,59 @@ public:
 		typedef Modulo<N, U> Type;
 	};
 
-	Modulo(TParam iValue = 0);
+	constexpr Modulo();
+	constexpr Modulo(TParam value);
 
-	Modulo<N, T> operator+() const;
-	Modulo<N, T> operator-() const;
+	constexpr Modulo<N, T> operator+() const;
+	constexpr Modulo<N, T> operator-() const;
 
-	Modulo<N, T>& operator++();
-	Modulo<N, T>& operator--();
-	Modulo<N, T> operator++(int);
-	Modulo<N, T> operator--(int);
+	constexpr Modulo<N, T>& operator++();
+	constexpr Modulo<N, T>& operator--();
+	constexpr Modulo<N, T> operator++(int);
+	constexpr Modulo<N, T> operator--(int);
 
-	Modulo<N, T>& operator+=(const Modulo<N, T>& iB);
-	Modulo<N, T>& operator-=(const Modulo<N, T>& iB);
-	Modulo<N, T>& operator*=(const Modulo<N, T>& iB);
-	Modulo<N, T>& operator/=(const Modulo<N, T>& iB);
+	constexpr Modulo<N, T>& operator+=(const Modulo<N, T>& b);
+	constexpr Modulo<N, T>& operator-=(const Modulo<N, T>& b);
+	constexpr Modulo<N, T>& operator*=(const Modulo<N, T>& b);
+	// constexpr Modulo<N, T>& operator/=(const Modulo<N, T>& b);
 
-	operator T() const;
-	TParam value() const;
+	constexpr operator T() const { return value_; }
+	constexpr TParam value() const { return value_; }
 
 private:
 
-	bool isInRange(TParam iValue) const;
+	static_assert(static_cast<T>(N) > 0 && static_cast<T>(N) < NumTraits<T>::max);
+
+	constexpr Modulo(TParam value, bool);
+
+	constexpr bool isInRange(TParam value) const;
 
 	TValue value_;
 };
 
 template <unsigned N, typename T>
-bool operator==(const Modulo<N, T>& iA, const Modulo<N, T>& iB);
+constexpr bool operator==(const Modulo<N, T>& a, const Modulo<N, T>& b);
 
 template <unsigned N, typename T>
-bool operator!=(const Modulo<N, T>& iA, const Modulo<N, T>& iB);
+constexpr bool operator!=(const Modulo<N, T>& a, const Modulo<N, T>& b);
 
 template <unsigned N, typename T>
-bool operator<(const Modulo<N, T>& iA, const Modulo<N, T>& iB);
+constexpr bool operator<(const Modulo<N, T>& a, const Modulo<N, T>& b);
 
 template <unsigned N, typename T>
-bool operator>(const Modulo<N, T>& iA, const Modulo<N, T>& iB);
+constexpr bool operator>(const Modulo<N, T>& a, const Modulo<N, T>& b);
 
 template <unsigned N, typename T>
-bool operator<=(const Modulo<N, T>& iA, const Modulo<N, T>& iB);
+constexpr bool operator<=(const Modulo<N, T>& a, const Modulo<N, T>& b);
 
 template <unsigned N, typename T>
-bool operator>=(const Modulo<N, T>& iA, const Modulo<N, T>& iB);
+constexpr bool operator>=(const Modulo<N, T>& a, const Modulo<N, T>& b);
 
 template <unsigned N, typename T>
-std::ostream& operator<<(std::ostream& iS, const Modulo<N, T>& iM);
+std::ostream& operator<<(std::ostream& stream, const Modulo<N, T>& a);
 
 template <unsigned N, typename T>
-std::istream& operator>>(std::istream& iS, Modulo<N, T>& iM);
+std::istream& operator>>(std::istream& stream, Modulo<N, T>& a);
 
 }
 
