@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -338,7 +338,7 @@ KdTree<O, OT>::rangeSearch(const TPoint& target, TParam maxRadius, size_t maxCou
 	{
 		return first;
 	}
-	const TValue squaredRadius = maxRadius * maxRadius;
+	TValue squaredRadius = maxRadius * maxRadius;
 	return doRangeSearch(0, target, squaredRadius, maxCount, first, first);
 }
 

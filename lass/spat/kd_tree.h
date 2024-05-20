@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -98,8 +98,8 @@ public:
 	typedef typename TObjectTraits::TPoint TPoint;
 	typedef typename TObjectTraits::TValue TValue;
 	typedef typename TObjectTraits::TParam TParam;
-	typedef typename TObjectTraits::TParam TReference;
-	typedef typename TObjectTraits::TParam TConstReference;
+	typedef typename TObjectTraits::TReference TReference;
+	typedef typename TObjectTraits::TConstReference TConstReference;
 
 	enum { dimension = TObjectTraits::dimension };
 
