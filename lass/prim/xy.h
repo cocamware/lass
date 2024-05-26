@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -58,63 +58,226 @@ namespace lass
 namespace prim
 {
 
-class LASS_DLL XY
+class XY
 {
 public:
 
+	static constexpr size_t dimension = 2;
 
-	enum { dimension = 2 };
+	/** intializes iterator to @a x axis.
+	 */
+	constexpr XY(): value_(0) {}
 
-	XY();
-	XY(char iAxis);
-	explicit XY(int iValue);
-	explicit XY(const std::string& iAxis);
+	/** initializes iterator to an axis by character: 'x' or 'y'.
+	 */
+	constexpr XY(char axis)
+	{
+		switch (axis)
+		{
+		case 0:
+		case 'x':
+		case 'X':
+			value_ = 0;
+			break;
 
-	char axis() const;
-	operator int() const { return value_; } /**< convert axis to integer.
-														0 == @a x, 1 == @a y */
+		case 1:
+		case 'y':
+		case 'Y':
+			value_ = 1;
+			break;
 
-	XY& operator++();
-	XY& operator--();
-	XY operator++(int);
-	XY operator--(int);
+		default:
+			throw util::Exception("Invalid parameter axis.  Try 'x', 'X', 'y' or 'Y'.", LASS_PRETTY_FUNCTION);
+		}
+	}
 
-	XY& operator+=(int iOffset);
-	XY& operator-=(int iOffset);
+	/** initializes iterator to an axis by number.
+	 *  ..., -1 == @a y, 0 == @a x, 1 == @a y, 2 == @a x, ...
+	*/
+	explicit constexpr XY(int value): value_(value) {}
+
+	/** initializes iterator to an axis by character: "x" or "y".
+	 */
+	explicit XY(const std::string& axis)
+	{
+		if (axis.length() != 1)
+		{
+			LASS_THROW("Invalid parameter axis '" << axis << "'.  It must be a single character.");
+		}
+		*this = XY(axis[0]);
+	}
+
+	constexpr XY(const XY& other) = default;
+	constexpr XY& operator=(const XY& other) = default;
+
+	/** return axis by character: 'x' or 'y'.
+ 	 */
+	constexpr char axis() const
+	{
+		LASS_ASSERT(value_ >= 0 && value_ < static_cast<int>(dimension));
+		constexpr char axes[] = { 'x', 'y' };
+		return axes[value_];
+	}
+
+	constexpr operator int() const { return value_; } /**< convert axis to integer. 0 == @a x, 1 == @a y */
+	constexpr operator size_t() const { return static_cast<size_t>(value_); } /**< convert axis to integer. 0 == @a x, 1 == @a y */
+
+	constexpr XY& operator++()
+	{
+		++value_;
+		return *this;
+	}
+	constexpr XY& operator--()
+	{
+		--value_;
+		return *this;
+	}
+
+	constexpr XY operator++(int)
+	{
+		const XY result(*this);
+		++*this;
+		return result;
+	}
+	constexpr XY operator--(int)
+	{
+		const XY result(*this);
+		--*this;
+		return result;
+	}
+
+	constexpr XY& operator+=(int offset)
+	{
+		value_ += offset;
+		return *this;
+	}
+	constexpr XY& operator-=(int offset)
+	{
+		value_ -= offset;
+		return *this;
+	}
+
+	constexpr XY operator+(int offset) const
+	{
+		return XY(value_ + offset);
+	}
+	constexpr XY operator-(int offset) const
+	{
+		return XY(value_ - offset);
+	}
+
+	constexpr bool operator==(XY other) const
+	{
+		return value_ == other.value_;
+	}
+	constexpr bool operator==(int other) const
+	{
+		return static_cast<int>(value_) == other;
+	}
+	constexpr bool operator==(size_t other) const
+	{
+		return static_cast<size_t>(value_) == other;
+	}
+	constexpr bool operator==(char other) const
+	{
+		return *this == XY(other);
+	}
+	bool operator==(const std::string& other) const
+	{
+		return *this == XY(other);
+	}
+
+	constexpr bool operator!=(XY other) const
+	{
+		return value_ != other.value_;
+	}
+	constexpr bool operator!=(int other) const
+	{
+		return static_cast<int>(value_) != other;
+	}
+	constexpr bool operator!=(size_t other) const
+	{
+		return static_cast<size_t>(value_) != other;
+	}
+	constexpr bool operator!=(char other) const
+	{
+		return *this != XY(other);
+	}
+	bool operator!=(const std::string& other) const
+	{
+		return *this != XY(other);
+	}
 
 private:
 
-	typedef num::Modulo<2, int> TValue;
-
-	friend LASS_DLL bool LASS_CALL operator==(const XY& iA, const XY& iB);
-
-	void reset(char iAxis);
+	typedef num::Modulo<dimension, int> TValue;
 
 	TValue value_;
 };
 
-LASS_DLL bool LASS_CALL operator==(const XY& iA, const XY& iB);
-LASS_DLL bool LASS_CALL operator==(const XY& iA, char iB);
-LASS_DLL bool LASS_CALL operator==(char iA, const XY& iB);
-LASS_DLL bool LASS_CALL operator==(const XY& iA, const std::string& iB);
-LASS_DLL bool LASS_CALL operator==(const std::string& iA, const XY& iB);
+/** @relates lass::prim::XY
+ */
+inline constexpr bool operator==(int a, const XY& b)
+{
+	return b == a;
+}
 
-LASS_DLL bool LASS_CALL operator!=(const XY& iA, const XY& iB);
-LASS_DLL bool LASS_CALL operator!=(const XY& iA, char iB);
-LASS_DLL bool LASS_CALL operator!=(char iA, const XY& iB);
-LASS_DLL bool LASS_CALL operator!=(const XY& iA, const std::string&  iB);
-LASS_DLL bool LASS_CALL operator!=(const std::string&  iA, const XY& iB);
+/** @relates lass::prim::XY
+ */
+inline constexpr bool operator==(size_t a, const XY& b)
+{
+	return b == a;
+}
 
-LASS_DLL XY LASS_CALL operator+(const XY& iA, int iOffset);
-LASS_DLL XY LASS_CALL operator-(const XY& iA, int iOffset);
+/** @relates lass::prim::XY
+ */
+inline constexpr bool operator==(char a, const XY& b)
+{
+	return b == a;
+}
+
+/** @relates lass::prim::XY
+ */
+inline bool operator==(const std::string& a, const XY& b)
+{
+	return b == a;
+}
+
+/** @relates lass::prim::XY
+ */
+inline constexpr bool operator!=(int a, const XY& b)
+{
+	return b != a;
+}
+
+/** @relates lass::prim::XY
+ */
+inline constexpr bool operator!=(size_t a, const XY& b)
+{
+	return b != a;
+}
+
+/** @relates lass::prim::XY
+ */
+inline constexpr bool operator!=(char a, const XY& b)
+{
+	return b != a;
+}
+
+/** @relates lass::prim::XY
+ */
+inline bool operator!=(const std::string&  a, const XY& b)
+{
+	return b != a;
+}
 
 /** @relates lass::prim::XY
  */
 template <typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& ioS, const XY& iXY)
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& stream, const XY& xy)
 {
-	ioS << iXY.axis();
-	return ioS;
+	stream << xy.axis();
+	return stream;
 }
 
 

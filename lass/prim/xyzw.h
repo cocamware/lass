@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -58,63 +58,238 @@ namespace lass
 namespace prim
 {
 
-class LASS_DLL XYZW
+class XYZW
 {
 public:
 
+	static constexpr size_t dimension = 4;
 
-	enum { dimension = 4 };
+	/** intializes iterator to @a x axis.
+	 */
+	constexpr XYZW(): value_(0) {}
 
-	XYZW();
-	XYZW(char iAxis);
-	explicit XYZW(int iValue);
-	explicit XYZW(const std::string& iAxis);
+	/** initializes iterator to an axis by character: 'x', 'y', 'z' or 'w'.
+	 */
+	constexpr XYZW(char axis)
+	{
+		switch (axis)
+		{
+		case 0:
+		case 'x':
+		case 'X':
+			value_ = 0;
+			break;
 
-	char axis() const;
-	operator int() const { return value_; } /**< convert axis to integer.
-														0 == @a x, 1 == @a y, 2 == @a z, 3 == @a w */
+		case 1:
+		case 'y':
+		case 'Y':
+			value_ = 1;
+			break;
 
-	XYZW& operator++();
-	XYZW& operator--();
-	XYZW operator++(int);
-	XYZW operator--(int);
+		case 2:
+		case 'z':
+		case 'Z':
+			value_ = 2;
+			break;
 
-	XYZW& operator+=(int iOffset);
-	XYZW& operator-=(int iOffset);
+		case 3:
+		case 'w':
+		case 'W':
+			value_ = 3;
+			break;
+
+		default:
+			throw util::Exception("Invalid parameter axis.  Try 'x', 'X', 'y', 'Y', 'z', 'Z', 'w' or 'W'.", LASS_PRETTY_FUNCTION);
+		}
+	}
+
+	/** initializes iterator to an axis by number.
+	 *  ..., -1 == @a w, 0 == @a x, 1 == @a y, 2 == @a z, 3 == @a w, 4 == @a x...
+	 */
+	explicit constexpr XYZW(int value): value_(value) {}
+
+	/** initializes iterator to an axis by character: "x", "y", "z" or "w".
+	 */
+	explicit XYZW(const std::string& axis)
+	{
+		if (axis.length() != 1)
+		{
+			LASS_THROW("Invalid parameter axis '" << axis << "'.  It must be a single character.");
+		}
+		*this = XYZW(axis[0]);
+	}
+
+	constexpr XYZW(const XYZW& other) = default;
+	constexpr XYZW& operator=(const XYZW& other) = default;
+
+	/** return axis by character: 'x', 'y', 'z' or 'w'.
+	 */
+	constexpr char axis() const
+	{
+		LASS_ASSERT(value_ >= 0 && value_ < static_cast<int>(dimension));
+		constexpr char axes[] = { 'x', 'y', 'z', 'w' };
+		return axes[value_];
+	}
+
+	constexpr operator int() const { return value_; } /**< convert axis to integer. 0 == @a x, 1 == @a y, 2 == @a z, 3 == @a w */
+	constexpr operator size_t() const { return static_cast<size_t>(value_); } /**< convert axis to integer. 0 == @a x, 1 == @a y, 2 == @a z, 3 == @a w */
+
+	constexpr XYZW& operator++()
+	{
+		++value_;
+		return *this;
+	}
+	constexpr XYZW& operator--()
+	{
+		--value_;
+		return *this;
+	}
+
+	constexpr XYZW operator++(int)
+	{
+		const XYZW result(*this);
+		++*this;
+		return result;
+	}
+	constexpr XYZW operator--(int)
+	{
+		const XYZW result(*this);
+		--*this;
+		return result;
+	}
+
+	constexpr XYZW& operator+=(int offset)
+	{
+		value_ += offset;
+		return *this;
+	}
+	constexpr XYZW& operator-=(int offset)
+	{
+		value_ -= offset;
+		return *this;
+	}
+
+	constexpr XYZW operator+(int offset) const
+	{
+		return XYZW(value_ + offset);
+	}
+	constexpr XYZW operator-(int offset) const
+	{
+		return XYZW(value_ - offset);
+	}
+
+	constexpr bool operator==(XYZW other) const
+	{
+		return value_ == other.value_;
+	}
+	constexpr bool operator==(int other) const
+	{
+		return static_cast<int>(value_) == other;
+	}
+	constexpr bool operator==(size_t other) const
+	{
+		return static_cast<size_t>(value_) == other;
+	}
+	constexpr bool operator==(char other) const
+	{
+		return *this == XYZW(other);
+	}
+	bool operator==(const std::string& other) const
+	{
+		return *this == XYZW(other);
+	}
+
+	constexpr bool operator!=(XYZW other) const
+	{
+		return value_ != other.value_;
+	}
+	constexpr bool operator!=(int other) const
+	{
+		return static_cast<int>(value_) != other;
+	}
+	constexpr bool operator!=(size_t other) const
+	{
+		return static_cast<size_t>(value_) != other;
+	}
+	constexpr bool operator!=(char other) const
+	{
+		return *this != XYZW(other);
+	}
+	bool operator!=(const std::string& other) const
+	{
+		return *this != XYZW(other);
+	}
 
 private:
 
-	typedef num::Modulo<4, int> TValue;
-
-	friend LASS_DLL bool LASS_CALL operator==(const XYZW& iA, const XYZW& iB);
-
-	void reset(char iAxis);
+	typedef num::Modulo<dimension, int> TValue;
 
 	TValue value_;
 };
 
-LASS_DLL bool LASS_CALL operator==(const XYZW& iA, const XYZW& iB);
-LASS_DLL bool LASS_CALL operator==(const XYZW& iA, char iB);
-LASS_DLL bool LASS_CALL operator==(char iA, const XYZW& iB);
-LASS_DLL bool LASS_CALL operator==(const XYZW& iA, const std::string& iB);
-LASS_DLL bool LASS_CALL operator==(const std::string& iA, const XYZW& iB);
+/** @relates lass::prim::XYZW
+ */
+inline constexpr bool operator==(int a, const XYZW& b)
+{
+	return b == a;
+}
 
-LASS_DLL bool LASS_CALL operator!=(const XYZW& iA, const XYZW& iB);
-LASS_DLL bool LASS_CALL operator!=(const XYZW& iA, char iB);
-LASS_DLL bool LASS_CALL operator!=(char iA, const XYZW& iB);
-LASS_DLL bool LASS_CALL operator!=(const XYZW& iA, const std::string&  iB);
-LASS_DLL bool LASS_CALL operator!=(const std::string&  iA, const XYZW& iB);
+/** @relates lass::prim::XYZW
+ */
+inline constexpr bool operator==(size_t a, const XYZW& b)
+{
+	return b == a;
+}
 
-LASS_DLL XYZW LASS_CALL operator+(const XYZW& iA, int iOffset);
-LASS_DLL XYZW LASS_CALL operator-(const XYZW& iA, int iOffset);
+/** @relates lass::prim::XYZW
+ */
+inline constexpr bool operator==(char a, const XYZW& b)
+{
+	return b == a;
+}
 
-/** @relates lass::prim::XY
+/** @relates lass::prim::XYZW
+ */
+inline bool operator==(const std::string& a, const XYZW& b)
+{
+	return b == a;
+}
+
+/** @relates lass::prim::XYZW
+ */
+inline constexpr bool operator!=(int a, const XYZW& b)
+{
+	return b != a;
+}
+
+/** @relates lass::prim::XYZW
+ */
+inline constexpr bool operator!=(size_t a, const XYZW& b)
+{
+	return b != a;
+}
+
+/** @relates lass::prim::XYZW
+ */
+inline constexpr bool operator!=(char a, const XYZW& b)
+{
+	return b != a;
+}
+
+/** @relates lass::prim::XYZW
+ */
+inline bool operator!=(const std::string&  a, const XYZW& b)
+{
+	return b != a;
+}
+
+/** @relates lass::prim::XYZW
  */
 template <typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& ioS, const XYZW& iXYZW)
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& stream, const XYZW& xyzw)
 {
-	ioS << iXYZW.axis();
-	return ioS;
+	stream << xyzw.axis();
+	return stream;
 }
 
 

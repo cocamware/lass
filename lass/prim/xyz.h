@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -58,63 +58,232 @@ namespace lass
 namespace prim
 {
 
-class LASS_DLL XYZ
+class XYZ
 {
 public:
 
+	static constexpr size_t dimension = 3;
 
-	enum { dimension = 3 };
+	/** intializes iterator to @a x axis.
+	 */
+	constexpr XYZ(): value_(0) {}
 
-	XYZ();
-	XYZ(char iAxis);
-	explicit XYZ(int iValue);
-	explicit XYZ(const std::string& iAxis);
+	/** initializes iterator to an axis by character: 'x', 'y' or 'z'.
+ */
+	constexpr XYZ(char axis)
+	{
+		switch (axis)
+		{
+		case 0:
+		case 'x':
+		case 'X':
+			value_ = 0;
+			break;
 
-	char axis() const;
-	operator int() const { return value_; } /**< convert axis to integer. 0 == @a x, 1 == @a y, 2 == @a z */
-	operator size_t() const { return static_cast<size_t>(value_); } /**< convert axis to integer. 0 == @a x, 1 == @a y, 2 == @a z */
+		case 1:
+		case 'y':
+		case 'Y':
+			value_ = 1;
+			break;
 
-	XYZ& operator++();
-	XYZ& operator--();
-	XYZ operator++(int);
-	XYZ operator--(int);
+		case 2:
+		case 'z':
+		case 'Z':
+			value_ = 2;
+			break;
 
-	XYZ& operator+=(int iOffset);
-	XYZ& operator-=(int iOffset);
+		default:
+			throw util::Exception("Invalid parameter axis.  Try 'x', 'X', 'y', 'Y', 'z' or 'Z'.", LASS_PRETTY_FUNCTION);
+		}
+	}
+
+	/** initializes iterator to an axis by number.
+	 *  ..., -1 == @a z, 0 == @a x, 1 == @a y, 2 == @a z, 3 == @a x, ...
+	 */
+	explicit constexpr XYZ(int value): value_(value) {}
+
+	/** initializes iterator to an axis by character: "x", "y" or "z".
+	 */
+	explicit XYZ(const std::string& axis)
+	{
+		if (axis.length() != 1)
+		{
+			LASS_THROW("Invalid parameter axis '" << axis << "'.  It must be a single character.");
+		}
+		*this = XYZ(axis[0]);
+	}
+
+	constexpr XYZ(const XYZ& other) = default;
+	constexpr XYZ& operator=(const XYZ& other) = default;
+
+	/** return axis by character: 'x', 'y' or 'z'.
+ 	 */
+	constexpr char axis() const
+	{
+		LASS_ASSERT(value_ >= 0 && value_ < static_cast<int>(dimension));
+		constexpr char axes[] = { 'x', 'y', 'z' };
+		return axes[value_];
+	}
+
+	constexpr operator int() const { return value_; } /**< convert axis to integer. 0 == @a x, 1 == @a y, 2 == @a z */
+	constexpr operator size_t() const { return static_cast<size_t>(value_); } /**< convert axis to integer. 0 == @a x, 1 == @a y, 2 == @a z */
+
+	constexpr XYZ& operator++()
+	{
+		++value_;
+		return *this;
+	}
+	constexpr XYZ& operator--()
+	{
+		--value_;
+		return *this;
+	}
+
+	constexpr XYZ operator++(int)
+	{
+		const XYZ result(*this);
+		++*this;
+		return result;
+	}
+	constexpr XYZ operator--(int)
+	{
+		const XYZ result(*this);
+		--*this;
+		return result;
+	}
+
+	constexpr XYZ& operator+=(int offset)
+	{
+		value_ += offset;
+		return *this;
+	}
+	constexpr XYZ& operator-=(int offset)
+	{
+		value_ -= offset;
+		return *this;
+	}
+
+	constexpr XYZ operator+(int offset) const
+	{
+		return XYZ(value_ + offset);
+	}
+	constexpr XYZ operator-(int offset) const
+	{
+		return XYZ(value_ - offset);
+	}
+
+	constexpr bool operator==(XYZ other) const
+	{
+		return value_ == other.value_;
+	}
+	constexpr bool operator==(int other) const
+	{
+		return static_cast<int>(value_) == other;
+	}
+	constexpr bool operator==(size_t other) const
+	{
+		return static_cast<size_t>(value_) == other;
+	}
+	constexpr bool operator==(char other) const
+	{
+		return *this == XYZ(other);
+	}
+	bool operator==(const std::string& other) const
+	{
+		return *this == XYZ(other);
+	}
+
+	constexpr bool operator!=(XYZ other) const
+	{
+		return value_ != other.value_;
+	}
+	constexpr bool operator!=(int other) const
+	{
+		return static_cast<int>(value_) != other;
+	}
+	constexpr bool operator!=(size_t other) const
+	{
+		return static_cast<size_t>(value_) != other;
+	}
+	constexpr bool operator!=(char other) const
+	{
+		return *this != XYZ(other);
+	}
+	bool operator!=(const std::string& other) const
+	{
+		return *this != XYZ(other);
+	}
 
 private:
 
-	typedef num::Modulo<3, int> TValue;
-
-	friend LASS_DLL bool LASS_CALL operator==(const XYZ& iA, const XYZ& iB);
-
-	void reset(char iAxis);
+	typedef num::Modulo<dimension, int> TValue;
 
 	TValue value_;
 };
 
-LASS_DLL bool LASS_CALL operator==(const XYZ& iA, const XYZ& iB);
-LASS_DLL bool LASS_CALL operator==(const XYZ& iA, char iB);
-LASS_DLL bool LASS_CALL operator==(char iA, const XYZ& iB);
-LASS_DLL bool LASS_CALL operator==(const XYZ& iA, const std::string& iB);
-LASS_DLL bool LASS_CALL operator==(const std::string& iA, const XYZ& iB);
+/** @relates lass::prim::XYZ
+ */
+inline constexpr bool operator==(int a, const XYZ& b)
+{
+	return b == a;
+}
 
-LASS_DLL bool LASS_CALL operator!=(const XYZ& iA, const XYZ& iB);
-LASS_DLL bool LASS_CALL operator!=(const XYZ& iA, char iB);
-LASS_DLL bool LASS_CALL operator!=(char iA, const XYZ& iB);
-LASS_DLL bool LASS_CALL operator!=(const XYZ& iA, const std::string&  iB);
-LASS_DLL bool LASS_CALL operator!=(const std::string&  iA, const XYZ& iB);
+/** @relates lass::prim::XYZ
+ */
+inline constexpr bool operator==(size_t a, const XYZ& b)
+{
+	return b == a;
+}
 
-LASS_DLL XYZ LASS_CALL operator+(const XYZ& iA, int iOffset);
-LASS_DLL XYZ LASS_CALL operator-(const XYZ& iA, int iOffset);
+/** @relates lass::prim::XYZ
+ */
+inline constexpr bool operator==(char a, const XYZ& b)
+{
+	return b == a;
+}
 
-/** @relates lass::prim::XY
+/** @relates lass::prim::XYZ
+ */
+inline bool operator==(const std::string& a, const XYZ& b)
+{
+	return b == a;
+}
+
+/** @relates lass::prim::XYZ
+ */
+inline constexpr bool operator!=(int a, const XYZ& b)
+{
+	return b != a;
+}
+
+/** @relates lass::prim::XYZ
+ */
+inline constexpr bool operator!=(size_t a, const XYZ& b)
+{
+	return b != a;
+}
+
+/** @relates lass::prim::XYZ
+ */
+inline constexpr bool operator!=(char a, const XYZ& b)
+{
+	return b != a;
+}
+
+/** @relates lass::prim::XYZ
+ */
+inline bool operator!=(const std::string&  a, const XYZ& b)
+{
+	return b != a;
+}
+
+/** @relates lass::prim::XYZ
  */
 template <typename Char, typename Traits>
-std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& ioS, const XYZ& iXYZ)
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& stream, const XYZ& xyz)
 {
-	ioS << iXYZ.axis();
-	return ioS;
+	stream << xyz.axis();
+	return stream;
 }
 
 
