@@ -46,3 +46,8 @@ __pycache__/
 
 /CMakeUserPresets.json
 /test_package/CMakeUserPresets.json
+
+# ignore conan 1 artifacts
+/conaninfo.txt
+/conanbuildinfo.*
+/graph_info.json
