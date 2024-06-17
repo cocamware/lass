@@ -60,9 +60,11 @@
 #if defined(_MSC_VER)
 #	define LASS_DLL_IMPORT __declspec( dllimport )
 #	define LASS_DLL_EXPORT __declspec( dllexport )
+#	define LASS_DLL_LOCAL
 #else
 #	define LASS_DLL_IMPORT
 #	define LASS_DLL_EXPORT
+#	define LASS_DLL_LOCAL __attribute__ ((visibility ("hidden")))
 #endif
 #define LASS_CALL
 #define LASS_NO_INLINE
