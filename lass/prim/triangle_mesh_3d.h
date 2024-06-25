@@ -213,15 +213,30 @@ public:
 	void autoCrease(unsigned level);
 	void autoCrease(unsigned level, TParam maxAngleInRadians);
 
+	using TFilter = std::function<bool(TTriangleIterator, TValue t)>;
+
 	Result intersect(const TRay& ray, TTriangleIterator& triangle, TReference t, TParam tMin = 0, IntersectionContext* context = 0) const;
 	bool intersects(const TRay& ray, TParam tMin, TParam tMax) const;
+
+	Result intersectFilter(const TRay& ray, TTriangleIterator& triangle, TReference t, TParam tMin, TFilter filter, IntersectionContext* context = 0) const;
+	bool intersectsFilter(const TRay& ray, TParam tMin, TParam tMax, TFilter filter) const;
 
 	void swap(TSelf& other);
 	
 private:
 
 	typedef spat::DefaultAabbRayTraits<TAabb, TRay> TAabbRayTraits;
-	
+
+	struct IntersectInfo
+	{
+		const TIntersectTriangleWoop woop;
+		const TFilter filter;
+
+		IntersectInfo(const TRay& ray, TFilter filter):
+			woop(ray.support(), ray.direction()),
+			filter(filter) {}
+	};
+
 	struct TriangleTraits: public TAabbRayTraits
 	{
 		typedef typename TSelf::TTriangle TObject;
@@ -246,17 +261,36 @@ private:
 			result += *(triangle->vertices[2]);
 			return result;
 		}
-		static bool objectIntersect(TObjectIterator triangle, const TRay& /*ray*/, TReference t, TParam tMin, const TInfo* intersectWoop)
+		static bool objectIntersect(TObjectIterator triangle, const TRay& /*ray*/, TReference t, TParam tMin, const TInfo* info)
 		{
-			LASS_ASSERT(intersectWoop);
-			return triangle->intersect(*static_cast<const TIntersectTriangleWoop*>(intersectWoop), t, tMin) == rOne;
+			LASS_ASSERT(info);
+			const IntersectInfo* myInfo = static_cast<const IntersectInfo*>(info);
+			const bool hit = triangle->intersect(myInfo->woop, t, tMin) == rOne;
+			if (!hit)
+			{
+				return false;
+			}
+			if (myInfo->filter && !myInfo->filter(triangle, t))
+			{
+				return false;
+			}
+			return true;
 		}
-		static bool objectIntersects(TObjectIterator triangle, const TRay& /*ray*/, TParam tMin, TParam tMax, const TInfo* intersectWoop)
+		static bool objectIntersects(TObjectIterator triangle, const TRay& /*ray*/, TParam tMin, TParam tMax, const TInfo* info)
 		{
-			LASS_ASSERT(intersectWoop);
+			LASS_ASSERT(info);
+			const IntersectInfo* myInfo = static_cast<const IntersectInfo*>(info);
 			TValue t;
-			const Result hit = triangle->intersect(*static_cast<const TIntersectTriangleWoop*>(intersectWoop), t, tMin);
-			return hit == rOne && t < tMax;
+			const bool hit = triangle->intersect(myInfo->woop, t, tMin) == rOne;
+			if (!hit || t >= tMax)
+			{
+				return false;
+			}
+			if (myInfo->filter && !myInfo->filter(triangle, t))
+			{
+				return false;
+			}
+			return true;
 		}
 		static bool objectIntersects(TObjectIterator triangle, const TAabb& aabb, const TInfo*)
 		{

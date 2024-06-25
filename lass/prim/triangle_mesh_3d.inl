@@ -699,14 +699,56 @@ void TriangleMesh3D<T, BHV, SH>::autoCrease(unsigned level, TParam maxAngleInRad
 
 
 
+/** Find nearest intersection with ray with t > tMin.
+ * 
+ *  Of all triangles that intersect with the ray, return the one that is nearest to the
+ *  ray origin while still being further away than tMin. The distance along the ray to
+ *  the intersection point is returned in t. If an intersection was found, the context
+ *  (if provided) is filled with intersection information.
+ * 
+ *  @param[in]  ray the ray to intersect with
+ *  @param[out] triangle the triangle that was hit
+ *  @param[out] t the distance along the ray to the intersection point, with t > tMin
+ *  @param[in]  tMin the minimum distance along the ray to consider, so that t > tMin
+ *  @param[out] context the context to be filled with intersection information (optional)
+ * 
+ *  @return rOne if an intersection was found, rNone otherwise
+ */
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
 Result TriangleMesh3D<T, BHV, SH>::intersect(
 	const TRay& ray, TTriangleIterator& triangle,
 	TReference t, TParam tMin, IntersectionContext* context) const
 {
+	return intersectFilter(ray, triangle, t, tMin, nullptr, context);
+}
+
+
+
+/** Find nearest intersection with ray that passes the filter, and with t > tMin.
+ * 
+ *  Similar to intersect, but the filter function is evaluated for each candidate
+ *  intersection point. If the filter returns true, the intersection is accepted.
+ *  If the filter returns false, the next candidate is evaluated. This allows for
+ *  implementing an alpha mask on the triangle mesh, for example.
+ * 
+ *  @param[in]  ray the ray to intersect with
+ *  @param[out] triangle the triangle that was hit
+ *  @param[out] t the distance along the ray to the intersection point, with t > tMin
+ *  @param[in]  tMin the minimum distance along the ray to consider, so that t > tMin
+ *  @param[in]  filter the filter to apply to the intersection points
+ *  @param[out] context the context to be filled with intersection information (optional)
+ * 
+ *  @return rOne if an intersection was found, rNone otherwise
+ */
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+Result TriangleMesh3D<T, BHV, SH>::intersectFilter(
+	const TRay& ray, TTriangleIterator& triangle,
+	TReference t, TParam tMin, TFilter filter, IntersectionContext* context) const
+{
 	LASS_ASSERT(tree_.isEmpty() == triangles_.empty());
-	const TIntersectTriangleWoop intersectWoop(ray.support(), ray.direction());
-	const TTriangleIterator candidate = tree_.intersect(ray, t, tMin, &intersectWoop);
+
+	IntersectInfo info(ray, filter);
+	const TTriangleIterator candidate = tree_.intersect(ray, t, tMin, &info);
 	if (candidate == triangles_.end())
 	{
 		return rNone;
@@ -716,7 +758,7 @@ Result TriangleMesh3D<T, BHV, SH>::intersect(
 	if (context)
 	{
 		TValue temp;
-		[[maybe_unused]] const Result r = triangle->intersect(intersectWoop, temp, tMin, context);
+		[[maybe_unused]] const Result r = triangle->intersect(info.woop, temp, tMin, context);
 		LASS_ASSERT(r == rOne && t == temp);
 	}
 
@@ -725,12 +767,42 @@ Result TriangleMesh3D<T, BHV, SH>::intersect(
 
 
 
+/** Checks if the ray has any intersection with the mesh, with t > tMin and t < tMax.
+ * 
+ *  @param[in]  ray the ray to intersect with
+ *  @param[in]  tMin the minimum distance along the ray to consider, so that t > tMin
+ *  @param[in]  tMax the maximum distance along the ray to consider, so that t < tMax
+ *
+ *  @return true if an intersection was found, false otherwise
+ */
 template <typename T, template <typename, typename, typename> class BHV, typename SH>
 bool TriangleMesh3D<T, BHV, SH>::intersects(const TRay& ray, TParam tMin, TParam tMax) const
 {
+	return intersectsFilter(ray, tMin, tMax, nullptr);
+}
+
+
+
+/** Checks if the ray has any intersection that passes the filter, and with t > tMin and t < tMax.
+ * 
+ *  Similar to intersects, but the filter function is evaluated for each candidate
+ *  intersection point. Only if it returns true, it's considered as a valid
+ *  intersection. This allows for implementing an alpha mask on the triangle mesh,
+ *  for example.
+ * 
+ *  @param[in]  ray the ray to intersect with
+ *  @param[in]  tMin the minimum distance along the ray to consider, so that t > tMin
+ *  @param[in]  tMax the maximum distance along the ray to consider, so that t < tMax
+ *  @param[in]  filter the filter to apply to the intersection points
+ * 
+ *  @return true if an intersection was found, false otherwise
+ */
+template <typename T, template <typename, typename, typename> class BHV, typename SH>
+bool TriangleMesh3D<T, BHV, SH>::intersectsFilter(const TRay& ray, TParam tMin, TParam tMax, TFilter filter) const
+{
 	LASS_ASSERT(tree_.isEmpty() == triangles_.empty());
-	const TIntersectTriangleWoop intersectWoop(ray.support(), ray.direction());
-	return tree_.intersects(ray, tMin, tMax, &intersectWoop);
+	IntersectInfo info(ray, filter);
+	return tree_.intersects(ray, tMin, tMax, &info);
 }
 
 
