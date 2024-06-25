@@ -1658,7 +1658,7 @@ $[
  *  @endcode
  */
 #define PY_CLASS_STATIC_METHOD_EX( t_cppClass, f_cppFunction, s_methodName, s_doc, i_dispatcher )\
-	PyCFunction LASS_CONCATENATE(i_dispatcher, _overloadChain) = 0;\
+	static PyCFunction LASS_CONCATENATE(i_dispatcher, _overloadChain) = 0;\
 	extern "C" LASS_DLL_LOCAL PyObject* i_dispatcher( PyObject* iIgnore, PyObject* iArgs )\
 	{\
 		if (LASS_CONCATENATE(i_dispatcher, _overloadChain))\
