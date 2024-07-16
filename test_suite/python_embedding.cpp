@@ -525,6 +525,16 @@ std::wstring testStdWstring(const std::wstring& v)
 	return v;
 }
 
+float testFloatSingle(float v)
+{
+	return v;
+}
+
+double testFloatDouble(double v)
+{
+	return v;
+}
+
 std::chrono::system_clock::time_point testSystemClock(const std::chrono::system_clock::time_point& v)
 {
 	return v;
@@ -579,6 +589,8 @@ PY_MODULE_FUNCTION( embedding, testSomePointer )
 
 PY_MODULE_FUNCTION( embedding, testStdString )
 PY_MODULE_FUNCTION( embedding, testStdWstring )
+PY_MODULE_FUNCTION( embedding, testFloatSingle )
+PY_MODULE_FUNCTION( embedding, testFloatDouble )
 PY_MODULE_FUNCTION( embedding, testSystemClock )
 
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
@@ -667,6 +679,9 @@ class InjectedClass : public lass::python::PyObjectPlus
 PY_DECLARE_CLASS(InjectedClass)
 void embeddingPostInject(PyObject*)
 {
+#if LASS_USE_OLD_EXPORTRAITS_FLOAT
+	PY_MODULE_ADD_INTEGER_CONSTANT( embedding, "LASS_USE_OLD_EXPORTRAITS_FLOAT", 1 )
+#endif
 	PY_INJECT_CLASS_IN_MODULE(InjectedClass, embedding, "Class injected into module")
 }
 LASS_EXECUTE_BEFORE_MAIN(

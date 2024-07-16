@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -485,6 +485,7 @@ struct PyExportTraitsFloat
 	}
 	static int get(PyObject* obj, Float& v)
 	{
+#if LASS_USE_OLD_EXPORTRAITS_FLOAT
 		if (PyFloat_Check(obj))
 		{
 			return impl::pyNumCast(PyFloat_AS_DOUBLE(obj), v);
@@ -501,6 +502,31 @@ struct PyExportTraitsFloat
 		}
 		PyErr_SetString(PyExc_TypeError, "not a float or integer");
 		return 1;
+#else
+		double x;
+		if (PyFloat_CheckExact(obj))
+		{
+			x = PyFloat_AS_DOUBLE(obj);
+		}
+		else if (PyLong_Check(obj))
+		{
+			x = PyLong_AsDouble(obj);
+			if (x == -1.0 && PyErr_Occurred())
+			{
+				return 1;
+			}
+		}
+		else
+		{
+			x = PyFloat_AsDouble(obj);
+			if (x == -1.0 && PyErr_Occurred())
+			{
+				return 1;
+			}
+		}
+		v = static_cast<Float>(x);
+		return 0;
+#endif
 	}
 };
 
