@@ -20,7 +20,7 @@ The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
 The Original Developer is the Initial Developer.
 
 All portions of the code written by the Initial Developer are:
-Copyright (C) 2023 the Initial Developer.
+Copyright (C) 2023-2024 the Initial Developer.
 All Rights Reserved.
 
 Contributor(s):
@@ -51,7 +51,7 @@ from conan.tools.files import copy, load, save
 
 class SysPython(ConanFile):
     name = "syspython"
-    version = "1.0.0"
+    version = "1.0.1"
     user = "cocamware"
     channel = "stable"
     description = "Discovers your system's Python and allow to use it as a requirement"
@@ -238,7 +238,7 @@ class SysPython(ConanFile):
         if self.settings.os == "Windows":
             return True
         else:
-            return bool(int(self._python_get_config_var("Py_ENABLE_SHARED")))
+            return bool(int(self._python_get_config_var("Py_ENABLE_SHARED") or 0))
 
     @property
     def _python_shared(self) -> bool:

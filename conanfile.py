@@ -122,7 +122,7 @@ class LassConan(ConanFile):
         "without_iterator_debugging": False,
         "have_avx": True,
     }
-    requires = "syspython/1.0.0@cocamware/stable"
+    requires = "syspython/1.0.1@cocamware/stable"
 
     def export_sources(self):
         git = Git(self)
@@ -193,13 +193,13 @@ class LassConan(ConanFile):
         python = self.dependencies["syspython"]
 
         tc = CMakeToolchain(self)
-        tc.variables["BUILD_SIMD_ALIGNED"] = bool(self.options.simd_aligned)
-        tc.variables["BUILD_WITHOUT_ITERATOR_DEBUGGING"] = bool(
+        tc.cache_variables["BUILD_SIMD_ALIGNED"] = bool(self.options.simd_aligned)
+        tc.cache_variables["BUILD_WITHOUT_ITERATOR_DEBUGGING"] = bool(
             self.options.without_iterator_debugging
         )
-        tc.variables["Lass_PYTHON_VERSION"] = python.options.python_version
-        tc.variables["BUILD_TESTING"] = True
-        tc.variables["Lass_HAVE_AVX"] = self.options.get_safe("have_avx", False)
+        tc.cache_variables["Lass_PYTHON_VERSION"] = python.options.python_version
+        tc.cache_variables["BUILD_TESTING"] = True
+        tc.cache_variables["Lass_HAVE_AVX"] = self.options.get_safe("have_avx", False)
         tc.generate()
 
     def build(self):
