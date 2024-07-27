@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -79,7 +79,7 @@ const std::string MultiCallbackImplBase::repr() const
 
 	// wrapping the call ourselves as the macro's and templates have difficulties
 	// automatically wrapping everything up
-	PyObject * MultiCallback::_tp_call(PyObject * self, PyObject *args, PyObject* LASS_UNUSED(kwargs))
+	PyObject * MultiCallback::_tp_call(PyObject * self, PyObject *args, PyObject* kwargs)
 	{
 		LockGIL LASS_UNUSED(lock);
 		if (!PyType_IsSubtype(self->ob_type , MultiCallback::_lassPyClassDef.type() ))
@@ -87,9 +87,18 @@ const std::string MultiCallbackImplBase::repr() const
 			PyErr_SetString(PyExc_TypeError,"not castable to MultiCallback");
 			return 0;
 		}
-		if (!_PyArg_NoKeywords("function", kwargs))
+		if (kwargs)
 		{
-			return 0;
+			if (!PyDict_CheckExact(kwargs))
+			{
+				PyErr_BadInternalCall();
+				return 0;
+			}
+			if (PyDict_Size(kwargs) != 0)
+			{
+				PyErr_SetString(PyExc_TypeError, "function takes no keyword arguments");
+				return 0;
+			}
 		}
 		return static_cast<MultiCallback*>(self)->callVar(args);
 	}

@@ -221,11 +221,20 @@ template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::pyt
  */
 template <PyCFunction DispatcherAddress> struct FunctionTypeDispatcher<lass::python::impl::ArgKwSlot ,DispatcherAddress>
 {
-	static PyObject* fun(PyObject* iSelf, PyObject* iArgs, PyObject* LASS_UNUSED(iKw))
+	static PyObject* fun(PyObject* iSelf, PyObject* iArgs, PyObject* iKw)
 	{
-		if (!_PyArg_NoKeywords("function", iKw))
+		if (iKw)
 		{
-			return 0;
+			if (!PyDict_CheckExact(iKw))
+			{
+				PyErr_BadInternalCall();
+				return 0;
+			}
+			if (PyDict_Size(iKw) != 0)
+			{
+				PyErr_SetString(PyExc_TypeError, "function takes no keyword arguments");
+				return 0;
+			}
 		}
 		return DispatcherAddress(iSelf, iArgs);
 	}
