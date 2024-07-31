@@ -120,6 +120,11 @@ if(TARGET Lass::lass_python)
 	target_compile_definitions(test_suite
 		PRIVATE "TEST_PYTHONHOME=\"${Lass_PYTHON_BASE_PREFIX}\""
 	)
+	if(NOT WIN32)
+		target_compile_options(test_suite
+			PRIVATE -rdynamic
+		)
+	endif()
 endif()
 lass_add_precompiled_header(test_suite 
 	test_common.h
