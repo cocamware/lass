@@ -165,6 +165,9 @@ ClassDefinition::ClassDefinition(
 #if PY_VERSION_HEX >= 0x030C0000 // >= 3.12
 		0,	/*tp_watched, internal only */
 #endif
+#if PY_VERSION_HEX >= 0x030D0000 // >= 3.13
+		0,	/*tp_versions_used */
+#endif
 	};
 	type_ = type;
 	methods_.push_back(impl::createPyMethodDef( 0, 0, 0, 0 ));
