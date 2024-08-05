@@ -117,6 +117,9 @@ if(TARGET Lass::lass_python)
 			VS_DEBUGGER_ENVIRONMENT "PATH=$<TARGET_FILE_DIR:Python::Python>;%PATH%"
 		)
 	endif()
+	target_compile_definitions(test_suite
+		PRIVATE "TEST_PYTHONHOME=\"${Lass_PYTHON_BASE_PREFIX}\""
+	)
 endif()
 lass_add_precompiled_header(test_suite 
 	test_common.h

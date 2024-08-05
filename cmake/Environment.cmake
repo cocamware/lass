@@ -87,6 +87,28 @@ if(Python_Development_FOUND)
 		set(LASS_PYTHON_DEBUG_POSTFIX)
 	endif()
 
+	if(NOT DEFINED Lass_PYTHON_BASE_PREFIX)
+		if (NOT DEFINED _Lass_PYTHON_BASE_PREFIX OR NOT Python_EXECUTABLE STREQUAL _Lass_PYTHON_PREFIX_EXECUTABLE)
+			message(STATUS "Looking for sys.base_prefix")
+			execute_process(COMMAND "${Python_EXECUTABLE}" -c "import sys; sys.stdout.write(sys.base_prefix.replace('\\\\', '/'))"
+				RESULT_VARIABLE __Lass_PYTHON_PREFIX_RESULT
+				OUTPUT_VARIABLE Lass_PYTHON_BASE_PREFIX
+				ERROR_VARIABLE __Lass_PYTHON_PREFIX_ERROR
+			)
+			if(NOT __Lass_PYTHON_PREFIX_RESULT)
+				set(_Lass_PYTHON_BASE_PREFIX "${Lass_PYTHON_BASE_PREFIX}" CACHE INTERNAL "sys.base_prefix")
+				set(_Lass_PYTHON_PREFIX_EXECUTABLE "${Python_EXECUTABLE}" CACHE INTERNAL "sys.base_prefix")
+				message(STATUS "Looking for sys.base_prefix - found: ${Lass_PYTHON_BASE_PREFIX}")
+			else()
+				set(Lass_PYTHON_BASE_PREFIX)
+				message(STATUS "Looking for sys.base_prefix - failed\n${__Lass_PYTHON_PREFIX_ERROR}")
+			endif()
+		else()
+			set(Lass_PYTHON_BASE_PREFIX "${_Lass_PYTHON_BASE_PREFIX}")
+		endif()
+	endif()
+
+
 	if(NOT "${Python_INCLUDE_DIR}" STREQUAL "${_Lass_Python_INCLUDE_DIR}")
 		set(_python_header "${Python_INCLUDE_DIR}/Python.h")
 		message(STATUS "Looking in ${_python_header} for redefinitions")
@@ -432,5 +454,3 @@ configure_file(
 	"${Lass_SOURCE_DIR}/lass/config/local_config.h.in" 
 	"${Lass_BINARY_DIR}/local/local_config.h"
     )
-
-

@@ -688,17 +688,36 @@ void initPythonEmbedding()
 	PyImport_AppendInittab("embedding", PyInit_embedding);
 
 	PyStatus status;
+
 	PyPreConfig preconfig;
-	PyPreConfig_InitPythonConfig(&preconfig);
+	PyPreConfig_InitIsolatedConfig(&preconfig);
 
 	preconfig.utf8_mode = 1;
 
 	status = Py_PreInitialize(&preconfig);
-	if (PyStatus_Exception(status)) {
+	if (PyStatus_Exception(status))
+	{
 		Py_ExitStatusException(status);
 	}
 
-	Py_Initialize();
+	PyConfig config;
+	PyConfig_InitIsolatedConfig(&config);
+
+#ifdef TEST_PYTHONHOME
+	status = PyConfig_SetBytesString(&config, &config.home, TEST_PYTHONHOME);
+	if (PyStatus_Exception(status))
+	{
+		goto done;
+	}
+#endif
+
+	status = Py_InitializeFromConfig(&config);
+done:
+	PyConfig_Clear(&config);
+	if (PyStatus_Exception(status))
+	{
+		Py_ExitStatusException(status);
+	}
 }
 
 }
