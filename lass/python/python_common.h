@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -114,6 +114,13 @@
 #	undef _XOPEN_SOURCE
 #endif
 
+// Python 3.12 yields following warning in unicodeobject.h:
+// warning C4100: '_unused_op': unreferenced formal parameter
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(push)
+#	pragma warning(disable: 4100) // unreferenced formal parameter
+#endif
+
 // Python >= 3.2 defines `PyType_Spec` in `object.h` which has a member called
 // `slots`. When combining this with Qt, `slots` may already be defined as a
 // macro. It is sufficient to temporarily undefine `slots` since this member
@@ -131,6 +138,10 @@
 #endif
 
 #pragma pop_macro("slots")
+
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
+#	pragma warning(pop)
+#endif
 
 // oh r'ly? Because of some issue lost to ancient history, pyport.h will
 // redefine following functions on FreeBSD > 500039 (and Apple?),
