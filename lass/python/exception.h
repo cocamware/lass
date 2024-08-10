@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -74,7 +74,7 @@ private:
 namespace impl
 {
 	LASS_PYTHON_DLL void LASS_CALL addMessageHeader(const char* header);
-	LASS_PYTHON_DLL void LASS_CALL fetchAndThrowPythonException(const std::string& loc = "");
+	LASS_PYTHON_DLL void LASS_CALL fetchAndThrowPythonException  [[noreturn]] (const std::string& loc = "");
 	LASS_PYTHON_DLL void LASS_CALL catchPythonException(const PythonException& error);
 	LASS_PYTHON_DLL void LASS_CALL catchLassException(const util::Exception& error);
 	LASS_PYTHON_DLL void LASS_CALL catchStdException(const std::exception& error);
