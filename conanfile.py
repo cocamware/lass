@@ -150,7 +150,7 @@ class LassConan(ConanFile):
                     "  git ls-files --eol\n"
                 )
 
-        for src in git.included_files():
+        for src in git.run("ls-files").splitlines():
             dest = os.path.join(self.export_sources_folder, src)
             os.makedirs(os.path.dirname(dest), exist_ok=True)
             shutil.copy2(src, dest)
