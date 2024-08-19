@@ -48,11 +48,20 @@ from typing import List, Optional
 
 from conan import ConanFile, conan_version
 from conan.errors import ConanException, ConanInvalidConfiguration
-from conan.tools import CppInfo
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.microsoft import check_min_vs
 from conan.tools.scm import Git
+
+try:
+    from conan.tools import CppInfo
+except ImportError:
+    # Fallback for Conan 1
+    from conans.model.new_build_info import NewCppInfo as _CppInfo
+
+    def CppInfo(conanfile):
+        return _CppInfo()
+
 
 required_conan_version = ">=1.54.0"
 
