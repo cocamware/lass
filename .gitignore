@@ -51,3 +51,5 @@ __pycache__/
 /conaninfo.txt
 /conanbuildinfo.*
 /graph_info.json
+
+/.vscode/c_cpp_properties.json
