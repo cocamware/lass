@@ -135,6 +135,16 @@ target_compile_definitions(test_suite
 	PRIVATE "TEST_DYNAMIC_CHILD=\"$<TARGET_FILE:test_dynamic_child>\"" # for test_util_dynamic_library
 	)
 
+if(NOT WIN32)
+	# Add quadmath to test double double
+	target_compile_definitions(test_suite
+		PRIVATE "TEST_HAVE_QUADMATH=1"
+	)
+	target_link_libraries(test_suite
+		PRIVATE quadmath
+	)
+endif()
+
 foreach(test_name ${unit_tests})
 	add_test(NAME "${test_name}" COMMAND test_suite "--log=${test_name}.log" "--input-dir=${sourcedir}" "${test_name}")
 endforeach()
