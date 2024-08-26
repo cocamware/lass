@@ -51,7 +51,7 @@ from conan.tools.files import copy, load, save
 
 class SysPython(ConanFile):
     name = "syspython"
-    version = "1.0.1"
+    version = "1.0.2"
     user = "cocamware"
     channel = "stable"
     description = "Discovers your system's Python and allow to use it as a requirement"
@@ -226,6 +226,12 @@ class SysPython(ConanFile):
         return self._python_get_config_var("py_version_short")
 
     @property
+    def _python_version_short_int(self) -> str:
+        """Short version like (3, 7)"""
+        major, minor = self._python_version_short.split(".")
+        return int(major), int(minor)
+
+    @property
     def _python_debug(self) -> bool:
         """True if python library is built with Py_DEBUG"""
         output = self._python_query(
@@ -355,7 +361,14 @@ class SysPython(ConanFile):
     def _python_soabi(self) -> str:
         soabi = self._python_get_config_var("SOABI")
         if not soabi:
-            ext_suffix = self._python_get_config_var("EXT_SUFFIX")
+            version = self._python_version_short_int
+            if self.settings.os == "Windows" and version <= (3, 9):
+                ext_suffix = self._python_query(
+                    "from distutils import sysconfig\n"
+                    + "print(sysconfig.get_config_var('EXT_SUFFIX') or '')"
+                )
+            else:
+                ext_suffix = self._python_get_config_var("EXT_SUFFIX")
             match = re.match(r"^(_d)?\.(?P<soabi>.+)\.(so|lib|pyd)$", ext_suffix)
             if not match:
                 raise ConanInvalidConfiguration(f"Unexpected EXT_SUFFIX: {ext_suffix}")
