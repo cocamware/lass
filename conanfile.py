@@ -293,8 +293,8 @@ class VSCodeCCppProperties:
     compiler_args: List[str]
     cpp_standard: str
     intellisense_mode: str
-    configuration_provider: str | None
-    compile_commands: str | None
+    configuration_provider: Optional[str]
+    compile_commands: Optional[str]
 
     def __init__(self, conanfile: ConanFile, *, cmake: bool = True):
         self._conanfile = conanfile
