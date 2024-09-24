@@ -188,17 +188,24 @@ class LassConan(ConanFile):
     def layout(self):
         cmake_layout(self)
 
-        # include dirs for local build
-        self.cpp.source.includedirs = ["."]
-        self.cpp.build.includedirs = ["local"]
         subdir = self.cpp.build.libdirs[0]
-        self.cpp.build.libdirs = [os.path.join("lib", subdir)]
-        self.cpp.build.bindirs = [os.path.join("bin", subdir)]
+        build_libdir = os.path.join("lib", subdir)
+        build_bindir = os.path.join("bin", subdir)
+        share_dir = os.path.join("share", "Lass")
 
-        # We generate our own LassConfig.cmake, but we have to tell conan
-        # where it can be found, relative to the package or build dir ...
-        self.cpp.package.builddirs = [os.path.join("share", "Lass")]
-        self.cpp.build.builddirs = ["."]
+        for comp in ["lass", "lass_python"]:
+            # include dirs for local build
+            self.cpp.source.components[comp].includedirs = ["."]
+            self.cpp.build.components[comp].includedirs = ["local"]
+
+            # binary dirs for local build
+            self.cpp.build.components[comp].libdirs = [build_libdir]
+            self.cpp.build.components[comp].bindirs = [build_bindir]
+
+            # We generate our own LassConfig.cmake, but we have to tell conan
+            # where it can be found, relative to the package or build dir ...
+            self.cpp.package.components[comp].builddirs = [share_dir]
+            self.cpp.build.components[comp].builddirs = ["."]
 
     def generate(self):
         python = self.dependencies["syspython"]
@@ -239,7 +246,7 @@ class LassConan(ConanFile):
                 )
                 self.env_info.PATH.extend(
                     os.path.join(self.package_folder, bindir)
-                    for bindir in self.cpp.package.bindirs
+                    for bindir in self.cpp.package.components["lass"].bindirs
                 )
             else:
                 lass_config = self._load_module_from_file(
@@ -247,7 +254,7 @@ class LassConan(ConanFile):
                 )
                 self.env_info.PATH.extend(
                     os.path.join(self.build_folder, bindir)
-                    for bindir in self.cpp.build.bindirs
+                    for bindir in self.cpp.build.components["lass"].bindirs
                 )
         else:
             try:
@@ -262,20 +269,46 @@ class LassConan(ConanFile):
                 )
 
         if self.settings.build_type == "Debug":
-            libs = [
-                lass_config.LASS_OUTPUT_NAME_DEBUG,
-                lass_config.LASS_PYTHON_OUTPUT_NAME_DEBUG,
-            ]
+            components = {
+                "lass": lass_config.LASS_OUTPUT_NAME_DEBUG,
+                "lass_python": lass_config.LASS_PYTHON_OUTPUT_NAME_DEBUG,
+            }
         else:
-            libs = [
-                lass_config.LASS_OUTPUT_NAME,
-                lass_config.LASS_PYTHON_OUTPUT_NAME,
-            ]
-        self.cpp_info.libs = [lib for lib in libs if lib]
-        self.cpp_info.cxxflags = lass_config.LASS_EXTRA_CXX_FLAGS
+            components = {
+                "lass": lass_config.LASS_OUTPUT_NAME,
+                "lass_python": lass_config.LASS_PYTHON_OUTPUT_NAME,
+            }
 
-        # We generate our own LassConfig.cmake
+        # Define the components that this package provides
+        for comp, lib in components.items():
+            self.cpp_info.components[comp].libs = [lib]
+            self.cpp_info.components[comp].cxxflags = lass_config.LASS_EXTRA_CXX_FLAGS
+            self.cpp_info.components[comp].set_property(
+                "cmake_target_name", f"Lass::{comp}"
+            )
+        self.cpp_info.components["lass_python"].requires = ["lass"]
+
+        # We generate our own LassConfig.cmake, so CMakeDeps should generate none
         self.cpp_info.set_property("cmake_find_mode", "none")
+        self.cpp_info.set_property("cmake_file_name", "Lass")  # for LassConfig.cmake
+
+        # The default CMake target that a consumer's CMakeDeps's generated config will
+        # link against. This is the main lass library, as it's the most common use case.
+        #
+        # If Conan package pkg requires Lass and has CMakeDeps generate its
+        # pkg-config.cmake (i.e. doesn't provides its own, like Lass does), by default
+        # its imported target pkg::pkg will *only* link against the main lass library.
+        #
+        # If pkg also requires the Python bindings, it should specify that in
+        # package_info of its conanfile.py:
+        #
+        #   def package_info(self):
+        #       self.cpp_info.requires = ["lass::lass_python"]
+        #
+        # Note that it should be spelled as lowercase lass:: for Conan 2, as this is the
+        # name of the Conan package, and not the CMake namepace Lass::
+        #
+        self.cpp_info.set_property("cmake_target_name", "Lass::lass")
 
     def _load_module_from_file(self, filename):
         file_path = Path(filename)
