@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -106,6 +106,7 @@ template <typename T> inline void inpfloor(T& x);
 template <typename T> inline void inpceil(T& x);
 template <typename T> inline void inpround(T& x);
 template <typename T> inline void inpfractional(T& x);
+template <typename T> inline void inpldexp(T& x, int exp);
 template <typename T> inline void inpdiv(T& x, const T& d);
 template <typename T> inline void inpmod(T& x, const T& d);
 template <typename T> inline void inpclamp(T& x, const T& min, const T& max);
@@ -142,6 +143,7 @@ inline float round(float x);
 inline float fractional(float x);
 inline float div(float x, float d);
 inline float mod(float x, float d);
+inline float ldexp(float x, int exp);
 
 inline float fastSin(float x);
 
@@ -173,6 +175,7 @@ inline double round(double x);
 inline double fractional(double x);
 inline double div(double x, double d);
 inline double mod(double x, double d);
+inline double ldexp(double x, int exp);
 
 inline double fastSin(double x);
 
@@ -210,6 +213,7 @@ inline long double round(long double x);
 inline long double fractional(long double x);
 inline long double div(long double x, long double d);
 inline long double mod(long double x, long double d);
+inline long double ldexp(long double x, int exp);
 
 inline long double fastSin(long double x);
 

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2024 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -267,6 +267,7 @@ template <typename T> void inpfloor(T& x)				{ x = num::floor(x); }		/**< @ingro
 template <typename T> void inpceil(T& x)				{ x = num::ceil(x); }		/**< @ingroup BasicOps */
 template <typename T> void inpround(T& x)				{ x = num::round(x); }		/**< @ingroup BasicOps */
 template <typename T> void inpfractional(T& x)			{ x -= num::floor(x); }		/**< @ingroup BasicOps */
+template <typename T> void inpldexp(T& x, int exp)		{ x = num::ldexp(x, exp); }	/**< @ingroup BasicOps */
 template <typename T> void inpdiv(T& x, const T& m)		{ x = num::div(x, m); }		/**< @ingroup BasicOps */
 template <typename T> void inpmod(T& x, const T& m)		{ x = num::mod(x, m); }		/**< @ingroup BasicOps */
 template <typename T> void inpclamp(T& x, const T& min, const T& max)	{ x = num::clamp(x, min, max); }	/** @ingroup BasicOps */
@@ -297,6 +298,7 @@ float floor(float x)		{ return ::floorf(x); }			/**< @ingroup BasicOps */
 float ceil(float x)			{ return ::ceilf(x); }			/**< @ingroup BasicOps */
 float round(float x)		{ return ::floorf(x + .5f); }	/**< @ingroup BasicOps */
 float fractional(float x)	{ return x - ::floorf(x); }		/**< @ingroup BasicOps */
+float ldexp(float x, int exp)	{ return ::ldexpf(x, exp); }	/**< @ingroup BasicOps */
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #   pragma warning(push)
@@ -373,6 +375,7 @@ double floor(double x)			{ return ::floor(x); }			/**< @ingroup BasicOps */
 double ceil(double x)			{ return ::ceil(x); }			/**< @ingroup BasicOps */
 double round(double x)			{ return ::floor(x + .5); }		/**< @ingroup BasicOps */
 double fractional(double x)		{ return x - ::floor(x); }		/**< @ingroup BasicOps */
+double ldexp(double x, int exp)	{ return ::ldexp(x, exp); }	/**< @ingroup BasicOps */
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #   pragma warning(push)
@@ -453,6 +456,7 @@ long double floor(long double x)				{ return __builtin_floorl(x); }		/**< @ingro
 long double ceil(long double x)					{ return __builtin_ceill(x); }		/**< @ingroup BasicOps */
 long double round(long double x)				{ return __builtin_floorl(x + .5); }	/**< @ingroup BasicOps */
 long double fractional(long double x)			{ return x - __builtin_floorl(x); }	/**< @ingroup BasicOps */
+long double ldexp(long double x, int exp)		{ return __builtin_ldexpl(x, exp); }	/**< @ingroup BasicOps */
 
 /** @ingroup BasicOps */
 long double mod(long double x, long double m) 
@@ -482,6 +486,7 @@ long double floor(long double x)				{ return ::floorl(x); }			/**< @ingroup Basi
 long double ceil(long double x)					{ return ::ceill(x); }			/**< @ingroup BasicOps */
 long double round(long double x)				{ return ::floorl(x + .5); }	/**< @ingroup BasicOps */
 long double fractional(long double x)			{ return x - ::floorl(x); }		/**< @ingroup BasicOps */
+long double ldexp(long double x, int exp)		{ return ::ldexpl(x, exp); }	/**< @ingroup BasicOps */
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #   pragma warning(push)
