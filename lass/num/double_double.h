@@ -328,9 +328,77 @@ DoubleWordFloat<T> sqrt(const DoubleWordFloat<T>& x)
 	return DoubleWordFloat<T>::sum2Fast(sh, sl);
 }
 
+/**	@relates DoubleWordFloat */
+template <typename T>
+bool isInf(const DoubleWordFloat<T>& x)
+{
+	LASS_ASSERT(!(!num::isInf(x.high()) && num::isInf(x.low()))); // low can never be inf if high is not.
+	return num::isInf(x.high());
+}
+
+/**	@relates DoubleWordFloat */
+template <typename T>
+bool isNan(const DoubleWordFloat<T>& x)
+{
+	LASS_ASSERT(!(!num::isNan(x.high()) && num::isNan(x.low()))); // low can never be nan if high is not.
+	return num::isNan(x.high());
+}
+
 
 
 using DoubleDouble = DoubleWordFloat<double>;
+
+template <>
+struct NumTraits<DoubleDouble>
+{
+private:
+    using TDoubleTraits = NumTraits<double>;
+
+    // how big should DoubleDouble epsilon be?
+    // Let's have x = (DoubleDouble(1.) + TDoubleTraits::epislon) / 2, which cannot be represented by a double.
+    // Then let ddEps_ be the smallest possible value so that (x + ddEps_) > x.
+    static constexpr double ddEps_ = TDoubleTraits::epsilon * TDoubleTraits::epsilon / 2;
+public:
+	using selfType = DoubleDouble;
+	using baseType = DoubleDouble;
+	using intervalType = DoubleDouble;
+	enum
+	{
+		isDistribution = false,
+		isIntegral = false,
+		isNative = false,
+		isSigned = true,
+		hasInfinity = true,
+		hasNaN = true,
+		isFloatingPoint = true
+	};
+	static constexpr size_t memorySize = sizeof(DoubleDouble);
+	static constexpr size_t mantisseSize = 31;
+	static const std::string name() { return "DoubleDouble" ; }
+	static constexpr DoubleDouble zero { 0 };
+	static constexpr DoubleDouble one { 1 };
+	static constexpr DoubleDouble infinity { TDoubleTraits::infinity, TDoubleTraits::infinity };
+	static constexpr DoubleDouble qNaN { TDoubleTraits::qNaN, TDoubleTraits::qNaN };
+	static constexpr DoubleDouble sNaN { TDoubleTraits::sNaN, TDoubleTraits::sNaN };
+	static constexpr DoubleDouble epsilon { ddEps_ };
+	static constexpr DoubleDouble min { TDoubleTraits::min, TDoubleTraits::min * TDoubleTraits::epsilon / 4 };
+	static constexpr DoubleDouble max { TDoubleTraits::max, TDoubleTraits::max * TDoubleTraits::epsilon / 4 };
+	//static constexpr DoubleDouble minStrictPositive { TDoubleTraits::minStrictPositive };
+	static constexpr DoubleDouble pi { 0x1.921fb54442d18p+1, 0x1.1a62633145c07p-53 };
+	static constexpr DoubleDouble e { 0x1.5bf0a8b145769p+1, 0x1.4d57ee2b1013ap-53 };
+	static constexpr DoubleDouble sqrt2 { 0x1.6a09e667f3bcdp+0, -0x1.bdd3413b26456p-54 };
+	static constexpr DoubleDouble sqrtPi { 0x1.c5bf891b4ef6bp+0, -0x1.618f13eb7ca89p-54 };
+	static constexpr DoubleDouble log2 { 0x1.62e42fefa39efp-1, 0x1.abc9e3b39803fp-56 };
+
+	static constexpr DoubleDouble gamma(unsigned n)
+	{ 
+		// gamma(n) = n*u / (1 - n*u), where u = epsilon / 2
+		//          = n*u * (1 + n*u) / (1 - (n*u)^2)
+		//          ≈ n*u + (n*u)^2, because RN(1 - (n*u)^2) == 1
+		const double nu = n * ddEps_ / 2;
+		return DoubleDouble(nu, nu * nu);
+	}
+};
 
 }
 }

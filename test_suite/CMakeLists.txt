@@ -143,6 +143,9 @@ if(NOT WIN32)
 	target_link_libraries(test_suite
 		PRIVATE quadmath
 	)
+	set_property(TARGET test_suite
+		PROPERTY CXX_EXTENSIONS ON
+	)
 endif()
 
 foreach(test_name ${unit_tests})

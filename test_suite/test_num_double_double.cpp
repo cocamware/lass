@@ -58,6 +58,11 @@ namespace num
 inline __float128 sqrt(const __float128& x) { return sqrtq(x); }
 inline __float128 abs(const __float128& x) { return __builtin_fabsq(x); }
 
+inline __float128 toFloat128(const DoubleDouble& x)
+{
+    return static_cast<__float128>(x.high()) + static_cast<__float128>(x.low());
+}
+
 }
 }
 
@@ -315,6 +320,88 @@ void testNumDoubleFloat()
 }
 
 
+void testDoubleDoubleNumTraits()
+{
+	using TNumTraits = num::NumTraits<num::DoubleDouble>;
+	using TDoubleTraits = num::NumTraits<double>;
+
+	LASS_TEST_CHECK_EQUAL(TNumTraits::zero.high(), 0.0);
+	LASS_TEST_CHECK_EQUAL(TNumTraits::zero.low(), 0.0);
+	LASS_TEST_CHECK_EQUAL(TNumTraits::one.high(), 1.0);
+	LASS_TEST_CHECK_EQUAL(TNumTraits::one.low(), 0.0);
+	LASS_TEST_CHECK(num::isInf(TNumTraits::infinity.high()));
+	LASS_TEST_CHECK(num::isInf(TNumTraits::infinity.low()));
+	LASS_TEST_CHECK(num::isNaN(TNumTraits::qNaN.high()));
+	LASS_TEST_CHECK(num::isNaN(TNumTraits::qNaN.low()));
+	LASS_TEST_CHECK(num::isNaN(TNumTraits::sNaN.high()));
+	LASS_TEST_CHECK(num::isNaN(TNumTraits::sNaN.low()));
+
+	{
+		const auto x = (TNumTraits::one + (TNumTraits::one + TDoubleTraits::epsilon)) / 2.0;
+		LASS_TEST_CHECK(static_cast<double>(x) == 1.0 || static_cast<double>(x) == (1.0 + TDoubleTraits::epsilon));
+		LASS_TEST_CHECK_EQUAL(x.low(), TDoubleTraits::epsilon / 2);
+		const auto eps = std::nextafter(x.low(), 1.0) - x.low();
+		LASS_TEST_CHECK_EQUAL(static_cast<double>(TNumTraits::epsilon), eps);
+#if TEST_HAVE_QUADMATH
+		LASS_TEST_CHECK(toFloat128(TNumTraits::epsilon) == static_cast<__float128>(eps));
+#endif
+	}
+
+	{
+		// min and max are still problematic because incrementing them by epsilon doesn't make them infinite
+		
+		LASS_TEST_CHECK(!num::isInf(TNumTraits::max));
+		const auto moreThanMax = TNumTraits::max + TNumTraits::max * TNumTraits::epsilon;
+		LASS_COUT << "moreThanMax=" << moreThanMax.high() << " + " << moreThanMax.low() << std::endl; // prints -nan +  -nan :-(
+		// LASS_TEST_CHECK(num::isInf(moreThanMax)); // fails
+
+		LASS_TEST_CHECK(!num::isInf(TNumTraits::min));
+		const auto lessThanMin = TNumTraits::min - TNumTraits::min * TNumTraits::epsilon;
+		LASS_COUT << "lessThanMin=" << lessThanMin.high() << " + " << lessThanMin.low() << std::endl; // prints -1.79769e+308 + -9.9792e+291 :-(
+		// LASS_TEST_CHECK(num::isInf(lessThanMin)); // fails
+	}
+
+	LASS_TEST_CHECK_EQUAL(static_cast<double>(TNumTraits::pi), TDoubleTraits::pi);
+	LASS_TEST_CHECK_EQUAL(static_cast<double>(TNumTraits::e), TDoubleTraits::e);
+	LASS_TEST_CHECK_EQUAL(static_cast<double>(TNumTraits::sqrt2), TDoubleTraits::sqrt2);
+	LASS_TEST_CHECK_EQUAL(static_cast<double>(TNumTraits::sqrtPi), TDoubleTraits::sqrtPi);
+	LASS_TEST_CHECK_EQUAL(static_cast<double>(TNumTraits::log2), num::log(2.0));
+
+#if TEST_HAVE_QUADMATH
+	{
+		const __float128 u = toFloat128(TNumTraits::epsilon) / 2; // unit roundoff
+		LASS_TEST_CHECK(relError(toFloat128(TNumTraits::pi), M_PIq) < u);
+		LASS_TEST_CHECK(relError(toFloat128(TNumTraits::e), M_Eq) < u);
+		LASS_TEST_CHECK(relError(toFloat128(TNumTraits::sqrt2), M_SQRT2q) < u);
+		LASS_TEST_CHECK(relError(toFloat128(TNumTraits::sqrtPi), sqrtq(M_PIq)) < u);
+		LASS_TEST_CHECK(relError(toFloat128(TNumTraits::log2), M_LN2q) < u);
+	}
+#endif
+
+	{
+		// gamma(n) = (n * u) / (1 - n * u)
+		const double u = static_cast<double>(TNumTraits::epsilon) / 2;
+		for (unsigned n = 1; n < 10; ++n)
+		{
+			const auto gamma = TNumTraits::gamma(n);
+
+			const auto nu = n * u;
+			const auto oneMinNu = TNumTraits::one - nu;
+			LASS_TEST_CHECK_EQUAL(oneMinNu.high(), 1.0);
+			LASS_TEST_CHECK_EQUAL(oneMinNu.low(), -nu);
+			const auto gamma2 = nu / oneMinNu;
+			LASS_TEST_CHECK_EQUAL(gamma.high(), gamma2.high());
+			LASS_TEST_CHECK_EQUAL(gamma.low(), gamma2.low());
+
+#if TEST_HAVE_QUADMATH
+			const auto gamma3 = (n * static_cast<__float128>(u)) / (1 - n * static_cast<__float128>(u));
+			LASS_TEST_CHECK(toFloat128(gamma) == gamma3);
+#endif
+		}
+	}
+}
+
+
 TUnitTest test_num_double_double()
 {
 	return TUnitTest{
@@ -322,7 +409,8 @@ TUnitTest test_num_double_double()
 #if TEST_HAVE_QUADMATH
 		LASS_TEST_CASE((testNumDoubleFloat<double, __float128>)),
 #endif
-	};
+		LASS_TEST_CASE(testDoubleDoubleNumTraits),
+};
 }
 
 

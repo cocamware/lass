@@ -126,6 +126,8 @@ if(TARGET Lass::lass_python)
 	add_subdirectory(pylass)
 endif()
 
+add_subdirectory(tools)
+
 # --- TESTING ---
 
 set(DART_TESTING_TIMEOUT 240 CACHE STRING "Maximum time allowed before CTest will kill the test.")
