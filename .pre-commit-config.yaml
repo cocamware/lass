@@ -16,3 +16,4 @@ repos:
     hooks:
       - id: bramz-fix-copyright
         args: [--author=the Initial Developer]
+        exclude: double_double_constants\.cpp$

@@ -87,22 +87,30 @@ constexpr std::pair<T, T> prod2(T a, T b)
 /**	@class lass::num::DoubleWordFloat
  *	@author Bram de Greve [BdG]
  *
- *	@note S. Boldo, C.-P. Jeannerod, G. Melquiond, J.-M. Muller. Floating-point arithmetic.
+ *	@note [Boldo2023] S. Boldo, C.-P. Jeannerod, G. Melquiond, J.-M. Muller. Floating-point arithmetic.
  *		Acta Numerica, 2023, 32, pp.203-290. 10.1017/S0962492922000101. hal-04095151
  *		https://doi.org/10.1017/S0962492922000101
  *		https://hal.science/hal-04095151
  *
- *	@note M.M. Joldes, J.-M. Muller, V. Popescu. Tight and rigorous error bounds for
+ *	@note [Joldes2017] M.M. Joldes, J.-M. Muller, V. Popescu. Tight and rigorous error bounds for
  *		basic building blocks of double-word arithmetic. ACM Transactions of Mathematical
  *		Software, 2017, 44 (2), pp.1-27. 10.1145/3121432. hal-01351529v3
  *		https://doi.org/10.1145/3121432
  *		https://hal.science/hal-01351529v3
  *
- *	@note J.-M. Muller, L. Rideau. Formalization of double-word arithmetic, and comments on
+ *	@note [Muller2022] J.-M. Muller, L. Rideau. Formalization of double-word arithmetic, and comments on
  *		"Tight and rigorous error bounds for basic building blocks of double-word arithmetic".
  *		ACM Transactions of Mathematical Software, 2022, 48 (1), pp.1-24. 10.1145/3484514. hal-02972245v2
  *		https://doi.org/10.1145/3484514
  *		https://hal.science/hal-02972245v2
+ *
+ *	@note [Muller2016] J.-M. Muller, Elementary Functions: Algorithms and Implementation,
+ *		3rd ed. Birkhäuser Boston, MA, 2016. ISBN 978-1-4899-7981-0
+ *		https://doi.org/10.1007/978-1-4899-7983-4
+ *
+ *	@note [Johansson2015] F. Johansson, Efficient Implementation of Elementary Functions in the Medium-Precision Range,
+ *		2015 IEEE 22nd Symposium on Computer Arithmetic, Lyon, France, 2015, pp. 83-89, 10.1109/ARITH.2015.16.
+ *		https://doi.org/10.1109/ARITH.2015.16
  */
 template <typename T>
 class DoubleWordFloat
@@ -114,9 +122,9 @@ public:
 	constexpr DoubleWordFloat(TValue value): DoubleWordFloat(value, 0) {}
 	constexpr DoubleWordFloat(TValue high, TValue low): high_(high), low_(low) {}
 
-	explicit operator TValue() const { return high_; }
-	TValue high() const { return high_; }
-	TValue low() const { return low_; }
+	constexpr explicit operator TValue() const { return high_; }
+	constexpr TValue high() const { return high_; }
+	constexpr TValue low() const { return low_; }
 
 	const DoubleWordFloat& operator+() const { return *this; }
 	DoubleWordFloat operator-() const { return DoubleWordFloat(-high_, -low_); }
@@ -165,8 +173,8 @@ public:
 	DoubleWordFloat& operator*=(const DoubleWordFloat& other)
 	{
 		const auto c = prod2(high_, other.high_);
-		const auto t0 = prod2(low_, other.low_);
-		const auto t1 = std::fma(high_, other.low_, t0.low_);
+		const auto t0 = low_ * other.low_;
+		const auto t1 = std::fma(high_, other.low_, t0);
 		const auto c2 = std::fma(low_, other.high_, t1);
 		const auto c3 = c.low_ + c2;
 		*this = sum2Fast(c.high_, c3);
@@ -344,6 +352,12 @@ bool isNan(const DoubleWordFloat<T>& x)
 	return num::isNan(x.high());
 }
 
+/**	@relates DoubleWordFloat */
+template <typename T>
+DoubleWordFloat<T> ldexp(const DoubleWordFloat<T>& x, int exp)
+{
+    return DoubleWordFloat<T>(std::ldexp(x.high(), exp), std::ldexp(x.low(), exp));
+}
 
 
 using DoubleDouble = DoubleWordFloat<double>;
@@ -399,6 +413,9 @@ public:
 		return DoubleDouble(nu, nu * nu);
 	}
 };
+
+LASS_DLL DoubleDouble exp(const DoubleDouble& x);
+LASS_DLL DoubleDouble log(const DoubleDouble& x);
 
 }
 }

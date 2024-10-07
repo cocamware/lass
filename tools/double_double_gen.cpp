@@ -41,11 +41,16 @@
  */
 
 #include <lass/num/double_double.h>
+
+#include <filesystem>
+#include <fstream>
+
 #include <quadmath.h>
 
-using lass::num::DoubleDouble;
+using namespace lass;
+using num::DoubleDouble;
 
-DoubleDouble fromFloat128(__float128 x)
+constexpr DoubleDouble fromFloat128(__float128 x)
 {
 	const double high = static_cast<double>(x);
 	const double low = static_cast<double>(x - high);
@@ -54,21 +59,78 @@ DoubleDouble fromFloat128(__float128 x)
 
 std::ostream& operator<<(std::ostream& os, const DoubleDouble& x)
 {
-	return os << x.high() << ", " << x.low();
+	return os << std::hexfloat << x.high() << ", " << x.low() << std::defaultfloat;
 }
 
 void generateNumTraits()
 {
-	LASS_COUT << std::hexfloat;
+	LASS_COUT << "--- NumTraits ---" << std::endl;
 	LASS_COUT << "static constexpr DoubleDouble pi { " << fromFloat128(M_PIq) << " };" << std::endl;
 	LASS_COUT << "static constexpr DoubleDouble e { " << fromFloat128(M_Eq) << " };" << std::endl;
 	LASS_COUT << "static constexpr DoubleDouble sqrt2 { " << fromFloat128(M_SQRT2q) << " };" << std::endl;
 	LASS_COUT << "static constexpr DoubleDouble sqrtPi { " << fromFloat128(sqrtq(M_PIq)) << " };" << std::endl;
 	LASS_COUT << "static constexpr DoubleDouble log2 { " << fromFloat128(M_LN2q) << " };" << std::endl;
+	LASS_COUT << "---" << std::endl;
+}
+
+void generateExpTable(std::ostream& os)
+{
+	constexpr int r = 8;
+	constexpr __float128 q = 1 << r;
+	constexpr __float128 invQ = 1 / q;
+	constexpr auto ddInvQ = fromFloat128(invQ);
+	static_assert(ddInvQ.low() == 0.0, "double representation should be exact");
+
+	constexpr __float128 d = 1024.0;
+	constexpr __float128 c = M_LN2q;
+	const __float128 c1 = roundq(c * d) / d;
+	LASS_ENFORCE(static_cast<double>(c1) == c1);
+	const __float128 c2 = c - c1;
+	os << "extern const double expC1 = " << std::hexfloat << static_cast<double>(c1) << ";" << std::endl;
+	os << "extern const DoubleDouble expC2 { " << fromFloat128(c2) << " };" << std::endl;
+
+	const size_t n = static_cast<size_t>(ceilq(q * M_LN2q)) + 1;
+	os << "extern const size_t expI_q_size = " << n << ";" << std::endl;
+	os << "extern const DoubleDouble expI_q[expI_q_size] = {" << std::endl;
+	for (size_t i = 0; i < n; ++i)
+	{
+		const __float128 x = i * invQ;
+		LASS_ENFORCE(static_cast<double>(x) == x); // exact representation
+		const __float128 y = expq(x);
+		os << "\t{ " << fromFloat128(y) << " }, // exp(" << static_cast<double>(x) << ")" << std::endl;
+	}
+	os << "};" << std::endl;
+}
+
+void generateDoubleDoubleConstants()
+{
+	const std::filesystem::path sourceDir = LASS_SOURCE_DIR;
+	const auto path = sourceDir / "lass/num/double_double_constants.cpp";
+
+	std::ofstream os(path);
+	os <<
+		"#include <lass/num/double_double.h>\n"
+		"\n"
+		"namespace lass\n"
+		"{\n"
+		"namespace num\n"
+		"{\n"
+		"namespace impl\n"
+		"{\n"
+		"\n";
+
+	generateExpTable(os);
+
+	os <<
+		"\n"
+		"}\n"
+		"}\n"
+		"}\n";
 }
 
 int main()
 {
 	generateNumTraits();
+	generateDoubleDoubleConstants();
 	return 0;
 }

@@ -97,15 +97,8 @@ T randomFloat(RNG&& rng)
 }
 
 template <typename T, typename RNG>
-num::DoubleWordFloat<T> randomDoubleFloat(RNG&& rng)
+num::DoubleWordFloat<T> randomDoubleFloat(RNG&& rng, int minExp, int maxExp)
 {
-	// we limit the exponent to half the range, so that sum of exponents fits in the range
-	// when multiplying two numbers.
-	// we further offset minExp with size of significand (in bits), to avoid subnormal numbers in low part.
-	constexpr int minExp = std::numeric_limits<T>::min_exponent / 2 + std::numeric_limits<T>::digits;
-	constexpr int maxExp = std::numeric_limits<T>::max_exponent / 2 - std::numeric_limits<T>::digits;
-	static_assert(minExp < 0 && maxExp > 0);
-
 	using TSingleTraits = num::NumTraits<T>;
 	constexpr T zero = TSingleTraits::zero;
 	constexpr T one = TSingleTraits::one;
@@ -121,6 +114,18 @@ num::DoubleWordFloat<T> randomDoubleFloat(RNG&& rng)
 	const T low = sign2 * num::ldexp(significand2, exponent2);
 
 	return num::DoubleWordFloat<T>::sum2Fast(high, low);
+}
+
+template <typename T, typename RNG>
+num::DoubleWordFloat<T> randomDoubleFloat(RNG&& rng)
+{
+	// we limit the exponent to half the range, so that sum of exponents fits in the range
+	// when multiplying two numbers.
+	// we further offset minExp with size of significand (in bits), to avoid subnormal numbers in low part.
+	constexpr int minExp = std::numeric_limits<T>::min_exponent / 2 + std::numeric_limits<T>::digits;
+	constexpr int maxExp = std::numeric_limits<T>::max_exponent / 2 - std::numeric_limits<T>::digits;
+	static_assert(minExp < 0 && maxExp > 0);
+	return randomDoubleFloat<T>(rng, minExp, maxExp);
 }
 
 
@@ -402,6 +407,52 @@ void testDoubleDoubleNumTraits()
 }
 
 
+void testDoubleDoubleExp()
+{
+	using DoubleDouble = num::DoubleDouble;
+	using TNumTraits = num::NumTraits<DoubleDouble>;
+
+	std::mt19937_64 rng;
+	constexpr int minExp = -9;
+	constexpr int maxExp = 9;
+	constexpr double u = static_cast<double>(TNumTraits::epsilon) / 2;
+	constexpr double tol = 3 * u;
+
+	{
+		const DoubleDouble x = 0;
+		const DoubleDouble y = num::exp(x);
+		LASS_TEST_CHECK_EQUAL(y.high(), 1.0);
+		LASS_TEST_CHECK_EQUAL(y.low(), 0.0);
+	}
+	//{
+	//	const DoubleDouble x = 1;
+	//	const DoubleDouble y = num::exp(x);
+	//	LASS_TEST_CHECK_EQUAL(y.high(), TNumTraits::e.high());
+	//	LASS_TEST_CHECK_EQUAL(y.low(), TNumTraits::e.low());
+	//}
+
+	constexpr size_t n = 100000;
+	for (size_t i = 0; i < n; ++i)
+	{
+		const auto x = randomDoubleFloat<double>(rng, minExp, maxExp);
+		const auto y = num::exp(x);
+#if TEST_HAVE_QUADMATH
+		const auto xx = toFloat128(x);
+		const auto yy = expq(xx);
+		const auto err = static_cast<double>(relError(toFloat128(y), yy));
+		if (err > tol)
+		{
+			LASS_COUT << "x=" << x.high() << " + " << x.low() << "; ";
+			LASS_COUT << "y=" << y.high() << " + " << y.low() << "; ";
+			LASS_COUT << "err=" << err << std::endl;
+		}
+		LASS_TEST_CHECK(relError(toFloat128(y), yy) <= tol);
+#endif
+	}
+	std::cout << "u=" << u << std::endl;
+}
+
+
 TUnitTest test_num_double_double()
 {
 	return TUnitTest{
@@ -410,6 +461,7 @@ TUnitTest test_num_double_double()
 		LASS_TEST_CASE((testNumDoubleFloat<double, __float128>)),
 #endif
 		LASS_TEST_CASE(testDoubleDoubleNumTraits),
+		LASS_TEST_CASE(testDoubleDoubleExp),
 };
 }
 
