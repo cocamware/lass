@@ -193,17 +193,27 @@ class LassConan(ConanFile):
         build_bindir = os.path.join("bin", subdir)
         share_dir = os.path.join("share", "Lass")
 
+        # include dirs for local build
+        self.cpp.source.includedirs = ["."]
+        self.cpp.build.includedirs = ["local"]
+
+        # binary dirs for local build
+        self.cpp.build.libdirs = [build_libdir]
+        self.cpp.build.bindirs = [build_bindir]
+
+        # We generate our own LassConfig.cmake, but we have to tell conan
+        # where it can be found, relative to the package or build dir ...
+        self.cpp.package.builddirs = [share_dir]
+        self.cpp.build.builddirs = ["."]
+
+        # Repeat for components
         for comp in ["lass", "lass_python"]:
-            # include dirs for local build
             self.cpp.source.components[comp].includedirs = ["."]
             self.cpp.build.components[comp].includedirs = ["local"]
 
-            # binary dirs for local build
             self.cpp.build.components[comp].libdirs = [build_libdir]
             self.cpp.build.components[comp].bindirs = [build_bindir]
 
-            # We generate our own LassConfig.cmake, but we have to tell conan
-            # where it can be found, relative to the package or build dir ...
             self.cpp.package.components[comp].builddirs = [share_dir]
             self.cpp.build.components[comp].builddirs = ["."]
 
