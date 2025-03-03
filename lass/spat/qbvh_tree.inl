@@ -23,7 +23,7 @@
 	*	The Original Developer is the Initial Developer.
 	*	
 	*	All portions of the code written by the Initial Developer are:
-	*	Copyright (C) 2024 the Initial Developer.
+	*	Copyright (C) 2024-2025 the Initial Developer.
 	*	All Rights Reserved.
 	*	
 	*	Contributor(s):
@@ -1148,7 +1148,7 @@ QbvhTree<O, OT, SH>::doIntersect(Child root, const TRay& ray, const TVector& inv
 			order_ = _mm_blendv_epi8(order_, order21, mask21);
 			const auto order0 = _mm_shuffle_epi32(order_, 0x4E);
 			order_ = _mm_blendv_epi8(order_, order0, mask0);
-			LASS_ASSERT(sizeof(order) == sizeof(order_));
+			static_assert(sizeof(order) == sizeof(order_));
 			memcpy(order, &order_, sizeof(order_));
 		}
 #else
