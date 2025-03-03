@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2024 the Initial Developer.
+ *	Copyright (C) 2024-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -254,7 +254,7 @@ private:
 			index_( -static_cast<int>((first << countBits) | (count - 1)) - 1 )
 		{
 			LASS_ASSERT(index_ < 0);
-			LASS_ASSERT((first >= 0) && (count > 0 && count <= maxCount) && (first + count -1 <= maxObject));
+			LASS_ASSERT((count > 0 && count <= maxCount) && (first + count -1 <= maxObject));
 		}
 
 		bool isEmpty() const { return !index_; }
