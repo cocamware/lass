@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -280,7 +280,7 @@ bool Ray3D<T, NP, PP>::isValid() const
 template<typename T, class NP>
 std::ostream& operator<<(std::ostream& ioOStream, const Ray3D<T, NP>& iRay)
 {
-	LASS_ENFORCE(ioOStream) << "{O=" << iRay.origin() << ", D=" << iRay.direction() << "}";
+	LASS_ENFORCE(ioOStream) << "{S=" << iRay.support() << ", D=" << iRay.direction() << "}";
 	return ioOStream;
 }
 
