@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -66,43 +66,56 @@ namespace impl
 				const Sphere3D<T>& sphere, const Ray3D<T, NormalizingPolicy, PP>& ray, 
 				T& t, const T& tMin)
 		{
-			typedef Vector3D<T> TVector;
-			typedef typename TVector::TValue TValue;
-			typedef typename TVector::TNumTraits TNumTraits;
-			typedef num::Consistent<T> TConsistent;
+			using TValue = T;
+			using TVector = Vector3D<TValue>;
+			using TNumTraits = typename TVector::TNumTraits;
+
+			using TDouble = std::conditional_t<std::is_same_v<T, float>, double, T>;
+			using TVectorDouble = Vector3D<TDouble>;
 
 			const TVector cs = ray.support() - sphere.center();
+			const TVector& d = ray.direction();
+			const TValue r2 = num::sqr(sphere.radius());
 
-			// at� + bt + c == 0
-			const TValue a = ray.direction().squaredNorm();
-			const TValue b = dot(cs, ray.direction());
-			const TValue c = cs.squaredNorm() - num::sqr(sphere.radius());
+			// at² + bt + c == 0
+			const TValue a = d.squaredNorm();
+			const TValue b = dot(cs, d);
+			const TValue c = static_cast<TValue>(
+				static_cast<TVectorDouble>(cs).squaredNorm() -
+				num::sqr(static_cast<TDouble>(sphere.radius())));
+			// const TValue discriminant = num::sqr(b) - a * c;
 
-			const TValue discriminant = num::sqr(b) - a * c;
+			// Hearn and Baker's geometrical reformulation:
+			const TVector l = cs - (b / a) * d;
+			const TValue discriminant = r2 - l.squaredNorm();
 
 			if (discriminant > TNumTraits::zero)
 			{
-				const TValue sqrtD = num::sqrt(discriminant);
-				const TValue invA = num::inv(a);
-				const TConsistent t1 = (-b - sqrtD) * invA;
+				// Press et al. Numerical Recipes
+				const TValue q = -(b + std::copysign(num::sqrt(a * discriminant), b));
+				TValue t1 = c / q;
+				TValue t2 = q / a;
+				if (t1 > t2)
+				{
+					std::swap(t1, t2);
+				}
 				if (t1 > tMin)
 				{
-					t = t1.value();
+					t = t1;
 					return rOne;
 				}
-				const TConsistent t2 = (-b + sqrtD) * invA;
 				if (t2 > tMin)
 				{
-					t = t2.value();
+					t = t2;
 					return rOne;
 				}
 			}
 			else if (discriminant == TNumTraits::zero)
 			{
-				const TConsistent t1 = -b / a;
+				const TValue t1 = - b / a;
 				if (t1 > tMin)
 				{
-					t = t1.value();
+					t = t1;
 					return rOne;
 				}
 			}
@@ -120,45 +133,56 @@ namespace impl
 								const Ray3D<T, Normalized, PP>& ray, 
 								T& t, const T& tMin)
 		{
-			typedef Vector3D<T> TVector;
-			typedef typename TVector::TValue TValue;
-			typedef typename TVector::TNumTraits TNumTraits;
-			typedef num::Consistent<T> TConsistent;
+			using TValue = T;
+			using TVector = Vector3D<TValue>;
+			using TNumTraits = typename TVector::TNumTraits;
 
-			typedef typename num::DoublePrecision<T>::Type TDouble;
-			typedef Vector3D<TDouble> TVectorDouble;
+			using TDouble = std::conditional_t<std::is_same_v<T, float>, double, T>;
+			using TVectorDouble = Vector3D<TDouble>;
 
-			const TVectorDouble cs(ray.support() - sphere.center());
+			const TVector cs = ray.support() - sphere.center();
+			const TVector& d = ray.direction();
+			const TValue r2 = num::sqr(sphere.radius());
 
-			// at� + bt + c == 0
-			//const TValue a = 1;
-			const TDouble b = dot(cs, TVectorDouble(ray.direction()));
-			const TDouble c = cs.squaredNorm() - num::sqr(TDouble(sphere.radius()));
+			// at² + bt + c == 0
+			// const TValue a = d.squaredNorm() == 1;
+			const TValue b = dot(cs, d);
+			const TValue c = static_cast<TValue>(
+				static_cast<TVectorDouble>(cs).squaredNorm() -
+				num::sqr(static_cast<TDouble>(sphere.radius())));
+			// const TValue discriminant = num::sqr(b) - c;
 
-			const TDouble discriminant = num::sqr(b) - c;
+			// Hearn and Baker's geometrical reformulation:
+			const TVector l = cs - b * d;
+			const TValue discriminant = r2 - l.squaredNorm();
 
 			if (discriminant > TNumTraits::zero)
 			{
-				const TDouble sqrtD = num::sqrt(discriminant);
-				const TConsistent t1 = static_cast<TValue>(-b - sqrtD);
+				// Press et al. Numerical Recipes
+				const TValue q = -(b + std::copysign(num::sqrt(discriminant), b));
+				TValue t1 = c / q;
+				TValue t2 = q;
+				if (t1 > t2)
+				{
+					std::swap(t1, t2);
+				}
 				if (t1 > tMin)
 				{
-					t = t1.value();
+					t = t1;
 					return rOne;
 				}
-				const TConsistent t2 = static_cast<TValue>(-b + sqrtD);
 				if (t2 > tMin)
 				{
-					t = t2.value();
+					t = t2;
 					return rOne;
 				}
 			}
 			else if (discriminant == TNumTraits::zero)
 			{
-				const TConsistent t1 = static_cast<TValue>(-b);
+				const TValue t1 = -b;
 				if (t1 > tMin)
 				{
-					t = t1.value();
+					t = t1;
 					return rOne;
 				}
 			}
@@ -181,9 +205,13 @@ namespace impl
  *  @return @arg rNone      no intersections with @a t > @a tMin found
  *                          @a t is not assigned.
  *          @arg rOne       a intersection with @a t > @a tMin is found
- *							@a t is assigned.
+ *                          @a t is assigned.
  *
- *  http://flipcode.dxbug.com/wiki/index.php?title=Line-Sphere_%28Collision%29
+ *  For implementation details on numerical precision:
+ * 
+ *  Haines, E., Günther, J., Akenine-Möller, T. (2019). Precision Improvements for Ray/Sphere Intersection.
+ *  In: Haines, E., Akenine-Möller, T. (eds) Ray Tracing Gems. Apress, Berkeley, CA.
+ *  https://doi.org/10.1007/978-1-4842-4427-2_7
  */
 template<typename T, class NP, class PP> inline
 Result intersect(
