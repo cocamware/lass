@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -269,37 +269,45 @@ void checkEqual(const A& iA, const B& iB, const std::string& iAString, const std
 }
 
 template <typename T>
-void checkClose(const T& iA, const T& iB, const T& iRelativeTolerance, const std::string& iAString,
+bool isClose(T a, T b, T tolerance)
+{
+	return a == 0 || b == 0
+		? num::abs(a - b) < tolerance
+		: num::almostEqual(a, b, tolerance);
+}
+
+template <typename T>
+void checkClose(const T& iA, const T& iB, const T& iTolerance, const std::string& iAString,
 				const std::string& iBString, const std::string& iFile, unsigned iLine)
 {
-	if (!num::almostEqual(iA, iB, iRelativeTolerance))
+	if (!isClose(iA, iB, iTolerance))
 	{
 		LASS_TEST_IMPL_ERROR("test '" << iAString << " == " << iBString << "' failed (" << iA << " != " << iB 
-			<< " within relative tolerance " << iRelativeTolerance << ").", iFile, iLine);
+			<< " within tolerance " << iTolerance << ").", iFile, iLine);
 	}
 }
 
 template <typename T>
-void checkClose(const std::complex<T>& iA, const std::complex<T>& iB, const T& iRelativeTolerance, 
+void checkClose(const std::complex<T>& iA, const std::complex<T>& iB, const T& iTolerance,
 	const std::string& iAString, const std::string& iBString, const std::string& iFile, unsigned iLine)
 {
-	if (!num::almostEqual(iA.real(), iB.real(), iRelativeTolerance) || !num::almostEqual(iA.imag(), iB.imag(), iRelativeTolerance))
+	if (!isClose(iA.real(), iB.real(), iTolerance) || !isClose(iA.imag(), iB.imag(), iTolerance))
 	{
 		LASS_TEST_IMPL_ERROR("test '" << iAString << " == " << iBString << "' failed (" << iA << " != " << iB
-			<< " withing relative tolerance " << iRelativeTolerance << ").", iFile, iLine);
+			<< " within tolerance " << iTolerance << ").", iFile, iLine);
 	}
 }
 
 template <typename V, typename T>
-void checkCloseArray(const V& iA, const V& iB, const T& iRelativeTolerance, size_t iSize, const std::string& iAString,
+void checkCloseArray(const V& iA, const V& iB, const T& iTolerance, size_t iSize, const std::string& iAString,
 				const std::string& iBString, const std::string& iFile, unsigned iLine)
 {
 	for (size_t k = 0; k < iSize; ++k)
 	{
-		if (!num::almostEqual(iA[k], iB[k], iRelativeTolerance))
+		if (!isClose(iA[k], iB[k], iTolerance))
 		{
 			LASS_TEST_IMPL_ERROR("test '" << iAString << " == " << iBString << "' failed in component " << k 
-				<< " (" << iA << " != " << iB << " within relative tolerance " << iRelativeTolerance << ").", 
+				<< " (" << iA << " != " << iB << " within tolerance " << iTolerance << ").",
 				iFile, iLine);
 		}
 	}
