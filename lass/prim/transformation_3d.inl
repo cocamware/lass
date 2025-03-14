@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -329,7 +329,7 @@ const Transformation3D<T> Transformation3D<T>::rotation(XYZ axis, TParam radians
 	forward[4 * b + a] = s;
 
 	TMatrix& inverse = pimpl->inverse;
-	identity(forward);
+	identity(inverse);
 	inverse[5 * a] = c;
 	inverse[5 * b] = c;
 	inverse[4 * a + b] = s;

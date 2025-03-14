@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -127,6 +127,14 @@ void testPrimTransformation3D()
 	}
 	LASS_COUT << "time: " << ((stopWatch.stop() + correction) / n) << "\n";
 */
+
+	// test rotation
+	{
+		TTransformation M = TTransformation::rotation('y', TNumTraits::pi / 2);
+		TVector v(1, 0, 0);
+		LASS_TEST_CHECK_CLOSE_ARRAY(transform(v, M), TVector(0, 0, -1), epsilon, 3);
+		LASS_TEST_CHECK_CLOSE_ARRAY(transform(v, M.inverse()), TVector(0, 0, 1), epsilon, 3);
+	}
 
 	// test concatenation
 
