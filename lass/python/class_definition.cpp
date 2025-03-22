@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -231,6 +231,14 @@ void ClassDefinition::setDocIfNotNull(const char* doc)
 		return; \
 	}\
 	/**/	
+
+
+void ClassDefinition::addConstructor(newfunc dispatcher, newfunc& overloadChain)
+{
+	overloadChain = type_.tp_new;
+	type_.tp_new = dispatcher;
+}
+
 
 void ClassDefinition::addMethod(const char* name, const char* doc, PyCFunction dispatcher, OverloadLink& overloadChain) 
 {

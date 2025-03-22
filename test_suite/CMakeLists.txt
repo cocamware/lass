@@ -155,3 +155,13 @@ if (WIN32 AND TARGET Lass::lass_python)
 		ENVIRONMENT "PATH=${_path}"
 		)
 endif()
+
+Lass_generate_stubs(test_suite
+	SOURCES
+		python_embedding.cpp
+		python_shadow.cpp
+		foo.cpp
+		bar.cpp
+	OUTPUT_DIRECTORY
+		"${sourcedir}"
+)

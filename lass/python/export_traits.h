@@ -155,6 +155,8 @@ struct PyExportTraits< T* >
 template <typename T, template <typename, typename> class S, typename C>
 struct PyExportTraits< util::SharedPtr<T, S, C> >
 {
+	constexpr static const char* py_typing = "T | None";
+
 	typedef impl::ShadowTraits<typename ShadoweeTraits<T>::TShadow> TShadowTraits; 
 	typedef util::SharedPtr<T, S, C> TPtr;
 	static PyObject* build(const TPtr& value)
@@ -181,6 +183,8 @@ struct PyExportTraits< util::SharedPtr<T, S, C> >
 template <>
 struct PyExportTraits<TPyObjPtr>
 {
+	constexpr static const char* py_typing = "Any";
+
 	static PyObject* build(const TPyObjPtr& v)
 	{
 		if (!v)
@@ -242,6 +246,8 @@ struct PyExportTraits< util::SharedPtr<T, PyObjectStorage, PyObjectCounter> >
 template <typename T, typename Deleter>
 struct PyExportTraits< std::unique_ptr<T, Deleter> >
 {
+	constexpr static const char* py_typing = "T | None";
+
 	typedef impl::ShadowTraits<typename ShadoweeTraits<T>::TShadow> TShadowTraits;
 	static PyObject* build(std::unique_ptr<T, Deleter>&& value)
 	{
@@ -259,6 +265,8 @@ struct PyExportTraits< std::unique_ptr<T, Deleter> >
 template <typename T>
 struct PyExportTraits< std::shared_ptr<T> >
 {
+	constexpr static const char* py_typing = "T | None";
+
 	typedef impl::ShadowTraits<typename ShadoweeTraits<T>::TShadow> TShadowTraits;
 	typedef std::shared_ptr<T> TPtr;
 	static PyObject* build(const TPtr& value)
@@ -288,6 +296,8 @@ struct PyExportTraits< std::shared_ptr<T> >
 template <>
 struct PyExportTraits<void*>
 {
+	constexpr static const char* py_typing = "Any"; // should be CapsuleType | None instead?
+
 	LASS_PYTHON_DLL static PyObject* build(void* value);
 	LASS_PYTHON_DLL static int get(PyObject* obj, void*& value);
 };
@@ -299,6 +309,8 @@ struct PyExportTraits<void*>
 template <typename T>
 struct PyExportTraits< impl::NoNone<T> >
 {
+	constexpr static const char* py_typing = "T"; // should be CapsuleType | None instead?
+
 	static int get(PyObject* obj, impl::NoNone<T>& value)
 	{
 		if (obj == Py_None)
@@ -319,6 +331,8 @@ struct PyExportTraits< impl::NoNone<T> >
 template <>
 struct PyExportTraits<bool>
 {
+	constexpr static const char* py_typing = "bool";
+
 	LASS_PYTHON_DLL static PyObject* build(bool v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, bool& v);
 };
@@ -332,6 +346,8 @@ struct PyExportTraits<bool>
 template <typename Integer>
 struct PyExportTraitsSigned
 {
+	constexpr static const char* py_typing = "int";
+
 	LASS_META_ASSERT(sizeof(Integer) <= sizeof(long), integer_should_fit_in_long);
 	static PyObject* build(Integer v)
 	{
@@ -396,6 +412,8 @@ struct PyExportTraits<signed long>: PyExportTraitsSigned<signed long>
 template <typename Integer>
 struct PyExportTraitsUnsigned
 {
+	constexpr static const char* py_typing = "int";
+
 	LASS_META_ASSERT(sizeof(Integer) <= sizeof(unsigned long), integer_should_fit_in_unsigned_long);
 	static PyObject* build(Integer v)
 	{
@@ -459,6 +477,8 @@ struct PyExportTraits<unsigned long>: PyExportTraitsUnsigned<unsigned long>
 template <>
 struct PyExportTraits<signed PY_LONG_LONG>
 {
+	constexpr static const char* py_typing = "int";
+
 	LASS_PYTHON_DLL static PyObject* build(signed PY_LONG_LONG v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, signed PY_LONG_LONG& v);
 };
@@ -468,6 +488,8 @@ struct PyExportTraits<signed PY_LONG_LONG>
 template <>
 struct PyExportTraits<unsigned PY_LONG_LONG>
 {
+	constexpr static const char* py_typing = "int";
+
 	LASS_PYTHON_DLL static PyObject* build(unsigned PY_LONG_LONG v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, unsigned PY_LONG_LONG& v);
 };
@@ -484,6 +506,8 @@ struct PyExportTraits<unsigned PY_LONG_LONG>
 template <typename Float>
 struct PyExportTraitsFloat
 {
+	constexpr static const char* py_typing = "float";
+
 	static PyObject* build(Float v)
 	{
 		return PyFloat_FromDouble(v);
@@ -565,6 +589,8 @@ struct PyExportTraits<long double>: PyExportTraitsFloat<long double>
 template <typename T>
 struct PyExportTraits< std::complex<T> >
 {
+	constexpr static const char* py_typing = "complex";
+
 	static PyObject* build(const std::complex<T>& v)
 	{
 		return PyComplex_FromDoubles(
@@ -607,6 +633,8 @@ struct PyExportTraits< std::complex<T> >
 template <typename T>
 struct PyExportTraits<std::basic_string_view<T>>
 {
+	constexpr static const char* py_typing = "str";
+
 	static PyObject* build(std::basic_string_view<T> v)
 	{
 		return impl::buildStringImpl(v.data(), v.size());
@@ -619,6 +647,7 @@ struct PyExportTraits<std::basic_string_view<T>>
 template <>
 struct PyExportTraits<const char*>: PyExportTraits<std::string_view>
 {
+	constexpr static const char* py_typing = "str";
 };
 
 
@@ -648,6 +677,8 @@ struct PyExportTraits<char [N]> : PyExportTraits<const char [N]>
 template <>
 struct PyExportTraits<std::string>
 {
+	constexpr static const char* py_typing = "str";
+
 	LASS_PYTHON_DLL static PyObject* build(const std::string& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::string& v);
 };
@@ -658,6 +689,7 @@ struct PyExportTraits<std::string>
 template <>
 struct PyExportTraits<const wchar_t*>: PyExportTraits<std::wstring_view>
 {
+	constexpr static const char* py_typing = "str";
 };
 
 
@@ -686,6 +718,8 @@ struct PyExportTraits<wchar_t [N]>: PyExportTraits<const wchar_t [N]>
 template <>
 struct PyExportTraits<std::wstring>
 {
+	constexpr static const char* py_typing = "str";
+
 	LASS_PYTHON_DLL static PyObject* build(const std::wstring& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::wstring& v);
 };
@@ -699,6 +733,7 @@ struct PyExportTraits<std::wstring>
 template <>
 struct PyExportTraits<const char8_t*> : PyExportTraits<std::u8string_view>
 {
+	constexpr static const char* py_typing = "str";
 };
 
 
@@ -727,6 +762,8 @@ struct PyExportTraits<char8_t[N]> : PyExportTraits<const char8_t[N]>
 template <>
 struct PyExportTraits<std::u8string>
 {
+	constexpr static const char* py_typing = "str";
+
 	LASS_PYTHON_DLL static PyObject* build(const std::u8string& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::u8string& v);
 };
@@ -740,6 +777,7 @@ struct PyExportTraits<std::u8string>
 template <>
 struct PyExportTraits<const char16_t*> : PyExportTraits<std::u16string_view>
 {
+	constexpr static const char* py_typing = "str";
 };
 
 
@@ -768,6 +806,8 @@ struct PyExportTraits<char16_t[N]> : PyExportTraits<const char16_t[N]>
 template <>
 struct PyExportTraits<std::u16string>
 {
+	constexpr static const char* py_typing = "str";
+
 	LASS_PYTHON_DLL static PyObject* build(const std::u16string& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::u16string& v);
 };
@@ -778,6 +818,7 @@ struct PyExportTraits<std::u16string>
 template <>
 struct PyExportTraits<const char32_t*> : PyExportTraits<std::u32string_view>
 {
+	constexpr static const char* py_typing = "str";
 };
 
 
@@ -806,6 +847,8 @@ struct PyExportTraits<char32_t[N]> : PyExportTraits<const char32_t[N]>
 template <>
 struct PyExportTraits<std::u32string>
 {
+	constexpr static const char* py_typing = "str";
+
 	LASS_PYTHON_DLL static PyObject* build(const std::u32string& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::u32string& v);
 };

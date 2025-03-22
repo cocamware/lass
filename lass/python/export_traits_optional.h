@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2022 the Initial Developer.
+ *	Copyright (C) 2022-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -65,6 +65,8 @@ namespace python
 template <typename T>
 struct PyExportTraits< std::optional<T> >
 {
+	static constexpr const char* py_typing = "T | None";
+
 	static PyObject* build(const std::optional<T>& value)
 	{
 		if (!value)

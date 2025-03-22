@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -55,6 +55,8 @@ namespace python
 template <>
 struct PyExportTraits<lass::util::MultiCallback0>
 {
+	static constexpr const char* py_typing = "Callable[[], None]";
+
 	typedef lass::util::MultiCallback0 TCallback;
 	typedef lass::util::Callback0 TNonMultiCallback;
 	static PyObject* build(const lass::util::MultiCallback0& callback)
@@ -90,6 +92,8 @@ template
 >
 struct PyExportTraits<lass::util::MultiCallback$x< $(P$x)$ > >
 {
+	static constexpr const char* py_typing = "Callable[[$(P$x)$], None]";
+
 	typedef lass::util::MultiCallback$x< $(P$x)$ > TCallback;
 	static PyObject* build(const TCallback& callback)
 	{

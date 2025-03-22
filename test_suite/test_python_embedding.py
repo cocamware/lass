@@ -321,7 +321,7 @@ echo("dir of bar module:\n",dir(embedding))
 
 # object construction
 test = embedding.Bar()
-echo("test.int = ",test.int)
+echo("test.int = ",test.myInt)
 
 echo("\n***\n")
 
@@ -361,7 +361,7 @@ echo(embedding.Bar.aStaticMethod(5))
 echo("\n***\n")
 
 exceptionCaught = 0
-test.int = 5
+test.myInt = 5
 
 #echo("\n* Test automatic and cool setter/getter accessors")
 #try:
@@ -505,9 +505,9 @@ class TestTuples(unittest.TestCase):
 class TestConstructors(unittest.TestCase):
 	def testOverloadedConstructors(self):
 		barA = embedding.Bar()
-		self.assertEqual(barA.int, 0)
+		self.assertEqual(barA.myInt, 0)
 		barB = embedding.Bar(5, "hello")
-		self.assertEqual(barB.int, 5)
+		self.assertEqual(barB.myInt, 5)
 	def testFreeConstructors(self):
 		classB = embedding.ClassB(5)
 

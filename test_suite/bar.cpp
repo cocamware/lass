@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -82,7 +82,7 @@ namespace lass
 		PY_CLASS_STATIC_METHOD(Bar, getShape);
 		PY_CLASS_STATIC_METHOD(Bar, badShape);
 		PY_CLASS_STATIC_METHOD(Bar, isTriangle);
-		PY_CLASS_MEMBER_RW_NAME( Bar, getInt, setInt, "int" );
+		PY_CLASS_MEMBER_RW_NAME( Bar, getInt, setInt, "myInt" );
 		PY_CLASS_MEMBER_RW_NAME( Bar, getFoo, setFoo, "foo" );
 		//PY_CLASS_MEMBER_RW_NAME( Bar, coolMember, coolMember, "cool" );
 		PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );

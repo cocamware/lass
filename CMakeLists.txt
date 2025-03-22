@@ -79,6 +79,7 @@ endif()
 # --- CHECK THE ENVIRONMENT ----
 
 include(cmake/Environment.cmake)
+include(tools/stubgen/LassStubgen.cmake)
 
 
 # Private compiler options for all targets
@@ -166,6 +167,11 @@ install(
 	FILES "${Lass_BINARY_DIR}/local/local_config.h"
 	DESTINATION include/lass/config
 	)
+
+install(
+	FILES "${Lass_SOURCE_DIR}/tools/stub_gen.py"
+	DESTINATION share/Lass
+)
 
 
 # LassConfig.cmake and friends

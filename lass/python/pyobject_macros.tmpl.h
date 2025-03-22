@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -2210,18 +2210,11 @@ $[
 		}\
 		return lass::python::pyBuildSimpleObject(self->i_cppMember);\
 	}\
-	extern "C" LASS_DLL_LOCAL int LASS_CONCATENATE(i_dispatcher, _setter)( PyObject*, PyObject*, void* )\
-	{\
-		std::ostringstream buffer;\
-		buffer << "Object/reference " << s_memberName << " is read-only.";\
-		PyErr_SetString(PyExc_TypeError, buffer.str().c_str());\
-		return -1;\
-	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
 		t_cppClass ::_lassPyClassDef.addGetSetter(\
 				s_memberName, s_doc,\
-				LASS_CONCATENATE(i_dispatcher, _getter), LASS_CONCATENATE(i_dispatcher, _setter));\
+				LASS_CONCATENATE(i_dispatcher, _getter), nullptr);\
 	)
 
 /** @ingroup Python
@@ -2316,10 +2309,11 @@ $[
 		>\
 		::callConstructor(iSubtype, iArgs);\
 	}\
-	LASS_EXECUTE_BEFORE_MAIN_EX(\
-		LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
-		LASS_CONCATENATE(i_dispatcher, _overloadChain) = t_cppClass::_lassPyClassDef.type()->tp_new;\
-		t_cppClass::_lassPyClassDef.type()->tp_new = i_dispatcher; \
+	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE(i_dispatcher, _executeBeforeMain),\
+		t_cppClass::_lassPyClassDef.addConstructor( \
+			i_dispatcher, \
+			LASS_CONCATENATE(i_dispatcher, _overloadChain) \
+		); \
 	)
 
 /** @ingroup Python

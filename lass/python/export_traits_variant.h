@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2022 the Initial Developer.
+ *	Copyright (C) 2022-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -180,6 +180,8 @@ struct PyExportTraitsVariantImpl<Variant>
 template <typename... T>
 struct PyExportTraits< std::variant<T...> >
 {
+	constexpr static const char* py_typing = "Union[T...]";
+
 	using TVariant = std::variant<T...>;
 
 	static PyObject* build(const TVariant& v)

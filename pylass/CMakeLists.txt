@@ -49,6 +49,8 @@ if(MSVC)
 		)
 endif()
 
+Lass_generate_stubs(pylass)
+
 if (WIN32)
     # bdist_wininst only works on windows
     # do we need binary distributions on other platforms?  I don't think so.

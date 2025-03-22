@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -240,6 +240,8 @@ int decodeTupleMinimum(const TPyObjPtr& obj, Py_ssize_t minumumLength, P&... p)
 template <typename T1, typename T2>
 struct PyExportTraits< std::pair<T1, T2> >
 {
+	constexpr static const char* py_typing = "tuple[T1, T2]";
+
 	static PyObject* build(const std::pair<T1, T2>& v)
 	{
 		return fromSharedPtrToNakedCast(makeTuple(v.first, v.second));
@@ -263,6 +265,8 @@ struct PyExportTraits< std::pair<T1, T2> >
 template <typename... T>
 struct PyExportTraits< std::tuple<T...> >
 {
+	constexpr static const char* py_typing = "tuple[T...]";
+
 	static PyObject* build(const std::tuple<T...>& v)
 	{
 		return doBuild(v, std::index_sequence_for<T...>());

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -206,6 +206,8 @@ struct PyExportTraits< util::Callback0 >:
 		PyExportTraits< util::Callback0 > 
 	>
 {
+	static constexpr const char* py_typing = "Callable[[], None]";
+
 	static const char* className() { return "Callback0"; }
 };
 
@@ -250,6 +252,8 @@ struct PyExportTraits< util::Callback$x<$(P$x)$> >:
 		PyExportTraits< util::Callback$x<$(P$x)$> > 
 	>
 {
+	static constexpr const char* py_typing = "Callable[[$(P$x)$], None]";
+
 	static const char* className() { return "Callback$x"; }
 };
 
@@ -298,6 +302,8 @@ struct PyExportTraits< util::CallbackR0<R> >:
 		PyExportTraits< util::CallbackR0<R> > 
 	>
 {
+	static constexpr const char* py_typing = "Callable[[], R]";
+	
 	static const char* className() { return "CallbackR0"; }
 };
 
@@ -342,6 +348,8 @@ struct PyExportTraits< util::CallbackR$x<R, $(P$x)$> >:
 		PyExportTraits< util::CallbackR$x<R, $(P$x)$> > 
 	>
 {
+	static constexpr const char* py_typing = "Callable[[$(P$x)$], R]";
+	
 	static const char* className() { return "CallbackR$x"; }
 };
 

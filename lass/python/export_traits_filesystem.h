@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2022-2024 the Initial Developer.
+ *	Copyright (C) 2022-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -65,6 +65,8 @@ namespace python
 template <>
 struct PyExportTraits<std::filesystem::path>
 {
+	constexpr static const char* py_typing = "str | bytes | os.PathLike";
+
 	LASS_PYTHON_DLL static PyObject* build(const std::filesystem::path& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::filesystem::path& v);
 };
