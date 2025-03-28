@@ -84,9 +84,14 @@ namespace impl
 	};
 
 	LASS_PYTHON_DLL PyObject* buildStringImpl(const char* s, size_t n);
-	LASS_PYTHON_DLL PyObject* buildWideStringImpl(const wchar_t* s, size_t n);
-	LASS_PYTHON_DLL PyObject* buildU16StringImpl(const char16_t* s, size_t n);
-	LASS_PYTHON_DLL PyObject* buildU32StringImpl(const char32_t* s, size_t n);
+	LASS_PYTHON_DLL PyObject* buildStringImpl(const wchar_t* s, size_t n);
+#if LASS_HAVE_STD_U8STRING
+#if __cpp_lib_char8_t
+	LASS_PYTHON_DLL PyObject* buildStringImpl(const char8_t* s, size_t n);
+#endif
+#endif
+	LASS_PYTHON_DLL PyObject* buildStringImpl(const char16_t* s, size_t n);
+	LASS_PYTHON_DLL PyObject* buildStringImpl(const char32_t* s, size_t n);
 }
 
 /** by copy, general case assumes shadow type or PyObjectPlus based type.
@@ -599,10 +604,21 @@ struct PyExportTraits< std::complex<T> >
 
 /** @ingroup Python
  */
-template <>
-struct PyExportTraits<const char*>
+template <typename T>
+struct PyExportTraits<std::basic_string_view<T>>
 {
-	LASS_PYTHON_DLL static PyObject* build(const char* v);
+	static PyObject* build(std::basic_string_view<T> v)
+	{
+		return impl::buildStringImpl(v.data(), v.size());
+	}
+};
+
+
+/** @ingroup Python
+ */
+template <>
+struct PyExportTraits<const char*>: PyExportTraits<std::string_view>
+{
 };
 
 
@@ -640,9 +656,8 @@ struct PyExportTraits<std::string>
 /** @ingroup Python
  */
 template <>
-struct PyExportTraits<const wchar_t*>
+struct PyExportTraits<const wchar_t*>: PyExportTraits<std::wstring_view>
 {
-	LASS_PYTHON_DLL static PyObject* build(const wchar_t* v);
 };
 
 
@@ -653,9 +668,10 @@ struct PyExportTraits<const wchar_t [N]>
 {
 	static PyObject* build(const wchar_t* v)
 	{
-		return impl::buildWideStringImpl(v, N);
+		return impl::buildStringImpl(v, N);
 	}
 };
+
 
 /** @ingroup Python
  */
@@ -681,6 +697,34 @@ struct PyExportTraits<std::wstring>
 /** @ingroup Python
  */
 template <>
+struct PyExportTraits<const char8_t*> : PyExportTraits<std::u8string_view>
+{
+};
+
+
+/** @ingroup Python
+ */
+template <size_t N>
+struct PyExportTraits<const char8_t[N]>
+{
+	static PyObject* build(const char8_t* v)
+	{
+		return impl::buildStringImpl(v, N);
+	}
+};
+
+
+/** @ingroup Python
+ */
+template <size_t N>
+struct PyExportTraits<char8_t[N]> : PyExportTraits<const char8_t[N]>
+{
+};
+
+
+/** @ingroup Python
+ */
+template <>
 struct PyExportTraits<std::u8string>
 {
 	LASS_PYTHON_DLL static PyObject* build(const std::u8string& v);
@@ -694,10 +738,66 @@ struct PyExportTraits<std::u8string>
 /** @ingroup Python
  */
 template <>
+struct PyExportTraits<const char16_t*> : PyExportTraits<std::u16string_view>
+{
+};
+
+
+/** @ingroup Python
+ */
+template <size_t N>
+struct PyExportTraits<const char16_t[N]>
+{
+	static PyObject* build(const char16_t* v)
+	{
+		return impl::buildStringImpl(v, N);
+	}
+};
+
+
+/** @ingroup Python
+ */
+template <size_t N>
+struct PyExportTraits<char16_t[N]> : PyExportTraits<const char16_t[N]>
+{
+};
+
+
+/** @ingroup Python
+ */
+template <>
 struct PyExportTraits<std::u16string>
 {
 	LASS_PYTHON_DLL static PyObject* build(const std::u16string& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::u16string& v);
+};
+
+
+/** @ingroup Python
+ */
+template <>
+struct PyExportTraits<const char32_t*> : PyExportTraits<std::u32string_view>
+{
+};
+
+
+/** @ingroup Python
+ */
+template <size_t N>
+struct PyExportTraits<const char32_t[N]>
+{
+	static PyObject* build(const char32_t* v)
+	{
+		return impl::buildStringImpl(v, N);
+	}
+};
+
+
+/** @ingroup Python
+ */
+template <size_t N>
+struct PyExportTraits<char32_t[N]> : PyExportTraits<const char32_t[N]>
+{
 };
 
 

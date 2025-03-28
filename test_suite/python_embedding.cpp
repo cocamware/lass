@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -525,6 +525,75 @@ std::wstring testStdWstring(const std::wstring& v)
 	return v;
 }
 
+std::u16string testStdU16string(const std::u16string& v)
+{
+	return v;
+}
+
+std::u32string testStdU32string(const std::u32string& v)
+{
+	return v;
+}
+
+std::string_view testStdStringView(std::string_view v)
+{
+	return v;
+}
+
+std::wstring_view testStdWstringView(std::wstring_view v)
+{
+	return v;
+}
+
+std::u16string_view testStdU16stringView(std::u16string_view v)
+{
+	return v;
+}
+
+std::u32string_view testStdU32stringView(std::u32string_view v)
+{
+	return v;
+}
+
+const char* testConstCharPtr(const char* v)
+{
+	return v;
+}
+
+const wchar_t* testConstWcharPtr(const wchar_t* v)
+{
+	return v;
+}
+
+const char16_t* testConstChar16Ptr(const char16_t* v)
+{
+	return v;
+}
+
+const char32_t* testConstChar32Ptr(const char32_t* v)
+{
+	return v;
+}
+
+#if LASS_HAVE_STD_U8STRING
+
+std::u8string testStdU8string(const std::u8string& v)
+{
+	return v;
+}
+
+std::u8string_view testStdU8stringView(std::u8string_view v)
+{
+	return v;
+}
+
+const char8_t* testConstChar8Ptr(const char8_t* v)
+{
+	return v;
+}
+
+#endif
+
 float testFloatSingle(float v)
 {
 	return v;
@@ -589,6 +658,21 @@ PY_MODULE_FUNCTION( embedding, testSomePointer )
 
 PY_MODULE_FUNCTION( embedding, testStdString )
 PY_MODULE_FUNCTION( embedding, testStdWstring )
+PY_MODULE_FUNCTION( embedding, testStdU16string )
+PY_MODULE_FUNCTION( embedding, testStdU32string )
+PY_MODULE_FUNCTION( embedding, testStdStringView )
+PY_MODULE_FUNCTION( embedding, testStdWstringView )
+PY_MODULE_FUNCTION( embedding, testStdU16stringView )
+PY_MODULE_FUNCTION( embedding, testStdU32stringView )
+PY_MODULE_FUNCTION( embedding, testConstCharPtr )
+PY_MODULE_FUNCTION( embedding, testConstWcharPtr )
+PY_MODULE_FUNCTION( embedding, testConstChar16Ptr )
+PY_MODULE_FUNCTION( embedding, testConstChar32Ptr )
+#if LASS_HAVE_STD_U8STRING
+PY_MODULE_FUNCTION( embedding, testStdU8string )
+PY_MODULE_FUNCTION( embedding, testStdU8stringView )
+PY_MODULE_FUNCTION( embedding, testConstChar8Ptr )
+#endif
 PY_MODULE_FUNCTION( embedding, testFloatSingle )
 PY_MODULE_FUNCTION( embedding, testFloatDouble )
 PY_MODULE_FUNCTION( embedding, testSystemClock )
@@ -681,6 +765,9 @@ void embeddingPostInject(PyObject*)
 {
 #if LASS_USE_OLD_EXPORTRAITS_FLOAT
 	PY_MODULE_ADD_INTEGER_CONSTANT( embedding, "LASS_USE_OLD_EXPORTRAITS_FLOAT", 1 )
+#endif
+#if LASS_HAVE_STD_U8STRING
+	PY_MODULE_ADD_INTEGER_CONSTANT( embedding, "LASS_HAVE_STD_U8STRING", 1 )
 #endif
 	PY_INJECT_CLASS_IN_MODULE(InjectedClass, embedding, "Class injected into module")
 }

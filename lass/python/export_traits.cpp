@@ -23,7 +23,7 @@
 *	The Original Developer is the Initial Developer.
 *
 *	All portions of the code written by the Initial Developer are:
-*	Copyright (C) 2004-2022 the Initial Developer.
+*	Copyright (C) 2004-2025 the Initial Developer.
 *	All Rights Reserved.
 *
 *	Contributor(s):
@@ -122,7 +122,7 @@ PyObject* buildStringImpl(const char* v, size_t size)
 }
 
 
-PyObject* buildWideStringImpl(const wchar_t* v, size_t size)
+PyObject* buildStringImpl(const wchar_t* v, size_t size)
 {
 	if (!v)
 	{
@@ -137,7 +137,17 @@ PyObject* buildWideStringImpl(const wchar_t* v, size_t size)
 }
 
 
-PyObject* buildU16StringImpl(const char16_t* v, size_t size)
+#if LASS_HAVE_STD_U8STRING
+
+PyObject* buildStringImpl(const char8_t* v, size_t size)
+{
+	return buildStringImpl(reinterpret_cast<const char*>(v), size);
+}
+
+#endif
+
+
+PyObject* buildStringImpl(const char16_t* v, size_t size)
 {
 	if (!v)
 	{
@@ -152,7 +162,7 @@ PyObject* buildU16StringImpl(const char16_t* v, size_t size)
 }
 
 
-PyObject* buildU32StringImpl(const char32_t* v, size_t size)
+PyObject* buildStringImpl(const char32_t* v, size_t size)
 {
 	if (!v)
 	{
@@ -268,12 +278,6 @@ int PyExportTraits<unsigned PY_LONG_LONG>::get(PyObject* obj, unsigned PY_LONG_L
 #endif
 
 
-PyObject* PyExportTraits<const char*>::build(const char* v)
-{
-	return impl::buildStringImpl(v, strlen(v));
-}
-
-
 PyObject* PyExportTraits<std::string>::build(const std::string& v)
 {
 	return impl::buildStringImpl(v.data(), v.length());
@@ -286,15 +290,9 @@ int PyExportTraits<std::string>::get(PyObject* obj, std::string& v)
 }
 
 
-PyObject* PyExportTraits<const wchar_t*>::build(const wchar_t* v)
-{
-	return impl::buildWideStringImpl(v, wcslen(v));
-}
-
-
 PyObject* PyExportTraits<std::wstring>::build(const std::wstring& v)
 {
-	return impl::buildWideStringImpl(v.data(), v.length());
+	return impl::buildStringImpl(v.data(), v.length());
 }
 
 
@@ -322,7 +320,7 @@ int PyExportTraits<std::u8string>::get(PyObject* obj, std::u8string& v)
 
 PyObject* PyExportTraits<std::u16string>::build(const std::u16string& v)
 {
-	return impl::buildU16StringImpl(v.data(), v.length());
+	return impl::buildStringImpl(v.data(), v.length());
 }
 
 
@@ -364,7 +362,7 @@ int PyExportTraits<std::u16string>::get(PyObject* obj, std::u16string& v)
 
 PyObject* PyExportTraits<std::u32string>::build(const std::u32string& v)
 {
-	return impl::buildU32StringImpl(v.data(), v.length());
+	return impl::buildStringImpl(v.data(), v.length());
 }
 
 

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -316,6 +316,47 @@ struct ArgumentTraits<const char*>
 };
 
 template <>
+struct ArgumentTraits<const wchar_t*>
+{
+	typedef std::wstring TStorage;
+	static const wchar_t* arg(const TStorage& storage) { return storage.c_str(); }
+};
+
+#if LASS_HAVE_STD_U8STRING
+#if __cpp_lib_char8_t
+
+template <>
+struct ArgumentTraits<const char8_t*>
+{
+	typedef std::u8string TStorage;
+	static const char8_t* arg(const TStorage& storage) { return storage.c_str(); }
+};
+
+#endif
+#endif
+
+template <>
+struct ArgumentTraits<const char16_t*>
+{
+	typedef std::u16string TStorage;
+	static const char16_t* arg(const TStorage& storage) { return storage.c_str(); }
+};
+
+template <>
+struct ArgumentTraits<const char32_t*>
+{
+	typedef std::u32string TStorage;
+	static const char32_t* arg(const TStorage& storage) { return storage.c_str(); }
+};
+
+template <typename T>
+struct ArgumentTraits< std::basic_string_view<T> >
+{
+	typedef std::basic_string<T> TStorage;
+	static const TStorage& arg(const TStorage& storage) { return storage; }
+};
+
+template <>
 struct ArgumentTraits<void*>
 {
 	typedef void* TStorage;
@@ -326,4 +367,3 @@ struct ArgumentTraits<void*>
 }
 
 #endif
-

@@ -19,7 +19,7 @@
 # The Original Developer is the Initial Developer.
 #
 # All portions of the code written by the Initial Developer are:
-# Copyright (C) 2022-2024 the Initial Developer.
+# Copyright (C) 2022-2025 the Initial Developer.
 # All Rights Reserved.
 #
 # Contributor(s):
@@ -684,20 +684,111 @@ class MyFloat:
 		self.value = value
 	def __float__(self):
 		return float(self.value)
+	
 
+skipIfNoU8string = unittest.skipIf(
+	not getattr(embedding, "LASS_HAVE_STD_U8STRING", False), 
+	"std::u8string not supported"
+)
 
 class TestTypes(unittest.TestCase):
 	def testStdString(self):
 		self.assertEqual(embedding.testStdString(""), "")
 		self.assertEqual(embedding.testStdString("abc"), "abc")
+		self.assertEqual(embedding.testStdString("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
 		self.assertEqual(embedding.testStdString("\0"), "\0")
 		self.assertEqual(embedding.testStdString("a\0b"), "a\0b")
 
 	def testStdWstring(self):
 		self.assertEqual(embedding.testStdWstring(u""), u"")
 		self.assertEqual(embedding.testStdWstring(u"abc"), u"abc")
+		self.assertEqual(embedding.testStdWstring("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
 		self.assertEqual(embedding.testStdWstring(u"\0"), u"\0")
 		self.assertEqual(embedding.testStdWstring(u"a\0b"), u"a\0b")
+
+	@skipIfNoU8string
+	def testStdU8string(self):
+		self.assertEqual(embedding.testStdU8string(""), "")
+		self.assertEqual(embedding.testStdU8string("abc"), "abc")
+		self.assertEqual(embedding.testStdU8string("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+		self.assertEqual(embedding.testStdU8string("\0"), "\0")
+		self.assertEqual(embedding.testStdU8string("a\0b"), "a\0b")
+
+	def testStdU16string(self):
+		self.assertEqual(embedding.testStdU16string(""), "")
+		self.assertEqual(embedding.testStdU16string("abc"), "abc")
+		self.assertEqual(embedding.testStdU16string("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+		self.assertEqual(embedding.testStdU16string("\0"), "\0")
+		self.assertEqual(embedding.testStdU16string("a\0b"), "a\0b")
+
+	def testStdU32string(self):
+		self.assertEqual(embedding.testStdU32string(""), "")
+		self.assertEqual(embedding.testStdU32string("abc"), "abc")
+		self.assertEqual(embedding.testStdU32string("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+		self.assertEqual(embedding.testStdU32string("\0"), "\0")
+		self.assertEqual(embedding.testStdU32string("a\0b"), "a\0b")
+
+	def testStdStringView(self):
+		self.assertEqual(embedding.testStdStringView(""), "")
+		self.assertEqual(embedding.testStdStringView("abc"), "abc")
+		self.assertEqual(embedding.testStdStringView("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+		self.assertEqual(embedding.testStdStringView("\0"), "\0")
+		self.assertEqual(embedding.testStdStringView("a\0b"), "a\0b")
+
+	def testStdWstringView(self):
+		self.assertEqual(embedding.testStdWstringView(""), "")
+		self.assertEqual(embedding.testStdWstringView("abc"), "abc")
+		self.assertEqual(embedding.testStdWstringView("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+		self.assertEqual(embedding.testStdWstringView("\0"), "\0")
+		self.assertEqual(embedding.testStdWstringView("a\0b"), "a\0b")
+
+	@skipIfNoU8string
+	def testStdU8stringView(self):
+		self.assertEqual(embedding.testStdU8stringView(""), "")
+		self.assertEqual(embedding.testStdU8stringView("abc"), "abc")
+		self.assertEqual(embedding.testStdU8stringView("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+		self.assertEqual(embedding.testStdU8stringView("\0"), "\0")
+		self.assertEqual(embedding.testStdU8stringView("a\0b"), "a\0b")
+
+	def testStdU16stringView(self):
+		self.assertEqual(embedding.testStdU16stringView(""), "")
+		self.assertEqual(embedding.testStdU16stringView("abc"), "abc")
+		self.assertEqual(embedding.testStdU16stringView("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+		self.assertEqual(embedding.testStdU16stringView("\0"), "\0")
+		self.assertEqual(embedding.testStdU16stringView("a\0b"), "a\0b")
+
+	def testStdU32stringView(self):
+		self.assertEqual(embedding.testStdU32stringView(""), "")
+		self.assertEqual(embedding.testStdU32stringView("abc"), "abc")
+		self.assertEqual(embedding.testStdU32stringView("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+		self.assertEqual(embedding.testStdU32stringView("\0"), "\0")
+		self.assertEqual(embedding.testStdU32stringView("a\0b"), "a\0b")
+
+	def testConstCharPtr(self):
+		self.assertEqual(embedding.testConstCharPtr(""), "")
+		self.assertEqual(embedding.testConstCharPtr("abc"), "abc")
+		self.assertEqual(embedding.testConstCharPtr("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+
+	def testConstWcharPtr(self):
+		self.assertEqual(embedding.testConstWcharPtr(""), "")
+		self.assertEqual(embedding.testConstWcharPtr("abc"), "abc")
+		self.assertEqual(embedding.testConstWcharPtr("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+
+	@skipIfNoU8string
+	def testConstChar8Ptr(self):
+		self.assertEqual(embedding.testConstChar8Ptr(""), "")
+		self.assertEqual(embedding.testConstChar8Ptr("abc"), "abc")
+		self.assertEqual(embedding.testConstChar8Ptr("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+
+	def testConstChar16Ptr(self):
+		self.assertEqual(embedding.testConstChar16Ptr(""), "")
+		self.assertEqual(embedding.testConstChar16Ptr("abc"), "abc")
+		self.assertEqual(embedding.testConstChar16Ptr("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+
+	def testConstChar32Ptr(self):
+		self.assertEqual(embedding.testConstChar32Ptr(""), "")
+		self.assertEqual(embedding.testConstChar32Ptr("abc"), "abc")
+		self.assertEqual(embedding.testConstChar32Ptr("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
 
 	def testFloatSingle(self):
 		useOldExportTraits = getattr(embedding, "LASS_USE_OLD_EXPORTRAITS_FLOAT", False)
