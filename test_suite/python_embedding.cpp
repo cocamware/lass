@@ -761,6 +761,9 @@ class InjectedClass : public lass::python::PyObjectPlus
 	PY_HEADER(lass::python::PyObjectPlus)
 };
 PY_DECLARE_CLASS(InjectedClass)
+
+lass::util::SharedPtr<std::vector<std::string>> aVectorObject;
+
 void embeddingPostInject(PyObject*)
 {
 #if LASS_USE_OLD_EXPORTRAITS_FLOAT
@@ -770,6 +773,9 @@ void embeddingPostInject(PyObject*)
 	PY_MODULE_ADD_INTEGER_CONSTANT( embedding, "LASS_HAVE_STD_U8STRING", 1 )
 #endif
 	PY_INJECT_CLASS_IN_MODULE(InjectedClass, embedding, "Class injected into module")
+
+	aVectorObject.reset(new std::vector<std::string>());
+	PY_INJECT_OBJECT_IN_MODULE(aVectorObject, embedding)
 }
 LASS_EXECUTE_BEFORE_MAIN(
 	embedding.setPostInject(embeddingPostInject);

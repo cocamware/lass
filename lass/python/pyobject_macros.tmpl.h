@@ -216,7 +216,7 @@
  */
 #define PY_INJECT_OBJECT_IN_MODULE_EX( o_object, i_module, s_objectName )\
 	{\
-		PyModule_AddObject(i_module.module(), s_objectName, lass::python::pyBuildSimpleObject(o_object) );\
+		i_module.injectObject( o_object, s_objectName );\
 	}
 
 /** @ingroup Python

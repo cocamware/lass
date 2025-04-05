@@ -1,13 +1,68 @@
-set(LASS_STUBGEN "${CMAKE_CURRENT_LIST_DIR}/stubgen.py")
+#[======================================================================[.rst:
+LassStubgen
+------------------------
+
+.. versionadded:: 3.7
+
+Automatically generate Python *.pyi stub files from Lass Python bindings.
+
+Module Functions
+^^^^^^^^^^^^^^^^
+
+.. command:: Lass_generate_stubs
+
+  .. code-block:: cmake
+
+    Lass_generate_stubs(<target-name>
+      [SOURCES <sources>...]
+      [EXTRA_TARGETS <target-names>...]
+      [OUTPUT_DIRECTORY <output-dir>]
+      [PACKAGE <package>]
+      [EXPORT <json-file>]
+      [IMPORT <json-files>...]
+      [WITH_SIGNATURES]
+      [NUM_THREADS <num-threads>]
+      )
+
+  The ``android_add_test_data`` function is used to copy files and libraries
+  needed to run project-specific tests. On the host operating system, this is
+  done at build time. For on-device testing, the files are loaded onto the
+  device by the manufactured test at run time.
+
+  This function accepts the following named parameters:
+
+  ``SOURCES <files>...``
+    One or more C++ source files with Lass Python bindings.
+    If not provided, all sources files in the target are used.
+  ``EXTRA_TARGETS <target-names>...``
+    Extra targets from which to parse source files.
+  ``OUTPUT_DIRECTORY <output-dir>``
+    Absolute path where the *.pyi stub files are written to.
+  ``PACKAGE <package-name>``
+    Name of the package the stub files are part of.
+  ``EXPORT <export-name>``
+    Path to a json file containing the raw stub data.
+  ``IMPORT <import-name>``
+    Path to a json file containing exported stub data.
+    This is used if a module depends on stub data from another module.
+  ``WITH_SIGNATURES``
+    Add C++ signatures as comments to *.pyi files.
+  ``MAX_THREADS <max-threads>``
+    Parse source files in parallel. If ``<max-threads>`` is 0, then the
+    CPU count is used instead. By default, this is 0.
+
+#]======================================================================]
+
+set(LASS_STUBGEN "${CMAKE_CURRENT_LIST_DIR}/stubgen/lass_stubgen")
 
 set(_Lass_venv_stubgen "${CMAKE_BINARY_DIR}/.venv-lass-stubgen")
-set(_Lass_venv_stubgen_requirement "${CMAKE_CURRENT_LIST_DIR}/requirements.txt")
+set(_Lass_venv_stubgen_requirement "${CMAKE_CURRENT_LIST_DIR}/stubgen/requirements.txt")
 
 
 function(Lass_generate_stubs target)
 	set(_prefix)
-	set(_options)
-	set(_one_value_keywords OUTPUT_DIRECTORY EXPORT PACKAGE)
+	set(_options WITH_SIGNATURES)
+	set(_one_value_keywords OUTPUT_DIRECTORY PACKAGE EXPORT MAX_THREADS)
 	set(_multi_value_keywords SOURCES EXTRA_TARGETS IMPORT)
 	cmake_parse_arguments("${_prefix}" "${_options}" "${_one_value_keywords}" "${_multi_value_keywords}" ${ARGN})
 
@@ -69,6 +124,16 @@ function(Lass_generate_stubs target)
 	foreach(import ${_IMPORT})
 		set(_imports "--import" "${import}")
 	endforeach()
+	if(_WITH_SIGNATURES)
+		set(_with_signatures "--with-signatures")
+	else()
+		set(_with_signatures)
+	endif()
+	if(_MAX_THREADS)
+		set(_max_threads "--num-threads" "${_MAX_THREADS}")
+	else()
+		set(_max_threads)
+	endif()
 
 
 	# Create virtual environment to run stubgen
@@ -97,15 +162,19 @@ function(Lass_generate_stubs target)
 	add_custom_command(TARGET "${target}" POST_BUILD
 		COMMAND "${_venv_python}"
 			ARGS
+				"-B"
 				"${LASS_STUBGEN}"
+				"${_max_threads}"
 				"${_package}"
 				"${_imports}"
 				"${_export}"
 				"--output-dir" "${_OUTPUT_DIRECTORY}"
+				"${_with_signatures}"
 				"${cxx_standard}"
 				"${defines}"
 				"${includes}"
 				"${object_files}"
+				"--cache-dir" "${CMAKE_BINARY_DIR}/.lass_stubgen_cache"
 				"${_SOURCES}"
 		COMMAND_EXPAND_LISTS
 		VERBATIM

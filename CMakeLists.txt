@@ -79,7 +79,7 @@ endif()
 # --- CHECK THE ENVIRONMENT ----
 
 include(cmake/Environment.cmake)
-include(tools/stubgen/LassStubgen.cmake)
+include(tools/LassStubgen.cmake)
 
 
 # Private compiler options for all targets
@@ -127,6 +127,8 @@ if(TARGET Lass::lass_python)
 	add_subdirectory(pylass)
 endif()
 
+add_subdirectory(tools)
+
 # --- TESTING ---
 
 set(DART_TESTING_TIMEOUT 240 CACHE STRING "Maximum time allowed before CTest will kill the test.")
@@ -167,12 +169,6 @@ install(
 	FILES "${Lass_BINARY_DIR}/local/local_config.h"
 	DESTINATION include/lass/config
 	)
-
-install(
-	FILES "${Lass_SOURCE_DIR}/tools/stub_gen.py"
-	DESTINATION share/Lass
-)
-
 
 # LassConfig.cmake and friends
 configure_file(

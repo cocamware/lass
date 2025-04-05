@@ -26,7 +26,7 @@ if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/LassBuildExports.cmake")
 
     get_target_property(_lass_INCLUDE_DIRS Lass::lass INTERFACE_INCLUDE_DIRECTORIES)
     list(GET _lass_INCLUDE_DIRS 0 _lass_ROOT_DIR)
-    include("${_lass_ROOT_DIR}/tools/stubgen/LassStubgen.cmake")
+    include("${_lass_ROOT_DIR}/tools/LassStubgen.cmake")
     unset(_lass_INCLUDE_DIRS)
     unset(_lass_ROOT_DIR)
 else()

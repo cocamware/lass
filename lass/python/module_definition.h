@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -77,6 +77,12 @@ public:
 	void addObject(PyObject* object, const char* name);
 	void addLong(long object, const char* name);
 	void addString(const char* object, const char* name);
+
+	template <typename T>
+	void injectObject(T&& object, const char* name)
+	{
+		PyModule_AddObject(module_, name, lass::python::pyBuildSimpleObject( std::forward<T>(object) ));
+	}
 
 	void injectClass(impl::ClassDefinition& classDef);
 	PyObject* inject();
