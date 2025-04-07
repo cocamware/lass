@@ -40,6 +40,7 @@
 import functools
 import hashlib
 import multiprocessing
+import subprocess
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
@@ -295,6 +296,17 @@ def generate(
                 generator.write_module(
                     mod_def, file=file, with_signature=with_signature
                 )
+            reformat(output_file)
         else:
             print(f"# ============= {mod_def.py_name} =============", file=sys.stderr)
             generator.write_module(mod_def, file=sys.stdout)
+
+
+def reformat(file: Path) -> None:
+    """
+    Reformat the file using ruff
+    """
+    bin_dir = Path(sys.executable).parent
+    ruff = bin_dir / "ruff"
+    subprocess.run([ruff, "check", "--fix-only", "--silent", file], check=True)
+    subprocess.run([ruff, "format", "--silent", file], check=True)
