@@ -40,6 +40,7 @@ from __future__ import annotations
 import dataclasses
 import json
 import os
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any, Self, TypeAlias
 
@@ -302,6 +303,7 @@ class ClassDefinition:
     methods: dict[str, list[MethodDefinition]] = field(default_factory=dict)
     getsetters: dict[str, GetSetterDefinition] = field(default_factory=dict)
     consts: dict[str, ConstDefinition] = field(default_factory=dict)
+    _cpp_constructors: dict[str, ConstructorDefinition] = field(default_factory=dict)
 
     def add_inner_class(self, shadow_class: str) -> None:
         self.inner_classes.append(shadow_class)
@@ -310,6 +312,11 @@ class ClassDefinition:
         self.inner_enums.append(cpp_name)
 
     def add_constructor(self, constr_def: ConstructorDefinition) -> None:
+        # if constructor doesn't have parameter names, then search for a
+        # C++ constructor with the same signature and reuse its definition
+        if not any(name for name, _ in constr_def.cpp_params):
+            if cpp_constr := self._cpp_constructors.get(constr_def.cpp_signature):
+                constr_def = cpp_constr
         self.constructors.append(constr_def)
 
     def add_method(self, method_def: MethodDefinition) -> None:
@@ -335,6 +342,9 @@ class ClassDefinition:
         consts: list[dict[str, Any]] = []
         for const in self.consts.values():
             consts.append(const.asdict())
+        _cpp_constructors: list[dict[str, Any]] = []
+        for constr_def in self._cpp_constructors.values():
+            _cpp_constructors.append(constr_def.asdict())
         return {
             "py_name": self.py_name,
             "cpp_type": self.cpp_type.asdict(),
@@ -348,6 +358,7 @@ class ClassDefinition:
             "methods": methods,
             "getsetters": getsetters,
             "consts": consts,
+            "_cpp_constructors": _cpp_constructors,
         }
 
     @classmethod
@@ -369,6 +380,10 @@ class ClassDefinition:
         for const in data["consts"]:
             const_def = ConstDefinition.fromdict(const)
             consts[const_def.py_name] = const_def
+        _cpp_constructors: dict[str, ConstructorDefinition] = {}
+        for constr in data["constructors"]:
+            constr_def = ConstructorDefinition.fromdict(constr)
+            _cpp_constructors[constr_def.cpp_signature] = constr_def
         return cls(
             py_name=data["py_name"],
             shadow_name=data["shadow_name"],
@@ -382,6 +397,7 @@ class ClassDefinition:
             methods=methods,
             getsetters=getsetters,
             consts=consts,
+            _cpp_constructors=_cpp_constructors,
         )
 
 
@@ -552,20 +568,22 @@ class TypeInfo:
             args=args,
         )
 
-    def substitute(self, template_params: dict[str, str]) -> TypeInfo:
+    def substitute(self, template_args: Mapping[str, str | TypeInfo]) -> TypeInfo:
         """
         Substitute template parameters in the type.
         """
-        if self.name in template_params:
+        if tmpl_arg := template_args.get(self.name):
             assert not self.args
-            return TypeInfo(template_params[self.name])
+            return TypeInfo(tmpl_arg) if isinstance(tmpl_arg, str) else tmpl_arg
         if self.name.endswith("..."):
             # this is a variadic template
             assert self.args is None
-            return TypeInfo(template_params[self.name[:-3]] + "...")
+            tmpl_arg = template_args[self.name[:-3]]
+            assert isinstance(tmpl_arg, str)
+            return TypeInfo(f"{tmpl_arg}...")
         if self.args is None:
             return self
-        args = [arg.substitute(template_params) for arg in self.args]
+        args = [arg.substitute(template_args) for arg in self.args]
         return TypeInfo(self.name, args)
 
 

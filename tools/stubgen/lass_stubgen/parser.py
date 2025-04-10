@@ -193,16 +193,111 @@ class Parser:
         for base in iter_children(shadow_decl, CursorKind.CXX_BASE_SPECIFIER):
             # if this is a shadow class, then we derive from ShadowClass
             # which will have the C++ class as first argument.
-            base_type = type_info(canonical_type(base))
+            base_type = type_info(base)
             if base_type.name == "lass::python::ShadowClass":
                 assert base_type.args and shadow_name == base_type.args[0].name, (
                     f"{shadow_name=}, {base_type=}"
                 )
                 cpp_type = base_type.args[1]
+
+                # our C++ class is a template argument of the ShadowClass base class
+                # search for it as a type reference in the base class
+                for type_ref in iter_children(base, CursorKind.TYPE_REF):
+                    if type_info(type_ref.referenced) == cpp_type:
+                        cpp_class = type_ref.referenced
+                        if cpp_class.kind == CursorKind.TYPEDEF_DECL:
+                            cpp_class = canonical_type(cpp_class).get_declaration()
+                        assert cpp_class.kind == CursorKind.CLASS_DECL
+
+                        if cpp_type.args:
+                            # it's in fact a template, and cpp_class is just the
+                            # template instantation, which will have an empty body.
+                            # There's no way to get the template class directly, we
+                            # can only match it on *location* from the semantic parent.
+                            assert not list(cpp_class.get_children())
+                            for template in iter_children(
+                                cpp_class.semantic_parent, CursorKind.CLASS_TEMPLATE
+                            ):
+                                if template.location == cpp_class.location:
+                                    cpp_class = template
+                                    break
+                            else:
+                                assert False
+                        assert list(cpp_class.get_children())
+
+                        break
+                else:
+                    # it's not mentioned as a TYPE_REF, it'll be a TEMPLATE_REF
+                    # However, those TEMPLATE_REFs don't have a type that we can
+                    # compare with cpp_type.
+                    # So we're first going to the base type to find our C++ class as
+                    # a template argument. It should always be the second one.
+                    base_type_ = canonical_type(base)
+                    n = base_type_.get_num_template_arguments()
+                    for i in range(n):
+                        tmpl_arg = base_type_.get_template_argument_type(i)
+                        if type_info(tmpl_arg) == cpp_type:
+                            assert i == 1  # it should always be the second argument
+                            cpp_class = tmpl_arg.get_declaration()
+                            assert cpp_class.kind == CursorKind.CLASS_DECL
+                            break
+                    else:
+                        assert False
+
+                    # cpp_class is the instantiated template, which will be empty.
+                    # We can use the cpp_class *location* to match it with a
+                    # TEMPLATE_REF from the base class.
+                    assert not list(cpp_class.get_children())
+                    assert cpp_type.args  # it's a template
+                    for template_ref in iter_children(base, CursorKind.TEMPLATE_REF):
+                        template = template_ref.referenced
+                        if template.location == cpp_class.location:
+                            cpp_class = template
+                            break
+                    else:
+                        assert False
+                    assert cpp_class.kind == CursorKind.CLASS_TEMPLATE
+                    assert list(cpp_class.get_children())
+
                 break
         else:
             # there's no shadow class, the C++ class already inherits from PyObjectPlus
-            cpp_type = TypeInfo(shadow_name)
+            cpp_class = shadow_node.referenced
+            if cpp_class.kind == CursorKind.TYPEDEF_DECL:
+                cpp_class = canonical_type(cpp_class).get_declaration()
+            assert cpp_class.kind == CursorKind.CLASS_DECL
+            cpp_type = type_info(cpp_class)
+            assert cpp_type.args is None
+
+        # Gather signatures of all constructors in the C++ class, so we can match them
+        # later with the exported constructors to get the correct parameter names.
+        cpp_constructors: dict[str, ConstructorDefinition] = {}
+        if cpp_class:
+            template_args: dict[str, TypeInfo] = {}
+            if cpp_class.kind == CursorKind.CLASS_TEMPLATE:
+                # match template parameters with arguments of cpp_type.
+                tmpl_params = list(
+                    iter_children(cpp_class, CursorKind.TEMPLATE_TYPE_PARAMETER)
+                )
+                assert cpp_type.args and len(tmpl_params) == len(cpp_type.args)
+                for param, arg in zip(tmpl_params, cpp_type.args):
+                    template_args[canonical_type(param).spelling] = arg
+            elif cpp_class.kind == CursorKind.CLASS_DECL:
+                pass
+            else:
+                self._error(cpp_class, "Expected CLASS_DECL or CLASS_TEMPLATE")
+
+            for constructor in iter_children(cpp_class, CursorKind.CONSTRUCTOR):
+                if constructor.access_specifier != AccessSpecifier.PUBLIC:
+                    continue
+                params = list(iter_children(constructor, CursorKind.PARM_DECL))
+                cpp_params = [
+                    (p.spelling, type_info(p).substitute(template_args)) for p in params
+                ]
+                cpp_signature = f"void ({', '.join(str(t) for _, t in cpp_params)})"
+                cpp_constructors[cpp_signature] = ConstructorDefinition(
+                    cpp_params, cpp_signature
+                )
 
         self.stubdata.add_class_definition(
             ClassDefinition(
@@ -211,6 +306,7 @@ class Parser:
                 shadow_name=shadow_name,
                 parent_type=parent_type,
                 doc=doc,
+                _cpp_constructors=cpp_constructors,
             )
         )
 
@@ -239,7 +335,7 @@ class Parser:
         py_name = self._parse_name(children[0])
 
         # first child is the initializer list
-        init_list = _ensure_kind_recursive(children[1], CursorKind.INIT_LIST_EXPR)
+        init_list = ensure_kind(children[1], CursorKind.INIT_LIST_EXPR)
         values = {}
         for init_list_expr in init_list.get_children():
             args = list(init_list_expr.get_children())
@@ -372,7 +468,7 @@ class Parser:
     def _handle_module_add_integer_constants(self, node: cindex.Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
-        decl_ref_expr = _ensure_kind_recursive(children[0], CursorKind.DECL_REF_EXPR)
+        decl_ref_expr = ensure_kind(children[0], CursorKind.DECL_REF_EXPR)
         if (
             fully_qualified(decl_ref_expr.referenced)
             != "lass::python::impl::addIntegerConstantsToModule"
@@ -734,6 +830,11 @@ class Parser:
         for child in node.get_children():
             cls._debug(child, indent + "  ")
 
+    @classmethod
+    def _error(cls, node: cindex.Cursor, message: str) -> None:
+        cls._debug(node)
+        raise AssertionError(message)
+
     def _parse_module_ref(self, node: cindex.Cursor) -> ModuleDefinition:
         if node.kind == CursorKind.MEMBER_REF_EXPR:
             module_ref = ensure_only_child(node, CursorKind.DECL_REF_EXPR)
@@ -845,11 +946,9 @@ def is_member_ref_expr(node: cindex.Cursor, member: str) -> bool:
 
 
 def ensure_kind(node: cindex.Cursor, kind: CursorKind) -> cindex.Cursor:
-    assert node.kind == kind, f"expected {kind.name}, got {node.kind.name}"
-    return node
-
-
-def _ensure_kind_recursive(node: cindex.Cursor, kind: CursorKind) -> cindex.Cursor:
+    """
+    Ensure node is of kind; or unexposed in which case you recurse.
+    """
     if node.kind == kind:
         return node
     assert node.kind == CursorKind.UNEXPOSED_EXPR, (
@@ -857,7 +956,7 @@ def _ensure_kind_recursive(node: cindex.Cursor, kind: CursorKind) -> cindex.Curs
     )
     children = list(node.get_children())
     assert len(children) == 1, f"expected 1 child, got {len(children)}"
-    return _ensure_kind_recursive(children[0], kind)
+    return ensure_kind(children[0], kind)
 
 
 def _get_first_child(node: cindex.Cursor, kind: CursorKind) -> cindex.Cursor | None:
@@ -947,6 +1046,10 @@ def ensure_last_child(
 def _ensure_last_child_recursive(
     node: cindex.Cursor, kind: CursorKind | list[CursorKind]
 ) -> cindex.Cursor:
+    """ "
+    Return last child, ensuring it's one of kind."
+    If child is unexposed, recurse and find the last child of that.
+    """
     if isinstance(kind, CursorKind):
         kind = [kind]
     assert CursorKind.UNEXPOSED_EXPR not in kind, "Can't search of UNEXPOSED_EXPR"
