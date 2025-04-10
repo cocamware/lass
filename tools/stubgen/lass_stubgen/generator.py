@@ -343,7 +343,10 @@ class StubGenerator:
         if value_py_type == "int":
             base = "enum.IntEnum"
         elif value_py_type == "str":
-            base = "enum.StrEnum"
+            if sys.version_info < (3, 11):
+                base = "str, enum.Enum" # Python 3.10 and earlier do not have StrEnum
+            else:
+                base = "enum.StrEnum"
         else:
             base = "enum.Enum"
         signature = f"  # {enum_def.cpp_name}" if with_signature else ""

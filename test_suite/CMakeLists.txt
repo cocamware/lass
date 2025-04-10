@@ -156,12 +156,14 @@ if (WIN32 AND TARGET Lass::lass_python)
 		)
 endif()
 
-Lass_generate_stubs(test_suite
-	SOURCES
-		python_embedding.cpp
-		python_shadow.cpp
-		foo.cpp
-		bar.cpp
-	OUTPUT_DIRECTORY
-		"${sourcedir}"
-)
+if (DEFINED LASS_STUBGEN)
+	Lass_generate_stubs(test_suite
+		SOURCES
+			python_embedding.cpp
+			python_shadow.cpp
+			foo.cpp
+			bar.cpp
+		OUTPUT_DIRECTORY
+			"${sourcedir}"
+	)
+endif()

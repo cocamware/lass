@@ -49,7 +49,9 @@ if(MSVC)
 		)
 endif()
 
-Lass_generate_stubs(pylass)
+if (DEFINED LASS_STUBGEN)
+	Lass_generate_stubs(pylass)
+endif()
 
 if (WIN32)
     # bdist_wininst only works on windows

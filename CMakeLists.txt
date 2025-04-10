@@ -79,7 +79,11 @@ endif()
 # --- CHECK THE ENVIRONMENT ----
 
 include(cmake/Environment.cmake)
-include(tools/LassStubgen.cmake)
+
+
+if ("${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}" VERSION_GREATER_EQUAL "3.10" AND CMAKE_SIZEOF_VOID_P EQUAL 8)
+	include(tools/LassStubgen.cmake)
+endif()
 
 
 # Private compiler options for all targets

@@ -40,9 +40,15 @@ from __future__ import annotations
 import dataclasses
 import json
 import os
+import sys
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Any, Self, TypeAlias
+from typing import Any, TypeAlias
+
+if sys.version_info < (3, 11):
+    from typing_extensions import Self
+else:
+    from typing import Self
 
 StrPath: TypeAlias = str | os.PathLike[str]
 
