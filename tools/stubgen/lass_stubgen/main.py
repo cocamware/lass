@@ -195,7 +195,7 @@ def parse(
     imports_ = [Path(path) for path in imports or []]
 
     if object_files:
-        object_files_map = {Path(path).stem: Path(path) for path in object_files}
+        object_files_map = {_name(path): Path(path) for path in object_files}
         if len(object_files_map) != len(object_files):
             raise ValueError(
                 "Duplicate object file stems found in the list of object files"
@@ -249,7 +249,7 @@ def _parse_file(
     cache_dir: Path,
     parser_type: type[Parser],
 ) -> StubData:
-    object_file = object_files_map.get(source_path.stem)
+    object_file = object_files_map.get(_name(source_path))
     if object_file:
         h = hashlib.sha1(str(source_path.absolute()).encode("utf-8")).hexdigest()
         cache_file = cache_dir / f"{source_path.name}.{h}.json"
@@ -275,6 +275,11 @@ def _parse_file(
         stubdata.dump(cache_file)
 
     return stubdata
+
+
+def _name(path: StrPath) -> str:
+    """Return name of file without any extension, so before first dot"""
+    return Path(path).name.split(".")[0]
 
 
 def generate(

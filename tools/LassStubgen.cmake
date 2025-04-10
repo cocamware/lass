@@ -89,6 +89,12 @@ function(Lass_generate_stubs target)
 		set(_includes "$<$<BOOL:${_includes}>:-I$<JOIN:${_includes},;-I>>")
 		list(APPEND includes "${_includes}")
 
+		if(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES)
+			set(_includes ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+			set(_includes "$<$<BOOL:${_includes}>:-I$<JOIN:${_includes},;-I>>")
+			list(APPEND includes "${_includes}")
+		endif()
+
 		set(_object_files "$<TARGET_OBJECTS:${tgt}>")
 		set(_object_files "$<$<BOOL:${_object_files}>:-I$<JOIN:${_object_files},;--obj=>>")
 		list(APPEND object_files "${_object_files}")
