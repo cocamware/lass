@@ -710,8 +710,14 @@ class Parser:
         while value_arg.kind.is_unexposed():
             value_arg = ensure_only_child(value_arg)
         cpp_type = type_info(value_arg)
+        if value_arg.kind == CursorKind.STRING_LITERAL:
+            value = string_literal(value_arg)
+        else:
+            value = None
 
-        class_def.add_const(ConstDefinition(py_name=py_name, cpp_type=cpp_type))
+        class_def.add_const(
+            ConstDefinition(py_name=py_name, cpp_type=cpp_type, value=value)
+        )
 
         return True
 
