@@ -74,6 +74,14 @@ def main(argv: list[str]) -> int:
         help="Preprocessor defines for libclang",
     )
     parser.add_argument(
+        "--arg",
+        dest="args",
+        metavar="<arg>",
+        action="append",
+        default=[],
+        help="Additional arguments for libclang",
+    )
+    parser.add_argument(
         "--output-dir",
         metavar="<output-dir>",
         type=str,
@@ -142,9 +150,7 @@ If not provided, the number of threads will be set to the number of CPU cores.""
         help="Add C++ signatures as comments to the generated stubs, for debugging",
     )
 
-    args, rest = parser.parse_known_args(argv)
-    if rest and rest[0] == "--":
-        rest = rest[1:]
+    args = parser.parse_args(argv)
 
     try:
         stubdata: StubData = parse(
@@ -152,7 +158,7 @@ If not provided, the number of threads will be set to the number of CPU cores.""
             object_files=args.object_files,
             includes=args.includes,
             defines=args.defines,
-            args=rest,
+            args=args.args,
             package=args.package,
             imports=args.imports,
             export=args.export,

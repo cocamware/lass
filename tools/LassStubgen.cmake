@@ -66,7 +66,7 @@ function(Lass_generate_stubs target)
 	set(_multi_value_keywords SOURCES EXTRA_TARGETS IMPORT)
 	cmake_parse_arguments("${_prefix}" "${_options}" "${_one_value_keywords}" "${_multi_value_keywords}" ${ARGN})
 
-	set(cxx_standard "-std=c++$<TARGET_PROPERTY:${target},CXX_STANDARD>")
+	set(cxx_standard "--arg=-std=c++$<TARGET_PROPERTY:${target},CXX_STANDARD>")
 
 	set(defines)
 	set(includes)
@@ -78,7 +78,7 @@ function(Lass_generate_stubs target)
 		endif()
 	
 		set(_defines "$<TARGET_PROPERTY:${tgt},COMPILE_DEFINITIONS>")
-		set(_defines "$<$<BOOL:${_defines}>:-I$<JOIN:${_defines},;-D>>")
+		set(_defines "$<$<BOOL:${_defines}>:-D$<JOIN:${_defines},;-D>>")
 		list(APPEND defines "${_defines}")
 
 		set(_define_symbol "$<TARGET_PROPERTY:${tgt},DEFINE_SYMBOL>")
@@ -96,7 +96,7 @@ function(Lass_generate_stubs target)
 		endif()
 
 		set(_object_files "$<TARGET_OBJECTS:${tgt}>")
-		set(_object_files "$<$<BOOL:${_object_files}>:-I$<JOIN:${_object_files},;--obj=>>")
+		set(_object_files "$<$<BOOL:${_object_files}>:--obj=$<JOIN:${_object_files},;--obj=>>")
 		list(APPEND object_files "${_object_files}")
 	endforeach()
 
@@ -117,18 +117,18 @@ function(Lass_generate_stubs target)
 		set(_OUTPUT_DIRECTORY "$<TARGET_FILE_DIR:${target}>")
 	endif()
 	if(_PACKAGE)
-		set(_package "--package" "${_PACKAGE}")
+		set(_package "--package=${_PACKAGE}")
 	else()
 		set(_package)
 	endif()
 	if(_EXPORT)
-		set(_export "--export" "${_EXPORT}")
+		set(_export "--export=${_EXPORT}")
 	else()
 		set(_export)
 	endif()
 	set(_imports)
 	foreach(import ${_IMPORT})
-		set(_imports "--import" "${import}")
+		set(_imports "--import=${import}")
 	endforeach()
 	if(_WITH_SIGNATURES)
 		set(_with_signatures "--with-signatures")
@@ -136,7 +136,7 @@ function(Lass_generate_stubs target)
 		set(_with_signatures)
 	endif()
 	if(_MAX_THREADS)
-		set(_max_threads "--num-threads" "${_MAX_THREADS}")
+		set(_max_threads "--num-threads=${_MAX_THREADS}")
 	else()
 		set(_max_threads)
 	endif()
@@ -174,13 +174,13 @@ function(Lass_generate_stubs target)
 				"${_package}"
 				"${_imports}"
 				"${_export}"
-				"--output-dir" "${_OUTPUT_DIRECTORY}"
+				"--output-dir=${_OUTPUT_DIRECTORY}"
 				"${_with_signatures}"
 				"${cxx_standard}"
 				"${defines}"
 				"${includes}"
 				"${object_files}"
-				"--cache-dir" "${CMAKE_BINARY_DIR}/.lass_stubgen_cache"
+				"--cache-dir=${CMAKE_BINARY_DIR}/.lass_stubgen_cache"
 				"${_SOURCES}"
 		COMMAND_EXPAND_LISTS
 		VERBATIM
