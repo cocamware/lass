@@ -40,6 +40,7 @@ from __future__ import annotations
 import re
 import sysconfig
 from collections.abc import Callable, Iterator
+from ctypes import c_int
 from pathlib import Path
 
 from clang import cindex  # type: ignore
@@ -130,19 +131,8 @@ class Parser:
         if errors:
             raise ParseError(errors)
 
-        self._parse_node(tu.cursor)
-
-    def _parse_node(self, node: cindex.Cursor) -> None:
-        if node.kind == CursorKind.CALL_EXPR:
-            if handler := self._handlers.get(node.spelling):
-                if handler(node):
-                    return
-        if node.spelling == "PyExportTraits":
-            if self._handle_export_traits(node):
-                return
-
-        for child in node.get_children():
-            self._parse_node(child)
+        visitor = NodeVisitor(self)
+        visitor.visit_node(tu.cursor, tu.cursor, tu)
 
     def _handle_declare_module(self, node: cindex.Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
@@ -767,6 +757,10 @@ class Parser:
         type_ = type_info(node)
         if type_.name != "lass::python::PyExportTraits":
             return False
+        assert node.kind in (
+            CursorKind.CLASS_TEMPLATE_PARTIAL_SPECIALIZATION,
+            CursorKind.STRUCT_DECL,
+        ), node.kind
         assert type_.args and len(type_.args) == 1
         cpp_type = type_.args[0]
 
@@ -941,6 +935,51 @@ class ParseError(Exception):
     def __init__(self, errors: list[str]):
         super().__init__("\n".join(errors))
         self.errors = errors
+
+
+class NodeVisitor:
+    __slots__ = (
+        "parser",
+        "_handlers",
+        "_visitor_cb",
+        "_clang_visitChildren",
+        "_clang_getCursorSpelling",
+        "_kind_ids",
+    )
+
+    def __init__(self, parser: Parser) -> None:
+        self.parser = parser
+        self._handlers = parser._handlers
+        self._visitor_cb = cindex.callbacks["cursor_visit"](self.visit_node)
+        self._clang_visitChildren = cindex.conf.lib.clang_visitChildren
+        self._clang_getCursorSpelling = cindex.conf.lib.clang_getCursorSpelling
+        self._kind_ids = (
+            2,  # STRUCT_DECL
+            32,  # CLASS_TEMPLATE_PARTIAL_SPECIALIZATION
+            103,  # CALL_EXPR
+        )
+
+    def visit_node(
+        self, node: cindex.Cursor, _parent: cindex.Cursor, tu: cindex.TranslationUnit
+    ) -> int:
+        if node._kind_id in self._kind_ids:
+            kind_id: c_int = node._kind_id
+            if kind_id == 103:  # CALL_EXPR
+                if handler := self._handlers.get(self._clang_getCursorSpelling(node)):
+                    node._tu = tu
+                    if handler(node):
+                        return 1
+            elif (
+                kind_id == 2  # STRUCT_DECL
+                or kind_id == 32  # CLASS_TEMPLATE_PARTIAL_SPECIALIZATION
+            ):
+                if self._clang_getCursorSpelling(node) == "PyExportTraits":
+                    node._tu = tu
+                    if self.parser._handle_export_traits(node):
+                        return 1
+
+        self._clang_visitChildren(node, self._visitor_cb, tu)
+        return 1
 
 
 def is_member_ref_expr(node: cindex.Cursor, member: str) -> bool:
