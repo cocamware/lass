@@ -684,7 +684,7 @@ namespace impl
 template <>
 struct PyExportTraits<prim::IndexTriangle>
 {
-	constexpr static const char* py_typing = "tuple[int] | tuple[int, int | None] | tuple[int, int | None, int | None]";
+	constexpr static const char* py_typing = "tuple[tuple[int] | tuple[int, int | None] | tuple[int, int | None, int | None], tuple[int] | tuple[int, int | None] | tuple[int, int | None, int | None], tuple[int] | tuple[int, int | None] | tuple[int, int | None, int | None]]";
 
 	static PyObject* build(const prim::IndexTriangle& iTriangle)
 	{
