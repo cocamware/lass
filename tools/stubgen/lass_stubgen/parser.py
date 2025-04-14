@@ -73,12 +73,14 @@ class Parser:
         defines: list[str] | None = None,
         args: list[str] | None = None,
         object_files_map: dict[str, Path] | None = None,
+        pch_path: StrPath | None = None,
     ) -> None:
         self.stubdata = StubData(package=package)
         self.includes = includes or []
         self.defines = defines or []
         self.args = args or []
         self.object_files_map = object_files_map or {}
+        self.pch_path = pch_path
 
         self._handlers = {
             "ModuleDefinition": self._handle_declare_module,
@@ -100,11 +102,19 @@ class Parser:
             "addInnerEnum": self._handle_class_add_inner_enum,
         }
 
-    def parse(self, path: StrPath) -> None:
+    def parse(self, path: StrPath, *, save_pch: bool = False) -> None:
         args = [f"-I{include}" for include in self.includes]
         args.append(f"-I{sysconfig.get_path('include')}")
         args += [f"-D{define}" for define in self.defines]
         args += self.args or []
+
+        # Add the precompiled header if provided
+        if save_pch:
+            if not self.pch_path:
+                raise ValueError("pch_path must be provided when saving PCH.")
+            args += ["-xc++"]
+        elif self.pch_path:
+            args += ["-include-pch", str(self.pch_path)]
 
         index = cindex.Index.create()
         try:
@@ -119,6 +129,13 @@ class Parser:
         ]
         if errors:
             raise ParseError(errors)
+
+        if save_pch:
+            assert self.pch_path
+            ast_file = Path(self.pch_path)
+            ast_file.parent.mkdir(parents=True, exist_ok=True)
+            tu.save(str(ast_file))
+            return # don't bother scanning the AST
 
         visitor = NodeVisitor(self)
         visitor.visit_node(tu.cursor, tu.cursor, tu)

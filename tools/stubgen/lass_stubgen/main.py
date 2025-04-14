@@ -209,6 +209,26 @@ def parse(
     else:
         object_files_map = {}
 
+    if cmake_pch := object_files_map.get("cmake_pch"):
+        # we have a precompiled header, let's parse that one first, and pre-load it
+        # for all others.
+
+        parent = cmake_pch.parent
+        pch_header = parent / "cmake_pch.hxx"
+        if not pch_header.exists():
+            # multi-config build? let's try harder ...
+            build_type = parent.name
+            parent = parent.parent
+            target_dir = parent.name
+            parent = parent.parent
+            pch_header = parent / "CMakeFiles" / target_dir / build_type / "cmake_pch.hxx"
+        assert pch_header.exists(), f"Precompiled header {pch_header} does not exist"
+        h = hashlib.sha1(str(pch_header.absolute()).encode("utf-8")).hexdigest()
+        pch_path = cache_dir_ / f"{pch_header.name}.{h}.pch"
+    else:
+        pch_header = None
+        pch_path = None
+
     parser = functools.partial(
         _parse_file,
         object_files_map=object_files_map,
@@ -217,6 +237,7 @@ def parse(
         args=args,
         package=package,
         cache_dir=cache_dir_,
+        pch_path=pch_path,
         parser_type=parser_type,
     )
 
@@ -224,6 +245,10 @@ def parse(
     for import_ in imports_:
         import_data = StubData.load(import_, imported=True)
         stubdata.update(import_data)
+
+    if pch_header:
+        # we have a precompiled header, let's parse that one first, and pre-load it
+        parser(pch_header, save_pch=True)
 
     if num_threads == 1:
         for path in source_paths_:
@@ -253,6 +278,8 @@ def _parse_file(
     args: list[str] | None,
     object_files_map: dict[str, Path],
     cache_dir: Path,
+    pch_path: StrPath | None = None,
+    save_pch: bool = False,
     parser_type: type[Parser],
 ) -> StubData:
     object_file = object_files_map.get(_name(source_path))
@@ -273,8 +300,14 @@ def _parse_file(
         cache_file = None
 
     print(f"Parsing {source_path}...", file=sys.stderr)
-    parser = parser_type(package=package, includes=includes, defines=defines, args=args)
-    parser.parse(source_path)
+    parser = parser_type(
+        package=package,
+        includes=includes,
+        defines=defines,
+        args=args,
+        pch_path=pch_path,
+    )
+    parser.parse(source_path, save_pch=save_pch)
     stubdata = parser.stubdata
 
     if cache_file:
