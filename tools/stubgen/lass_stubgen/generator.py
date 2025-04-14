@@ -260,7 +260,10 @@ class StubGenerator:
     ) -> None:
         params = self.python_params("self", constructor.cpp_params, scope=scope)
         signature = f"  # {constructor.cpp_signature}" if with_signature else ""
-        print(f"{' ' * indent}def __init__({', '.join(params)}):{signature}", file=file)
+        print(
+            f"{' ' * indent}def __init__({', '.join(params)}) -> None:{signature}",
+            file=file,
+        )
         print(f"{' ' * indent}    ...", file=file)
 
     def write_getsetter(
