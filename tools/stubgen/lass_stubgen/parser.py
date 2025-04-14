@@ -39,7 +39,7 @@ from __future__ import annotations
 
 import re
 import sysconfig
-from collections.abc import Callable, Iterator
+from collections.abc import Iterator
 from ctypes import c_int
 from pathlib import Path
 
@@ -65,15 +65,6 @@ __all__ = ["Parser", "ParseError"]
 
 
 class Parser:
-    stubdata: StubData
-    includes: list[StrPath]
-    defines: list[str]
-    args: list[str]
-    object_files_map: dict[str, Path]
-    cache_dir: StrPath
-
-    _handlers: dict[str, Callable[[cindex.Cursor], bool]]
-
     def __init__(
         self,
         *,
@@ -82,14 +73,12 @@ class Parser:
         defines: list[str] | None = None,
         args: list[str] | None = None,
         object_files_map: dict[str, Path] | None = None,
-        cache_dir: StrPath | None = None,
     ) -> None:
         self.stubdata = StubData(package=package)
         self.includes = includes or []
         self.defines = defines or []
         self.args = args or []
         self.object_files_map = object_files_map or {}
-        self.cache_dir = cache_dir or Path.cwd() / ".lass_stubgen_cache"
 
         self._handlers = {
             "ModuleDefinition": self._handle_declare_module,

@@ -70,20 +70,13 @@ __all__ = [
 
 
 class StubData:
-    package: str | None
-    modules: dict[str, ModuleDefinition]
-    shadow_classes: dict[str, ClassDefinition]
-    cpp_classes: dict[str, ClassDefinition]
-    enums: dict[str, EnumDefinition]
-    export_traits: dict[str, dict[str, ExportTraits]]
-
     def __init__(self, package: str | None = None):
         self.package = package
-        self.modules = {}
-        self.shadow_classes = {}
-        self.cpp_classes = {}
-        self.enums = {}
-        self.export_traits = {}
+        self.modules: dict[str, ModuleDefinition] = {}
+        self.shadow_classes: dict[str, ClassDefinition] = {}
+        self.cpp_classes: dict[str, ClassDefinition] = {}
+        self.enums: dict[str, EnumDefinition] = {}
+        self.export_traits: dict[str, dict[str, ExportTraits]] = {}
 
     def asdict(self) -> dict[str, Any]:
         return {
