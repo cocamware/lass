@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -216,7 +216,13 @@ PyObject* ModuleDefinition::inject()
 	for (auto def: enums_)
 	{
 		def->freezeDefinition(name_.get(), nullptr);
-		PyModule_AddObject(module_, def->name().c_str(), reinterpret_cast<PyObject*>(def->type()));
+#if PY_VERSION_HEX < 0x030a0000 // < 3.10
+		PyObject* type = reinterpret_cast<PyObject*>(def->type());
+		Py_INCREF(type);
+		PyModule_AddObject(module_, def->name().c_str(), type);
+#else
+		PyModule_AddObjectRef(module_, def->name().c_str(), reinterpret_cast<PyObject*>(def->type()));
+#endif
 	}
 	for (TObjects::const_iterator obj = objects_.begin(); obj != objects_.end(); ++obj)
 	{
