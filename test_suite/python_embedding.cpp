@@ -828,6 +828,8 @@ done:
 	{
 		Py_ExitStatusException(status);
 	}
+
+	atexit(Py_Finalize);
 }
 
 }
