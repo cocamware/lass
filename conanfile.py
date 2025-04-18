@@ -20,7 +20,7 @@ The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
 The Original Developer is the Initial Developer.
 
 All portions of the code written by the Initial Developer are:
-Copyright (C) 2018-2024 the Initial Developer.
+Copyright (C) 2018-2025 the Initial Developer.
 All Rights Reserved.
 
 Contributor(s):
@@ -125,6 +125,7 @@ class LassConan(ConanFile):
         "simd_aligned": [True, False],
         "without_iterator_debugging": [True, False],
         "have_avx": [True, False],
+        "with_stubgen": [True, False, "auto"],
     }
     default_options = {
         "shared": True,
@@ -132,6 +133,7 @@ class LassConan(ConanFile):
         "simd_aligned": False,
         "without_iterator_debugging": False,
         "have_avx": True,
+        "with_stubgen": "auto",
     }
     requires = "syspython/1.0.2@cocamware/stable"
 
@@ -218,6 +220,8 @@ class LassConan(ConanFile):
         tc.cache_variables["Lass_PYTHON_VERSION"] = python.options.python_version
         tc.cache_variables["BUILD_TESTING"] = True
         tc.cache_variables["Lass_HAVE_AVX"] = self.options.get_safe("have_avx", False)
+        if self.options.with_stubgen != "auto":
+            tc.cache_variables["Lass_WITH_STUBGEN"] = self.options.with_stubgen
         tc.generate()
 
         vs = VSCodeCCppProperties(self)

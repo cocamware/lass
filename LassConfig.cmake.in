@@ -28,7 +28,8 @@ else()
 endif()
 
 
-if(Lass_HAVE_PYTHON AND Lass_PYTHON_VERSION VERSION_GREATER_EQUAL "3.10" AND CMAKE_SIZEOF_VOID_P EQUAL 8)
+set(Lass_WITH_STUBGEN "@Lass_WITH_STUBGEN@")
+if(Lass_WITH_STUBGEN)
     if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/LassBuildExports.cmake")
         get_target_property(_lass_INCLUDE_DIRS Lass::lass INTERFACE_INCLUDE_DIRECTORIES)
         list(GET _lass_INCLUDE_DIRS 0 _lass_ROOT_DIR)

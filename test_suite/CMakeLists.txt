@@ -156,7 +156,7 @@ if (WIN32 AND TARGET Lass::lass_python)
 		)
 endif()
 
-if (DEFINED LASS_STUBGEN)
+if (Lass_WITH_STUBGEN)
 	Lass_generate_stubs(test_suite
 		SOURCES
 			python_embedding.cpp

@@ -121,6 +121,14 @@ if(Python_Development_FOUND)
 		CHECK_SYMBOL_EXISTS("_XOPEN_SOURCE" "${_python_header}" LASS_HAVE_PYTHON_XOPEN_SOURCE)
 		message(STATUS "Looking in ${_python_header} for redefinitions - done")
 	endif()
+
+	if ("${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}" VERSION_GREATER_EQUAL "3.10" AND CMAKE_SIZEOF_VOID_P EQUAL 8)
+		set(_Lass_WITH_STUBGEN ON)
+	else()
+		set(_Lass_WITH_STUBGEN OFF)
+	endif()
+	option(Lass_WITH_STUBGEN "Use lass-stubgen to generate Python stubs" "${_Lass_WITH_STUBGEN}")
+
 endif()
 
 # --- check available headers ---

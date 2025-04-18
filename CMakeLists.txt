@@ -81,7 +81,7 @@ endif()
 include(cmake/Environment.cmake)
 
 
-if ("${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}" VERSION_GREATER_EQUAL "3.10" AND CMAKE_SIZEOF_VOID_P EQUAL 8)
+if (Lass_WITH_STUBGEN)
 	include(tools/LassStubgen.cmake)
 endif()
 
