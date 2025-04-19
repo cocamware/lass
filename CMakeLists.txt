@@ -97,6 +97,7 @@ if(MSVC)
 	endif()
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		add_compile_options("/clang:-Wno-unknown-pragmas")
+		unset(CMAKE_INCLUDE_SYSTEM_FLAG_CXX)  # workaround for bug in intellisense
 	endif()
 elseif(SUNPRO)
 	add_compile_options("-errtags=yes" "-erroff=wbadinit,wbadasg,badargtype2w,") 
