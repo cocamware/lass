@@ -678,6 +678,8 @@ PY_MODULE_FUNCTION( embedding, testFloatDouble )
 PY_MODULE_FUNCTION( embedding, testSystemClock )
 
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
+PY_MODULE_STRING_CONSTANT( embedding, "STRING_CONSTANT", "string constant")
+PY_MODULE_INTEGER_CONSTANT( embedding, "INTEGER_CONSTANT", 42)
 
 PY_MODULE_ENUM( embedding, lass::test::Color )
 PY_MODULE_FUNCTION( embedding, passColor )

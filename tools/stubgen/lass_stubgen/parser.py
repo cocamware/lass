@@ -93,6 +93,7 @@ class Parser:
             "injectObject": self._handle_module_inject_object,
             "addIntegerConstantsToModule": self._handle_module_add_integer_constants,
             "addLong": self._handle_module_add_long,
+            "addString": self._handle_module_add_string,
             "addConstructor": self._handle_class_add_constructor,
             "addMethod": self._handle_class_add_method,
             "addStaticMethod": self._handle_class_add_static_method,
@@ -435,13 +436,36 @@ class Parser:
             children[0], "lass::python::ModuleDefinition::addLong"
         ):
             return False
-        # module_def = self._parse_module_ref(children[0])
-        parent = node.semantic_parent
-        if not parent:
+        location = node.location.file.name.replace("\\", "/")
+        if location.endswith("/lass/python/bulk_add_integer.inl"):
             return False
 
-        self._debug(node)
-        assert False
+        module_def = self._parse_module_ref(children[0])
+
+        cpp_type, value = self._parse_constant(children[1])
+        py_name = self._parse_name(children[2])
+
+        module_def.add_constant(
+            ConstDefinition(py_name=py_name, cpp_type=cpp_type, value=value)
+        )
+        return True
+
+    def _handle_module_add_string(self, node: cindex.Cursor) -> bool:
+        assert node.kind == CursorKind.CALL_EXPR
+        children = list(node.get_children())
+        if not is_member_ref_expr(
+            children[0], "lass::python::ModuleDefinition::addString"
+        ):
+            return False
+        module_def = self._parse_module_ref(children[0])
+
+        cpp_type, value = self._parse_constant(children[1])
+        py_name = self._parse_name(children[2])
+
+        module_def.add_constant(
+            ConstDefinition(py_name=py_name, cpp_type=cpp_type, value=value)
+        )
+        return True
 
     def _handle_module_inject_object(self, node: cindex.Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
@@ -701,15 +725,7 @@ class Parser:
         class_def = self._get_class_def(children[0])
 
         py_name = self._parse_name(children[1])
-
-        value_arg = children[2]
-        while value_arg.kind.is_unexposed():
-            value_arg = ensure_only_child(value_arg)
-        cpp_type = type_info(value_arg)
-        if value_arg.kind == CursorKind.STRING_LITERAL:
-            value = string_literal(value_arg)
-        else:
-            value = None
+        cpp_type, value = self._parse_constant(children[2])
 
         class_def.add_const(
             ConstDefinition(py_name=py_name, cpp_type=cpp_type, value=value)
@@ -896,6 +912,22 @@ class Parser:
             assert node.spelling == ""
             return None
         return string_literal(node)
+    
+    def _parse_constant(self, node: cindex.Cursor) -> tuple[TypeInfo, str | int | None]:
+        while node.kind.is_unexposed():
+            node = ensure_only_child(node)
+        cpp_type = type_info(node)
+        value: str | int | None
+        if node.kind == CursorKind.STRING_LITERAL:
+            value = string_literal(node)
+        elif node.kind == CursorKind.INTEGER_LITERAL:
+            try:
+                value = int(node.spelling)
+            except ValueError:
+                value = None
+        else:
+            value = None
+        return cpp_type, value
 
     @classmethod
     def _handle_dispatcher_ref(
