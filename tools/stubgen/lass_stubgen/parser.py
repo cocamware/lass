@@ -69,14 +69,16 @@ class Parser:
         self,
         *,
         package: str | None = None,
-        includes: list[StrPath] | None = None,
+        include_dirs: list[StrPath] | None = None,
+        system_include_dirs: list[StrPath] | None = None,
         defines: list[str] | None = None,
         args: list[str] | None = None,
         object_files_map: dict[str, Path] | None = None,
         pch_path: StrPath | None = None,
     ) -> None:
         self.stubdata = StubData(package=package)
-        self.includes = includes or []
+        self.include_dirs = include_dirs or []
+        self.system_include_dirs = system_include_dirs or []
         self.defines = defines or []
         self.args = args or []
         self.object_files_map = object_files_map or {}
@@ -104,8 +106,9 @@ class Parser:
         }
 
     def parse(self, path: StrPath, *, save_pch: bool = False) -> None:
-        args = [f"-I{include}" for include in self.includes]
+        args = [f"-I{include}" for include in self.include_dirs]
         args.append(f"-I{sysconfig.get_path('include')}")
+        args += [f"-isystem{include}" for include in self.system_include_dirs]
         args += [f"-D{define}" for define in self.defines]
         args += self.args or []
 

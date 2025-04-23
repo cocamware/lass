@@ -91,7 +91,7 @@ function(Lass_generate_stubs target)
 
 		if(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES)
 			set(_includes ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
-			set(_includes "$<$<BOOL:${_includes}>:-I$<JOIN:${_includes},;-I>>")
+			set(_includes "$<$<BOOL:${_includes}>:-isystem;$<JOIN:${_includes},;-isystem;>>")
 			list(APPEND includes "${_includes}")
 		endif()
 

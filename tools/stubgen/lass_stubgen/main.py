@@ -57,16 +57,24 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument(
         "-I",
-        "--include",
-        dest="includes",
-        metavar="<include-dir>",
+        "--include-directory",
+        dest="include_dirs",
+        metavar="<dir>",
         action="append",
         default=[],
         help="Additional include directories for libclang",
     )
     parser.add_argument(
+        "-isystem",
+        dest="system_include_dirs",
+        metavar="<dir>",
+        action="append",
+        default=[],
+        help="Additional system include directories for libclang",
+    )
+    parser.add_argument(
         "-D",
-        "--define",
+        "--define-macro",
         dest="defines",
         metavar="<define>",
         action="append",
@@ -156,7 +164,8 @@ If not provided, the number of threads will be set to the number of CPU cores.""
         stubdata: StubData = parse(
             source_paths=args.path,
             object_files=args.object_files,
-            includes=args.includes,
+            include_dirs=args.include_dirs,
+            system_include_dirs=args.system_include_dirs,
             defines=args.defines,
             args=args.args,
             package=args.package,
@@ -183,7 +192,8 @@ def parse(
     source_paths: list[StrPath],
     *,
     object_files: list[StrPath] | None = None,
-    includes: list[StrPath] | None = None,
+    include_dirs: list[StrPath] | None = None,
+    system_include_dirs: list[StrPath] | None = None,
     defines: list[str] | None = None,
     args: list[str] | None = None,
     package: str | None = None,
@@ -232,7 +242,8 @@ def parse(
     parser = functools.partial(
         _parse_file,
         object_files_map=object_files_map,
-        includes=includes,
+        include_dirs=include_dirs,
+        system_include_dirs=system_include_dirs,
         defines=defines,
         args=args,
         package=package,
@@ -273,7 +284,8 @@ def _parse_file(
     source_path: Path,
     *,
     package: str | None,
-    includes: list[StrPath] | None,
+    include_dirs: list[StrPath] | None,
+    system_include_dirs: list[StrPath] | None,
     defines: list[str] | None,
     args: list[str] | None,
     object_files_map: dict[str, Path],
@@ -302,7 +314,8 @@ def _parse_file(
     print(f"Parsing {source_path}...", file=sys.stderr)
     parser = parser_type(
         package=package,
-        includes=includes,
+        include_dirs=include_dirs,
+        system_include_dirs=system_include_dirs,
         defines=defines,
         args=args,
         pch_path=pch_path,
