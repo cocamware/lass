@@ -425,12 +425,12 @@ class StubGenerator:
                     assert matches[1][0] > num_params
                 return py_type
 
-        if py_typer := EXPORT_TRAITS.get(cpp_name):
+        if py_typer := BUILTIN_TYPES.get(cpp_name):
             if callable(py_typer):
                 return py_typer(self, cpp_type.args, scope)
             return py_typer
 
-        for regex, py_type_match in EXPORT_TRAITS_REGEX:
+        for regex, py_type_match in BUILTIN_TYPES_REGEX:
             if match := re.match(regex, cpp_name):
                 if callable(py_type_match):
                     return py_type_match(self, cpp_type.args, scope, match)
@@ -507,9 +507,6 @@ def _match_template_args(
     return True
 
 
-ExportTraitsTyper: TypeAlias = Callable[
-    [StubGenerator, list[TypeInfo] | None, str | None], str
-]
 
 
 def _pytype_sequence(
@@ -528,8 +525,11 @@ def _pytype_mapping(
     value_type = stubgen.python_type(args[1], scope=scope)
     return f"Mapping[{key_type}, {value_type}]"
 
+BuiltinTyper: TypeAlias = Callable[
+    [StubGenerator, list[TypeInfo] | None, str | None], str
+]
 
-EXPORT_TRAITS: dict[str, str | ExportTraitsTyper] = {
+BUILTIN_TYPES: dict[str, str | BuiltinTyper] = {
     "void": "None",
     "std::vector": _pytype_sequence,
     "std::list": _pytype_sequence,
@@ -539,17 +539,21 @@ EXPORT_TRAITS: dict[str, str | ExportTraitsTyper] = {
     "std::__cxx11::list": _pytype_sequence,
     "std::__cxx11::deque": _pytype_sequence,
     "std::__cxx11::map": _pytype_mapping,
+    "std::__ndk1::vector": _pytype_sequence,
+    "std::__ndk1::list": _pytype_sequence,
+    "std::__ndk1::deque": _pytype_sequence,
+    "std::__ndk1::map": _pytype_mapping,
     "lass::python::PyIteratorRange *": "Iterator[Any]",
     "lass::stde::static_vector": _pytype_sequence,
     "lass::stde::vector_map": _pytype_mapping,
 }
 
-ExportTraitsTyperMatch: TypeAlias = Callable[
+BuiltinTyperRegex: TypeAlias = Callable[
     [StubGenerator, list[TypeInfo] | None, str | None, re.Match], str
 ]
 
 
-EXPORT_TRAITS_REGEX: list[tuple[re.Pattern[str], str | ExportTraitsTyperMatch]] = [
+BUILTIN_TYPES_REGEX: list[tuple[re.Pattern[str], str | BuiltinTyperRegex]] = [
     (re.compile(r"char\[\d+\]"), "str"),
     (re.compile(r"wchar_t\[\d+\]"), "str"),
 ]
