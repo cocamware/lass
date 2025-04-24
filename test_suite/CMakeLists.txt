@@ -121,7 +121,7 @@ if(TARGET Lass::lass_python)
 		PRIVATE "TEST_PYTHONHOME=\"${Lass_PYTHON_BASE_PREFIX}\""
 	)
 	if(NOT WIN32)
-		target_compile_options(test_suite
+		target_link_options(test_suite
 			PRIVATE -rdynamic
 		)
 	endif()
