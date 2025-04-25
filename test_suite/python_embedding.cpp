@@ -310,7 +310,7 @@ void testFree(ClassB*, const ClassA& )
 	return;
 }
 
-ClassB freeConstructor(int)
+ClassB freeConstructor([[maybe_unused]] int i)
 {
 	return ClassB();
 }

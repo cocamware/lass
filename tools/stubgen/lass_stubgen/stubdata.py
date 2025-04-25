@@ -313,7 +313,8 @@ class ClassDefinition:
     def add_constructor(self, constr_def: ConstructorDefinition) -> None:
         # if constructor doesn't have parameter names, then search for a
         # C++ constructor with the same signature and reuse its definition
-        if not any(name for name, _ in constr_def.cpp_params):
+        # (don't do this for free constructors)
+        if not constr_def.free and not any(name for name, _ in constr_def.cpp_params):
             if cpp_constr := self._cpp_constructors.get(constr_def.cpp_signature):
                 constr_def = cpp_constr
         self.constructors.append(constr_def)
@@ -465,6 +466,7 @@ class EnumDefinition:
 class ConstructorDefinition:
     cpp_params: list[ParamInfo]
     cpp_signature: str
+    free: bool = False
 
     def asdict(self) -> dict[str, Any]:
         return dataclasses.asdict(self)
@@ -477,6 +479,7 @@ class ConstructorDefinition:
         return cls(
             cpp_params=cpp_params,
             cpp_signature=data["cpp_signature"],
+            free=data["free"],
         )
 
 

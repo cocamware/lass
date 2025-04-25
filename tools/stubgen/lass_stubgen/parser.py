@@ -139,7 +139,7 @@ class Parser:
             ast_file = Path(self.pch_path)
             ast_file.parent.mkdir(parents=True, exist_ok=True)
             tu.save(str(ast_file))
-            return # don't bother scanning the AST
+            return  # don't bother scanning the AST
 
         visitor = NodeVisitor(self)
         visitor.visit_node(tu.cursor, tu.cursor, tu)
@@ -538,26 +538,52 @@ class Parser:
         compound = ensure_last_child(dispatcher, CursorKind.COMPOUND_STMT)
         return_stmt = ensure_last_child(compound, CursorKind.RETURN_STMT)
         call_expr = ensure_only_child(return_stmt, CursorKind.CALL_EXPR)
-        call_constructor_ptr = ensure_first_child(call_expr, CursorKind.UNEXPOSED_EXPR)
-        call_constructor_ref = ensure_only_child(
-            call_constructor_ptr, CursorKind.DECL_REF_EXPR
-        )
-        assert call_constructor_ref.spelling == "callConstructor"
 
-        t_params_ref = ensure_last_child(
-            call_constructor_ref, [CursorKind.TYPE_REF, CursorKind.TEMPLATE_REF]
-        )
-        t_params_type = type_info(t_params_ref)
-
-        cpp_params = [("", type_) for type_ in (t_params_type.args or [])]
-        cpp_signature = f"void ({', '.join(str(type_) for _, type_ in cpp_params)})"
-
-        class_def.add_constructor(
-            ConstructorDefinition(
-                cpp_params=cpp_params,
-                cpp_signature=cpp_signature,
+        if call_expr.spelling == "callConstructor":
+            call_constructor_ptr = ensure_first_child(
+                call_expr, CursorKind.UNEXPOSED_EXPR
             )
-        )
+            call_constructor_ref = ensure_only_child(
+                call_constructor_ptr, CursorKind.DECL_REF_EXPR
+            )
+            assert call_constructor_ref.spelling == "callConstructor"
+
+            t_params_ref = ensure_last_child(
+                call_constructor_ref, [CursorKind.TYPE_REF, CursorKind.TEMPLATE_REF]
+            )
+            t_params_type = type_info(t_params_ref)
+
+            cpp_params = [("", type_) for type_ in (t_params_type.args or [])]
+            cpp_signature = f"void ({', '.join(str(type_) for _, type_ in cpp_params)})"
+
+            class_def.add_constructor(
+                ConstructorDefinition(
+                    cpp_params=cpp_params,
+                    cpp_signature=cpp_signature,
+                )
+            )
+
+        elif call_expr.spelling == "callFunction":
+            # Free function as construtor
+            func_arg = ensure_last_child(call_expr, CursorKind.UNEXPOSED_EXPR)
+            func_ref = ensure_only_child(func_arg, CursorKind.DECL_REF_EXPR)
+            func = func_ref.referenced
+            cpp_signature = canonical_type(func).spelling
+
+            params = list(iter_children(func, CursorKind.PARM_DECL))
+            cpp_params = [(p.spelling, type_info(p)) for p in params]
+
+            class_def.add_constructor(
+                ConstructorDefinition(
+                    cpp_params=cpp_params,
+                    cpp_signature=cpp_signature,
+                    free=True,
+                )
+            )
+
+        else:
+            self._debug(node)
+            assert False, call_expr.spelling
 
         return True
 
@@ -915,7 +941,7 @@ class Parser:
             assert node.spelling == ""
             return None
         return string_literal(node)
-    
+
     def _parse_constant(self, node: cindex.Cursor) -> tuple[TypeInfo, str | int | None]:
         while node.kind.is_unexposed():
             node = ensure_only_child(node)
