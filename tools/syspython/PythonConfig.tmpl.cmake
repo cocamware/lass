@@ -99,7 +99,7 @@ endif()
 
 
 if(NOT TARGET Python::Module)
-    if(WIN32)
+    if(WIN32 OR ANDROID)
         add_library(Python::Module "${_Python_LIBRARY_TYPE}" IMPORTED)
         set_target_properties(Python::Module
             PROPERTIES

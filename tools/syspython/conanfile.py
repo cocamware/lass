@@ -51,7 +51,7 @@ from conan.tools.files import copy, load, save
 
 class SysPython(ConanFile):
     name = "syspython"
-    version = "1.0.2"
+    version = "1.0.3"
     user = "cocamware"
     channel = "stable"
     description = "Discovers your system's Python and allow to use it as a requirement"

@@ -135,7 +135,7 @@ class LassConan(ConanFile):
         "have_avx": True,
         "with_stubgen": "auto",
     }
-    requires = "syspython/1.0.2@cocamware/stable"
+    requires = "syspython/1.0.3@cocamware/stable"
 
     def export_sources(self):
         git = Git(self)
