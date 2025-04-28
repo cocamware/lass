@@ -41,8 +41,9 @@ import dataclasses
 import json
 import os
 import sys
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, TypeAlias
 
 if sys.version_info < (3, 11):
@@ -77,6 +78,7 @@ class StubData:
         self.cpp_classes: dict[str, ClassDefinition] = {}
         self.enums: dict[str, EnumDefinition] = {}
         self.export_traits: dict[str, dict[str, ExportTraits]] = {}
+        self.included_files: dict[str, set[str]] = {}
 
     def asdict(self) -> dict[str, Any]:
         return {
@@ -91,15 +93,45 @@ class StubData:
                 for specializations in self.export_traits.values()
                 for traits in specializations.values()
             ],
+            "included_files": {
+                cpp_file: list(included_files)
+                for cpp_file, included_files in self.included_files.items()
+            },
         }
 
-    def dump(self, path: StrPath) -> None:
+    def dump(self, path: StrPath, depfile: StrPath | None = None) -> None:
         """
         Dump stub data to a JSON file.
         """
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8", newline="\n") as fp:
             json.dump(self.asdict(), fp, indent=2)
+        if depfile:
+            self.write_depfile(depfile, target=path)
+
+    def write_depfile(self, depfile: StrPath, *, target: StrPath) -> None:
+        """
+        Write a dependency file for the stub data.
+
+        The target is not the file that was parsed, but the file that's being generated,
+        for example the json file with the stub data, or the saved PCH file.
+        """
+
+        def escape(path: str) -> str:
+            path = path.replace("\\", "/")
+            path = path.replace("$", "$$")
+            path = path.replace("#", "\\#")
+            path = path.replace(" ", "\\ ")
+            return path
+
+        sep = " \\\n  "
+        dependencies = set()
+        for cpp_file, included_files in self.included_files.items():
+            dependencies.add(cpp_file)
+            dependencies.update(included_files)
+        escaped = (escape(p) for p in dependencies)
+        with open(depfile, "w", encoding="utf-8", newline="\n") as fp:
+            fp.write(f"{escape(str(target))}:{sep}{sep.join(escaped)}\n")
 
     @classmethod
     def fromdict(cls, data: dict[str, Any]) -> Self:
@@ -112,6 +144,8 @@ class StubData:
             stubdata.add_enum_definition(EnumDefinition.fromdict(enum_data))
         for traits_data in data["export_traits"]:
             stubdata.add_export_traits(ExportTraits.fromdict(traits_data))
+        for cpp_file, included_files in data["included_files"].items():
+            stubdata.included_files.setdefault(cpp_file, set()).update(included_files)
         return stubdata
 
     @classmethod
@@ -143,6 +177,8 @@ class StubData:
         for class_, specializations in stubdata.export_traits.items():
             # duplicates are allowed
             self.export_traits.setdefault(class_, {}).update(specializations)
+        for cpp_file, included_files in stubdata.included_files.items():
+            self.included_files.setdefault(cpp_file, set()).update(included_files)
 
     def add_module_definition(self, mod_def: ModuleDefinition) -> None:
         if mod_def.cpp_name in self.modules:
@@ -168,6 +204,13 @@ class StubData:
         specializations = self.export_traits.setdefault(cpp_type.name, {})
         specializations[str(cpp_type)] = export_traits
 
+    def add_included_files(
+        self, cpp_file: StrPath, included_files: Iterable[StrPath]
+    ) -> None:
+        key = Path(cpp_file).resolve().as_posix()
+        includes = (Path(include).resolve().as_posix() for include in included_files)
+        self.included_files.setdefault(key, set()).update(includes)
+
     def fix_fully_qualified_names(self) -> None:
         """Fix the fully qualified names of all modules, classes and enums."""
         for mod_def in self.modules.values():
@@ -189,11 +232,15 @@ class StubData:
         mod_def.fully_qualified_name = fully_qualified_name
 
         for shadow_name in mod_def.classes:
-            class_def = self.shadow_classes[shadow_name]
-            self._fix_fully_qualified_name_class(class_def, scope=fully_qualified_name)
+            if class_def := self.shadow_classes.get(shadow_name):
+                self._fix_fully_qualified_name_class(
+                    class_def, scope=fully_qualified_name
+                )
         for enum_name in mod_def.enums:
-            enum_def = self.enums[enum_name]
-            self._fix_fully_qualified_name_enum(enum_def, scope=fully_qualified_name)
+            if enum_def := self.enums.get(enum_name):
+                self._fix_fully_qualified_name_enum(
+                    enum_def, scope=fully_qualified_name
+                )
 
     def _fix_fully_qualified_name_class(
         self, class_def: ClassDefinition, *, scope: str
@@ -206,11 +253,15 @@ class StubData:
         class_def.fully_qualified_name = fully_qualified_name
 
         for inner_class in class_def.inner_classes:
-            inner_def = self.shadow_classes[inner_class]
-            self._fix_fully_qualified_name_class(inner_def, scope=fully_qualified_name)
-        for enum_ in class_def.inner_enums:
-            enum_def = self.enums[enum_]
-            self._fix_fully_qualified_name_enum(enum_def, scope=fully_qualified_name)
+            if inner_def := self.shadow_classes.get(inner_class):
+                self._fix_fully_qualified_name_class(
+                    inner_def, scope=fully_qualified_name
+                )
+        for enum_name in class_def.inner_enums:
+            if enum_def := self.enums.get(enum_name):
+                self._fix_fully_qualified_name_enum(
+                    enum_def, scope=fully_qualified_name
+                )
 
     def _fix_fully_qualified_name_enum(
         self, enum_def: EnumDefinition, *, scope: str
