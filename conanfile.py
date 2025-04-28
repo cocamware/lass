@@ -271,15 +271,15 @@ class LassConan(ConanFile):
                     for bindir in self.cpp.build.components["lass"].bindirs
                 )
         else:
-            try:
+            if self.folders.build_folder:
+                # we're in editable mode, find LassConfig.py in the build folder
+                lass_config = self._load_module_from_file(
+                    os.path.join(self.folders.build_folder, "LassConfig.py")
+                )
+            else:
+                # we're in normal package mode, find LassConfig.py in the package folder
                 lass_config = self._load_module_from_file(
                     os.path.join(self.package_folder, "share/Lass/LassConfig.py")
-                )
-            except FileNotFoundError:
-                lass_config = self._load_module_from_file(
-                    os.path.join(
-                        self.package_folder, self.folders.build, "LassConfig.py"
-                    )
                 )
 
         if self.settings.build_type == "Debug":
