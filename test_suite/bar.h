@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -91,13 +91,11 @@ namespace test
 		Bar();
 		Bar( int iA, const std::string& iB );
 		virtual ~Bar();
-		virtual std::string doPyRepr(void);
-		virtual std::string doPyStr(void);
 
 		virtual float aMoreComplexFunction( float iA, float iB );
-		void  testAutomaticFunctionExport( int iA, float iB );
-		void complexArguments( const std::string& iA );
-		prim::Point3D<float> primArguments(const prim::Aabb3D<float>& iAabb, prim::XYZ iAxis,
+		std::string testAutomaticFunctionExport( int iA, float iB );
+		std::string complexArguments( const std::string& iA );
+		std::string primArguments(const prim::Aabb3D<float>& iAabb, prim::XYZ iAxis,
 			const prim::Transformation3D<double>& iTransformation);
 		prim::ColorRGBA rgba(const prim::ColorRGBA& c);
 
@@ -165,6 +163,7 @@ namespace test
 		void delItem2(int index);
 		bool contains(const std::string& key);
 		size_t size() const;
+		lass::python::PyIteratorRange* iter();
 
 		static std::unique_ptr<Bar> makeUniquePtr();
 	};
@@ -192,8 +191,8 @@ namespace test
 	}
 
 	void listInfo( const python::TPyObjPtr& iObject );
-	void freeMethodA(const Bar& bar, const std::string& a);
-	void freeMethodB(Bar& bar, const std::string& a);
+	std::string freeMethodA(const Bar& bar, const std::string& a);
+	std::string freeMethodB(Bar& bar, const std::string& a);
 	float freeCall(const Bar& bar, float a);
 	std::string freeStr(const Bar& bar);
 	std::string freeRepr(const Bar& bar);

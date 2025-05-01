@@ -40,6 +40,7 @@ __pycache__/
 /lass/util/impl/dispatcher_r_?.h
 /lass/util/impl/dispatcher_r_??.h
 /test_suite/test_util_callback.cpp
+/test_suite/embedding.pyi
 
 # ignore intellisense in vscode
 /.vscode/ipch

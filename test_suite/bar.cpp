@@ -111,6 +111,7 @@ namespace lass
 		PY_CLASS_METHOD_NAME(Bar, delItem, python::methods::map_delitem_);
 		PY_CLASS_METHOD_NAME(Bar, contains, python::methods::_contains_);
 		PY_CLASS_METHOD_NAME(Bar, size, python::methods::map_len_);
+		PY_CLASS_METHOD_NAME(Bar, iter, lass::python::methods::_iter_);
 		PY_CLASS_STATIC_METHOD( Bar, makeUniquePtr )
 
 		// innerclass of Bar
@@ -150,16 +151,6 @@ namespace lass
 			return i+1;
 		}
 
-		std::string Bar::doPyRepr(void)
-		{
-			return std::string( "The representation of Bar object at " + lass::util::stringCast<std::string>(this) );
-		}
-
-		std::string Bar::doPyStr(void)
-		{
-			return std::string( "The string of Bar object at " + lass::util::stringCast<std::string>(this) );
-		}
-
 		int Bar::aStaticMethod( float ia )
 		{
 			return static_cast<int>(ia);
@@ -181,6 +172,7 @@ namespace lass
 			privateInt_ = 0;
 			privateString_ = "uninitialized string";
 			coolMember_ = 1.f;
+			publicInt = 42;
 			writeableMap.reset(new std::map<std::string, std::string>);
 			writeableVectorMap.reset(new stde::vector_map<std::string, std::string>);
 			writeableVector.reset(new std::vector<double>);
@@ -194,6 +186,7 @@ namespace lass
 			privateInt_ = iA;
 			privateString_ = iB;
 			coolMember_ = 1.f;
+			publicInt = 42;
 		}
 
 		Bar::~Bar()
@@ -206,22 +199,27 @@ namespace lass
 			return iA+iB;
 		}
 
-		void  Bar::testAutomaticFunctionExport( int iA, float iB )
+		std::string Bar::testAutomaticFunctionExport( int iA, float iB )
 		{
-			LASS_COUT << "C++ testAutomaticFunctionExport : " << static_cast<float>(iA) + iB << "\n";
+			std::ostringstream stream;
+			stream << "C++ testAutomaticFunctionExport : " << static_cast<float>(iA) + iB;
+			return stream.str();
 		}
 
-		void Bar::complexArguments( const std::string& iA )
+		std::string Bar::complexArguments( const std::string& iA )
 		{
-			LASS_COUT << "complexArguments: '" << iA << "'\n";
+			std::ostringstream stream;
+			stream << "complexArguments: '" << iA << "'";
+			return stream.str();
 		}
 
-		prim::Point3D<float> Bar::primArguments(const prim::Aabb3D<float>& iAabb, prim::XYZ iAxis,
+		std::string Bar::primArguments(const prim::Aabb3D<float>& iAabb, prim::XYZ iAxis,
 			const prim::Transformation3D<double>& iTransformation)
 		{
-			LASS_COUT << "size of box along " << iAxis << " axis is " << iAabb.size()[iAxis] << "\n";
-			LASS_COUT << "transformation: " << iTransformation << std::endl;
-			return iAabb.center().affine();
+			std::ostringstream stream;
+			stream << "size of box along " << iAxis << " axis is " << iAabb.size()[iAxis] << "\n";
+			stream << "transformation: " << iTransformation << std::endl;
+			return stream.str();
 		}
 
 		prim::ColorRGBA Bar::rgba(const prim::ColorRGBA& c)
@@ -405,14 +403,22 @@ namespace lass
 		{
 			return map_.size();
 		}
-
-		void freeMethodA(const Bar& bar, const std::string& a)
+		lass::python::PyIteratorRange* Bar::iter()
 		{
-			LASS_COUT << "void (const Bar&, const std::string&): " << &bar << " " << a << std::endl;
+			return new lass::python::PyIteratorRange(map_.begin(), map_.end());
 		}
-		void freeMethodB(Bar& bar, const std::string& a)
+
+		std::string freeMethodA(const Bar& bar, const std::string& a)
 		{
-			LASS_COUT << "void (Bar*, const std::string&): " << &bar << " " << a << std::endl;
+			std::ostringstream stream;
+			stream << "freeMethodA(const Bar&, const std::string&): " << &bar << " " << a;
+			return stream.str();
+		}
+		std::string freeMethodB(Bar& bar, const std::string& a)
+		{
+			std::ostringstream stream;
+			stream << "freeMethodB(Bar*, const std::string&): " << &bar << " " << a;
+			return stream.str();
 		}
 		float freeCall(const Bar& bar, float a)
 		{

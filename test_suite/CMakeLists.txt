@@ -166,4 +166,21 @@ if (Lass_WITH_STUBGEN)
 		OUTPUT_DIRECTORY
 			"${sourcedir}"
 	)
+
+	if (WIN32)
+		set(_venv_python "${_Lass_venv_stubgen}/Scripts/python.exe")
+	else()
+		set(_venv_python "${_Lass_venv_stubgen}/bin/python")
+	endif()
+	set(_requirements "${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt")
+	set(_constraints "${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt")
+	set(_stamp_file "${_Lass_venv_stubgen}/.test_suite.stamp")
+	if ("${_requirements}" IS_NEWER_THAN "${_stamp_file}" OR "${_constraints}" IS_NEWER_THAN "${_stamp_file}")
+		_Lass_checked_process("${_venv_python}" -m pip install --requirement "${_requirements}" --constraint "${_constraints}")
+		file(TOUCH "${_stamp_file}")
+	endif()
+
+	# Add a test for the generated stubs by testing mypy and ruff on test_python_embedding.py
+	add_test(NAME "test_python_embedding_mypy" COMMAND "${_venv_python}" -m mypy "${CMAKE_CURRENT_SOURCE_DIR}/test_python_embedding.py")
+	add_test(NAME "test_python_embedding_ruff" COMMAND "${_venv_python}" -m ruff check "${CMAKE_CURRENT_SOURCE_DIR}/test_python_embedding.py")
 endif()

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -58,12 +58,12 @@ namespace lass
 namespace test
 {
 
-void testPythonEmbedding()
+void testPythonUtils()
 {
 	initPythonEmbedding();
 
 	LASS_TEST_CHECK(python::globals());
-	
+
 	python::TPyObjPtr a;
 	int b = 0;
 	LASS_TEST_CHECK_NO_THROW(a = python::evaluate("4 + 4"));
@@ -74,7 +74,7 @@ void testPythonEmbedding()
 	LASS_TEST_CHECK_NO_THROW(a = python::evaluate("foo"));
 	LASS_TEST_CHECK_EQUAL(python::pyGetSimpleObject(a.get(), b), 0);
 	LASS_TEST_CHECK_EQUAL(b, 9);
-	
+
 	LASS_TEST_CHECK_THROW(python::execute("foo = bar"), python::PythonException);
 
 	python::putenv("FOO", "BAR");
@@ -84,25 +84,29 @@ void testPythonEmbedding()
 	std::string s;
 	LASS_TEST_CHECK_EQUAL(python::pyGetSimpleObject(a.get(), s), 0);
 	LASS_TEST_CHECK_EQUAL(s, "BAR");
+}
 
-	// execfile is no longer part of python 3.0
+void testPythonEmbedding()
+{
+	initPythonEmbedding();
+
 	const std::string testFile = io::fileJoinPath(test::inputDir(), "test_python_embedding.py");
-	std::string commandStr = "exec(open('" + testFile + "').read())";
-	commandStr = stde::replace_all(commandStr, std::string("\\"), std::string("\\\\"));
-	LASS_TEST_CHECK_EQUAL( PyRun_SimpleString( const_cast<char*>(commandStr.c_str()) ) , 0 );
-	
-	/*
-	typedef std::vector<double> TV;
-	TV vec;
-	python::impl::PySequence pyseqtest(vec);
-	LASS_TEST_CHECK_EQUAL( PySequence_Check(&pyseqtest) , 1);
-	*/
+	python::TPyObjPtr pyTestFile(python::pyBuildSimpleObject(testFile));
+	LASS_TEST_CHECK(pyTestFile);
 
+	{
+		python::LockGIL LASS_UNUSED(lock);
+		FILE* fp = _Py_fopen_obj(pyTestFile.get(), "rb");
+		LASS_TEST_CHECK_EQUAL(PyRun_SimpleFileEx(fp, testFile.c_str(), 1), 0);
+	}
 }
 
 TUnitTest test_python_embedding()
 {
-	return TUnitTest(1, LASS_TEST_CASE(testPythonEmbedding));
+	return TUnitTest({
+		LASS_TEST_CASE(testPythonUtils),
+		LASS_TEST_CASE(testPythonEmbedding),
+	});
 }
 
 }

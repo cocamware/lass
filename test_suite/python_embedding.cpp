@@ -60,7 +60,7 @@
 #include "../lass/util/callback_r_2.h"
 #include "../lass/util/non_copyable.h"
 #include "../lass/meta/meta_assert.h"
-
+#include "../lass/stde/extended_string.h"
 #include "../lass/util/multi_callback.h"
 #include "../lass/python/pycallback.h"
 #include "../lass/python/streams.h"
@@ -119,19 +119,19 @@ float callR2(const util::CallbackR2<float, float, float>& callback, float x, flo
 	return callback(x, y);
 }
 
-void overloadedA(int iA)
+int overloadedA(int iA)
 {
-	LASS_COUT << "overloadedA " << iA << std::endl;
+	return 2 * iA;
 }
 
-void overloadedB(const std::string& iA)
+std::string overloadedB(const std::string& iA)
 {
-	LASS_COUT << "overloadedA " << iA << std::endl;
+	return stde::toupper(iA);
 }
 
-void overloadedB(const std::complex<float>& iA)
+float overloadedB(const std::complex<float>& iA)
 {
-	LASS_COUT << "overloadedA " << iA << std::endl;
+	return std::abs(iA);
 }
 
 int functionWithDefaultArgs(int iA, int iB=666)
@@ -201,6 +201,8 @@ public:
 	int getitem(int i) { return i; }
 	int len() const { return 5; }
 	void setitem(int, std::pair<float,int>) { }
+
+	int imagineProperty_{ 1 };
 };
 
 class ClassSeq
@@ -211,6 +213,7 @@ public:
 	typedef TSeq::const_reference const_reference;
 	typedef TSeq::size_type size_type;
 	typedef TSeq::difference_type difference_type;
+	typedef TSeq::const_iterator const_iterator;
 	const_reference operator[](size_type index) const { return seq_.at(index); }
 	void setItem(size_type i, value_type value) { seq_.at(i) = value; }
 	ClassSeq& setSlice(size_type ilow, size_type ihigh, const TSeq& other) 
@@ -244,7 +247,8 @@ public:
 		return *this;
 	}
 	size_type size() const { return seq_.size(); }
-	lass::python::PyIteratorRange* iter() { return new lass::python::PyIteratorRange(seq_.begin(), seq_.end()); }
+	const_iterator begin() const { return seq_.begin(); }
+	const_iterator end() const { return seq_.end(); }
 private:
 	TSeq seq_;
 };
@@ -283,13 +287,13 @@ std::map<std::string,float>::const_iterator freeEnd(const util::SharedPtr<ClassM
 	return iThis->end();
 }
 
-int properGetMemberImagine(const ClassB& )
+int properGetMemberImagine(const ClassB& self)
 {
-	return 1;
+	return self.imagineProperty_;
 }
-void properSetMemberImagine(ClassB&, int)
+void properSetMemberImagine(ClassB& self, int i)
 {
-
+	self.imagineProperty_ = i;
 }
 
 const ClassA& testFreeConst(const ClassA& iArg)
@@ -312,7 +316,9 @@ void testFree(ClassB*, const ClassA& )
 
 ClassB freeConstructor([[maybe_unused]] int i)
 {
-	return ClassB();
+	ClassB b;
+	b.imagineProperty_ = i;
+	return b;
 }
 
 int testConvertor(PyObject*, ClassB&)
@@ -384,7 +390,7 @@ PY_DECLARE_CLASS_NAME( PyClassB, "ClassB")
 PY_CLASS_CONSTRUCTOR_0( PyClassB)
 PY_CLASS_FREE_CONSTRUCTOR_1(PyClassB, lass::test::freeConstructor, int)
 PY_CLASS_FREE_MEMBER_RW_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, lass::test::properSetMemberImagine, "properImagine", "blabla")
-PY_CLASS_FREE_MEMBER_R_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, "properImagine", "blabla")
+PY_CLASS_FREE_MEMBER_R_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, "properImagineRO", "blabla")
 
 
 // Special methods
@@ -400,9 +406,6 @@ PY_DECLARE_CLASS_NAME( PyClassSeq, "ClassSeq")
 PY_CLASS_CONSTRUCTOR_0( PyClassSeq)
 PY_CLASS_METHOD_QUALIFIED_NAME_1( PyClassSeq, operator[], lass::test::ClassSeq::const_reference, lass::test::ClassSeq::size_type, lass::python::methods::_getitem_);
 PY_CLASS_METHOD_NAME( PyClassSeq, setItem, lass::python::methods::_setitem_);
-#if PY_MAJOR_VERSION < 3
-	PY_CLASS_METHOD_NAME( PyClassSeq, setSlice, lass::python::methods::_setslice_);
-#endif
 PY_CLASS_METHOD( PyClassSeq, append);
 PY_CLASS_METHOD( PyClassSeq, clear);
 PY_CLASS_METHOD( PyClassSeq, pop);
@@ -410,7 +413,7 @@ PY_CLASS_METHOD_NAME( PyClassSeq, popwo, "pop");
 PY_CLASS_METHOD_NAME( PyClassSeq, irepeat, lass::python::methods::_irepeat_);
 PY_CLASS_METHOD_NAME( PyClassSeq, iconcat, lass::python::methods::_iconcat_);
 PY_CLASS_METHOD_NAME( PyClassSeq, size, lass::python::methods::_len_);
-PY_CLASS_METHOD_NAME( PyClassSeq, iter, lass::python::methods::_iter_);
+PY_CLASS_ITERFUNC( PyClassSeq, begin, end )
 
 // full map protocol
 PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyClassMap, lass::test::ClassMap)
@@ -420,7 +423,6 @@ PY_CLASS_CONSTRUCTOR_0( PyClassMap)
 PY_CLASS_METHOD_NAME( PyClassMap, setItem, lass::python::methods::map_setitem_);
 PY_CLASS_METHOD_NAME( PyClassMap, operator[], lass::python::methods::map_getitem_);
 PY_CLASS_METHOD_NAME( PyClassMap, size, lass::python::methods::map_len_);
-PY_CLASS_ITERFUNC( PyClassMap, begin, end )
 PY_CLASS_FREE_ITERFUNC( PyClassMap, lass::test::freeBegin, lass::test::freeEnd )
 
 //This won't be accepted due to A being an abstract class
@@ -642,8 +644,8 @@ PY_MODULE_FUNCTION( embedding, callR0 )
 PY_MODULE_FUNCTION( embedding, callR2 )
 PY_MODULE_FUNCTION( embedding, testPolymorphism )
 PY_MODULE_FUNCTION_NAME( embedding, overloadedA, "overloaded" )
-PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::string&, "overloaded" )
-PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, void, const std::complex<float>&, "overloaded" )
+PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, std::string, const std::string&, "overloaded" )
+PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, float, const std::complex<float>&, "overloaded" )
 PY_MODULE_FUNCTION_QUALIFIED_NAME_2( embedding, functionWithDefaultArgs, int, int, int , "functionWithDefaultArgs" )
 PY_MODULE_FUNCTION_CAST_NAME_1( embedding, functionWithDefaultArgs, int, int, "functionWithDefaultArgs" )
 
