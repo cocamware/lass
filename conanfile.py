@@ -47,26 +47,17 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any, List, Optional, Protocol
 
-from conan import ConanFile, conan_version
+from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.internal.model.options import _PackageOption
 from conan.internal.model.settings import SettingsItem as _SettingsItem
+from conan.tools import CppInfo
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.microsoft import check_min_vs
 from conan.tools.scm import Git
 
-try:
-    from conan.tools import CppInfo
-except ImportError:
-    # Fallback for Conan 1
-    from conans.model.new_build_info import NewCppInfo as _CppInfo
-
-    def CppInfo(conanfile):
-        return _CppInfo()
-
-
-required_conan_version = ">=1.54.0"
+required_conan_version = ">=2.12.0"
 
 
 class _Settings(Protocol):
@@ -131,7 +122,7 @@ def _int_version(str_version: str) -> List[int]:
 
 
 class LassConan(ConanFile):  # type: ignore[misc]
-    name = "Lass" if conan_version.major == "1" else "lass"
+    name = "lass"
     package_type = "library"
 
     def set_version(self) -> None:
@@ -208,7 +199,7 @@ class LassConan(ConanFile):  # type: ignore[misc]
                 raise ConanInvalidConfiguration(
                     "gcc and clang require C++11 compatible libcxx"
                 )
-        elif compiler in ["msvc", "Visual Studio"]:
+        elif compiler in ["msvc"]:
             check_min_vs(self, "193")  # require VS 2019 as minimum
 
     def layout(self) -> None:
@@ -274,39 +265,16 @@ class LassConan(ConanFile):  # type: ignore[misc]
         cmake.install()
 
     def package_info(self) -> None:
-        # We need to know if we're in editable mode, as some cpp_info depends on it,
-        # And we can't fix everything in layout(). However, there's no way to tell
-        # if we're in editable mode, so we'll have to figure it out by simply trying
-        # to read LassConfig.py from different locations: from the package dir
-        # (non-editable) or build dir (editable)
-        if conan_version.major == "1":
-            if self.package_folder:
-                lass_config = self._load_module_from_file(
-                    os.path.join(self.package_folder, "share/Lass/LassConfig.py")
-                )
-                self.env_info.PATH.extend(
-                    os.path.join(self.package_folder, bindir)
-                    for bindir in self.cpp.package.components["lass"].bindirs
-                )
-            else:
-                lass_config = self._load_module_from_file(
-                    os.path.join(self.build_folder, "LassConfig.py")
-                )
-                self.env_info.PATH.extend(
-                    os.path.join(self.build_folder, bindir)
-                    for bindir in self.cpp.build.components["lass"].bindirs
-                )
+        if self.folders.build_folder:
+            # we're in editable mode, find LassConfig.py in the build folder
+            lass_config = self._load_module_from_file(
+                os.path.join(self.folders.build_folder, "LassConfig.py")
+            )
         else:
-            if self.folders.build_folder:
-                # we're in editable mode, find LassConfig.py in the build folder
-                lass_config = self._load_module_from_file(
-                    os.path.join(self.folders.build_folder, "LassConfig.py")
-                )
-            else:
-                # we're in normal package mode, find LassConfig.py in the package folder
-                lass_config = self._load_module_from_file(
-                    os.path.join(self.package_folder, "share/Lass/LassConfig.py")
-                )
+            # we're in normal package mode, find LassConfig.py in the package folder
+            lass_config = self._load_module_from_file(
+                os.path.join(self.package_folder, "share/Lass/LassConfig.py")
+            )
 
         if self.settings.build_type == "Debug":
             components = {
