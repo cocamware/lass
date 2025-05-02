@@ -61,7 +61,7 @@ from .stubdata import (
     TypeInfo,
 )
 
-__all__ = ["Parser", "ParseError"]
+__all__ = ["ParseError", "Parser"]
 
 
 class Parser:

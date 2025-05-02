@@ -231,7 +231,9 @@ def parse(
             parent = parent.parent
             target_dir = parent.name
             parent = parent.parent
-            pch_header = parent / "CMakeFiles" / target_dir / build_type / "cmake_pch.hxx"
+            pch_header = (
+                parent / "CMakeFiles" / target_dir / build_type / "cmake_pch.hxx"
+            )
         assert pch_header.exists(), f"Precompiled header {pch_header} does not exist"
         h = hashlib.sha1(str(pch_header.absolute()).encode("utf-8")).hexdigest()
         pch_path = cache_dir_ / f"{pch_header.name}.{h}.pch"

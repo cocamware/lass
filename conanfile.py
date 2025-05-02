@@ -44,10 +44,13 @@ import shutil
 import subprocess
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from typing import List, Optional
+from types import ModuleType
+from typing import Any, List, Optional, Protocol
 
 from conan import ConanFile, conan_version
 from conan.errors import ConanException, ConanInvalidConfiguration
+from conan.internal.model.options import _PackageOption
+from conan.internal.model.settings import SettingsItem as _SettingsItem
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
 from conan.tools.microsoft import check_min_vs
@@ -64,6 +67,27 @@ except ImportError:
 
 
 required_conan_version = ">=1.54.0"
+
+
+class _Settings(Protocol):
+    os: _SettingsItem
+    compiler: _SettingsItem
+    build_type: _SettingsItem
+    arch: _SettingsItem
+
+    def get_safe(self, name: str, default: Any = None) -> Optional[_SettingsItem]: ...
+
+
+class _Options(Protocol):
+    shared: _PackageOption
+    fPIC: _PackageOption
+    simd_aligned: _PackageOption
+    without_iterator_debugging: _PackageOption
+    have_avx: _PackageOption
+    with_stubgen: _PackageOption
+
+    def get_safe(self, name: str, default: Any = None) -> Optional[_PackageOption]: ...
+    def rm_safe(self, name: str) -> None: ...
 
 
 def _get_version(conanfile: ConanFile) -> Optional[str]:
@@ -102,24 +126,24 @@ def _get_version(conanfile: ConanFile) -> Optional[str]:
     return f"{version}-{pre_release}+{rev}"
 
 
-def _int_version(str_version: str):
+def _int_version(str_version: str) -> List[int]:
     return [int(x) for x in str_version.split(".")]
 
 
-class LassConan(ConanFile):
+class LassConan(ConanFile):  # type: ignore[misc]
     name = "Lass" if conan_version.major == "1" else "lass"
     package_type = "library"
 
-    def set_version(self):
-        self.version = self.version or _get_version(self)
+    def set_version(self) -> None:
+        self.version: Optional[str] = self.version or _get_version(self)
 
     license = "CPAL-1.0", "GPL-2.0-or-later"
     author = "Cocamware <info@cocamware.com>"
     url = "https://github.com/cocamware/lass.git"
     description = "Library of Assembled Shared Source."
     topics = "C++", "Python"
-    settings = "os", "compiler", "build_type", "arch"
-    options = {
+    settings: _Settings = "os", "compiler", "build_type", "arch"  # type: ignore[assignment]
+    options: _Options = {  # type: ignore[assignment]
         "shared": [True, False],
         "fPIC": [True, False],
         "simd_aligned": [True, False],
@@ -137,7 +161,7 @@ class LassConan(ConanFile):
     }
     requires = "syspython/1.0.3@cocamware/stable"
 
-    def export_sources(self):
+    def export_sources(self) -> None:
         git = Git(self)
 
         regex = re.compile(r"i/(?P<eol_index>\S+)\s+w/(?P<eol_worktree>\S+)")
@@ -166,17 +190,17 @@ class LassConan(ConanFile):
             os.makedirs(os.path.dirname(dest), exist_ok=True)
             shutil.copy2(src, dest)
 
-    def config_options(self):
+    def config_options(self) -> None:
         if self.settings.os == "Windows":
             del self.options.fPIC
         if self.settings.arch not in ["x86", "x86_64"]:
             self.options.rm_safe("have_avx")
 
-    def configure(self):
+    def configure(self) -> None:
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
-    def validate(self):
+    def validate(self) -> None:
         check_min_cppstd(self, 17)
         compiler = self.settings.get_safe("compiler")
         if compiler in ["gcc", "clang"]:
@@ -187,7 +211,7 @@ class LassConan(ConanFile):
         elif compiler in ["msvc", "Visual Studio"]:
             check_min_vs(self, "193")  # require VS 2019 as minimum
 
-    def layout(self):
+    def layout(self) -> None:
         cmake_layout(self)
 
         subdir = self.cpp.build.libdirs[0]
@@ -219,7 +243,7 @@ class LassConan(ConanFile):
             self.cpp.package.components[comp].builddirs = [share_dir]
             self.cpp.build.components[comp].builddirs = ["."]
 
-    def generate(self):
+    def generate(self) -> None:
         python = self.dependencies["syspython"]
 
         tc = CMakeToolchain(self)
@@ -232,22 +256,24 @@ class LassConan(ConanFile):
         tc.cache_variables["Lass_HAVE_AVX"] = self.options.get_safe("have_avx", False)
         if self.options.with_stubgen != "auto":
             tc.cache_variables["Lass_WITH_STUBGEN"] = self.options.with_stubgen
+        if (build_folder := self.conf.get("tools.cmake.cmake_layout:build_folder")) and build_folder != "build":
+            tc.presets_prefix = build_folder
         tc.generate()
 
         vs = VSCodeCCppProperties(self)
         vs.generate()
 
-    def build(self):
+    def build(self) -> None:
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
         cmake.test()
 
-    def package(self):
+    def package(self) -> None:
         cmake = CMake(self)
         cmake.install()
 
-    def package_info(self):
+    def package_info(self) -> None:
         # We need to know if we're in editable mode, as some cpp_info depends on it,
         # And we can't fix everything in layout(). However, there's no way to tell
         # if we're in editable mode, so we'll have to figure it out by simply trying
@@ -324,10 +350,12 @@ class LassConan(ConanFile):
         #
         self.cpp_info.set_property("cmake_target_name", "Lass::lass")
 
-    def _load_module_from_file(self, filename):
+    def _load_module_from_file(self, filename: str) -> ModuleType:
         file_path = Path(filename)
         module_name = file_path.stem
         spec = spec_from_file_location(module_name, file_path)
+        if not spec or not spec.loader:
+            raise ConanException(f"Failed to load module from {filename}")
         module = module_from_spec(spec)
         spec.loader.exec_module(module)
         return module
@@ -395,7 +423,7 @@ class VSCodeCCppProperties:
             self.configuration_provider = None
             self.compile_commands = None
 
-    def generate(self):
+    def generate(self) -> None:
         vscode_folder = os.path.join(self._conanfile.source_folder, ".vscode")
         c_cpp_properties = os.path.join(vscode_folder, "c_cpp_properties.json")
 

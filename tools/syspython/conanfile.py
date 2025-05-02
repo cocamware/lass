@@ -20,7 +20,7 @@ The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
 The Original Developer is the Initial Developer.
 
 All portions of the code written by the Initial Developer are:
-Copyright (C) 2023-2024 the Initial Developer.
+Copyright (C) 2023-2025 the Initial Developer.
 All Rights Reserved.
 
 Contributor(s):
@@ -42,25 +42,39 @@ import re
 import subprocess
 from functools import cache, cached_property
 from string import Template
-from typing import Optional
+from typing import Any, Iterable, Optional, Protocol
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.internal.model.options import _PackageOption
+from conan.internal.model.settings import SettingsItem as _SettingsItem
 from conan.tools.files import copy, load, save
 
 
-class SysPython(ConanFile):
+class _Settings(Protocol):
+    os: _SettingsItem
+    arch: _SettingsItem
+
+
+class _Options(Protocol):
+    shared: _PackageOption
+    python_executable: _PackageOption
+    python_version: _PackageOption
+    python_debug: _PackageOption
+
+
+class SysPython(ConanFile):  # type: ignore[misc]
     name = "syspython"
     version = "1.0.3"
     user = "cocamware"
     channel = "stable"
     description = "Discovers your system's Python and allow to use it as a requirement"
-    settings = "os", "arch"
+    settings: _Settings = "os", "arch"  # type: ignore[assignment]
     package_type = "library"
     build_policy = "missing"
     upload_policy = "skip"
 
-    options = {
+    options: _Options = {  # type: ignore[assignment]
         "shared": [None, True, False],
         "python_executable": [None, "ANY"],
         "python_version": [None, "ANY"],
@@ -75,7 +89,7 @@ class SysPython(ConanFile):
 
     exports_sources = "*.tmpl.cmake"
 
-    def configure(self):
+    def configure(self) -> None:
         # Do *not* rely on any checks or queries involving
         # options.python_executable in configure. Potential build requirements
         # can influence PATH, and that's no in effect in configure nor in
@@ -107,7 +121,7 @@ class SysPython(ConanFile):
         if self.options.shared.value in [None, "None"]:
             self.options.shared = self._python_has_shared
 
-    def validate(self):
+    def validate(self) -> None:
         if str(self.options.python_version) != self._python_version_short:
             raise ConanInvalidConfiguration(
                 "python_version option not compatible with python_executable:"
@@ -127,7 +141,7 @@ class SysPython(ConanFile):
                 "arch not compatible with python_executable."
             )
 
-    def layout(self):
+    def layout(self) -> None:
         self.folders.source = "."
         self.folders.build = "build"
         self.folders.generators = os.path.join(self.folders.build, "conan")
@@ -139,14 +153,14 @@ class SysPython(ConanFile):
             cpp_info.builddirs = ["."]
             cpp_info.set_property("cmake_find_mode", "none")
 
-    def build(self):
-        def escape(value):
+    def build(self) -> None:
+        def escape(value: Any) -> str:
             if value is None:
                 return ""
             if isinstance(value, bool):
                 return "TRUE" if value else "FALSE"
             if isinstance(value, int):
-                return value
+                return str(value)
             if isinstance(value, str):
                 value = value.replace("\\", "/").replace('"', '\\"')
                 return f'"{value}"'
@@ -193,14 +207,14 @@ class SysPython(ConanFile):
             )
             save(self, f"{file}.cmake", substituted)
 
-    def package(self):
+    def package(self) -> None:
         copy(self, "*.cmake", self.build_folder, self.package_folder)
 
-    def package_id(self):
+    def package_id(self) -> None:
         self.info.options.python_executable = self._python_executable
 
     @cached_property
-    def _python_executable(self):
+    def _python_executable(self) -> str:
         try:
             return subprocess.check_output(
                 [
@@ -210,10 +224,10 @@ class SysPython(ConanFile):
                 ],
                 text=True,
             ).strip()
-        except FileNotFoundError as err:
+        except FileNotFoundError:
             raise ConanInvalidConfiguration(
                 f"Python executable cannot be found: {self.options.python_executable!s}"
-            ) from err
+            ) from None
 
     @property
     def _python_version(self) -> str:
@@ -226,7 +240,7 @@ class SysPython(ConanFile):
         return self._python_get_config_var("py_version_short")
 
     @property
-    def _python_version_short_int(self) -> str:
+    def _python_version_short_int(self) -> tuple[int, int]:
         """Short version like (3, 7)"""
         major, minor = self._python_version_short.split(".")
         return int(major), int(minor)
@@ -267,14 +281,14 @@ class SysPython(ConanFile):
             if self.options.shared:
                 fname = self._python_get_config_var("LDLIBRARY")
                 if not fname:
-                    raise ConanInvalidConfiguration(f"no shared library")
+                    raise ConanInvalidConfiguration("no shared library")
                 ld_library_path = os.getenv("LD_LIBRARY_PATH")
                 if ld_library_path:
                     hints.extend(ld_library_path.split(os.pathsep))
             else:
                 fname = self._python_get_config_var("LIBRARY")
                 if not fname:
-                    raise ConanInvalidConfiguration(f"no static library")
+                    raise ConanInvalidConfiguration("no static library")
             hints += [
                 self._python_get_config_var("LIBDIR"),
                 self._python_get_config_var("LIBPL"),
@@ -437,5 +451,5 @@ class AtTemplate(Template):
     delimiter = "@"
 
 
-def unique(iterable):
+def unique(iterable: Iterable[str]) -> list[str]:
     return list(dict.fromkeys(iterable))

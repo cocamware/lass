@@ -507,8 +507,6 @@ def _match_template_args(
     return True
 
 
-
-
 def _pytype_sequence(
     stubgen: StubGenerator, args: list[TypeInfo] | None, scope: str | None
 ) -> str:
@@ -524,6 +522,7 @@ def _pytype_mapping(
     key_type = stubgen.python_type(args[0], scope=scope)
     value_type = stubgen.python_type(args[1], scope=scope)
     return f"Mapping[{key_type}, {value_type}]"
+
 
 BuiltinTyper: TypeAlias = Callable[
     [StubGenerator, list[TypeInfo] | None, str | None], str

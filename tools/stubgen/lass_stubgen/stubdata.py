@@ -54,18 +54,18 @@ StrPath: TypeAlias = str | os.PathLike[str]
 
 
 __all__ = [
-    "StubData",
-    "ModuleDefinition",
-    "FunctionDefinition",
-    "ConstDefinition",
     "ClassDefinition",
-    "EnumDefinition",
+    "ConstDefinition",
     "ConstructorDefinition",
-    "MethodDefinition",
-    "GetSetterDefinition",
-    "TypeInfo",
-    "ExportTraits",
     "DuplicateError",
+    "EnumDefinition",
+    "ExportTraits",
+    "FunctionDefinition",
+    "GetSetterDefinition",
+    "MethodDefinition",
+    "ModuleDefinition",
+    "StubData",
+    "TypeInfo",
 ]
 
 
