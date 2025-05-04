@@ -93,6 +93,7 @@ class Parser:
             "addClass": self._handle_module_add_class,
             "addEnum": self._handle_module_add_enum,
             "injectObject": self._handle_module_inject_object,
+            "injectClass": self._handle_module_inject_class,
             "addIntegerConstantsToModule": self._handle_module_add_integer_constants,
             "addLong": self._handle_module_add_long,
             "addString": self._handle_module_add_string,
@@ -485,6 +486,21 @@ class Parser:
         py_name = self._parse_name(children[2])
 
         module_def.add_constant(ConstDefinition(py_name=py_name, cpp_type=cpp_type))
+
+        return True
+
+    def _handle_module_inject_class(self, node: cindex.Cursor) -> bool:
+        assert node.kind == CursorKind.CALL_EXPR
+        children = list(node.get_children())
+        if not is_member_ref_expr(
+            children[0], "lass::python::ModuleDefinition::injectClass"
+        ):
+            return False
+        module_def = self._parse_module_ref(children[0])
+
+        shadow_class = self._parse_class_ref(children[1])
+
+        module_def.add_class(shadow_class=shadow_class)
 
         return True
 
