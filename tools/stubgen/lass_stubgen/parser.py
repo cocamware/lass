@@ -1318,6 +1318,8 @@ SPECIAL_METHODS = {
     "lass::python::methods::_itruediv_": "__itruediv__",
     "lass::python::methods::_floordiv_": "__floordiv__",
     "lass::python::methods::_ifloordiv_": "__ifloordiv__",
+    "lass::python::methods::_matmul_": "__matmul__",
+    "lass::python::methods::_imatmul_": "__imatmul__",
     "lass::python::methods::_bool_": "__bool__",
     "lass::python::methods::_pow_": "__pow__",
     "lass::python::methods::_lt_": "__lt__",
@@ -1359,4 +1361,5 @@ REFLECTED_OPERATORS = {
     "__or__": "__ror__",
     "__floordiv__": "__rfloordiv__",
     "__truediv__": "__rtruediv__",
+    "__matmul__": "__rmatmul__",
 }

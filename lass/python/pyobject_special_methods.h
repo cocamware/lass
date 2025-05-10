@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -180,6 +180,8 @@ namespace methods
 	const lass::python::impl::BinarySlot _itruediv_("__itruediv__");
 	const lass::python::impl::BinarySlot _floordiv_("__floordiv__");
 	const lass::python::impl::BinarySlot _ifloordiv_("__ifloordiv__");
+	const lass::python::impl::BinarySlot _matmul_("__matmul__");
+	const lass::python::impl::BinarySlot _imatmul_("__imatmul__");
 	const lass::python::impl::InquirySlot _bool_("__bool__");
 	const lass::python::impl::InquirySlot _nonzero_ = _bool_; // the 2.x version of __bool__
 
@@ -226,4 +228,3 @@ namespace methods
 }
 
 #endif
-

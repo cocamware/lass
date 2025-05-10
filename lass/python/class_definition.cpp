@@ -324,7 +324,9 @@ void ClassDefinition::addMethod(const BinarySlot& slot, const char*, binaryfunc 
 	LASS_PY_OPERATOR_("__ior__", tp_as_number, PyNumberMethods, nb_inplace_or, Binary)
 	LASS_PY_OPERATOR_("__itruediv__", tp_as_number, PyNumberMethods, nb_inplace_true_divide, Binary)
 	LASS_PY_OPERATOR_("__ifloordiv__", tp_as_number, PyNumberMethods, nb_inplace_floor_divide, Binary)
-	LASS_PY_OPERATOR_("__iconcat__", tp_as_sequence, PySequenceMethods, sq_inplace_concat, Binary) 
+	LASS_PY_OPERATOR_("__matmul__", tp_as_number, PyNumberMethods, nb_matrix_multiply, Binary)
+	LASS_PY_OPERATOR_("__imatmul__", tp_as_number, PyNumberMethods, nb_inplace_matrix_multiply, Binary)
+	LASS_PY_OPERATOR_("__iconcat__", tp_as_sequence, PySequenceMethods, sq_inplace_concat, Binary)
 	LASS_PY_OPERATOR_("__concat__", tp_as_sequence, PySequenceMethods, sq_concat, Binary) 
 	LASS_PY_OPERATOR_("__map_getitem__", tp_as_mapping, PyMappingMethods, mp_subscript, Binary) 
 	LASS_ASSERT_UNREACHABLE;
