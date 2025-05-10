@@ -42,6 +42,7 @@ import sysconfig
 from collections.abc import Iterator
 from ctypes import c_int
 from pathlib import Path
+from typing import NamedTuple
 
 from clang import cindex  # type: ignore
 from clang.cindex import AccessSpecifier, CursorKind, TypeKind  # type: ignore
@@ -379,8 +380,9 @@ class Parser:
         module_def = self._parse_module_ref(children[0])
 
         dispatcher_ref = ensure_only_child(children[1], CursorKind.DECL_REF_EXPR)
-        cpp_signature, cpp_return_type, cpp_params = self._handle_dispatcher_ref(
-            dispatcher_ref
+        dispatcher = self._parse_dispatcher_ref(dispatcher_ref)
+        assert not dispatcher.is_free_method, (
+            "Module functions never use free method call"
         )
 
         py_name = self._parse_name(children[2])
@@ -390,9 +392,9 @@ class Parser:
             FunctionDefinition(
                 py_name=py_name,
                 doc=doc,
-                cpp_return_type=cpp_return_type,
-                cpp_params=cpp_params,
-                cpp_signature=cpp_signature,
+                cpp_return_type=dispatcher.cpp_return_type,
+                cpp_params=dispatcher.cpp_params,
+                cpp_signature=dispatcher.cpp_signature,
             )
         )
 
@@ -627,21 +629,54 @@ class Parser:
         fun_children = list(fun.get_children())
         assert fun_children[-1].kind == CursorKind.UNEXPOSED_EXPR
         dispatcher_ref = ensure_only_child(fun_children[-1], CursorKind.DECL_REF_EXPR)
-        cpp_signature, cpp_return_type, cpp_params = self._handle_dispatcher_ref(
-            dispatcher_ref
-        )
+        dispatcher = self._parse_dispatcher_ref(dispatcher_ref)
+
+        cpp_params = dispatcher.cpp_params
+        if dispatcher.is_free_method:
+            # free method normally has self as first parameter, let's strip it.
+            # Except if it's the signature of a reflected operator like __radd__,
+            # then the second parameter is self, and we need to keep the first parameter
+            # __pow__ is a bit special as it can have three parameters.
+            self_type = self._self_type(cpp_params[0])
+            if (
+                py_rname := REFLECTED_OPERATORS.get(py_name)
+            ) and self_type.name != class_def.cpp_type.name:
+                assert len(cpp_params) == 2 or (
+                    len(cpp_params) == 3 and py_name == "__pow__"
+                )
+                other_type = self._self_type(cpp_params[1])
+                assert other_type.name == class_def.cpp_type.name, (
+                    f"Binary op type mismatch: neither {self_type} or {other_type} is "
+                    f"{class_def.cpp_type}."
+                )
+                py_name = py_rname
+                cpp_params = [cpp_params[0]] + cpp_params[2:]
+            else:
+                assert self_type.name == class_def.cpp_type.name, (
+                    f"self type mismatch: {self_type} is not {class_def.cpp_type}."
+                )
+                cpp_params = cpp_params[1:]
 
         class_def.add_method(
             MethodDefinition(
                 py_name=py_name,
                 doc=doc,
-                cpp_return_type=cpp_return_type,
+                cpp_return_type=dispatcher.cpp_return_type,
                 cpp_params=cpp_params,
-                cpp_signature=cpp_signature,
+                cpp_signature=dispatcher.cpp_signature,
             )
         )
 
         return True
+
+    def _self_type(self, param: tuple[str, TypeInfo]) -> TypeInfo:
+        _, self_type = param
+        if self_type.name == "lass::util::SharedPtr":
+            assert self_type.args
+            self_type = self_type.args[0]
+        if self_type.name.endswith("*"):
+            self_type = TypeInfo(self_type.name[:-1].rstrip(), self_type.args)
+        return self_type
 
     def _handle_class_add_static_method(self, node: cindex.Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
@@ -657,17 +692,16 @@ class Parser:
 
         dispatcher_arg = children[3]
         dispatcher_ref = ensure_only_child(dispatcher_arg, CursorKind.DECL_REF_EXPR)
-        cpp_signature, cpp_return_type, cpp_params = self._handle_dispatcher_ref(
-            dispatcher_ref
-        )
+        dispatcher = self._parse_dispatcher_ref(dispatcher_ref)
+        assert not dispatcher.is_free_method, "Static methods are use free method call"
 
         class_def.add_method(
             MethodDefinition(
                 py_name=py_name,
                 doc=doc,
-                cpp_return_type=cpp_return_type,
-                cpp_params=cpp_params,
-                cpp_signature=cpp_signature,
+                cpp_return_type=dispatcher.cpp_return_type,
+                cpp_params=dispatcher.cpp_params,
+                cpp_signature=dispatcher.cpp_signature,
                 is_static=True,
             )
         )
@@ -975,10 +1009,10 @@ class Parser:
         return cpp_type, value
 
     @classmethod
-    def _handle_dispatcher_ref(
+    def _parse_dispatcher_ref(
         cls,
         dispatcher_ref: cindex.Cursor,
-    ) -> tuple[str, TypeInfo, list[tuple[str, TypeInfo]]]:
+    ) -> DispatcherSignature:
         assert (
             canonical_type(dispatcher_ref).spelling == "_object *(_object *, _object *)"
         )
@@ -1006,18 +1040,26 @@ class Parser:
         cpp_return_type = type_info(func.type.get_result())
 
         params = list(iter_children(func, CursorKind.PARM_DECL))
-        if call_expr.spelling in ("callFree", "callFreeMethod"):
-            # first parameter is self
-            params = params[1:]
         cpp_params = [(p.spelling, type_info(p)) for p in params]
 
-        return cpp_signature, cpp_return_type, cpp_params
+        is_free_method = call_expr.spelling in ("callFree", "callFreeMethod")
+
+        return DispatcherSignature(
+            cpp_signature, cpp_return_type, cpp_params, is_free_method
+        )
 
 
 class ParseError(Exception):
     def __init__(self, errors: list[str]):
         super().__init__("\n".join(errors))
         self.errors = errors
+
+
+class DispatcherSignature(NamedTuple):
+    cpp_signature: str
+    cpp_return_type: TypeInfo
+    cpp_params: list[tuple[str, TypeInfo]]
+    is_free_method: bool = False
 
 
 class NodeVisitor:
@@ -1301,4 +1343,20 @@ SPECIAL_METHODS = {
     "lass::python::methods::map_delitem_": "__delitem__",
     "lass::python::methods::_iter_": "__iter__",
     "lass::python::methods::next": "next",
+}
+
+REFLECTED_OPERATORS = {
+    "__add__": "__radd__",
+    "__sub__": "__rsub__",
+    "__mul__": "__rmul__",
+    "__mod__": "__rmod__",
+    "__divmod__": "__rdivmod__",
+    "__pow__": "__rpow__",
+    "__lshift__": "__rlshift__",
+    "__rshift__": "__rrshift__",
+    "__and__": "__rand__",
+    "__xor__": "__rxor__",
+    "__or__": "__ror__",
+    "__floordiv__": "__rfloordiv__",
+    "__truediv__": "__rtruediv__",
 }
