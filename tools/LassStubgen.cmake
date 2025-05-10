@@ -62,7 +62,7 @@ set(_Lass_venv_stubgen_requirement "${CMAKE_CURRENT_LIST_DIR}/stubgen/requiremen
 function(Lass_generate_stubs target)
 	set(_prefix)
 	set(_options WITH_SIGNATURES)
-	set(_one_value_keywords OUTPUT_DIRECTORY PACKAGE EXPORT MAX_THREADS)
+	set(_one_value_keywords OUTPUT_DIRECTORY PACKAGE EXPORT MAX_THREADS DEBUG_CONNECT)
 	set(_multi_value_keywords SOURCES EXTRA_TARGETS IMPORT)
 	cmake_parse_arguments("${_prefix}" "${_options}" "${_one_value_keywords}" "${_multi_value_keywords}" ${ARGN})
 
@@ -141,7 +141,6 @@ function(Lass_generate_stubs target)
 		set(_max_threads)
 	endif()
 
-
 	# Create virtual environment to run stubgen
 	if (WIN32)
 		set(_venv_python "${_Lass_venv_stubgen}/Scripts/python.exe")
@@ -163,6 +162,12 @@ function(Lass_generate_stubs target)
 		file(TOUCH "${_stamp_file}")
 	endif()
 
+	if(_DEBUG_CONNECT)
+		set(_debug_connect "--debug-connect=${_DEBUG_CONNECT}")
+		_Lass_checked_process("${_venv_python}" -m pip install --upgrade debugpy)
+	else()
+		set(_debug_connect)
+	endif()
 
 	# Add POST_BUILD command to target
 	add_custom_command(TARGET "${target}" POST_BUILD
@@ -171,6 +176,7 @@ function(Lass_generate_stubs target)
 				"-B"
 				"${LASS_STUBGEN}"
 				"${_max_threads}"
+				"${_debug_connect}"
 				"${_package}"
 				"${_imports}"
 				"${_export}"

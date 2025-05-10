@@ -157,8 +157,16 @@ If not provided, the number of threads will be set to the number of CPU cores.""
         default=False,
         help="Add C++ signatures as comments to the generated stubs, for debugging",
     )
+    parser.add_argument(
+        "--debug-connect", type=int, default=0, help="Port to connect to for debugging"
+    )
 
     args = parser.parse_args(argv)
+
+    if args.debug_connect:
+        import debugpy  # type: ignore # noqa: I001
+
+        debugpy.connect(args.debug_connect)
 
     try:
         stubdata: StubData = parse(
