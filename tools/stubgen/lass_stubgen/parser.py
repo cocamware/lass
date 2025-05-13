@@ -40,9 +40,8 @@ from __future__ import annotations
 import re
 import sysconfig
 from collections.abc import Iterator
-from ctypes import c_int
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, cast
 
 from clang import cindex  # type: ignore
 from clang.cindex import AccessSpecifier, CursorKind, TypeKind  # type: ignore
@@ -1088,7 +1087,7 @@ class NodeVisitor:
         self, node: cindex.Cursor, _parent: cindex.Cursor, tu: cindex.TranslationUnit
     ) -> int:
         if node._kind_id in self._kind_ids:
-            kind_id: c_int = node._kind_id
+            kind_id = node._kind_id
             if kind_id == 103:  # CALL_EXPR
                 if handler := self._handlers.get(self._clang_getCursorSpelling(node)):
                     node._tu = tu
@@ -1190,7 +1189,7 @@ def ensure_type(node: cindex.Cursor, type_: str) -> cindex.Cursor:
 
 def string_literal(node: cindex.Cursor) -> str:
     assert node.kind == CursorKind.STRING_LITERAL
-    s = node.spelling
+    s: str = node.spelling
     assert s.startswith('"') and s.endswith('"')
     s = s[1:-1]
     s = s.replace(r"\n", "\n")
@@ -1257,7 +1256,7 @@ def fully_qualified(node: cindex.Cursor) -> str:
         return ""
     elif parent := fully_qualified(node.semantic_parent):
         return f"{parent}::{node.spelling}"
-    return node.spelling
+    return cast(str, node.spelling)
 
 
 def type_info(node_or_type: cindex.Cursor | cindex.Type) -> TypeInfo:

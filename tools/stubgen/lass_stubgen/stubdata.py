@@ -626,5 +626,5 @@ class DuplicateError(Exception):
         self.name = name
         self.kind = kind
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Duplicate {self.kind} found: {self.name}"

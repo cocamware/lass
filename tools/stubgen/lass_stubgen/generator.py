@@ -548,7 +548,7 @@ BUILTIN_TYPES: dict[str, str | BuiltinTyper] = {
 }
 
 BuiltinTyperRegex: TypeAlias = Callable[
-    [StubGenerator, list[TypeInfo] | None, str | None, re.Match], str
+    [StubGenerator, list[TypeInfo] | None, str | None, re.Match[str]], str
 ]
 
 
