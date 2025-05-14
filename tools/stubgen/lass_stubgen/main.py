@@ -185,7 +185,9 @@ If not provided, the number of threads will be set to the number of CPU cores.""
         )
     except ParseError as err:
         for error in err.errors:
-            print(f"Error: {error}", file=sys.stderr)
+            print(error, file=sys.stderr)
+        for note in err.__notes__:
+            print(note, file=sys.stderr)
         print(f"{len(err.errors)} parse errors found, aborting", file=sys.stderr)
         return 1
     except DuplicateError as err:
@@ -304,39 +306,43 @@ def _parse_file(
     save_pch: bool = False,
     parser_type: type[Parser],
 ) -> StubData:
-    object_file = object_files_map.get(_name(source_path))
-    if object_file:
-        h = hashlib.sha1(str(source_path.absolute()).encode("utf-8")).hexdigest()
-        cache_file = cache_dir / f"{source_path.name}.{h}.json"
+    try:
+        object_file = object_files_map.get(_name(source_path))
+        if object_file:
+            h = hashlib.sha1(str(source_path.absolute()).encode("utf-8")).hexdigest()
+            cache_file = cache_dir / f"{source_path.name}.{h}.json"
 
-        try:
-            cache_mtime = cache_file.stat().st_mtime
-            object_mtime = object_file.stat().st_mtime
-        except FileNotFoundError:
-            pass
+            try:
+                cache_mtime = cache_file.stat().st_mtime
+                object_mtime = object_file.stat().st_mtime
+            except FileNotFoundError:
+                pass
+            else:
+                if cache_mtime > object_mtime:
+                    stubdata = StubData.load(cache_file)
+                    return stubdata
         else:
-            if cache_mtime > object_mtime:
-                stubdata = StubData.load(cache_file)
-                return stubdata
-    else:
-        cache_file = None
+            cache_file = None
 
-    print(f"Parsing {source_path}...", file=sys.stderr)
-    parser = parser_type(
-        package=package,
-        include_dirs=include_dirs,
-        system_include_dirs=system_include_dirs,
-        defines=defines,
-        args=args,
-        pch_path=pch_path,
-    )
-    parser.parse(source_path, save_pch=save_pch)
-    stubdata = parser.stubdata
+        print(f"Parsing {source_path}...", file=sys.stderr)
+        parser = parser_type(
+            package=package,
+            include_dirs=include_dirs,
+            system_include_dirs=system_include_dirs,
+            defines=defines,
+            args=args,
+            pch_path=pch_path,
+        )
+        parser.parse(source_path, save_pch=save_pch)
+        stubdata = parser.stubdata
 
-    if cache_file:
-        stubdata.dump(cache_file)
+        if cache_file:
+            stubdata.dump(cache_file)
 
-    return stubdata
+        return stubdata
+    except Exception as err:
+        err.add_note(f"While parsing file {source_path}")
+        raise err
 
 
 def _name(path: StrPath) -> str:
