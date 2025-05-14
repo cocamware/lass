@@ -44,7 +44,7 @@ import sys
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, TypeAlias
+from typing import Any, NamedTuple, TypeAlias
 
 if sys.version_info < (3, 11):
     from typing_extensions import Self
@@ -65,6 +65,7 @@ __all__ = [
     "GetSetterDefinition",
     "MethodDefinition",
     "ModuleDefinition",
+    "ParamInfo",
     "StubData",
     "TypeInfo",
 ]
@@ -368,7 +369,7 @@ class ClassDefinition:
         # if constructor doesn't have parameter names, then search for a
         # C++ constructor with the same signature and reuse its definition
         # (don't do this for free constructors)
-        if not constr_def.free and not any(name for name, _ in constr_def.cpp_params):
+        if not constr_def.free and not any(p.name for p in constr_def.cpp_params):
             if cpp_constr := self._cpp_constructors.get(constr_def.cpp_signature):
                 constr_def = cpp_constr
         self.constructors.append(constr_def)
@@ -470,13 +471,17 @@ class FunctionDefinition:
         return f"function {self.py_name}"
 
     def asdict(self) -> dict[str, Any]:
-        return dataclasses.asdict(self)
+        return {
+            "py_name": self.py_name,
+            "doc": self.doc,
+            "cpp_return_type": self.cpp_return_type.asdict(),
+            "cpp_params": [param.asdict() for param in self.cpp_params],
+            "cpp_signature": self.cpp_signature,
+        }
 
     @classmethod
     def fromdict(cls, data: Any) -> Self:
-        cpp_params = [
-            (name, TypeInfo.fromdict(type_)) for (name, type_) in data["cpp_params"]
-        ]
+        cpp_params = [ParamInfo.fromdict(param) for param in data["cpp_params"]]
         cpp_return_type = TypeInfo.fromdict(data["cpp_return_type"])
         return cls(
             py_name=data["py_name"],
@@ -497,7 +502,13 @@ class ConstDefinition:
         return f"const {self.py_name}"
 
     def asdict(self) -> dict[str, Any]:
-        return dataclasses.asdict(self)
+        dct: dict[str, Any] = {
+            "py_name": self.py_name,
+            "cpp_type": self.cpp_type.asdict(),
+        }
+        if self.value is not None:
+            dct["value"] = self.value
+        return dct
 
     @classmethod
     def fromdict(cls, data: Any) -> Self:
@@ -505,7 +516,7 @@ class ConstDefinition:
         return cls(
             py_name=data["py_name"],
             cpp_type=cpp_type,
-            value=data["value"],
+            value=data.get("value"),
         )
 
 
@@ -543,17 +554,22 @@ class ConstructorDefinition:
         return f"constructor ({', '.join(params)})"
 
     def asdict(self) -> dict[str, Any]:
-        return dataclasses.asdict(self)
+        dct: dict[str, Any] = {
+            "cpp_params": [param.asdict() for param in self.cpp_params],
+            "cpp_signature": self.cpp_signature,
+        }
+        if self.free:
+            dct["free"] = True
+        return dct
 
     @classmethod
     def fromdict(cls, data: Any) -> Self:
-        cpp_params = [
-            (name, TypeInfo.fromdict(type_)) for (name, type_) in data["cpp_params"]
-        ]
+        cpp_params = [ParamInfo.fromdict(param) for param in data["cpp_params"]]
+        free = data.get("free") or False
         return cls(
             cpp_params=cpp_params,
             cpp_signature=data["cpp_signature"],
-            free=data["free"],
+            free=free,
         )
 
 
@@ -570,22 +586,29 @@ class MethodDefinition:
         return f"method {self.py_name}"
 
     def asdict(self) -> dict[str, Any]:
-        return dataclasses.asdict(self)
+        dct: dict[str, Any] = {
+            "py_name": self.py_name,
+            "doc": self.doc,
+            "cpp_return_type": self.cpp_return_type.asdict(),
+            "cpp_params": [param.asdict() for param in self.cpp_params],
+            "cpp_signature": self.cpp_signature,
+        }
+        if self.is_static:
+            dct["is_static"] = True
+        return dct
 
     @classmethod
     def fromdict(cls, data: Any) -> Self:
-        cpp_params = [
-            (name, TypeInfo.fromdict(type_)) for (name, type_) in data["cpp_params"]
-        ]
-        cpp_return_type = data["cpp_return_type"]
-        cpp_return_type = TypeInfo.fromdict(cpp_return_type)
+        cpp_return_type = TypeInfo.fromdict(data["cpp_return_type"])
+        cpp_params = [ParamInfo.fromdict(param) for param in data["cpp_params"]]
+        is_static = data.get("is_static") or False
         return cls(
             py_name=data["py_name"],
             doc=data["doc"],
             cpp_return_type=cpp_return_type,
             cpp_params=cpp_params,
             cpp_signature=data["cpp_signature"],
-            is_static=data["is_static"],
+            is_static=is_static,
         )
 
 
@@ -669,7 +692,28 @@ class TypeInfo:
         return TypeInfo(self.name, args)
 
 
-ParamInfo: TypeAlias = tuple[str, TypeInfo]
+class ParamInfo(NamedTuple):
+    name: str
+    type_: TypeInfo
+
+    def __str__(self) -> str:
+        return f"{self.name}: {self.type_}"
+
+    def asdict(self) -> dict[str, Any]:
+        if not self.name:
+            return {"type": self.type_.asdict()}
+        return {
+            "name": self.name,
+            "type": self.type_.asdict(),
+        }
+
+    @classmethod
+    def fromdict(cls, data: dict[str, Any]) -> Self:
+        type_ = TypeInfo.fromdict(data["type"])
+        return cls(
+            name=data.get("name") or "",
+            type_=type_,
+        )
 
 
 @dataclass

@@ -51,6 +51,7 @@ from .stubdata import (
     GetSetterDefinition,
     MethodDefinition,
     ModuleDefinition,
+    ParamInfo,
     StubData,
     TypeInfo,
 )
@@ -408,12 +409,12 @@ class StubGenerator:
     def python_params(
         self,
         self_: str | None,
-        cpp_params: list[tuple[str, TypeInfo]],
+        cpp_params: list[ParamInfo],
         scope: str | None,
     ) -> list[str]:
         params = [
-            f"{name or f'_{i}'}: {self.python_type(cpp_type, scope=scope)}"
-            for i, (name, cpp_type) in enumerate(cpp_params)
+            f"{p.name or f'_{i}'}: {self.python_type(p.type_, scope=scope)}"
+            for i, p in enumerate(cpp_params)
         ]
         if self_:
             params.insert(0, self_)
