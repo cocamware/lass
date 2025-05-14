@@ -51,7 +51,7 @@ from .stubdata import DuplicateError, StrPath, StubData
 
 
 def main(argv: list[str]) -> int:
-    parser = ArgumentParser(description=__doc__)
+    parser = ArgumentParser(description=__doc__, fromfile_prefix_chars="@")
     parser.add_argument(
         "path", nargs="+", help="Source files with Lass Python bindings to parse"
     )

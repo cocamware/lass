@@ -169,25 +169,34 @@ function(Lass_generate_stubs target)
 		set(_debug_connect)
 	endif()
 
+	set(_args
+		${_SOURCES}
+		"${_max_threads}"
+		"${_debug_connect}"
+		"${_package}"
+		"${_imports}"
+		"${_export}"
+		"--output-dir=${_OUTPUT_DIRECTORY}"
+		"${_with_signatures}"
+		"--cache-dir=${CMAKE_BINARY_DIR}/.lass_stubgen_cache"
+		"${cxx_standard}"
+		${defines}
+		${includes}
+		${object_files}
+	)
+	if (MSVC_IDE)
+		set(_args_file "${CMAKE_CURRENT_BINARY_DIR}/${target}.dir/$<CONFIG>/lass-stubgen-args.txt")
+	else()
+		set(_args_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir/lass-stubgen-args.txt")
+	endif()
+	file(GENERATE OUTPUT "${_args_file}"
+		CONTENT "$<JOIN:${_args},\n>\n"
+	)
+
 	# Add POST_BUILD command to target
 	add_custom_command(TARGET "${target}" POST_BUILD
 		COMMAND "${_venv_python}"
-			ARGS
-				"-B"
-				"${LASS_STUBGEN}"
-				"${_max_threads}"
-				"${_debug_connect}"
-				"${_package}"
-				"${_imports}"
-				"${_export}"
-				"--output-dir=${_OUTPUT_DIRECTORY}"
-				"${_with_signatures}"
-				"${cxx_standard}"
-				"${defines}"
-				"${includes}"
-				"${object_files}"
-				"--cache-dir=${CMAKE_BINARY_DIR}/.lass_stubgen_cache"
-				"${_SOURCES}"
+		ARGS "-B" "${LASS_STUBGEN}" "@${_args_file}"
 		COMMAND_EXPAND_LISTS
 		VERBATIM
 		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
