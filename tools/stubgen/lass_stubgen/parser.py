@@ -56,6 +56,7 @@ from .stubdata import (
     GetSetterDefinition,
     MethodDefinition,
     ModuleDefinition,
+    ParamInfo,
     StrPath,
     StubData,
     TypeInfo,
@@ -316,7 +317,8 @@ class Parser:
                     continue
                 params = list(iter_children(constructor, CursorKind.PARM_DECL))
                 cpp_params = [
-                    (p.spelling, type_info(p).substitute(template_args)) for p in params
+                    ParamInfo(p.spelling, type_info(p).substitute(template_args))
+                    for p in params
                 ]
                 cpp_signature = f"void ({', '.join(str(t) for _, t in cpp_params)})"
                 cpp_constructors[cpp_signature] = ConstructorDefinition(
@@ -634,8 +636,9 @@ class Parser:
             )
             t_params_type = type_info(t_params_ref)
 
-            cpp_params = [("", type_) for type_ in (t_params_type.args or [])]
-            cpp_signature = f"void ({', '.join(str(type_) for _, type_ in cpp_params)})"
+            t_params_args = t_params_type.args or []
+            cpp_params = [ParamInfo("", arg) for arg in t_params_type.args or []]
+            cpp_signature = f"void ({', '.join(map(str, t_params_args))})"
 
             class_def.add_constructor(
                 ConstructorDefinition(
@@ -652,7 +655,9 @@ class Parser:
             cpp_signature = canonical_type(func).spelling
 
             params = list(iter_children(func, CursorKind.PARM_DECL))
-            cpp_params = [(p.spelling, type_info(p)) for p in params]
+            cpp_params = [
+                ParamInfo(cast(str, p.spelling), type_info(p)) for p in params
+            ]
 
             class_def.add_constructor(
                 ConstructorDefinition(
@@ -1111,7 +1116,7 @@ class Parser:
 
         params = list(iter_children(func, CursorKind.PARM_DECL))
         cpp_params = [
-            (p.spelling, type_info(p))
+            ParamInfo(p.spelling, type_info(p))
             for p in params
             if p.semantic_parent == func
         ]
@@ -1135,7 +1140,7 @@ class ParseError(Exception):
 class DispatcherSignature(NamedTuple):
     cpp_signature: str
     cpp_return_type: TypeInfo
-    cpp_params: list[tuple[str, TypeInfo]]
+    cpp_params: list[ParamInfo]
     is_free_method: bool = False
 
 
