@@ -65,7 +65,7 @@ class _Options(Protocol):
 
 class SysPython(ConanFile):  # type: ignore[misc]
     name = "syspython"
-    version = "1.0.3"
+    version = "1.0.4"
     user = "cocamware"
     channel = "stable"
     description = "Discovers your system's Python and allow to use it as a requirement"
