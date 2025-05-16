@@ -39,7 +39,7 @@ from __future__ import annotations
 
 import re
 import sysconfig
-from collections.abc import Iterator
+from collections.abc import Collection, Iterator
 from pathlib import Path
 from typing import NamedTuple, cast
 
@@ -483,8 +483,8 @@ class Parser:
             return False
         module_def = self._parse_module_ref(children[0])
 
-        decl_ref_expr = ensure_kind(children[1], CursorKind.DECL_REF_EXPR)
-        cpp_type = type_info(decl_ref_expr)
+        obj = ensure_kind(children[1], {CursorKind.DECL_REF_EXPR, CursorKind.CALL_EXPR})
+        cpp_type = type_info(obj)
 
         py_name = self._parse_name(children[2])
 
@@ -1128,14 +1128,18 @@ def is_member_ref_expr(node: cindex.Cursor, member: str) -> bool:
     )
 
 
-def ensure_kind(node: cindex.Cursor, kind: CursorKind) -> cindex.Cursor:
+def ensure_kind(
+    node: cindex.Cursor, kind: CursorKind | Collection[CursorKind]
+) -> cindex.Cursor:
     """
     Ensure node is of kind; or unexposed in which case you recurse.
     """
-    if node.kind == kind:
+    if isinstance(kind, CursorKind):
+        kind = [kind]
+    if node.kind in kind:
         return node
     assert node.kind == CursorKind.UNEXPOSED_EXPR, (
-        f"expected {kind.name} or UNEXPOSED_EXPR, got {node.kind.name}"
+        f"expected {'|'.join(k.name for k in kind)}|UNEXPOSED_EXPR, got {node.kind.name}"
     )
     children = list(node.get_children())
     assert len(children) == 1, f"expected 1 child, got {len(children)}"
