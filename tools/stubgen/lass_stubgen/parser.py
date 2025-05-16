@@ -152,7 +152,14 @@ class Parser:
         if canonical_type(node).spelling != "lass::python::ModuleDefinition":
             return False
 
-        var_decl = ensure_kind(node.semantic_parent, CursorKind.VAR_DECL)
+        var_decl = node.semantic_parent
+        if not var_decl:
+            if tu := node.translation_unit:
+                for n in tu.cursor.get_children():
+                    if n.kind == CursorKind.VAR_DECL and n.location == node.location:
+                        var_decl = n
+                        break
+        ensure_kind(var_decl, CursorKind.VAR_DECL)
         cpp_name = fully_qualified(var_decl)
 
         args = list(node.get_arguments())
