@@ -210,7 +210,10 @@ class Parser:
                         cpp_class = type_ref.referenced
                         if cpp_class.kind == CursorKind.TYPEDEF_DECL:
                             cpp_class = canonical_type(cpp_class).get_declaration()
-                        assert cpp_class.kind == CursorKind.CLASS_DECL
+                        assert cpp_class.kind in {
+                            CursorKind.CLASS_DECL,
+                            CursorKind.STRUCT_DECL,
+                        }
 
                         if cpp_type.args:
                             # it's in fact a template, and cpp_class is just the
@@ -242,7 +245,10 @@ class Parser:
                         if type_info(tmpl_arg) == cpp_type:
                             assert i == 1  # it should always be the second argument
                             cpp_class = tmpl_arg.get_declaration()
-                            assert cpp_class.kind == CursorKind.CLASS_DECL
+                            assert cpp_class.kind in {
+                                CursorKind.CLASS_DECL,
+                                CursorKind.STRUCT_DECL,
+                            }
                             break
                     else:
                         assert False
@@ -268,7 +274,7 @@ class Parser:
             cpp_class = shadow_node.referenced
             if cpp_class.kind == CursorKind.TYPEDEF_DECL:
                 cpp_class = canonical_type(cpp_class).get_declaration()
-            assert cpp_class.kind == CursorKind.CLASS_DECL
+            assert cpp_class.kind in {CursorKind.CLASS_DECL, CursorKind.STRUCT_DECL}
             cpp_type = type_info(cpp_class)
             assert cpp_type.args is None
 
@@ -285,10 +291,12 @@ class Parser:
                 assert cpp_type.args and len(tmpl_params) == len(cpp_type.args)
                 for param, arg in zip(tmpl_params, cpp_type.args):
                     template_args[canonical_type(param).spelling] = arg
-            elif cpp_class.kind == CursorKind.CLASS_DECL:
+            elif cpp_class.kind in {CursorKind.CLASS_DECL, CursorKind.STRUCT_DECL}:
                 pass
             else:
-                self._error(cpp_class, "Expected CLASS_DECL or CLASS_TEMPLATE")
+                self._error(
+                    cpp_class, "Expected CLASS_DECL, STRUCT_DECL or CLASS_TEMPLATE"
+                )
 
             for constructor in iter_children(cpp_class, CursorKind.CONSTRUCTOR):
                 if constructor.access_specifier != AccessSpecifier.PUBLIC:
