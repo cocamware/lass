@@ -44,11 +44,10 @@ if not __package__:
     assert __name__ == "__main__"
     _self_dir = os.path.normpath(os.path.dirname(os.path.abspath(__file__)))
     assert os.path.normpath(sys.path[0]) == _self_dir, f"{sys.path[0]} != {_self_dir}"
-    sys.path[0], __package__ = os.path.split(sys.path[0])
+    sys.path[0], __package__ = os.path.split(_self_dir)
     if __spec__:
         __spec__.name = f"{__package__}.__main__"
 
 from .main import main  # noqa: E402
 
 sys.exit(main(sys.argv[1:]))
-1
