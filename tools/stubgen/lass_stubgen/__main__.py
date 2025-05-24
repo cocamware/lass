@@ -50,4 +50,7 @@ if not __package__:
 
 from .main import main  # noqa: E402
 
-sys.exit(main(sys.argv[1:]))
+try:
+    sys.exit(main(sys.argv[1:]))
+except KeyboardInterrupt:
+    sys.exit(1)
