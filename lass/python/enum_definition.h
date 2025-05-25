@@ -57,9 +57,9 @@ namespace lass
 	{
 		namespace impl
 		{
-			LASS_PYTHON_DLL TPyObjPtr makeEnumType(const std::string& name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs);
-			LASS_PYTHON_DLL TPyObjPtr makeIntEnumType(const std::string& name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs);
-			LASS_PYTHON_DLL TPyObjPtr makeStrEnumType(const std::string& name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs);
+			LASS_PYTHON_DLL TPyObjPtr makeEnumType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs);
+			LASS_PYTHON_DLL TPyObjPtr makeIntEnumType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs);
+			LASS_PYTHON_DLL TPyObjPtr makeStrEnumType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs);
 		}
 
 		class LASS_PYTHON_DLL EnumDefinitionBase
@@ -67,20 +67,23 @@ namespace lass
 		public:
 			virtual ~EnumDefinitionBase();
 
-			const std::string& name() const;
+			const char* name() const;
+			const char* doc() const;
 			PyObject* type() const;
 
 			void freezeDefinition(const char* moduleName, const char* qualName);
 
 		protected:
-			EnumDefinitionBase(std::string&& name);
+			EnumDefinitionBase(const char* name);
+			EnumDefinitionBase(const char* name, const char* doc);
 
 			TPyObjPtr valueObject(PyObject* obj) const;
 
 			virtual TPyObjPtr doFreezeDefinition(TPyObjPtr&& kwargs) = 0;
 
 			TPyObjPtr type_;
-			std::string name_;
+			const char* name_;
+			const char* doc_;
 		};
 
 		/** @ingroup Python
@@ -110,17 +113,26 @@ namespace lass
 				TEnum enumerator;
 			};
 
-			IntEnumDefinition(std::string&& name) :
-				EnumDefinitionBase(std::move(name))
+			IntEnumDefinition(const char* name) :
+				EnumDefinitionBase(name)
 			{
 			}
-			IntEnumDefinition(std::string&& name, std::initializer_list<Enumerator> enumerators) :
-				EnumDefinitionBase(std::move(name)),
+			IntEnumDefinition(const char* name, const char* doc) :
+				EnumDefinitionBase(name, doc)
+			{
+			}
+			IntEnumDefinition(const char* name, std::initializer_list<Enumerator> enumerators) :
+				EnumDefinitionBase(name),
+				enumerators_(enumerators)
+			{
+			}
+			IntEnumDefinition(const char* name, const char* doc, std::initializer_list<Enumerator> enumerators) :
+				EnumDefinitionBase(name, doc),
 				enumerators_(enumerators)
 			{
 			}
 
-			void addEnumerator(std::string&& name, TEnum value)
+			void addEnumerator(std::string name, TEnum value)
 			{
 				enumerators_.emplace_back(std::move(name), value);
 			}
@@ -184,17 +196,26 @@ namespace lass
 				TValue value;
 			};
 
-			EnumDefinition(std::string&& name) :
-				EnumDefinitionBase(std::move(name))
+			EnumDefinition(const char* name) :
+				EnumDefinitionBase(name)
 			{
 			}
-			EnumDefinition(std::string&& name, std::initializer_list<Enumerator> enumerators) :
-				EnumDefinitionBase(std::move(name)),
+			EnumDefinition(const char* name, const char* doc) :
+				EnumDefinitionBase(name, doc)
+			{
+			}
+			EnumDefinition(const char* name, std::initializer_list<Enumerator> enumerators) :
+				EnumDefinitionBase(name),
+				enumerators_(enumerators)
+			{
+			}
+			EnumDefinition(const char* name, const char* doc, std::initializer_list<Enumerator> enumerators) :
+				EnumDefinitionBase(name, doc),
 				enumerators_(enumerators)
 			{
 			}
 
-			void addEnumerator(std::string&& name, TEnum enumerator, TValue&& value)
+			void addEnumerator(std::string name, TEnum enumerator, TValue value)
 			{
 				enumerators_.emplace_back(std::move(name), enumerator, std::move(value));
 			}
@@ -249,7 +270,7 @@ namespace lass
 				return it->second;
 			}
 
-			std::optional<TEnum> getEnum(TValue value) const
+			std::optional<TEnum> getEnum(const TValue& value) const
 			{
 				auto it = valueToEnum_.find(value);
 				if (it == valueToEnum_.end())
@@ -340,6 +361,9 @@ namespace lass
 #define PY_DECLARE_INT_ENUM_NAME(t_cppEnum, s_name) \
 	::lass::python::IntEnumDefinition<t_cppEnum> lass::python::PyExportTraits<t_cppEnum>::enumDefinition(s_name);
 
+#define PY_DECLARE_INT_ENUM_NAME_DOC(t_cppEnum, s_name, s_doc) \
+	::lass::python::IntEnumDefinition<t_cppEnum> lass::python::PyExportTraits<t_cppEnum>::enumDefinition(s_name, s_doc);
+
 #define PY_DECLARE_INT_ENUM_EX(t_cppEnum) \
 	::lass::python::IntEnumDefinition<t_cppEnum> lass::python::PyExportTraits<t_cppEnum>::enumDefinition
 
@@ -364,6 +388,9 @@ namespace lass
 
 #define PY_DECLARE_STR_ENUM_NAME(t_cppEnum, s_name) \
 	::lass::python::StrEnumDefinition<t_cppEnum> lass::python::PyExportTraits<t_cppEnum>::enumDefinition(s_name);
+
+#define PY_DECLARE_STR_ENUM_NAME_DOC(t_cppEnum, s_name, s_doc) \
+	::lass::python::StrEnumDefinition<t_cppEnum> lass::python::PyExportTraits<t_cppEnum>::enumDefinition(s_name, s_doc);
 
 #define PY_DECLARE_STR_ENUM_EX(t_cppEnum) \
 	::lass::python::StrEnumDefinition<t_cppEnum> lass::python::PyExportTraits<t_cppEnum>::enumDefinition

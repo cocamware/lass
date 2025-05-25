@@ -50,7 +50,7 @@ namespace lass
 	{
 		namespace impl
 		{
-			TPyObjPtr makeEnumType(const std::string& name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
+			TPyObjPtr makeEnumType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
 			{
 				TPyObjPtr enumMod(PyImport_ImportModule("enum"));
 				TPyObjPtr intEnumType(PyObject_GetAttrString(enumMod.get(), "Enum"));
@@ -61,7 +61,7 @@ namespace lass
 				return type;
 			}
 
-			TPyObjPtr makeIntEnumType(const std::string& name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
+			TPyObjPtr makeIntEnumType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
 			{
 				TPyObjPtr enumMod(PyImport_ImportModule("enum"));
 				TPyObjPtr intEnumType(PyObject_GetAttrString(enumMod.get(), "IntEnum"));
@@ -80,7 +80,7 @@ namespace lass
 				return type;
 			}
 
-			TPyObjPtr makeStrEnumType(const std::string& name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
+			TPyObjPtr makeStrEnumType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
 			{
 #if PY_VERSION_HEX < 0x030b0000 // < 3.11
 				// mix in str type, so that they also behave like strings ...
@@ -107,8 +107,13 @@ namespace lass
 			}
 		}
 
-		EnumDefinitionBase::EnumDefinitionBase(std::string&& name) :
-			name_(std::move(name))
+		EnumDefinitionBase::EnumDefinitionBase(const char* name) :
+			name_(name)
+		{
+		}
+		EnumDefinitionBase::EnumDefinitionBase(const char* name, const char* doc) :
+			name_(name),
+			doc_(doc)
 		{
 		}
 
@@ -116,9 +121,14 @@ namespace lass
 		{
 		}
 
-		const std::string& EnumDefinitionBase::name() const
+		const char* EnumDefinitionBase::name() const
 		{
 			return name_;
+		}
+
+		const char* EnumDefinitionBase::doc() const
+		{
+			return doc_;
 		}
 
 		PyObject* EnumDefinitionBase::type() const
@@ -157,6 +167,13 @@ namespace lass
 			}
 
 			type_ = doFreezeDefinition(std::move(kwargs));
+
+			if (doc_)
+			{
+				// set the docstring
+				TPyObjPtr docStr(pyBuildSimpleObject(doc_));
+				PyObject_SetAttrString(type_.get(), "__doc__", docStr.get());
+			}
 		}
 	}
 }

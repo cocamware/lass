@@ -352,14 +352,32 @@ class Parser:
         cpp_name = enum_type.args[0].name
 
         children = list(node.get_children())
+        assert 0 < len(children) <= 3
 
         # zeroth child is the enum name
         py_name = self._parse_name(children[0])
 
-        # first child is the initializer list
-        init_list = ensure_kind(children[1], CursorKind.INIT_LIST_EXPR)
+        if len(children) == 1:
+            doc = None
+            init_list = []
+        if len(children) == 2:
+            arg = children[1]
+            while arg.kind.is_unexposed():
+                arg = ensure_only_child(arg)
+            if arg.kind == CursorKind.INIT_LIST_EXPR:
+                doc = None
+                init_list = arg.get_children()
+            else:
+                doc = self._parse_doc(arg)
+                init_list = []
+        else:
+            doc = self._parse_doc(children[1])
+            init_list = ensure_kind(
+                children[2], CursorKind.INIT_LIST_EXPR
+            ).get_children()
+
         values = {}
-        for init_list_expr in init_list.get_children():
+        for init_list_expr in init_list:
             args = list(init_list_expr.get_children())
             # zeroth argument is the name of the enum value.
             key = string_literal(args[0])
@@ -386,6 +404,7 @@ class Parser:
                 cpp_name=cpp_name,
                 value_py_type=value_py_type,
                 values=values,
+                doc=doc,
             )
         )
         return True
@@ -985,7 +1004,7 @@ class Parser:
         return shadow_class
 
     def _parse_name(self, node: cindex.Cursor) -> str:
-        if node.kind == CursorKind.UNEXPOSED_EXPR:
+        if node.kind.is_unexposed():
             assert node.type.spelling in (
                 "const char *",
                 "std::string",
@@ -1001,10 +1020,18 @@ class Parser:
         return string_literal(node)
 
     def _parse_doc(self, node: cindex.Cursor) -> str | None:
-        if node.kind == CursorKind.UNEXPOSED_EXPR:
-            assert node.type.spelling == "const char *"
+        if node.kind.is_unexposed():
+            assert node.type.spelling in (
+                "const char *",
+                "std::string",
+                "const std::string",
+            )
             children = list(node.get_children())
             assert len(children) == 1
+            return self._parse_doc(children[0])
+        if node.kind == CursorKind.CALL_EXPR:
+            assert node.spelling == "basic_string"
+            children = list(node.get_children())
             return self._parse_doc(children[0])
         if node.kind == CursorKind.INTEGER_LITERAL:
             assert node.type.spelling == "int"

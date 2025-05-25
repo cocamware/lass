@@ -496,7 +496,7 @@ void ClassDefinition::freezeDefinition(const char* scopeName)
 	for (auto def : innerEnums_)
 	{
 		def->freezeDefinition(nullptr, nullptr); // TODO: figure out modulename and qualname ...
-		PyDict_SetItemString(type_.tp_dict, def->name().c_str(), def->type());
+		PyDict_SetItemString(type_.tp_dict, def->name(), def->type());
 	}
 
 	if (classRegisterHook_)

@@ -359,7 +359,7 @@ PY_CLASS_FREE_METHOD_QUALIFIED_NAME_3(Cyclic, pow, Cyclic, const Cyclic&, int, i
 	::lass::python::IntEnumDefinition<t_enumClass> lass::python::PyExportTraits<t_enumClass>::enumDefinition( s_name, values );
 
 PY_SHADOW_INT_ENUM(LASS_DLL_EXPORT, lass::test::Color)
-PY_DECLARE_INT_ENUM_EX(lass::test::Color)("Color", {
+PY_DECLARE_INT_ENUM_EX(lass::test::Color)("Color", "An enumeration of colors", {
 	{ "RED", lass::test::Color::RED },
 	{ "GREEN", lass::test::Color::GREEN },
 	{ "BLUE", lass::test::Color::BLUE },

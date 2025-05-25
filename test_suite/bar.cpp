@@ -46,7 +46,7 @@
 #include "bar.h"
 #include "../lass/stde/extended_string.h"
 
-PY_DECLARE_STR_ENUM_EX(lass::test::Bar::Shape)("Shape", {
+PY_DECLARE_STR_ENUM_EX(lass::test::Bar::Shape)("Shape", "Shape of a Bar", {
 	{ "CIRCLE", lass::test::Bar::Shape::Circle, "circle"},
 	{ "SQUARE", lass::test::Bar::Shape::Square, "square"},
 	{ "TRIANGLE", lass::test::Bar::Shape::Triangle, "triangle"},

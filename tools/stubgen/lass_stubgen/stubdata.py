@@ -503,6 +503,7 @@ class EnumDefinition:
     cpp_name: str
     value_py_type: str
     values: dict[str, Any]
+    doc: str | None = None
     fully_qualified_name: str | None = None
 
     def asdict(self) -> dict[str, Any]:

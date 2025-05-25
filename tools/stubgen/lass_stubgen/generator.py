@@ -352,6 +352,8 @@ class StubGenerator:
             base = "enum.Enum"
         signature = f"  # {enum_def.cpp_name}" if with_signature else ""
         print(f"{' ' * indent}class {py_name}({base}):{signature}", file=file)
+        if enum_def.doc:
+            self.write_doc(enum_def.doc, indent=indent + 4, file=file)
         print(f"{' ' * indent}    _value_: {value_py_type}", file=file)
         for name, value in enum_def.values.items():
             if value is Ellipsis:
