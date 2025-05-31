@@ -78,6 +78,8 @@ public:
 	void addLong(long object, const char* name);
 	void addString(const char* object, const char* name);
 
+	void injectLong(const char* name, long value);
+	void injectString(const char* name, const char* value);
 	template <typename T>
 	void injectObject(T&& object, const char* name)
 	{

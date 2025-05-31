@@ -1214,6 +1214,17 @@ class TestInjectedClass(unittest.TestCase):
         )
 
 
+class TestModuleConstants(unittest.TestCase):
+    def testModuleConstants(self) -> None:
+        self.assertEqual(embedding.emIsThis, 3)
+        self.assertEqual(embedding.emAnEnum, 7)
+        self.assertEqual(embedding.STRING_CONSTANT, "string constant")
+        self.assertEqual(embedding.INTEGER_CONSTANT, 42)
+        self.assertEqual(embedding.INJECTED_INTEGER_CONSTANT, 99)
+        self.assertEqual(embedding.INJECTED_STRING_CONSTANT, "spam and eggs")
+        # self.assertIsInstance(embedding.aVectorObject, Sequence)  FIXME
+
+
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
 testRunner = unittest.TextTestRunner(verbosity=2)
 result = testRunner.run(test)

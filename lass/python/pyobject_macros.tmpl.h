@@ -239,12 +239,12 @@
  *		the identifier of the module to inject the object in
  *	@param s_name
  *		name of constant as shown in the module (zero terminated C string)
- *  @param s_value
- *		value of the constant (zero terminated C string)
+ *  @param v_value
+ *		value of the constant (long)
  */
-#define PY_MODULE_ADD_INTEGER_CONSTANT( i_module, s_name, s_value )\
+#define PY_MODULE_ADD_INTEGER_CONSTANT( i_module, s_name, v_value )\
 	{\
-		PyModule_AddIntConstant(i_module.module(), s_name, s_value);\
+		i_module.injectLong(s_name, v_value);\
 	}
 
 
@@ -260,12 +260,12 @@
  *		the identifier of the module to inject the object in
  *	@param s_name
  *		name of constant as shown in the module (zero terminated C string)
- *  @param v_value
- *		value of the constant (long)
+ *  @param s_value
+ *		value of the constant (string)
  */
-#define PY_MODULE_ADD_STRING_CONSTANT( i_module, s_name, v_value )\
+#define PY_MODULE_ADD_STRING_CONSTANT( i_module, s_name, s_value )\
 	{\
-		PyModule_AddStringConstant(i_module.module(), s_name, const_cast<char*>(v_value));\
+		i_module.injectString(s_name, s_value);\
 	}
 
 // --- free module functions -----------------------------------------------------------------------

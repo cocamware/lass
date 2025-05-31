@@ -173,6 +173,21 @@ void ModuleDefinition::addFunctionDispatcher(
 	};
 }
 
+
+void ModuleDefinition::injectLong(const char* name, long value)
+{
+	LASS_ASSERT(isInjected_);
+	PyModule_AddIntConstant(module_, name, value);
+}
+
+
+void ModuleDefinition::injectString(const char* name, const char* value)
+{
+	LASS_ASSERT(isInjected_);
+	PyModule_AddStringConstant(module_, name, value);
+}
+
+
 /** old-style class injection.
  *
  *  This function can injects a class in an already-injected module
@@ -225,9 +240,9 @@ PyObject* ModuleDefinition::inject()
 #if PY_VERSION_HEX < 0x030a0000 // < 3.10
 		PyObject* type = reinterpret_cast<PyObject*>(def->type());
 		Py_INCREF(type);
-		PyModule_AddObject(module_, def->name().c_str(), type);
+		PyModule_AddObject(module_, def->name(), type);
 #else
-		PyModule_AddObjectRef(module_, def->name().c_str(), reinterpret_cast<PyObject*>(def->type()));
+		PyModule_AddObjectRef(module_, def->name(), reinterpret_cast<PyObject*>(def->type()));
 #endif
 	}
 	for (TObjects::const_iterator obj = objects_.begin(); obj != objects_.end(); ++obj)

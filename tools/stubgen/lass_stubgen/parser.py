@@ -94,6 +94,8 @@ class Parser:
             "addEnum": self._handle_module_add_enum,
             "injectObject": self._handle_module_inject_object,
             "injectClass": self._handle_module_inject_class,
+            "injectLong": self._handle_module_inject_constant,
+            "injectString": self._handle_module_inject_constant,
             "addIntegerConstantsToModule": self._handle_module_add_integer_constants,
             "addLong": self._handle_module_add_long,
             "addString": self._handle_module_add_string,
@@ -543,6 +545,28 @@ class Parser:
 
         module_def.add_class(shadow_class=shadow_class)
 
+        return True
+
+    def _handle_module_inject_constant(self, node: cindex.Cursor) -> bool:
+        assert node.kind == CursorKind.CALL_EXPR
+        children = list(node.get_children())
+        if not is_member_ref_expr(
+            children[0],
+            {
+                "lass::python::ModuleDefinition::injectLong",
+                "lass::python::ModuleDefinition::injectString",
+            },
+        ):
+            return False
+        module_def = self._parse_module_ref(children[0])
+
+        py_name = self._parse_name(children[1])
+
+        cpp_type, value = self._parse_constant(children[2])
+
+        module_def.add_constant(
+            ConstDefinition(py_name=py_name, cpp_type=cpp_type, value=value)
+        )
         return True
 
     def _handle_module_add_integer_constants(self, node: cindex.Cursor) -> bool:
@@ -1167,10 +1191,12 @@ class NodeVisitor:
             return 0
 
 
-def is_member_ref_expr(node: cindex.Cursor, member: str) -> bool:
+def is_member_ref_expr(node: cindex.Cursor, member: str | Collection[str]) -> bool:
+    if isinstance(member, str):
+        member = {member}
     return (
         node.kind == CursorKind.MEMBER_REF_EXPR
-        and fully_qualified(node.referenced) == member
+        and fully_qualified(node.referenced) in member
     )
 
 

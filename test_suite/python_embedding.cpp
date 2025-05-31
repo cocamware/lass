@@ -776,6 +776,8 @@ void embeddingPostInject(PyObject*)
 #if LASS_HAVE_STD_U8STRING
 	PY_MODULE_ADD_INTEGER_CONSTANT( embedding, "LASS_HAVE_STD_U8STRING", 1 )
 #endif
+	PY_MODULE_ADD_INTEGER_CONSTANT(embedding, "INJECTED_INTEGER_CONSTANT", 99);
+	PY_MODULE_ADD_STRING_CONSTANT(embedding, "INJECTED_STRING_CONSTANT", "spam and eggs");
 	PY_INJECT_CLASS_IN_MODULE(InjectedClass, embedding, "Class injected into module")
 
 	aVectorObject.reset(new std::vector<std::string>());
