@@ -44,7 +44,7 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
-from .generator import StubGenerator
+from .generator import StubGenerator, StubGeneratorError
 from .parser import ParseError, Parser
 from .stubdata import DuplicateError, StrPath, StubData
 
@@ -215,12 +215,18 @@ If not provided, the number of threads will be set to the number of CPU cores.""
         return 1
 
     if not args.parse_only:
-        generate(
-            stubdata,
-            output_dir=args.output_dir,
-            with_signature=args.with_signatures,
-            quiet=args.quiet,
-        )
+        try:
+            generate(
+                stubdata,
+                output_dir=args.output_dir,
+                with_signature=args.with_signatures,
+                quiet=args.quiet,
+            )
+        except StubGeneratorError as err:
+            print(f"Error: {str(err)}", file=sys.stderr)
+            for note in err.__notes__:
+                print(note, file=sys.stderr)
+            return 1
     return 0
 
 
@@ -354,11 +360,15 @@ def generate(
             output_file = output_dir_ / f"{mod_def.py_name}.pyi"
             if not quiet:
                 print(f"Writing {output_file}...", file=sys.stderr)
-            with open(output_file, "w") as file:
-                generator.write_module(
-                    mod_def, file=file, with_signature=with_signature
-                )
-            reformat(output_file)
+            try:
+                with open(output_file, "w") as file:
+                    generator.write_module(
+                        mod_def, file=file, with_signature=with_signature
+                    )
+                reformat(output_file)
+            except Exception as err:
+                err.add_note(f"While generating stubs {output_file}")
+                raise
         else:
             print(f"# ============= {mod_def.py_name} =============", file=sys.stderr)
             generator.write_module(mod_def, file=sys.stdout)

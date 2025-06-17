@@ -298,6 +298,9 @@ class ModuleDefinition:
     def add_constant(self, const_def: ConstDefinition) -> None:
         self.constants[const_def.py_name] = const_def
 
+    def __str__(self) -> str:
+        return f"module {self.py_name} ({self.cpp_name})"
+
     def asdict(self) -> dict[str, Any]:
         functions: list[dict[str, Any]] = []
         for func_defs in self.functions.values():
@@ -378,6 +381,9 @@ class ClassDefinition:
 
     def add_const(self, const_def: ConstDefinition) -> None:
         self.consts[const_def.py_name] = const_def
+
+    def __str__(self) -> str:
+        return f"class {self.py_name} ({self.shadow_name})"
 
     def asdict(self) -> dict[str, Any]:
         constructors: list[dict[str, Any]] = []
@@ -460,6 +466,9 @@ class FunctionDefinition:
     cpp_params: list[ParamInfo]
     cpp_signature: str
 
+    def __str__(self) -> str:
+        return f"function {self.py_name}"
+
     def asdict(self) -> dict[str, Any]:
         return dataclasses.asdict(self)
 
@@ -484,6 +493,9 @@ class ConstDefinition:
     cpp_type: TypeInfo
     value: Any = None
 
+    def __str__(self) -> str:
+        return f"const {self.py_name}"
+
     def asdict(self) -> dict[str, Any]:
         return dataclasses.asdict(self)
 
@@ -506,6 +518,9 @@ class EnumDefinition:
     doc: str | None = None
     fully_qualified_name: str | None = None
 
+    def __str__(self) -> str:
+        return f"enum {self.py_name} ({self.cpp_name})"
+
     def asdict(self) -> dict[str, Any]:
         return dataclasses.asdict(self)
 
@@ -519,6 +534,13 @@ class ConstructorDefinition:
     cpp_params: list[ParamInfo]
     cpp_signature: str
     free: bool = False
+
+    def __str__(self) -> str:
+        params = [
+            f"{type_} {name}" if name else str(type_)
+            for (name, type_) in self.cpp_params
+        ]
+        return f"constructor ({', '.join(params)})"
 
     def asdict(self) -> dict[str, Any]:
         return dataclasses.asdict(self)
@@ -543,6 +565,9 @@ class MethodDefinition:
     cpp_params: list[ParamInfo]
     cpp_signature: str
     is_static: bool = False
+
+    def __str__(self) -> str:
+        return f"method {self.py_name}"
 
     def asdict(self) -> dict[str, Any]:
         return dataclasses.asdict(self)
@@ -571,6 +596,9 @@ class GetSetterDefinition:
     get_type: TypeInfo
     set_type: TypeInfo | None = None
     set_value_name: str = "value"
+
+    def __str__(self) -> str:
+        return f"getsetter {self.py_name}"
 
     def asdict(self) -> dict[str, Any]:
         get_type = self.get_type.asdict()
@@ -604,7 +632,7 @@ class TypeInfo:
     name: str
     args: list[TypeInfo] | None = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.args is None:
             return self.name
         return f"{self.name}<{', '.join(str(arg) for arg in self.args)}>"

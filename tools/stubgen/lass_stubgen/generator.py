@@ -35,10 +35,11 @@
 #
 # *** END LICENSE INFORMATION ***
 
+import functools
 import re
 import sys
 import textwrap
-from typing import Callable, TextIO, TypeAlias
+from typing import Callable, ParamSpec, TextIO, TypeAlias, TypeVar
 
 from .stubdata import (
     ClassDefinition,
@@ -56,13 +57,36 @@ from .stubdata import (
 
 __all__ = [
     "StubGenerator",
+    "StubGeneratorError",
 ]
+
+
+T = TypeVar("T")
+P = ParamSpec("P")
+
+
+def _add_note(func: Callable[P, T]) -> Callable[P, T]:
+    @functools.wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+        _self, subject = args[:2]
+        try:
+            return func(*args, **kwargs)
+        except Exception as err:
+            err.add_note(f"While generating stubs for {subject}")
+            raise
+
+    return wrapper
+
+
+class StubGeneratorError(Exception):
+    pass
 
 
 class StubGenerator:
     def __init__(self, stubdata: StubData) -> None:
         self.stubdata = stubdata
 
+    @_add_note
     def write_module(
         self,
         module_def: ModuleDefinition,
@@ -116,6 +140,7 @@ class StubGenerator:
                     with_signature=with_signature,
                 )
 
+    @_add_note
     def write_module_function(
         self,
         func: FunctionDefinition,
@@ -135,6 +160,7 @@ class StubGenerator:
         self.write_doc(func.doc, indent=4, file=file)
         print("    ...", file=file)
 
+    @_add_note
     def write_const(
         self,
         const: ConstDefinition,
@@ -151,6 +177,7 @@ class StubGenerator:
             py_value = repr(const.value)
         print(f"{' ' * indent}{py_name}: Final[{py_type}] = {py_value}", file=file)
 
+    @_add_note
     def write_class(
         self,
         class_def: ClassDefinition,
@@ -249,6 +276,7 @@ class StubGenerator:
         if is_empty:
             print(f"{' ' * indent}    ...", file=file)
 
+    @_add_note
     def write_constructor(
         self,
         constructor: ConstructorDefinition,
@@ -266,6 +294,7 @@ class StubGenerator:
         )
         print(f"{' ' * indent}    ...", file=file)
 
+    @_add_note
     def write_getsetter(
         self,
         getsetter: GetSetterDefinition,
@@ -298,6 +327,7 @@ class StubGenerator:
             )
             print(f"{' ' * indent}    ...", file=file)
 
+    @_add_note
     def write_method(
         self,
         method: MethodDefinition,
@@ -331,6 +361,7 @@ class StubGenerator:
         self.write_doc(method.doc, indent=indent + 4, file=file)
         print(f"{' ' * (indent)}    ...", file=file)
 
+    @_add_note
     def write_enum(
         self,
         enum_def: EnumDefinition,
@@ -397,11 +428,19 @@ class StubGenerator:
         """
         cpp_name = cpp_type.name
         if class_def := self.stubdata.cpp_classes.get(str(cpp_type)):
-            assert class_def.fully_qualified_name
+            if not class_def.fully_qualified_name:
+                raise StubGeneratorError(
+                    f"Class {class_def.py_name} ({cpp_name}) "
+                    + "is not part of a module or class"
+                )
             return _strip_scope(class_def.fully_qualified_name, scope)
 
         if enum_def := self.stubdata.enums.get(cpp_name):
-            assert enum_def.fully_qualified_name
+            if not enum_def.fully_qualified_name:
+                raise StubGeneratorError(
+                    f"Class {enum_def.py_name} ({cpp_name}) "
+                    + "is not part of a module or class"
+                )
             return _strip_scope(enum_def.fully_qualified_name, scope)
 
         if specializations := self.stubdata.export_traits.get(cpp_name):
