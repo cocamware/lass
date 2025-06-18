@@ -782,6 +782,7 @@ void embeddingPostInject(PyObject*)
 
 	aVectorObject.reset(new std::vector<std::string>());
 	PY_INJECT_OBJECT_IN_MODULE(aVectorObject, embedding)
+	PY_INJECT_OBJECT_IN_MODULE_EX(int(Color::RED), embedding, "FUNCIONAL_CASTED_RED");
 }
 LASS_EXECUTE_BEFORE_MAIN(
 	embedding.setPostInject(embeddingPostInject);

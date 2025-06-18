@@ -522,7 +522,14 @@ class Parser:
             return False
         module_def = self._parse_module_ref(children[0])
 
-        obj = ensure_kind(children[1], {CursorKind.DECL_REF_EXPR, CursorKind.CALL_EXPR})
+        obj = ensure_kind(
+            children[1],
+            {
+                CursorKind.DECL_REF_EXPR,
+                CursorKind.CALL_EXPR,
+                CursorKind.CXX_FUNCTIONAL_CAST_EXPR,
+            },
+        )
         cpp_type = type_info(obj)
 
         py_name = self._parse_name(children[2])

@@ -1231,6 +1231,7 @@ class TestModuleConstants(unittest.TestCase):
         self.assertEqual(embedding.INJECTED_INTEGER_CONSTANT, 99)
         self.assertEqual(embedding.INJECTED_STRING_CONSTANT, "spam and eggs")
         # self.assertIsInstance(embedding.aVectorObject, Sequence)  FIXME
+        self.assertEqual(embedding.FUNCIONAL_CASTED_RED, int(embedding.Color.RED))
 
 
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
