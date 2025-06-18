@@ -84,7 +84,7 @@ namespace lass
 		PY_CLASS_STATIC_METHOD(Bar, isTriangle);
 		PY_CLASS_MEMBER_RW_NAME( Bar, getInt, setInt, "myInt" );
 		PY_CLASS_MEMBER_RW_NAME( Bar, getFoo, setFoo, "foo" );
-		//PY_CLASS_MEMBER_RW_NAME( Bar, coolMember, coolMember, "cool" );
+		PY_CLASS_MEMBER_RW_NAME( Bar, coolMember, coolMember, "cool" );
 		PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
 		PY_CLASS_PUBLIC_MEMBER( Bar, writeableMap );
 		PY_CLASS_PUBLIC_MEMBER( Bar, writeableVectorMap );

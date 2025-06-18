@@ -318,6 +318,7 @@ class StubGenerator:
 
         if set_type := getsetter.set_type:
             value_name = getsetter.set_value_name
+            assert value_name, "set_value_name must be set when set_type is provided"
             py_set_type = self.python_type(set_type, scope=scope)
             set_signature = f"  # {set_type}" if with_signature else ""
             print(f"{' ' * indent}@{name}.setter", file=file)

@@ -474,6 +474,14 @@ class TestProperties(unittest.TestCase):
         bar.foo = None
         self.assertIs(bar.foo, None)
 
+    def testSetterByRef(self) -> None:
+        bar = embedding.Bar()
+        self.assertEqual(bar.cool, 1)
+        bar.cool = 2.5
+        self.assertEqual(bar.cool, 2.5)
+        with self.assertRaises(TypeError):
+            bar.cool = "foo"  # type: ignore[assignment]
+
     def testPublicProperty(self) -> None:
         bar = embedding.Bar()
         self.assertEqual(bar.publicInt, 42)

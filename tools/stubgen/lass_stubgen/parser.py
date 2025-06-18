@@ -822,28 +822,35 @@ class Parser:
                 call_expr = ensure_only_child(unary_min, CursorKind.CALL_EXPR)
                 member_ref = ensure_last_child(call_expr, CursorKind.MEMBER_REF_EXPR)
                 set_type = type_info(member_ref)
-                set_value_name = "value"
+                set_value_name = py_name
             else:
                 call_expr = ensure_only_child(return_stmt, CursorKind.CALL_EXPR)
                 args = list(call_expr.get_children())
                 setter = ensure_only_child(args[3], CursorKind.DECL_REF_EXPR).referenced
                 params = list(iter_children(setter, CursorKind.PARM_DECL))
                 if call_expr.spelling == "set":
-                    # only one parameter, the value
-                    assert len(params) == 1, params
-                    value = params[0]
+                    if params:
+                        # it's a tradional setter, with value as only parameter
+                        assert len(params) == 1, params
+                        value = params[0]
+                        set_type = type_info(value)
+                        set_value_name = value.spelling or py_name
+                    else:
+                        # it returns a non-const reference to the property
+                        set_type = type_info(canonical_type(setter).get_result())
+                        set_value_name = py_name
                 elif call_expr.spelling == "freeSet":
                     # first parameter is self, second is value
                     assert len(params) == 2, params
                     value = params[1]
+                    set_type = type_info(value)
+                    set_value_name = value.spelling or py_name
                 else:
                     self._debug(dispatch)
                     assert False, call_expr.spelling
-                set_type = type_info(value)
-                set_value_name = value.spelling or "value"
         else:
             set_type = None
-            set_value_name = "value"
+            set_value_name = None
 
         class_def.add_getsetter(
             GetSetterDefinition(

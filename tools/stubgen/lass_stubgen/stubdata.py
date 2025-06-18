@@ -595,7 +595,7 @@ class GetSetterDefinition:
     doc: str | None
     get_type: TypeInfo
     set_type: TypeInfo | None = None
-    set_value_name: str = "value"
+    set_value_name: str | None = None
 
     def __str__(self) -> str:
         return f"getsetter {self.py_name}"
