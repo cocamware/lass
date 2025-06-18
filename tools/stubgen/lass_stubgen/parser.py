@@ -470,7 +470,6 @@ class Parser:
         enum_type = type_info(decl_ref)
         assert enum_type.args, f"{enum_type=} must have template args"
         cpp_name = enum_type.args[0].name
-        assert cpp_name in self.stubdata.enums
 
         module_def.add_enum(cpp_name)
 
