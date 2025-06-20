@@ -48,6 +48,7 @@
 #include "../lass/python/pyshadow_object.h"
 #include "../lass/python/enum_definition.h"
 #include "../lass/python/export_traits_chrono.h"
+#include "../lass/python/export_traits_variant.h"
 #include "foo.h"
 #include "bar.h"
 #include "python_shadow.h"
@@ -616,6 +617,11 @@ std::tuple<bool, std::string> testTuple(std::tuple<bool, std::string> x)
 	return x;
 }
 
+std::variant<int, std::string> testVariant(std::variant<int, std::string> x)
+{
+	return x;
+}
+
 using namespace lass::test;
 
 PY_DECLARE_MODULE_DOC( embedding, "Documentation for module embedding" )
@@ -685,6 +691,7 @@ PY_MODULE_FUNCTION( embedding, testFloatDouble )
 PY_MODULE_FUNCTION( embedding, testSystemClock )
 
 PY_MODULE_FUNCTION( embedding, testTuple )
+PY_MODULE_FUNCTION( embedding, testVariant )
 
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
 PY_MODULE_STRING_CONSTANT( embedding, "STRING_CONSTANT", "string constant")

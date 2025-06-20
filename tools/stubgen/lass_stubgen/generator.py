@@ -99,7 +99,7 @@ class StubGenerator:
         print("import enum", file=file)
         print("import os", file=file)
         print(
-            "from typing import Any, Callable, Final, Iterator, Literal, Mapping, Sequence, overload",
+            "from typing import Any, Callable, Final, Iterator, Literal, Mapping, Sequence, Union, overload",
             file=file,
         )
         for other_module in self.stubdata.modules.values():

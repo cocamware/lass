@@ -1078,6 +1078,12 @@ class TestTypes(unittest.TestCase):
         self.assertIsInstance(y[1], str)
         self.assertEqual(y, x)
 
+    def testStdVariant(self) -> None:
+        self.assertEqual(embedding.testVariant(42), 42)
+        self.assertEqual(embedding.testVariant("Hello"), "Hello")
+        with self.assertRaises(TypeError):
+            embedding.testVariant(3.14)  # type: ignore[arg-type]
+
 
 class TestBar(unittest.TestCase):
     def testMapProtocol(self) -> None:
