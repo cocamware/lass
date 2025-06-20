@@ -1069,6 +1069,15 @@ class TestTypes(unittest.TestCase):
             with self.assertRaises(OverflowError):
                 float(MyFloat(2**1024))
 
+    def testStdTuple(self) -> None:
+        x = (True, "Hello")
+        y = embedding.testTuple(x)
+        self.assertIsInstance(y, tuple)
+        self.assertEqual(len(y), 2)
+        self.assertIsInstance(y[0], bool)
+        self.assertIsInstance(y[1], str)
+        self.assertEqual(y, x)
+
 
 class TestBar(unittest.TestCase):
     def testMapProtocol(self) -> None:

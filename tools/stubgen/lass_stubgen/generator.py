@@ -486,13 +486,11 @@ class StubGenerator:
         assert cpp_type.name == export_traits.cpp_type.name
 
         # match template parameters
-        matched_params: dict[str, TypeInfo | None] = {
+        matched_params: dict[str, TypeInfo | list[TypeInfo] | None] = {
             param: None for param in export_traits.template_params
         }
-        if not _match_template_args(
-            type_args=cpp_type.args,
-            tmpl_args=export_traits.cpp_type.args,
-            matched_params=matched_params,
+        if not _match_template(
+            type_=cpp_type, tmpl=export_traits.cpp_type, matched_params=matched_params
         ):
             return None
 
@@ -500,8 +498,12 @@ class StubGenerator:
         py_type = export_traits.py_type
         for param, arg in matched_params.items():
             assert arg is not None
-            py_arg = self.python_type(arg, scope=scope)
-            py_type = re.sub(rf"\b{re.escape(param)}\b", py_arg, py_type)
+            if isinstance(arg, list):
+                py_arg = ", ".join(self.python_type(a, scope=scope) for a in arg)
+                py_type = re.sub(rf"\b{re.escape(param)}\.\.\.", py_arg, py_type)
+            else:
+                py_arg = self.python_type(arg, scope=scope)
+                py_type = re.sub(rf"\b{re.escape(param)}\b", py_arg, py_type)
 
         return py_type
 
@@ -515,38 +517,65 @@ def _strip_scope(fqname: str, scope: str | None) -> str:
     return fqname
 
 
+def _match_template(
+    type_: TypeInfo | None,
+    tmpl: TypeInfo | None,
+    matched_params: dict[str, TypeInfo | list[TypeInfo] | None],
+) -> bool:
+    """
+    Match a template type with a concrete type.
+    """
+    if tmpl is None and type_ is None:
+        return True  # both are None
+    if tmpl is None or type_ is None:
+        return False  # one is None, the other is not
+    if tmpl.name in matched_params:
+        # it's a template parameter
+        assert tmpl.args is None
+        if matched_params[tmpl.name] is None:
+            matched_params[tmpl.name] = type_
+        elif matched_params[tmpl.name] != type_:
+            return False
+        return True
+
+    # it's not a template parameter, so it need to match exactly
+    if type_.name != tmpl.name:
+        return False
+    return _match_template_args(type_.args, tmpl.args, matched_params)
+
+
 def _match_template_args(
     type_args: list[TypeInfo] | None,
     tmpl_args: list[TypeInfo] | None,
-    matched_params: dict[str, TypeInfo | None],
+    matched_params: dict[str, TypeInfo | list[TypeInfo] | None],
 ) -> bool:
     """
     Match arguments of contrete type with template arguments and store the
     matched parameters.
     """
     if type_args is None and tmpl_args is None:
-        return True
-    assert type_args is not None and tmpl_args is not None
-    assert len(type_args) == len(tmpl_args)
+        return True  # both are None
+    if type_args is None or tmpl_args is None:
+        return False  # one is None, the other is not
+
+    if tmpl_args and tmpl_args[-1].name.endswith("..."):
+        pack_name = tmpl_args[-1].name[:-3]
+        assert pack_name in matched_params
+        n = len(tmpl_args) - 1
+        if len(type_args) < n:
+            return False
+        type_pack = type_args[n:]
+        if matched_params[pack_name] is None:
+            matched_params[pack_name] = type_pack
+        elif matched_params[pack_name] != type_pack:
+            return False
+        type_args, tmpl_args = type_args[:n], tmpl_args[:n]
+
+    if len(type_args) != len(tmpl_args):
+        return False
     for type_arg, tmpl_arg in zip(type_args, tmpl_args):
-        if tmpl_arg.name in matched_params:
-            # it's a template parameter
-            # store the argument but check it's the same as previously matched
-            assert not tmpl_arg.args
-            if matched_params[tmpl_arg.name] is None:
-                matched_params[tmpl_arg.name] = type_arg
-            elif matched_params[tmpl_arg.name] != type_arg:
-                return False
-        else:
-            # it's not a template parameter, so it need to match exactly
-            if type_arg.name != tmpl_arg.name:
-                return False
-            if not _match_template_args(
-                type_args=type_arg.args,
-                tmpl_args=tmpl_arg.args,
-                matched_params=matched_params,
-            ):
-                return False
+        if not _match_template(type_arg, tmpl_arg, matched_params):
+            return False
     return True
 
 

@@ -611,6 +611,11 @@ std::chrono::system_clock::time_point testSystemClock(const std::chrono::system_
 	return v;
 }
 
+std::tuple<bool, std::string> testTuple(std::tuple<bool, std::string> x)
+{
+	return x;
+}
+
 using namespace lass::test;
 
 PY_DECLARE_MODULE_DOC( embedding, "Documentation for module embedding" )
@@ -678,6 +683,8 @@ PY_MODULE_FUNCTION( embedding, testConstChar8Ptr )
 PY_MODULE_FUNCTION( embedding, testFloatSingle )
 PY_MODULE_FUNCTION( embedding, testFloatDouble )
 PY_MODULE_FUNCTION( embedding, testSystemClock )
+
+PY_MODULE_FUNCTION( embedding, testTuple )
 
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
 PY_MODULE_STRING_CONSTANT( embedding, "STRING_CONSTANT", "string constant")
