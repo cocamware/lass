@@ -837,7 +837,7 @@ class Parser:
             else:
                 call_expr = ensure_only_child(return_stmt, CursorKind.CALL_EXPR)
                 args = list(call_expr.get_children())
-                setter = ensure_only_child(args[3], CursorKind.DECL_REF_EXPR).referenced
+                setter = deref_decl_ref_expr(args[3])
                 params = list(iter_children(setter, CursorKind.PARM_DECL))
                 if call_expr.spelling == "set":
                     if params:
@@ -1122,8 +1122,7 @@ class Parser:
         func_arg = ensure_last_child(
             call_expr, [CursorKind.UNEXPOSED_EXPR, CursorKind.UNARY_OPERATOR]
         )
-        func_ref = ensure_only_child(func_arg, CursorKind.DECL_REF_EXPR)
-        func = func_ref.referenced
+        func = deref_decl_ref_expr(func_arg)
 
         cpp_signature = canonical_type(func).spelling
         cpp_return_type = type_info(func.type.get_result())
@@ -1306,6 +1305,13 @@ def string_literal(node: cindex.Cursor) -> str:
     s = s.replace(r"\r", "\r")
     s = s.replace(r"\"", '"')
     return s
+
+
+def deref_decl_ref_expr(node: cindex.Cursor) -> cindex.Cursor:
+    while node.kind != CursorKind.DECL_REF_EXPR:
+        assert node.kind in [CursorKind.UNEXPOSED_EXPR, CursorKind.UNARY_OPERATOR]
+        node = ensure_only_child(node)
+    return node.referenced
 
 
 def ensure_last_child(

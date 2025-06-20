@@ -557,22 +557,22 @@ std::u32string_view testStdU32stringView(std::u32string_view v)
 	return v;
 }
 
-const char* testConstCharPtr(const char* v)
+const char* testConstCharPtr(const char* v) noexcept
 {
 	return v;
 }
 
-const wchar_t* testConstWcharPtr(const wchar_t* v)
+const wchar_t* testConstWcharPtr(const wchar_t* v) noexcept
 {
 	return v;
 }
 
-const char16_t* testConstChar16Ptr(const char16_t* v)
+const char16_t* testConstChar16Ptr(const char16_t* v) noexcept
 {
 	return v;
 }
 
-const char32_t* testConstChar32Ptr(const char32_t* v)
+const char32_t* testConstChar32Ptr(const char32_t* v) noexcept
 {
 	return v;
 }

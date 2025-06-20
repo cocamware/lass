@@ -222,7 +222,7 @@ namespace lass
 			return stream.str();
 		}
 
-		prim::ColorRGBA Bar::rgba(const prim::ColorRGBA& c)
+		prim::ColorRGBA Bar::rgba(const prim::ColorRGBA& c)  noexcept
 		{
 			return c;
 		}
@@ -265,17 +265,17 @@ namespace lass
 			return shape == Shape::Triangle;
 		}
 
-		int Bar::getInt() const
+		int Bar::getInt() const noexcept
 		{
 			return privateInt_;
 		}
 		
-		int Bar::getInt()
+		int Bar::getInt() noexcept
 		{
 			return privateInt_;
 		}
 
-		void Bar::setInt( int iArg )
+		void Bar::setInt( int iArg ) noexcept
 		{
 			privateInt_ = iArg;
 		}

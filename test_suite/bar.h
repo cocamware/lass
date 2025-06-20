@@ -97,7 +97,7 @@ namespace test
 		std::string complexArguments( const std::string& iA );
 		std::string primArguments(const prim::Aabb3D<float>& iAabb, prim::XYZ iAxis,
 			const prim::Transformation3D<double>& iTransformation);
-		prim::ColorRGBA rgba(const prim::ColorRGBA& c);
+		prim::ColorRGBA rgba(const prim::ColorRGBA& c) noexcept;
 
 		void overloaded( int iA );
 		void overloaded( const std::string& iB );
@@ -112,9 +112,9 @@ namespace test
 		static Shape badShape();
 		static bool isTriangle(Shape shape);
 
-		int getInt() const;
-		int getInt();
-		void setInt( int iArg );
+		int getInt() const noexcept;
+		int getInt() noexcept;
+		void setInt( int iArg ) noexcept;
 
 		const PythonFooPtr& getFoo() const;
 		void setFoo( const PythonFooPtr& iFoo);
