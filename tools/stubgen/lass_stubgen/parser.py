@@ -570,7 +570,12 @@ class Parser:
 
         py_name = self._parse_name(children[1])
 
-        cpp_type, value = self._parse_constant(children[2])
+        _, value = self._parse_constant(children[2])
+
+        cpp_type = {
+            "injectLong": TypeInfo("int"),
+            "injectString": TypeInfo("str"),
+        }[node.spelling]
 
         module_def.add_constant(
             ConstDefinition(py_name=py_name, cpp_type=cpp_type, value=value)

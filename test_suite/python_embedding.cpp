@@ -782,6 +782,11 @@ PY_DECLARE_CLASS(InjectedClass)
 
 lass::util::SharedPtr<std::vector<std::string>> aVectorObject;
 
+enum SomeEnum
+{
+	ENUM_VALUE = 42,
+};
+
 void embeddingPostInject(PyObject*)
 {
 #if LASS_USE_OLD_EXPORTRAITS_FLOAT
@@ -797,6 +802,8 @@ void embeddingPostInject(PyObject*)
 	aVectorObject.reset(new std::vector<std::string>());
 	PY_INJECT_OBJECT_IN_MODULE(aVectorObject, embedding)
 	PY_INJECT_OBJECT_IN_MODULE_EX(int(Color::RED), embedding, "FUNCIONAL_CASTED_RED");
+	PY_MODULE_ADD_INTEGER_CONSTANT(embedding, "INJECTED_ENUM_VALUE", ENUM_VALUE);
+	PY_MODULE_ADD_INTEGER_CONSTANT(embedding, "INJECTED_INT_ENUM_VALUE", int(ENUM_VALUE));
 }
 LASS_EXECUTE_BEFORE_MAIN(
 	embedding.setPostInject(embeddingPostInject);
