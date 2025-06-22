@@ -212,6 +212,25 @@ int PyExportTraits<void*>::get(PyObject* obj, void*& value)
 }
 
 
+
+PyObject* PyExportTraits<std::nullptr_t>::build(std::nullptr_t /* value */)
+{
+	Py_RETURN_NONE;
+}
+
+
+int PyExportTraits<std::nullptr_t>::get(PyObject* obj, std::nullptr_t& value)
+{
+	if (obj != Py_None)
+	{
+		return 1;
+	}
+	value = nullptr;
+	return 0;
+}
+
+
+
 PyObject* PyExportTraits<bool>::build(bool v)
 {
 	if (v)

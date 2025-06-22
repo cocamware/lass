@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -321,6 +321,21 @@ struct PyExportTraits< impl::NoNone<T> >
 		return PyExportTraits<T>::get(obj, value.reference());
 	}
 };
+
+
+
+/** @ingroup Python
+ *  @internal
+ */
+template <>
+struct PyExportTraits<std::nullptr_t>
+{
+	constexpr static const char* py_typing = "None";
+
+	LASS_PYTHON_DLL static PyObject* build(std::nullptr_t value);
+	LASS_PYTHON_DLL static int get(PyObject* obj, std::nullptr_t& value);
+};
+
 
 
 // --- booleans ------------------------------------------------------------------------------------
