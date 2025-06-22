@@ -41,6 +41,11 @@ Module Functions
   ``IMPORT <import-name>``
     Path to a json file containing exported stub data.
     This is used if a module depends on stub data from another module.
+  ``PARSE_ONLY``
+    Only parse the source files, do not generate any output. This is useful in
+    combination with EXPORT to generate the stub data without writing any *.pyi files.
+    The exported stub data can then be used as SOURCES for another target, or with
+    the IMPORT option.
   ``WITH_SIGNATURES``
     Add C++ signatures as comments to *.pyi files.
 
@@ -65,7 +70,7 @@ function(Lass_generate_stubs target)
 	endif()
 
 	set(_prefix)
-	set(_options WITH_SIGNATURES)
+	set(_options WITH_SIGNATURES PARSE_ONLY)
 	set(_one_value_keywords OUTPUT_DIRECTORY PACKAGE EXPORT DEBUG_CONNECT)
 	set(_multi_value_keywords SOURCES IMPORT)
 	cmake_parse_arguments("${_prefix}" "${_options}" "${_one_value_keywords}" "${_multi_value_keywords}" ${ARGN})
@@ -303,6 +308,10 @@ function(Lass_generate_stubs target)
 		"--num-threads=1"
 		"${_debug_connect}"
 	)
+	if (_PARSE_ONLY)
+		list(APPEND args "--parse-only")
+	endif()
+
 	set(args_file "${_stubs_dir}/${target}.stubdata.json.txt")
 	file(GENERATE OUTPUT "${args_file}" CONTENT "$<JOIN:${args},\n>\n")
 	set(stubs_target "${target}_stubs")
