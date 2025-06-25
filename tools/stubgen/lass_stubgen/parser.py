@@ -1384,8 +1384,10 @@ def type_info(node_or_type: cindex.Cursor | cindex.Type) -> TypeInfo:
     type_ = type_.get_canonical()
 
     pointee = type_.get_pointee()
-    if pointee.kind != TypeKind.INVALID and type_.kind != TypeKind.POINTER:
+    if pointee.kind != TypeKind.INVALID:
         pointee_type = type_info(pointee)
+        if type_.kind == TypeKind.POINTER:
+            return TypeInfo(f"{pointee_type.name} *", pointee_type.args)
         return pointee_type
 
     num_args = type_.get_num_template_arguments()

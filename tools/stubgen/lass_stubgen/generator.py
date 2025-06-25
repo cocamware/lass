@@ -478,6 +478,12 @@ class StubGenerator:
                 if callable(py_type_match):
                     return py_type_match(self, cpp_type.args, scope, match)
                 return py_type_match
+            
+        if cpp_name.endswith("*"):
+            # pointer to a type, strip the pointer
+            cpp_type_ = TypeInfo(cpp_name[:-1].rstrip(), cpp_type.args)
+            return f"{self.python_type(cpp_type_, scope=scope)} | None"
+        
         return cpp_name
 
     def _python_type_export_traits(
