@@ -49,7 +49,12 @@ from .parser import ParseError, Parser
 from .stubdata import DuplicateError, StrPath, StubData
 
 
-def main(argv: list[str]) -> int:
+def main(
+    argv: list[str],
+    *,
+    parser_type: type[Parser] = Parser,
+    generator_type: type[StubGenerator] = StubGenerator,
+) -> int:
     parser = ArgumentParser(description=__doc__, fromfile_prefix_chars="@")
     parser.add_argument(
         "path", nargs="+", help="Source files with Lass Python bindings to parse"
@@ -201,7 +206,7 @@ If not provided, the number of threads will be set to the number of CPU cores.""
             save_pch=args.save_pch,
             num_threads=args.num_threads,
             quiet=args.quiet,
-            parser_type=Parser,
+            parser_type=parser_type,
         )
     except ParseError as err:
         for error in err.errors:
@@ -221,6 +226,7 @@ If not provided, the number of threads will be set to the number of CPU cores.""
                 output_dir=args.output_dir,
                 with_signature=args.with_signatures,
                 quiet=args.quiet,
+                generator_type=generator_type,
             )
         except StubGeneratorError as err:
             print(f"Error: {str(err)}", file=sys.stderr)
@@ -349,9 +355,10 @@ def generate(
     output_dir: StrPath | None = None,
     with_signature: bool = False,
     quiet: bool = False,
+    generator_type: type[StubGenerator] = StubGenerator,
 ) -> None:
     output_dir_ = Path(output_dir) if output_dir else None
-    generator = StubGenerator(stubdata)
+    generator = generator_type(stubdata)
     for mod_def in stubdata.modules.values():
         if mod_def.imported:
             continue

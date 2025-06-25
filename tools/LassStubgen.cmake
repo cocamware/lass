@@ -48,13 +48,16 @@ Module Functions
     the IMPORT option.
   ``WITH_SIGNATURES``
     Add C++ signatures as comments to *.pyi files.
+  ``STUBGEN <stubgen-script>``
+    Path to to custom stubgen script (advanced usage).
 
 #]======================================================================]
 
 set(LASS_STUBGEN "${CMAKE_CURRENT_LIST_DIR}/stubgen/lass_stubgen")
 
-set(_Lass_venv_stubgen "${CMAKE_BINARY_DIR}/.venv-lass-stubgen")
-set(_Lass_venv_stubgen_requirement "${CMAKE_CURRENT_LIST_DIR}/stubgen/requirements.txt")
+set(_Lass_stubgen_venv "${CMAKE_BINARY_DIR}/.venv-lass-stubgen")
+set(_Lass_stubgen_requirement "${CMAKE_CURRENT_LIST_DIR}/stubgen/requirements.txt")
+set(_Lass_stubgen_pythonpath "${CMAKE_CURRENT_LIST_DIR}/stubgen")
 
 
 function(Lass_generate_stubs target)
@@ -71,7 +74,7 @@ function(Lass_generate_stubs target)
 
 	set(_prefix)
 	set(_options WITH_SIGNATURES PARSE_ONLY)
-	set(_one_value_keywords OUTPUT_DIRECTORY PACKAGE EXPORT DEBUG_CONNECT)
+	set(_one_value_keywords OUTPUT_DIRECTORY PACKAGE EXPORT DEBUG_CONNECT STUBGEN)
 	set(_multi_value_keywords SOURCES IMPORT)
 	cmake_parse_arguments("${_prefix}" "${_options}" "${_one_value_keywords}" "${_multi_value_keywords}" ${ARGN})
 
@@ -119,26 +122,34 @@ function(Lass_generate_stubs target)
 	else()
 		set(_with_signatures)
 	endif()
+	if (NOT _STUBGEN)
+		set(_STUBGEN "${LASS_STUBGEN}")
+	endif()
 
 	# Create virtual environment to run stubgen
 	if (WIN32)
-		set(_venv_python "${_Lass_venv_stubgen}/Scripts/python.exe")
+		set(_venv_python "${_Lass_stubgen_venv}/Scripts/python.exe")
 	else()
-		set(_venv_python "${_Lass_venv_stubgen}/bin/python")
+		set(_venv_python "${_Lass_stubgen_venv}/bin/python")
 	endif()
 	_Lass_get_base_prefix("${Python_EXECUTABLE}" _base_prefix)
 	_Lass_get_base_prefix("${_venv_python}" _venv_base_prefix)
 	if (NOT (_base_prefix STREQUAL _venv_base_prefix))
-		message(STATUS "Creating venv for Lass stubgen: ${_Lass_venv_stubgen}...")
-		_Lass_checked_process("${Python_EXECUTABLE}" -m venv "--clear" "${_Lass_venv_stubgen}"
+		message(STATUS "Creating venv for Lass stubgen: ${_Lass_stubgen_venv}...")
+		_Lass_checked_process("${Python_EXECUTABLE}" -m venv "--clear" "${_Lass_stubgen_venv}"
 		)
 	endif()
-	set(_stamp_file "${_Lass_venv_stubgen}/.stamp")
-	if ("${_Lass_venv_stubgen_requirement}" IS_NEWER_THAN "${_stamp_file}")
-		message(STATUS "Updating venv for Lass stubgen: ${_Lass_venv_stubgen}...")
+	set(_stamp_file "${_Lass_stubgen_venv}/.stamp")
+	if ("${_Lass_stubgen_requirement}" IS_NEWER_THAN "${_stamp_file}")
+		message(STATUS "Updating venv for Lass stubgen: ${_Lass_stubgen_venv}...")
 		_Lass_checked_process("${_venv_python}" -m pip install --upgrade pip)
-		_Lass_checked_process("${_venv_python}" -m pip install --requirement "${_Lass_venv_stubgen_requirement}")
+		_Lass_checked_process("${_venv_python}" -m pip install --requirement "${_Lass_stubgen_requirement}")
 		file(TOUCH "${_stamp_file}")
+	endif()
+
+	set (_preamble "${CMAKE_COMMAND}" -E env "PYTHONPATH=${_Lass_stubgen_pythonpath}")
+	if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.24)
+		list(APPEND _preamble "--")
 	endif()
 
 	if(_DEBUG_CONNECT)
@@ -214,10 +225,10 @@ function(Lass_generate_stubs target)
 		file(GENERATE OUTPUT "${args_file}" CONTENT "$<JOIN:${args},\n>\n")
 		add_custom_command(
 			OUTPUT "${pch_path}" "${depfile}"
-			COMMAND "${_venv_python}"
-				ARGS
+			COMMAND ${_preamble}
+					"${_venv_python}"
 					"-B"
-					"${LASS_STUBGEN}"
+					"${_STUBGEN}"
 					"@${args_file}"
 			DEPENDS "${src_file}" "${args_file}" "${upstream_dependencies}"
 			DEPFILE "${depfile}"
@@ -279,10 +290,10 @@ function(Lass_generate_stubs target)
 		# Add custom command for this source file
 		add_custom_command(
 			OUTPUT "${output_json}" "${depfile}"
-			COMMAND "${_venv_python}"
-				ARGS
+			COMMAND ${_preamble}
+					"${_venv_python}"
 					"-B"
-					"${LASS_STUBGEN}"
+					"${_STUBGEN}"
 					"@${args_file}"
 			DEPENDS "${src_file}" "${args_file}" "${upstream_dependencies}"
 			DEPFILE "${depfile}"
@@ -317,9 +328,10 @@ function(Lass_generate_stubs target)
 	set(stubs_target "${target}_stubs")
 	add_custom_target("${stubs_target}" ALL
 		COMMAND
+			${_preamble}
 			"${_venv_python}"
 			"-B"
-			"${LASS_STUBGEN}"
+			"${_STUBGEN}"
 			"@${args_file}"
 		DEPENDS ${intermediate_stubdata} ${_IMPORT} 
 		BYPRODUCTS "${_EXPORT}"
