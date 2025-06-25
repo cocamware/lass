@@ -356,8 +356,10 @@ def generate(
         if mod_def.imported:
             continue
         if output_dir_:
-            output_dir_.mkdir(parents=True, exist_ok=True)
-            output_file = output_dir_ / f"{mod_def.py_name}.pyi"
+            assert mod_def.fully_qualified_name
+            rel_path = mod_def.fully_qualified_name.replace(".", "/")
+            output_file = output_dir_ / f"{rel_path}.pyi"
+            output_file.parent.mkdir(parents=True, exist_ok=True)
             if not quiet:
                 print(f"Writing {output_file}...", file=sys.stderr)
             try:
