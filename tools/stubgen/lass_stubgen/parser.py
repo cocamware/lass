@@ -114,6 +114,7 @@ class Parser:
         args.append(f"-I{sysconfig.get_path('include')}")
         args += [f"-isystem{include}" for include in self.system_include_dirs]
         args += [f"-D{define}" for define in self.defines]
+        args += [f"-DLASS_STUBGEN=1"]
         args += self.args or []
 
         # Add the precompiled header if provided
