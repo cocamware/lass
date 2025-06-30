@@ -964,7 +964,7 @@ class Parser:
         py_type = find_py_typing(node)
         if py_type is None:
             # look in base class
-            if cxx_base_specifier := _get_first_child(
+            if cxx_base_specifier := _find_first_child(
                 node, CursorKind.CXX_BASE_SPECIFIER
             ):
                 template_ref = ensure_first_child(

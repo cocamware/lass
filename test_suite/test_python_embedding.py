@@ -1206,6 +1206,10 @@ class TestEnum(unittest.TestCase):
             _ = embedding.Bar.badShape()
         self.assertEqual(list(Shape), [Shape.CIRCLE, Shape.SQUARE, Shape.TRIANGLE])
 
+    def testOldFashionedEnum(self) -> None:
+        self.assertEqual(embedding.testSomeEnum(embedding.INJECTED_ENUM_VALUE), (embedding.INJECTED_ENUM_VALUE, True))
+        self.assertEqual(embedding.testSomeEnum(42), (42, True))
+        self.assertEqual(embedding.testSomeEnum(666), (666, False))
 
 class TestDatetime(unittest.TestCase):
     def testSystemClock(self) -> None:

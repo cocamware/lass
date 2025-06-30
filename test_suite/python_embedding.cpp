@@ -782,10 +782,26 @@ PY_DECLARE_CLASS(InjectedClass)
 
 lass::util::SharedPtr<std::vector<std::string>> aVectorObject;
 
+
+
 enum SomeEnum
 {
 	ENUM_VALUE = 42,
 };
+
+// old fashioned way of exporting enums as ints
+namespace lass::python
+{
+template <> struct PyExportTraits<SomeEnum>: PyExportTraitsEnum<SomeEnum> {};
+}
+
+std::pair<SomeEnum, bool> testSomeEnum(SomeEnum x)
+{
+	return std::make_pair(x, x == ENUM_VALUE);
+}
+PY_MODULE_FUNCTION(embedding, testSomeEnum)
+
+
 
 void embeddingPostInject(PyObject*)
 {

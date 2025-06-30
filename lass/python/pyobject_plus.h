@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -129,6 +129,8 @@ namespace lass
 		template <typename EnumType, typename IntegerType = std::underlying_type_t<EnumType>>
 		struct PyExportTraitsEnum
 		{
+			constexpr static const char* py_typing = "int";
+
 			static PyObject* build(const EnumType iv) 
 			{ 
 				return pyBuildSimpleObject(static_cast<IntegerType>(iv));
