@@ -370,7 +370,7 @@ def generate(
             if not quiet:
                 print(f"Writing {output_file}...", file=sys.stderr)
             try:
-                with open(output_file, "w") as file:
+                with open(output_file, "w", encoding="utf-8") as file:
                     generator.write_module(
                         mod_def, file=file, with_signature=with_signature
                     )
