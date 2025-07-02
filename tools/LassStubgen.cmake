@@ -32,20 +32,26 @@ Module Functions
   ``SOURCES <files>...``
     One or more C++ source files with Lass Python bindings.
     If not provided, all sources files in the target are used.
+    Previously exported stub data can also be used as sources, in which case they are
+    loaded as if they were parsed from source files directly, i.e. not as imported
+    modules.
   ``OUTPUT_DIRECTORY <output-dir>``
     Absolute path where the *.pyi stub files are written to.
   ``PACKAGE <package-name>``
     Name of the package the stub files are part of.
-  ``EXPORT <export-name>``
+  ``EXPORT <export-file>``
     Path to a json file containing the raw stub data.
-  ``IMPORT <import-name>``
-    Path to a json file containing exported stub data.
+  ``IMPORT <import-files>...``
+    One or more paths to a json file containing exported stub data.
     This is used if a module depends on stub data from another module.
   ``PARSE_ONLY``
     Only parse the source files, do not generate any output. This is useful in
     combination with EXPORT to generate the stub data without writing any *.pyi files.
     The exported stub data can then be used as SOURCES for another target, or with
     the IMPORT option.
+  ``SYSTEM_INCLUDE_DIRECTORIES``
+    Include system directories for the target as ``-isystem`` compiler flags.
+    If not specified, default system include directories will be added.
   ``WITH_SIGNATURES``
     Add C++ signatures as comments to *.pyi files.
   ``STUBGEN <stubgen-script>``
@@ -75,7 +81,7 @@ function(Lass_generate_stubs target)
 	set(_prefix)
 	set(_options WITH_SIGNATURES PARSE_ONLY)
 	set(_one_value_keywords OUTPUT_DIRECTORY PACKAGE EXPORT DEBUG_CONNECT STUBGEN)
-	set(_multi_value_keywords SOURCES IMPORT)
+	set(_multi_value_keywords SOURCES IMPORT SYSTEM_INCLUDE_DIRECTORIES)
 	cmake_parse_arguments("${_prefix}" "${_options}" "${_one_value_keywords}" "${_multi_value_keywords}" ${ARGN})
 
 	set(cxx_standard "--arg=-std=c++$<TARGET_PROPERTY:${target},CXX_STANDARD>")
@@ -117,6 +123,9 @@ function(Lass_generate_stubs target)
 	foreach(import ${_IMPORT})
 		set(_imports "--import=${import}")
 	endforeach()
+	if(NOT _SYSTEM_INCLUDE_DIRECTORIES)
+		set(_SYSTEM_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+	endif()
 	if(_WITH_SIGNATURES)
 		set(_with_signatures "--with-signatures")
 	else()
@@ -170,9 +179,8 @@ function(Lass_generate_stubs target)
 	set(_includes "$<TARGET_PROPERTY:${target},INCLUDE_DIRECTORIES>")
 	set(includes "$<$<BOOL:${_includes}>:-I$<JOIN:${_includes},;-I>>")
 
-	if(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES)
-		set(_system_includes ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
-		set(system_includes "$<$<BOOL:${_system_includes}>:-isystem;$<JOIN:${_system_includes},;-isystem;>>")
+	if(_SYSTEM_INCLUDE_DIRECTORIES)
+		set(system_includes "$<$<BOOL:${_SYSTEM_INCLUDE_DIRECTORIES}>:-isystem;$<JOIN:${_SYSTEM_INCLUDE_DIRECTORIES},;-isystem;>>")
 	else()
 		set(system_includes)
 	endif()
