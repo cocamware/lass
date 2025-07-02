@@ -389,5 +389,15 @@ def reformat(file: Path) -> None:
     """
     bin_dir = Path(sys.executable).parent
     ruff = bin_dir / "ruff"
-    subprocess.run([ruff, "check", "--fix-only", "--silent", file], check=True)
-    subprocess.run([ruff, "format", "--silent", file], check=True)
+    try:
+        subprocess.run(
+            [ruff, "check", "--fix-only", file],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        subprocess.run(
+            [ruff, "format", file], check=True, capture_output=True, text=True
+        )
+    except subprocess.CalledProcessError as err:
+        raise StubGeneratorError(err.stderr or str(err)) from None
