@@ -203,7 +203,7 @@ class Parser:
         arg5 = ensure_kind(args[5], CursorKind.UNARY_OPERATOR)
         register_hook = ensure_only_child(arg5, CursorKind.DECL_REF_EXPR)
         assert register_hook.spelling == "_lassPyClassRegisterHook"
-        shadow_node = ensure_only_child(register_hook, CursorKind.TYPE_REF)
+        shadow_node = ensure_last_child(register_hook, CursorKind.TYPE_REF)
         shadow_type = canonical_type(shadow_node)
         shadow_name: str = shadow_type.spelling
 

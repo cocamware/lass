@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -45,12 +45,13 @@
 #include "test_common.h"
 #include "foo.h"
 
+PY_DECLARE_CLASS_NAME_DOC( lass::test::PythonFoo, "PythonFoo", "Documentation for class Foo." )
+
 namespace lass
 {
 
 namespace test
 {
-		PY_DECLARE_CLASS_NAME_DOC( PythonFoo, "PythonFoo", "Documentation for class Foo." )
 		PY_CLASS_CONSTRUCTOR_2( PythonFoo, int, std::string )
 		PY_CLASS_METHOD( PythonFoo, aFooMoreComplexFunction )
 		PY_CLASS_METHOD( PythonFoo, testFooAutomaticFunctionExport );
