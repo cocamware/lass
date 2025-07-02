@@ -223,6 +223,10 @@ class LassConan(ConanFile):  # type: ignore[misc]
         self.cpp.package.builddirs = [share_dir]
         self.cpp.build.builddirs = ["."]
 
+        # LassStubgen.cmake and stubgen folder are installed in share/Lass, 
+        # but in editable mode it is found in the source folder tools
+        self.cpp.source.builddirs = ["tools"]
+
         # Repeat for components
         for comp in ["lass", "lass_python"]:
             self.cpp.source.components[comp].includedirs = ["."]
