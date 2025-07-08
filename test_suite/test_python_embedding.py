@@ -1207,9 +1207,13 @@ class TestEnum(unittest.TestCase):
         self.assertEqual(list(Shape), [Shape.CIRCLE, Shape.SQUARE, Shape.TRIANGLE])
 
     def testOldFashionedEnum(self) -> None:
-        self.assertEqual(embedding.testSomeEnum(embedding.INJECTED_ENUM_VALUE), (embedding.INJECTED_ENUM_VALUE, True))
+        self.assertEqual(
+            embedding.testSomeEnum(embedding.INJECTED_ENUM_VALUE),
+            (embedding.INJECTED_ENUM_VALUE, True),
+        )
         self.assertEqual(embedding.testSomeEnum(42), (42, True))
         self.assertEqual(embedding.testSomeEnum(666), (666, False))
+
 
 class TestDatetime(unittest.TestCase):
     def testSystemClock(self) -> None:
@@ -1253,6 +1257,19 @@ class TestModuleConstants(unittest.TestCase):
         self.assertEqual(embedding.FUNCIONAL_CASTED_RED, int(embedding.Color.RED))
         self.assertEqual(embedding.INJECTED_ENUM_VALUE, 42)
         self.assertEqual(embedding.INJECTED_INT_ENUM_VALUE, 42)
+
+
+class TestNoNone(unittest.TestCase):
+    def testNoNoneBar(self) -> None:
+        bar = embedding.Bar()
+        bar2 = embedding.testNoNoneBar(bar, False)
+        self.assertIs(bar2, bar)
+
+        with self.assertRaises(TypeError):
+            embedding.testNoNoneBar(None, False)  # type: ignore[arg-type]
+
+        with self.assertRaises(TypeError):
+            embedding.testNoNoneBar(bar, True)
 
 
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])

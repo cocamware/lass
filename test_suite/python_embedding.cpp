@@ -622,6 +622,18 @@ std::variant<int, std::string> testVariant(std::variant<int, std::string> x)
 	return x;
 }
 
+using NoNoneBar = lass::python::NoNone<lass::test::TBarPtr>;
+
+NoNoneBar testNoNoneBar(const NoNoneBar& bar, bool returnNone)
+{
+	const lass::test::TBarPtr& pBar = static_cast<const lass::test::TBarPtr&>(bar);
+	LASS_ENFORCE_POINTER(pBar);
+	return returnNone
+		? lass::test::TBarPtr()
+		: pBar;
+}
+
+
 using namespace lass::test;
 
 PY_DECLARE_MODULE_DOC( embedding, "Documentation for module embedding" )
@@ -692,6 +704,8 @@ PY_MODULE_FUNCTION( embedding, testSystemClock )
 
 PY_MODULE_FUNCTION( embedding, testTuple )
 PY_MODULE_FUNCTION( embedding, testVariant )
+
+PY_MODULE_FUNCTION( embedding, testNoNoneBar )
 
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
 PY_MODULE_STRING_CONSTANT( embedding, "STRING_CONSTANT", "string constant")
