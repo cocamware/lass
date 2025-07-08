@@ -223,6 +223,7 @@ int PyExportTraits<std::nullptr_t>::get(PyObject* obj, std::nullptr_t& value)
 {
 	if (obj != Py_None)
 	{
+		PyErr_SetString(PyExc_TypeError, "must be None");
 		return 1;
 	}
 	value = nullptr;
