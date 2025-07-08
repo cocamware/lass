@@ -118,7 +118,7 @@ struct ArgumentTraitsBuiltin<const T&>: ArgumentTraitsBuiltin<T>
 template <typename T>
 struct ArgumentTraitsPyObject
 {
-	typedef impl::NoNone< typename PyObjectPtr<T>::Type > TStorage;
+	typedef python::NoNone< typename PyObjectPtr<T>::Type > TStorage;
 	static const T& arg(const TStorage& storage) { return *storage.reference(); }
 };
 
@@ -138,7 +138,7 @@ struct ArgumentTraitsPyObject<T*>
 template <typename T>
 struct ArgumentTraitsPyObject<T&>
 {
-	typedef impl::NoNone< typename PyObjectPtr<T>::Type > TStorage;
+	typedef python::NoNone< typename PyObjectPtr<T>::Type > TStorage;
 	static T& arg(const TStorage& storage) { return *storage.reference(); }
 };
 
@@ -163,7 +163,7 @@ template <typename T>
 struct ArgumentTraitsShadowee
 {
 	typedef typename ShadoweeTraits<T>::TPointerTraits TPointerTraits;
-	typedef impl::NoNone< typename TPointerTraits::TPtr > TStorage;
+	typedef python::NoNone< typename TPointerTraits::TPtr > TStorage;
 	static const T& arg(const TStorage& storage) { return *storage.reference(); }
 };
 
@@ -175,7 +175,7 @@ template <typename T>
 struct ArgumentTraitsShadowee<T&>
 {
 	typedef typename ShadoweeTraits<T>::TPointerTraits TPointerTraits;
-	typedef impl::NoNone< typename TPointerTraits::TPtr > TStorage;
+	typedef python::NoNone< typename TPointerTraits::TPtr > TStorage;
 	static T& arg(const TStorage& storage) { return *storage.reference(); }
 };
 

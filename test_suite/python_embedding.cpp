@@ -517,6 +517,10 @@ PY_DECLARE_CLASS_NAME( PyTestCallback, "TestCallback")
 	PY_CLASS_METHOD( PyTestCallback, acceptAsArgument1);
 	PY_CLASS_METHOD( PyTestCallback, acceptAsArgument2);
 
+namespace lass
+{
+namespace test
+{
 
 std::string testStdString(const std::string& v)
 {
@@ -622,6 +626,18 @@ std::variant<int, std::string> testVariant(std::variant<int, std::string> x)
 	return x;
 }
 
+python::NoNone<TBarPtr> testNoNoneBar(python::NoNone<TBarPtr> bar, bool returnNone)
+{
+	const TBarPtr& pBar = static_cast<const TBarPtr&>(bar);
+	LASS_ENFORCE_POINTER(pBar);
+	return returnNone
+		? TBarPtr()
+		: pBar;
+}
+
+}
+}
+
 using namespace lass::test;
 
 PY_DECLARE_MODULE_DOC( embedding, "Documentation for module embedding" )
@@ -692,6 +708,8 @@ PY_MODULE_FUNCTION( embedding, testSystemClock )
 
 PY_MODULE_FUNCTION( embedding, testTuple )
 PY_MODULE_FUNCTION( embedding, testVariant )
+
+PY_MODULE_FUNCTION( embedding, testNoNoneBar )
 
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
 PY_MODULE_STRING_CONSTANT( embedding, "STRING_CONSTANT", "string constant")

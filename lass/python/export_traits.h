@@ -53,6 +53,29 @@ namespace lass
 {
 namespace python
 {
+
+/** Wrapper to prevent None values in Python.
+ *	
+ *	Use this class to wrap a type T that could be None in Python (for example, a pointer type).
+ *	But you want to ensure that the value is always valid and not None.
+ *
+ *  Works in both directions: from and to Python. In case a None value is passed or returned,
+ *  it will raise a TypeError instead.
+ *	@ingroup Python
+ */
+template <typename T>
+class NoNone
+{
+public:
+	NoNone(const T& x = T()): value_(x) {}
+	T& reference() { return value_; }
+	const T& reference() const { return value_; }
+	operator T&() { return value_; }
+	operator const T&() const { return value_; }
+private:
+	T value_;
+};
+
 namespace impl
 {
 	template <typename T> struct ShadowTraits;
@@ -73,15 +96,7 @@ namespace impl
 	}
 
 	template <typename T>
-	class NoNone
-	{
-	public:
-		NoNone(const T& x = T()): value_(x) {}
-		T& reference() { return value_; }
-		const T& reference() const { return value_; }
-	private:
-		T value_;
-	};
+	using NoNone [[deprecated("lass::python::NoNone<T> instead.")]] = lass::python::NoNone<T>;
 
 	LASS_PYTHON_DLL PyObject* buildStringImpl(const char* s, size_t n);
 	LASS_PYTHON_DLL PyObject* buildStringImpl(const wchar_t* s, size_t n);
@@ -307,21 +322,64 @@ struct PyExportTraits<void*>
  *  @ingroup Python
  */
 template <typename T>
-struct PyExportTraits< impl::NoNone<T> >
+struct PyExportTraitsNoNone
 {
-	constexpr static const char* py_typing = "T"; // should be CapsuleType | None instead?
+	constexpr static const char* py_typing = "T";
 
-	static int get(PyObject* obj, impl::NoNone<T>& value)
+	static PyObject* build(const NoNone<T>& value)
+	{
+		const T& v = static_cast<const T&>(value);
+		if (!v)
+		{
+			PyErr_SetString(PyExc_TypeError, "value must be not be None");
+			return nullptr;
+		}
+		return PyExportTraits<T>::build(value);
+	}
+	static int get(PyObject* obj, NoNone<T>& value)
 	{
 		if (obj == Py_None)
 		{
 			PyErr_SetString(PyExc_TypeError, "argument must be not be None");
 			return 1;
 		}
-		return PyExportTraits<T>::get(obj, value.reference());
+		return PyExportTraits<T>::get(obj, value);
 	}
 };
 
+
+/** NoNone refuses None as value.
+ *  @ingroup Python
+ */
+template <typename T>
+struct PyExportTraits< NoNone<T> > : public PyExportTraitsNoNone<T> {};
+
+/** NoNone refuses None as value.
+ *  @ingroup Python
+ */
+template <typename T>
+struct PyExportTraits< NoNone<T*> > : public PyExportTraitsNoNone<T*>
+{
+	constexpr static const char* py_typing = "T";
+};
+
+/** NoNone refuses None as value.
+ *  @ingroup Python
+ */
+template <typename T, template <typename, typename> class S, typename C>
+struct PyExportTraits< NoNone< util::SharedPtr<T, S, C> > > : public PyExportTraitsNoNone< util::SharedPtr<T, S, C> >
+{
+	constexpr static const char* py_typing = "T";
+};
+
+/** NoNone refuses None as value.
+ *  @ingroup Python
+ */
+template <typename T>
+struct PyExportTraits< NoNone< std::shared_ptr<T> > > : public PyExportTraitsNoNone< std::shared_ptr<T> >
+{
+	constexpr static const char* py_typing = "T";
+};
 
 
 /** @ingroup Python
