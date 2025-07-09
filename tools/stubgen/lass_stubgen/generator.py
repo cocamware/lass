@@ -35,11 +35,13 @@
 #
 # *** END LICENSE INFORMATION ***
 
+from __future__ import annotations
+
 import functools
 import re
 import sys
 import textwrap
-from typing import Callable, ParamSpec, TextIO, TypeAlias, TypeVar
+from typing import Callable, NamedTuple, ParamSpec, TextIO, TypeAlias, TypeVar
 
 from .stubdata import (
     ClassDefinition,
@@ -84,8 +86,9 @@ class StubGeneratorError(Exception):
 
 
 class StubGenerator:
-    def __init__(self, stubdata: StubData) -> None:
+    def __init__(self, stubdata: StubData, *, verbose: bool = False) -> None:
         self.stubdata = stubdata
+        self.verbose = verbose
 
     @_add_note
     def write_module(
@@ -446,26 +449,9 @@ class StubGenerator:
             return _strip_scope(enum_def.fully_qualified_name, scope)
 
         if specializations := self.stubdata.export_traits.get(cpp_name):
-            # do we have a full specialization?
-            if full_specialization := specializations.get(str(cpp_type)):
-                if not full_specialization.template_params:
-                    return full_specialization.py_type
-            # do we have a partial specialization?
-            if matches := [
-                (len(export_traits.template_params), py_type)
-                for export_traits in specializations.values()
-                if (
-                    py_type := self._python_type_export_traits(
-                        cpp_type=cpp_type, export_traits=export_traits, scope=scope
-                    )
-                )
-            ]:
-                # take the one with the fewest template parameters,
-                # but make sure there's no ambiguity
-                matches.sort()
-                num_params, py_type = matches[0]
-                if len(matches) > 1:
-                    assert matches[1][0] > num_params
+            if py_type := self._match_export_traits(
+                cpp_type=cpp_type, specializations=specializations, scope=scope
+            ):
                 return py_type
 
         if py_typer := BUILTIN_TYPES.get(cpp_name):
@@ -478,21 +464,62 @@ class StubGenerator:
                 if callable(py_type_match):
                     return py_type_match(self, cpp_type.args, scope, match)
                 return py_type_match
-            
+
         if cpp_name.endswith("*"):
             # pointer to a type, strip the pointer
             cpp_type_ = TypeInfo(cpp_name[:-1].rstrip(), cpp_type.args)
             return f"{self.python_type(cpp_type_, scope=scope)} | None"
-        
+
         return cpp_name
+
+    def _match_export_traits(
+        self,
+        *,
+        cpp_type: TypeInfo,
+        specializations: dict[str, ExportTraits],
+        scope: str | None,
+    ) -> str | None:
+        # do we have a full specialization?
+        if full_specialization := specializations.get(str(cpp_type)):
+            if not full_specialization.template_params:
+                return full_specialization.py_type
+
+        # do we have a partial specialization?
+        matches = [
+            MatchedExportTraits(export_traits, *match)
+            for export_traits in specializations.values()
+            if (
+                match := self._python_type_export_traits(
+                    cpp_type=cpp_type, export_traits=export_traits, scope=scope
+                )
+            )
+        ]
+        if not matches:
+            return None
+
+        if len(matches) == 1:
+            return matches[0].py_type
+
+        best = _find_best_matches(matches)
+        if self.verbose:
+            print(f"Multiple matches for {cpp_type}:", file=sys.stderr)
+            for i, m in enumerate(matches):
+                print(
+                    f"{'*' if m in best else ' '}  {i + 1}: {m}",
+                    file=sys.stderr,
+                )
+        if len(best) > 1:
+            best_str = "\n".join(map(str, best))
+            raise StubGeneratorError(f"Ambigous matches found:\n{best_str}\n")
+        return best[0].py_type
 
     def _python_type_export_traits(
         self, *, cpp_type: TypeInfo, export_traits: ExportTraits, scope: str | None
-    ) -> str | None:
+    ) -> tuple[str, MatchedParams] | None:
         assert cpp_type.name == export_traits.cpp_type.name
 
         # match template parameters
-        matched_params: dict[str, TypeInfo | list[TypeInfo] | None] = {
+        matched_params: MatchedParams = {
             param: None for param in export_traits.template_params
         }
         if not _match_template(
@@ -511,7 +538,7 @@ class StubGenerator:
                 py_arg = self.python_type(arg, scope=scope)
                 py_type = re.sub(rf"\b{re.escape(param)}\b", py_arg, py_type)
 
-        return py_type
+        return py_type, matched_params
 
 
 def _strip_scope(fqname: str, scope: str | None) -> str:
@@ -523,10 +550,11 @@ def _strip_scope(fqname: str, scope: str | None) -> str:
     return fqname
 
 
+MatchedParams: TypeAlias = dict[str, TypeInfo | list[TypeInfo, ...] | None]
+
+
 def _match_template(
-    type_: TypeInfo | None,
-    tmpl: TypeInfo | None,
-    matched_params: dict[str, TypeInfo | list[TypeInfo] | None],
+    type_: TypeInfo | None, tmpl: TypeInfo | None, matched_params: MatchedParams
 ) -> bool:
     """
     Match a template type with a concrete type.
@@ -553,7 +581,7 @@ def _match_template(
 def _match_template_args(
     type_args: list[TypeInfo] | None,
     tmpl_args: list[TypeInfo] | None,
-    matched_params: dict[str, TypeInfo | list[TypeInfo] | None],
+    matched_params: MatchedParams,
 ) -> bool:
     """
     Match arguments of contrete type with template arguments and store the
@@ -585,9 +613,49 @@ def _match_template_args(
     return True
 
 
-def _pytype_sequence(
-    stubgen: StubGenerator, args: list[TypeInfo] | None, scope: str | None
-) -> str:
+class MatchedExportTraits(NamedTuple):
+    export_traits: ExportTraits
+    py_type: str
+    matched_params: MatchedParams
+
+    def __str__(self) -> str:
+        params = ", ".join(f"{p}={typ}" for p, typ in self.matched_params.items())
+        return f"{self.py_type} <- {self.export_traits.cpp_type} with {params}"
+
+
+def _find_best_matches(matches: list[MatchedExportTraits]) -> list[MatchedExportTraits]:
+    """
+    Find the best match for a given export traits.
+    The best match is the one with the most specific template parameters.
+    """
+    assert matches, "No matches found"
+    best = [matches[0]]
+    for match in matches[1:]:
+        new_best: list[MatchedExportTraits] = []
+        better_than_best = True
+        incomparable_with_all = True
+        for b in best:
+            if match.export_traits > b.export_traits:
+                incomparable_with_all = False
+            elif b.export_traits > match.export_traits:
+                incomparable_with_all = False
+                better_than_best = False
+                new_best.append(b)
+            else:
+                better_than_best = False
+                new_best.append(b)
+
+        if better_than_best:
+            best = [match]
+        elif incomparable_with_all:
+            best.append(match)
+        else:
+            best = new_best
+
+    return best
+
+
+def _pytype_sequence(stubgen: StubGenerator, args: TypeArgs, scope: str | None) -> str:
     assert args and len(args) >= 1, args
     element_type = stubgen.python_type(args[0], scope=scope)
     return f"Sequence[{element_type}]"

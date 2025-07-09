@@ -37,6 +37,7 @@
 
 """Generate *.pyi stubs for Lass Python bindings using libclang."""
 
+import enum
 import functools
 import multiprocessing
 import subprocess
@@ -47,6 +48,14 @@ from pathlib import Path
 from .generator import StubGenerator, StubGeneratorError
 from .parser import ParseError, Parser
 from .stubdata import DuplicateError, StrPath, StubData
+
+
+class Verbosity(enum.IntEnum):
+    """Verbosity levels for the stub generator."""
+
+    QUIET = 0
+    NORMAL = 1
+    VERBOSE = 2
 
 
 def main(
@@ -172,8 +181,21 @@ If not provided, the number of threads will be set to the number of CPU cores.""
         default=False,
         help="Add C++ signatures as comments to the generated stubs, for debugging",
     )
-    parser.add_argument(
-        "--quiet", action="store_true", default=False, help="Be less chatty"
+    verbosity = parser.add_mutually_exclusive_group()
+    verbosity.add_argument(
+        "--quiet",
+        dest="verbosity",
+        action="store_const",
+        const=Verbosity.QUIET,
+        default=Verbosity.NORMAL,
+        help="Be less chatty",
+    )
+    verbosity.add_argument(
+        "--verbose",
+        dest="verbosity",
+        action="store_const",
+        const=Verbosity.VERBOSE,
+        help="Be more chatty",
     )
     parser.add_argument(
         "--debug-connect", type=int, default=0, help="Port to connect to for debugging"
@@ -205,7 +227,7 @@ If not provided, the number of threads will be set to the number of CPU cores.""
             pch_path=args.pch_path,
             save_pch=args.save_pch,
             num_threads=args.num_threads,
-            quiet=args.quiet,
+            verbosity=args.verbosity,
             parser_type=parser_type,
         )
     except ParseError as err:
@@ -227,7 +249,7 @@ If not provided, the number of threads will be set to the number of CPU cores.""
                 stubdata,
                 output_dir=args.output_dir,
                 with_signature=args.with_signatures,
-                quiet=args.quiet,
+                verbosity=args.verbosity,
                 generator_type=generator_type,
             )
         except StubGeneratorError as err:
@@ -252,7 +274,7 @@ def parse(
     pch_path: StrPath | None = None,
     save_pch: bool = False,
     num_threads: int = 0,
-    quiet: bool = False,
+    verbosity: Verbosity = Verbosity.NORMAL,
     parser_type: type[Parser] = Parser,
 ) -> StubData:
     """
@@ -274,7 +296,7 @@ def parse(
         args=args,
         package=package,
         pch_path=pch_path,
-        quiet=quiet,
+        verbosity=verbosity,
         parser_type=parser_type,
     )
 
@@ -320,14 +342,14 @@ def _parse_file(
     args: list[str] | None,
     pch_path: StrPath | None = None,
     save_pch: bool = False,
-    quiet: bool = False,
+    verbosity: Verbosity = Verbosity.NORMAL,
     parser_type: type[Parser],
 ) -> StubData:
     try:
         if source_path.suffix == ".json":
             return StubData.load(source_path)  # this is a stubdata file, let's load it
 
-        if not quiet:
+        if verbosity >= Verbosity.NORMAL:
             print(f"Parsing {source_path}...", file=sys.stderr)
         parser = parser_type(
             package=package,
@@ -356,11 +378,11 @@ def generate(
     *,
     output_dir: StrPath | None = None,
     with_signature: bool = False,
-    quiet: bool = False,
+    verbosity: Verbosity = Verbosity.NORMAL,
     generator_type: type[StubGenerator] = StubGenerator,
 ) -> None:
     output_dir_ = Path(output_dir) if output_dir else None
-    generator = generator_type(stubdata)
+    generator = generator_type(stubdata, verbose=verbosity >= Verbosity.VERBOSE)
     for mod_def in stubdata.modules.values():
         if mod_def.imported:
             continue
@@ -369,7 +391,7 @@ def generate(
             rel_path = mod_def.fully_qualified_name.replace(".", "/")
             output_file = output_dir_ / f"{rel_path}.pyi"
             output_file.parent.mkdir(parents=True, exist_ok=True)
-            if not quiet:
+            if verbosity >= Verbosity.NORMAL:
                 print(f"Writing {output_file}...", file=sys.stderr)
             try:
                 with open(output_file, "w", encoding="utf-8") as file:
