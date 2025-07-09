@@ -55,6 +55,7 @@ from .stubdata import (
     ModuleDefinition,
     ParamInfo,
     StubData,
+    TypeArgs,
     TypeInfo,
 )
 
@@ -425,6 +426,7 @@ class StubGenerator:
             params.append("/")
         return params
 
+    @functools.cache
     def python_type(self, cpp_type: TypeInfo, *, scope: str | None) -> str:
         """Return the Python type for a given C++ type.
 
@@ -531,7 +533,7 @@ class StubGenerator:
         py_type = export_traits.py_type
         for param, arg in matched_params.items():
             assert arg is not None
-            if isinstance(arg, list):
+            if isinstance(arg, tuple):
                 py_arg = ", ".join(self.python_type(a, scope=scope) for a in arg)
                 py_type = re.sub(rf"\b{re.escape(param)}\.\.\.", py_arg, py_type)
             else:
@@ -550,7 +552,7 @@ def _strip_scope(fqname: str, scope: str | None) -> str:
     return fqname
 
 
-MatchedParams: TypeAlias = dict[str, TypeInfo | list[TypeInfo, ...] | None]
+MatchedParams: TypeAlias = dict[str, TypeInfo | tuple[TypeInfo, ...] | None]
 
 
 def _match_template(
@@ -579,9 +581,7 @@ def _match_template(
 
 
 def _match_template_args(
-    type_args: list[TypeInfo] | None,
-    tmpl_args: list[TypeInfo] | None,
-    matched_params: MatchedParams,
+    type_args: TypeArgs, tmpl_args: TypeArgs, matched_params: MatchedParams
 ) -> bool:
     """
     Match arguments of contrete type with template arguments and store the
@@ -661,18 +661,14 @@ def _pytype_sequence(stubgen: StubGenerator, args: TypeArgs, scope: str | None) 
     return f"Sequence[{element_type}]"
 
 
-def _pytype_mapping(
-    stubgen: StubGenerator, args: list[TypeInfo] | None, scope: str | None
-) -> str:
+def _pytype_mapping(stubgen: StubGenerator, args: TypeArgs, scope: str | None) -> str:
     assert args and len(args) >= 2, args
     key_type = stubgen.python_type(args[0], scope=scope)
     value_type = stubgen.python_type(args[1], scope=scope)
     return f"Mapping[{key_type}, {value_type}]"
 
 
-BuiltinTyper: TypeAlias = Callable[
-    [StubGenerator, list[TypeInfo] | None, str | None], str
-]
+BuiltinTyper: TypeAlias = Callable[[StubGenerator, TypeArgs, str | None], str]
 
 BUILTIN_TYPES: dict[str, str | BuiltinTyper] = {
     "void": "None",
@@ -694,7 +690,7 @@ BUILTIN_TYPES: dict[str, str | BuiltinTyper] = {
 }
 
 BuiltinTyperRegex: TypeAlias = Callable[
-    [StubGenerator, list[TypeInfo] | None, str | None, re.Match[str]], str
+    [StubGenerator, TypeArgs, str | None, re.Match[str]], str
 ]
 
 
