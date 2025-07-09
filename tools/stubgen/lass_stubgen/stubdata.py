@@ -739,6 +739,94 @@ class ExportTraits:
             template_params=data["template_params"],
         )
 
+    def __gt__(self, other: object) -> bool:
+        """
+        Return True if self is a more specialized partial specialization than other.
+        Return False if self is less specialized than other, *or* if they are
+        incomparable.
+        """
+        if not isinstance(other, ExportTraits):
+            return NotImplemented
+        if self.cpp_type.name != other.cpp_type.name:
+            raise ValueError(
+                "Cannot compare export traits for different types: "
+                f"{self.cpp_type.name} vs {other.cpp_type.name}"
+            )
+        if (
+            r := self._cmp_specialization(other, self.cpp_type, other.cpp_type)
+        ) is None:
+            return False  # incomparable
+        return r > 0
+
+    def __lt__(self, other: object) -> bool:
+        """
+        Return True if self is a less specialized partial specialization than other.
+        Return False if self is more specialized than other, *or* if they are
+        incomparable.
+        """
+        if not isinstance(other, ExportTraits):
+            return NotImplemented
+        if self.cpp_type.name != other.cpp_type.name:
+            raise ValueError(
+                "Cannot compare export traits for different types: "
+                f"{self.cpp_type.name} vs {other.cpp_type.name}"
+            )
+        if (
+            r := self._cmp_specialization(other, self.cpp_type, other.cpp_type)
+        ) is None:
+            return False  # incomparable
+        return r < 0
+
+    def _cmp_specialization(
+        self, other: ExportTraits, self_type: TypeInfo, other_type: TypeInfo
+    ) -> int | None:
+        """
+        Return 1 if self_type is more specific than other_type,
+        -1 if other_type is more specific than self_type,
+        and 0 if they are equal or incomparable.
+        """
+        self_is_template = (
+            self_type.args is None and self_type.name in self.template_params
+        )
+        other_is_template = (
+            other_type.args is None and other_type.name in other.template_params
+        )
+
+        # if at least one of the types is a template, we can return early
+        if self_is_template:
+            return 0 if other_is_template else -1
+        if other_is_template:
+            assert not self_is_template
+            return 1
+
+        assert not self_is_template and not other_is_template
+        if self_type.name != other_type.name:
+            return None  # incomparable types
+
+        less_specific = False
+        more_specific = False
+        assert (self_type.args is not None) == (other_type.args is not None), (
+            "Specializations for same type must have same number of args."
+        )
+        if self_type.args is not None:
+            assert other_type.args is not None
+            assert len(self_type.args) == len(other_type.args), (
+                "Specializations for same type must have same number of args."
+            )
+            for self_arg, other_arg in zip(self_type.args, other_type.args):
+                if (r := self._cmp_specialization(other, self_arg, other_arg)) is None:
+                    return None  # incomparable types
+                if r < 0:
+                    less_specific = True
+                elif r > 0:
+                    more_specific = True
+
+        if less_specific:
+            return -1
+        if more_specific:
+            return 1
+        return 0
+
 
 class DuplicateError(Exception):
     """
