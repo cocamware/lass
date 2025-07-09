@@ -967,9 +967,15 @@ class Parser:
             if cxx_base_specifier := _find_first_child(
                 node, CursorKind.CXX_BASE_SPECIFIER
             ):
-                template_ref = ensure_first_child(
-                    cxx_base_specifier, CursorKind.TEMPLATE_REF
-                )
+                try:
+                    template_ref = ensure_first_child(
+                        cxx_base_specifier,
+                        CursorKind.TEMPLATE_REF,
+                        skip=CursorKind.NAMESPACE_REF,
+                    )
+                except AssertionError:
+                    self._debug(cxx_base_specifier)
+                    raise
                 base = template_ref.referenced
                 py_type = find_py_typing(base)
         if not py_type:
@@ -1265,15 +1271,23 @@ def ensure_kind(
     return ensure_kind(children[0], kind)
 
 
-def _get_first_child(node: cindex.Cursor, kind: CursorKind) -> cindex.Cursor | None:
+def _get_first_child(
+    node: cindex.Cursor, kind: CursorKind, *, skip: CursorKind | None = None
+) -> cindex.Cursor | None:
     children = list(node.get_children())
+    if skip is not None:
+        children = [c for c in children if c.kind != skip]
     if children and children[0].kind == kind:
         return children[0]
     return None
 
 
-def ensure_first_child(node: cindex.Cursor, kind: CursorKind) -> cindex.Cursor:
+def ensure_first_child(
+    node: cindex.Cursor, kind: CursorKind, *, skip: CursorKind | None = None
+) -> cindex.Cursor:
     children = list(node.get_children())
+    if skip is not None:
+        children = [c for c in children if c.kind != skip]
     assert children, len(children)
     assert children[0].kind == kind
     return children[0]
