@@ -129,7 +129,7 @@ class Parser:
         try:
             tu = index.parse(path, args=args)
         except cindex.TranslationUnitLoadError as err:
-            raise ParseError([str(err)]) from None
+            raise ParseError(str(err)) from None
 
         errors = [
             str(diag)
@@ -1030,7 +1030,17 @@ class Parser:
             module_ref = ensure_kind(node, CursorKind.DECL_REF_EXPR)
         assert canonical_type(module_ref).spelling == "lass::python::ModuleDefinition"
         module_name = fully_qualified(module_ref.referenced)
-        return self.stubdata.modules[module_name]
+        try:
+            return self.stubdata.modules[module_name]
+        except KeyError:
+            raise ParseError(
+                rf"""Cannot find module definition for '{module_name}'.
+Make sure you add functions and other properties (with the PY_MODULE_* macros) 
+in the same source file as the module declaration (the PY_DECLARE_MODULE* macro).
+You must use the same identifier for the module in both macros, you cannot use a
+reference to a module defined in another file.
+"""
+            ) from None
 
     def _get_class_def(self, node: cindex.Cursor) -> ClassDefinition:
         """
@@ -1038,7 +1048,17 @@ class Parser:
         """
         _lassPyClassDef = ensure_only_child(node, CursorKind.DECL_REF_EXPR)
         shadow_class = self._parse_class_ref(_lassPyClassDef)
-        return self.stubdata.shadow_classes[shadow_class]
+        try:
+            return self.stubdata.shadow_classes[shadow_class]
+        except KeyError:
+            raise ParseError(
+                rf"""Cannot find class definition for '{shadow_class}'.
+Make sure you add functions and other properties (with the PY_CLASS_* macros) 
+in the same source file as the class declaration (the PY_DECLARE_CLASS* macro).
+You must use the same identifier for the class in both macros, you cannot use a
+reference to a class defined in another file.
+"""
+            ) from None
 
     def _parse_class_ref(self, node: cindex.Cursor) -> str:
         """
@@ -1144,7 +1164,9 @@ class Parser:
 
 
 class ParseError(Exception):
-    def __init__(self, errors: list[str]):
+    def __init__(self, errors: str | list[str]):
+        if isinstance(errors, str):
+            errors = [errors]
         super().__init__(errors)
         self.errors = errors
 
@@ -1208,6 +1230,8 @@ class NodeVisitor:
                 return 0
             return 1
         except BaseException as err:
+            if isinstance(err, AssertionError):
+                self.parser._debug(node)
             if node.location:
                 err.add_note(f"While parsing {node.location.file}:{node.location.line}")
             self.error = err
