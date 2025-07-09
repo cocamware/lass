@@ -650,10 +650,10 @@ class GetSetterDefinition:
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class TypeInfo:
     name: str
-    args: list[TypeInfo] | None = None
+    args: TypeArgs = None
 
     def __str__(self) -> str:
         if self.args is None:
@@ -666,8 +666,8 @@ class TypeInfo:
     @classmethod
     def fromdict(cls, data: dict[str, Any]) -> Self:
         args = data.get("args")
-        if args:
-            args = [TypeInfo.fromdict(arg) for arg in args]
+        if args is not None:
+            args = tuple(cls.fromdict(arg) for arg in args)
         return cls(
             name=data["name"],
             args=args,
@@ -688,8 +688,11 @@ class TypeInfo:
             return TypeInfo(f"{tmpl_arg}...")
         if self.args is None:
             return self
-        args = [arg.substitute(template_args) for arg in self.args]
+        args = tuple(arg.substitute(template_args) for arg in self.args)
         return TypeInfo(self.name, args)
+
+
+TypeArgs: TypeAlias = tuple[TypeInfo, ...] | None
 
 
 class ParamInfo(NamedTuple):

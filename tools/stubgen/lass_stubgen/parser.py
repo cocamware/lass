@@ -648,7 +648,7 @@ class Parser:
             )
             t_params_type = type_info(t_params_ref)
 
-            t_params_args = t_params_type.args or []
+            t_params_args = t_params_type.args or tuple()
             cpp_params = [ParamInfo("", arg) for arg in t_params_args]
             cpp_signature = f"void ({', '.join(map(str, t_params_args))})"
 
@@ -1431,7 +1431,9 @@ def type_info(node_or_type: cindex.Cursor | cindex.Type) -> TypeInfo:
 
     num_args = type_.get_num_template_arguments()
     if num_args >= 0:
-        args = [type_info(type_.get_template_argument_type(i)) for i in range(num_args)]
+        args = tuple(
+            type_info(type_.get_template_argument_type(i)) for i in range(num_args)
+        )
     else:
         args = None
 
