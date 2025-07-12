@@ -243,9 +243,9 @@ function(Lass_generate_stubs target)
 	get_target_property(pch "${target}" PRECOMPILE_HEADERS)
 	if (pch)
 		if(MSVC_IDE)
-  			set(src_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir/$<CONFIG>/cmake_pch.hxx")
+			set(src_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir/$<CONFIG>/cmake_pch.hxx")
 		else()
-  			set(src_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir/cmake_pch.hxx")
+			set(src_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir/cmake_pch.hxx")
 		endif()
 		set(pch_path "${_stubs_dir}/cmake_pch.hxx.pch")
 		set(pch_path_arg "--pch-path=${pch_path}")
@@ -276,28 +276,28 @@ function(Lass_generate_stubs target)
 					"-B"
 					"${_STUBGEN}"
 					"@${args_file}"
-			DEPENDS "${src_file}" "${args_file}" "${upstream_dependencies}"
+			DEPENDS "${src_file}" "${args_file}"
 			DEPFILE "${depfile}"
 			COMMENT "Precompiling ${src_file}"
 			WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 			COMMAND_EXPAND_LISTS
 			VERBATIM
 		)
-		set(upstream_dependencies "${pch_path}")
 		if (MSVC)
 			# MSBuild can't handle very well parallel execution of custom commands
 			# that all depend on the same PCH file. Create an intermediate target
 			# as workaround.
 			set(pch_target "${target}_stubs_pch")
 			add_custom_target("${pch_target}" ALL DEPENDS
-				"${pch_path}"
+				"${pch_path}" ${upstream_dependencies}
 			)
 			set_target_properties("${pch_target}" PROPERTIES
 				FOLDER "LassStubgen"
 			)
-			list(APPEND upstream_dependencies "${pch_target}")
+			set(upstream_dependencies "${pch_target}")
 		endif()
 	else()
+		set(pch_path)
 		set(pch_path_arg)
 	endif()
 	
@@ -342,7 +342,7 @@ function(Lass_generate_stubs target)
 					"-B"
 					"${_STUBGEN}"
 					"@${args_file}"
-			DEPENDS "${src_file}" "${args_file}" "${upstream_dependencies}"
+			DEPENDS "${src_file}" "${args_file}" "${pch_path}"
 			DEPFILE "${depfile}"
 			COMMENT "Extracting Python stubs: ${src_file}"
 			WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -380,7 +380,7 @@ function(Lass_generate_stubs target)
 			"-B"
 			"${_STUBGEN}"
 			"@${args_file}"
-		DEPENDS ${intermediate_stubdata} ${_IMPORT} 
+		DEPENDS ${intermediate_stubdata} ${_IMPORT} ${upstream_dependencies}
 		BYPRODUCTS "${_EXPORT}"
 		COMMENT "Generating Python stubs for ${target}..."
 		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
