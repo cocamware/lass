@@ -83,6 +83,8 @@ include(cmake/Environment.cmake)
 
 if (Lass_WITH_STUBGEN)
 	include(tools/LassStubgen.cmake)
+	# Custum venv location, so we can reuse it across builds
+	set(LASS_STUBGEN_VENV "${Lass_SOURCE_DIR}/${LASS_STUBGEN_VENV_NAME}")
 endif()
 
 
