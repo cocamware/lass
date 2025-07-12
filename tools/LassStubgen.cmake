@@ -80,7 +80,9 @@ Module Functions
 
 set(LASS_STUBGEN "${CMAKE_CURRENT_LIST_DIR}/stubgen/lass_stubgen")
 
-set(_Lass_stubgen_venv "${CMAKE_BINARY_DIR}/.venv-lass-stubgen")
+set(LASS_STUBGEN_VENV_NAME ".venv-lass-stubgen-${Python_SOABI}")
+set(LASS_STUBGEN_VENV "${CMAKE_BINARY_DIR}/${LASS_STUBGEN_VENV_NAME}")
+
 set(_Lass_stubgen_requirement "${CMAKE_CURRENT_LIST_DIR}/stubgen/requirements.txt")
 set(_Lass_stubgen_pythonpath "${CMAKE_CURRENT_LIST_DIR}/stubgen")
 
@@ -192,18 +194,17 @@ function(Lass_generate_stubs target)
 
 	# Create virtual environment to run stubgen
 	if (WIN32)
-		set(_venv_python "${_Lass_stubgen_venv}/Scripts/python.exe")
+		set(_venv_python "${LASS_STUBGEN_VENV}/Scripts/python.exe")
 	else()
-		set(_venv_python "${_Lass_stubgen_venv}/bin/python")
+		set(_venv_python "${LASS_STUBGEN_VENV}/bin/python")
 	endif()
 	_Lass_get_base_prefix("${Python_EXECUTABLE}" _base_prefix)
 	_Lass_get_base_prefix("${_venv_python}" _venv_base_prefix)
 	if (NOT (_base_prefix STREQUAL _venv_base_prefix))
-		message(STATUS "Creating venv for Lass stubgen: ${_Lass_stubgen_venv}...")
-		_Lass_checked_process("${Python_EXECUTABLE}" -m venv "--clear" "${_Lass_stubgen_venv}"
-		)
+		message(STATUS "Creating venv for Lass stubgen: ${LASS_STUBGEN_VENV}...")
+		_Lass_checked_process("${Python_EXECUTABLE}" -m venv "--clear" "${LASS_STUBGEN_VENV}")
 	endif()
-	set(_stamp_file "${_Lass_stubgen_venv}/.stamp")
+	set(_stamp_file "${LASS_STUBGEN_VENV}/.stamp")
 	if(EXISTS "${_stamp_file}")
 		file(READ "${_stamp_file}" _stamp_clang_version)
 	else()
@@ -212,7 +213,7 @@ function(Lass_generate_stubs target)
 	if (("${_Lass_stubgen_requirement}" IS_NEWER_THAN "${_stamp_file}")
 		OR (NOT libclang_version STREQUAL _stamp_clang_version)
 		)
-		message(STATUS "Updating venv for Lass stubgen: ${_Lass_stubgen_venv}...")
+		message(STATUS "Updating venv for Lass stubgen: ${LASS_STUBGEN_VENV}...")
 		_Lass_checked_process(
 			"${_venv_python}" -m pip install 
 			"clang~=${_libclang_major_minor}.0"
