@@ -50,6 +50,11 @@ Lass uses the CMake build system.
     option. It dramatically improves performance of a *Debug* build, but it
     is not ABI compatibily with binaries that don't use this setting. So, it is
     `OFF` by default.
+-   **`Lass_WITH_STUBGEN`** (`BOOL`): Generate Python *.pyi stubs and add
+    `lass_stubgen` and `LassStubgen.cmake` to the installation.
+    `ON` if Python version >= 3.10 and libclang(.dll|.so) can be found.
+-   **`Lass_LIBCLANG_LIBRARY`**(`FILEPATH`): Override the full path to the
+    libclang library to be used to generate the Python *.pyi stubs.
 
 ### Generic options
 

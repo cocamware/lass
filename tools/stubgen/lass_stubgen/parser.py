@@ -76,6 +76,7 @@ class Parser:
         args: list[str] | None = None,
         object_files_map: dict[str, Path] | None = None,
         pch_path: StrPath | None = None,
+        libclang_library: StrPath | None = None,
     ) -> None:
         self.stubdata = StubData(package=package)
         self.include_dirs = include_dirs or []
@@ -84,6 +85,9 @@ class Parser:
         self.args = args or []
         self.object_files_map = object_files_map or {}
         self.pch_path = pch_path
+
+        if libclang_library:
+            cindex.Config.set_library_file(str(libclang_library))
 
         self._handlers = {
             "ModuleDefinition": self._handle_declare_module,

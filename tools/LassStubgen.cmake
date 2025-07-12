@@ -19,13 +19,14 @@ Module Functions
       [PACKAGE <package>]
       [EXPORT <json-file>]
       [IMPORT <json-files>...]
+	  [PARSE_ONLY]
+	  [SYSTEM_INCLUDE_DIRECTORIES <dirs>...]
       [WITH_SIGNATURES]
+      [STUBGEN <stubgen-script>]
       )
 
-  The ``android_add_test_data`` function is used to copy files and libraries
-  needed to run project-specific tests. On the host operating system, this is
-  done at build time. For on-device testing, the files are loaded onto the
-  device by the manufactured test at run time.
+  The ``Lass_generate_stubs`` extracts Python stubs from the C++ code of the target
+  exporting Lass Python bindings, and generates *.pyi files for the  exported modules.
 
   This function accepts the following named parameters:
 
@@ -57,6 +58,14 @@ Module Functions
   ``STUBGEN <stubgen-script>``
     Path to to custom stubgen script (advanced usage).
 
+  It requires the libclang(.dll|.so) library to be available, and ideally also the
+  Clang system include directories. ``Lass_generate_stubs`` will try to find the
+  libclang library automatically in the Visual Studio installation or on the system,
+  but you can override it with the following cache variables:
+
+  ``Lass_LIBCLANG_LIBRARY``
+    Full path to the libclang(.dll|.so) library to be used.
+
 #]======================================================================]
 
 set(LASS_STUBGEN "${CMAKE_CURRENT_LIST_DIR}/stubgen/lass_stubgen")
@@ -65,6 +74,7 @@ set(_Lass_stubgen_venv "${CMAKE_BINARY_DIR}/.venv-lass-stubgen")
 set(_Lass_stubgen_requirement "${CMAKE_CURRENT_LIST_DIR}/stubgen/requirements.txt")
 set(_Lass_stubgen_pythonpath "${CMAKE_CURRENT_LIST_DIR}/stubgen")
 
+include("${CMAKE_CURRENT_LIST_DIR}/LassClang.cmake")
 
 function(Lass_generate_stubs target)
 	if (CMAKE_VERSION VERSION_LESS 3.21)
@@ -135,6 +145,17 @@ function(Lass_generate_stubs target)
 		set(_STUBGEN "${LASS_STUBGEN}")
 	endif()
 
+	# Find libclang library
+	Lass_find_libclang(libclang_library libclang_version)
+	if (NOT libclang_library)
+		message(FATAL_ERROR "Lass_generate_stubs requires a valid libclang library. Please set Lass_LIBCLANG_LIBRARY.")
+	endif()
+	if (libclang_version MATCHES "^([0-9]+\\.[0-9]+)\\.")
+		set(_libclang_major_minor "${CMAKE_MATCH_1}")
+	else()
+		message(FATAL_ERROR "Lass_generate_stubs: libclang version '${libclang_version}' does not match expected format 'X.Y.Z'.")
+	endif()
+
 	# Create virtual environment to run stubgen
 	if (WIN32)
 		set(_venv_python "${_Lass_stubgen_venv}/Scripts/python.exe")
@@ -149,11 +170,20 @@ function(Lass_generate_stubs target)
 		)
 	endif()
 	set(_stamp_file "${_Lass_stubgen_venv}/.stamp")
-	if ("${_Lass_stubgen_requirement}" IS_NEWER_THAN "${_stamp_file}")
+	if(EXISTS "${_stamp_file}")
+		file(READ "${_stamp_file}" _stamp_clang_version)
+	else()
+		set(_stamp_clang_version "0.0.0")
+	endif()
+	if (("${_Lass_stubgen_requirement}" IS_NEWER_THAN "${_stamp_file}")
+		OR (NOT libclang_version STREQUAL _stamp_clang_version)
+		)
 		message(STATUS "Updating venv for Lass stubgen: ${_Lass_stubgen_venv}...")
-		_Lass_checked_process("${_venv_python}" -m pip install --upgrade pip)
-		_Lass_checked_process("${_venv_python}" -m pip install --requirement "${_Lass_stubgen_requirement}")
-		file(TOUCH "${_stamp_file}")
+		_Lass_checked_process(
+			"${_venv_python}" -m pip install 
+			"clang~=${_libclang_major_minor}.0"
+			--requirement "${_Lass_stubgen_requirement}")
+		file(WRITE "${_stamp_file}" "${libclang_version}")
 	endif()
 
 	set (_preamble "${CMAKE_COMMAND}" -E env "PYTHONPATH=${_Lass_stubgen_pythonpath}")
@@ -222,6 +252,7 @@ function(Lass_generate_stubs target)
 			"${cxx_standard}"
 			"${_package}"
 			"${pch_path_arg}"
+			"--libclang-library=${libclang_library}"
 			"--save-pch"
 			"--depfile=${depfile}"
 			"--parse-only"
@@ -287,6 +318,7 @@ function(Lass_generate_stubs target)
 			"--export=${output_json}"
 			"--depfile=${depfile}"
 			"${pch_path_arg}"
+			"--libclang-library=${libclang_library}"
 			"--parse-only"
 			"--num-threads=1"
 			"--quiet"

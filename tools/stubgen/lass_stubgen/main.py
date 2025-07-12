@@ -168,6 +168,11 @@ This option can be used multiple times to import multiple JSON files.""",
             data normally. Must be used with --pch-path.""",
     )
     parser.add_argument(
+        "--libclang-library",
+        type=str,
+        help="Override the libclang(.dll|.so) runtime library to use.",
+    )
+    parser.add_argument(
         "--num-threads",
         metavar="<num-threads>",
         type=int,
@@ -226,6 +231,7 @@ If not provided, the number of threads will be set to the number of CPU cores.""
             depfile=args.depfile,
             pch_path=args.pch_path,
             save_pch=args.save_pch,
+            libclang_library=args.libclang_library,
             num_threads=args.num_threads,
             verbosity=args.verbosity,
             parser_type=parser_type,
@@ -273,6 +279,7 @@ def parse(
     depfile: StrPath | None = None,
     pch_path: StrPath | None = None,
     save_pch: bool = False,
+    libclang_library: StrPath | None = None,
     num_threads: int = 0,
     verbosity: Verbosity = Verbosity.NORMAL,
     parser_type: type[Parser] = Parser,
@@ -296,6 +303,7 @@ def parse(
         args=args,
         package=package,
         pch_path=pch_path,
+        libclang_library=libclang_library,
         verbosity=verbosity,
         parser_type=parser_type,
     )
@@ -342,6 +350,7 @@ def _parse_file(
     args: list[str] | None,
     pch_path: StrPath | None = None,
     save_pch: bool = False,
+    libclang_library: StrPath | None = None,
     verbosity: Verbosity = Verbosity.NORMAL,
     parser_type: type[Parser],
 ) -> StubData:
@@ -358,6 +367,7 @@ def _parse_file(
             defines=defines,
             args=args,
             pch_path=pch_path,
+            libclang_library=libclang_library,
         )
         parser.parse(source_path, save_pch=save_pch)
         stubdata = parser.stubdata

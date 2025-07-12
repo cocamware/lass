@@ -10,6 +10,8 @@ if (Lass_WITH_STUBGEN)
 	install(
 		FILES
 			"LassStubgen.cmake"
+			"LassClang.cmake"
+			"_get_libclang_version.py"
 		DESTINATION share/Lass
 	)
 

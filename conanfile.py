@@ -223,7 +223,7 @@ class LassConan(ConanFile):  # type: ignore[misc]
         self.cpp.package.builddirs = [share_dir]
         self.cpp.build.builddirs = ["."]
 
-        # LassStubgen.cmake and stubgen folder are installed in share/Lass, 
+        # LassStubgen.cmake and stubgen folder are installed in share/Lass,
         # but in editable mode it is found in the source folder tools
         self.cpp.source.builddirs = ["tools"]
 
@@ -251,7 +251,11 @@ class LassConan(ConanFile):  # type: ignore[misc]
         tc.cache_variables["Lass_HAVE_AVX"] = self.options.get_safe("have_avx", False)
         if self.options.with_stubgen != "auto":
             tc.cache_variables["Lass_WITH_STUBGEN"] = self.options.with_stubgen
-        if (build_folder := self.conf.get("tools.cmake.cmake_layout:build_folder")) and build_folder != "build":
+        if libclang := self.conf.get("user.lass:libclang_library"):
+            tc.cache_variables["Lass_LIBCLANG_LIBRARY"] = libclang
+        if (
+            build_folder := self.conf.get("tools.cmake.cmake_layout:build_folder")
+        ) and build_folder != "build":
             tc.presets_prefix = build_folder
         tc.generate()
 
