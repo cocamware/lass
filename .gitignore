@@ -5,6 +5,7 @@
 # ignore virtual environments
 /venv*/
 /env*/
+/.venv*/
 
 # ignore pyc artifacts
 __pycache__/
