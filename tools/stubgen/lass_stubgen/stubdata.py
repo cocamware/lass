@@ -655,6 +655,22 @@ class TypeInfo:
     name: str
     args: TypeArgs = None
 
+    @property
+    def is_pointer(self) -> bool:
+        return self.name.endswith("*")
+    
+    @property
+    def base_name(self) -> str:
+        if self.is_pointer:
+            return self.name[:-1].rstrip()
+        return self.name
+    
+    @property
+    def base_type(self) -> TypeInfo:
+        if self.is_pointer:
+            return TypeInfo(self.base_name, self.args)
+        return self
+
     def __str__(self) -> str:
         if self.args is None:
             return self.name
@@ -680,6 +696,10 @@ class TypeInfo:
         if tmpl_arg := template_args.get(self.name):
             assert not self.args
             return TypeInfo(tmpl_arg) if isinstance(tmpl_arg, str) else tmpl_arg
+        if self.is_pointer and (tmpl_arg := template_args.get(self.base_name)):
+            assert not self.args
+            assert isinstance(tmpl_arg, str)
+            return TypeInfo(f"{tmpl_arg} *")
         if self.name.endswith("..."):
             # this is a variadic template
             assert self.args is None
@@ -789,15 +809,24 @@ class ExportTraits:
         and 0 if they are equal or incomparable.
         """
         self_is_template = (
-            self_type.args is None and self_type.name in self.template_params
+            self_type.args is None and self_type.base_name in self.template_params
         )
         other_is_template = (
-            other_type.args is None and other_type.name in other.template_params
+            other_type.args is None and other_type.base_name in other.template_params
         )
 
         # if at least one of the types is a template, we can return early
         if self_is_template:
-            return 0 if other_is_template else -1
+            if not other_is_template:
+                return -1 # other is more specific
+            # both are templates, but are they equally specific?
+            if self_type.is_pointer:
+                if other_type.is_pointer:
+                    return 0
+                return 1 # self is more specific
+            elif other_type.is_pointer:
+                return -1 # other is more specific
+            return 0
         if other_is_template:
             assert not self_is_template
             return 1

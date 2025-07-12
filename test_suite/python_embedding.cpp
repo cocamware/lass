@@ -635,6 +635,28 @@ python::NoNone<TBarPtr> testNoNoneBar(python::NoNone<TBarPtr> bar, bool returnNo
 		: pBar;
 }
 
+class RawType
+{
+public:
+	RawType() = default;
+	num::TuintPtr address() const { return reinterpret_cast<num::TuintPtr>(this); }
+};
+
+python::NoNone<RawType*> rawPointer()
+{
+	static RawType raw;
+	return &raw;
+}
+
+python::NoNone<RawType*> testNoNoneRaw(python::NoNone<RawType*> bar, bool returnNone)
+{
+	RawType* pBar = static_cast<RawType*>(bar);
+	LASS_ENFORCE_POINTER(pBar);
+	return returnNone
+		? nullptr
+		: pBar;
+}
+
 }
 }
 
@@ -710,6 +732,14 @@ PY_MODULE_FUNCTION( embedding, testTuple )
 PY_MODULE_FUNCTION( embedding, testVariant )
 
 PY_MODULE_FUNCTION( embedding, testNoNoneBar )
+
+PY_SHADOW_CLASS_PTRTRAITS(LASS_DLL_EXPORT, PyRawType, lass::test::RawType, lass::python::NakedPointerTraits)
+PY_SHADOW_CASTERS(PyRawType)
+PY_DECLARE_CLASS_NAME(PyRawType, "RawType")
+PY_CLASS_MEMBER_R(PyRawType, address)
+PY_MODULE_CLASS(embedding, PyRawType)
+PY_MODULE_FUNCTION(embedding, rawPointer)
+PY_MODULE_FUNCTION(embedding, testNoNoneRaw)
 
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
 PY_MODULE_STRING_CONSTANT( embedding, "STRING_CONSTANT", "string constant")

@@ -755,11 +755,11 @@ class Parser:
 
     def _self_type(self, param: tuple[str, TypeInfo]) -> TypeInfo:
         _, self_type = param
+        if self_type.is_pointer:
+            self_type = self_type.base_type
         if self_type.name == "lass::util::SharedPtr":
             assert self_type.args
             self_type = self_type.args[0]
-        if self_type.name.endswith("*"):
-            self_type = TypeInfo(self_type.name[:-1].rstrip(), self_type.args)
         return self_type
 
     def _handle_class_add_static_method(self, node: cindex.Cursor) -> bool:

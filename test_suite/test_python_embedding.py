@@ -1271,6 +1271,17 @@ class TestNoNone(unittest.TestCase):
         with self.assertRaises(TypeError):
             embedding.testNoNoneBar(bar, True)
 
+    def testNoNoneRaw(self) -> None:
+        raw = embedding.rawPointer()
+        raw2 = embedding.testNoNoneRaw(raw, False)
+        self.assertEqual(raw2.address, raw.address)
+
+        with self.assertRaises(TypeError):
+            embedding.testNoNoneRaw(None, False)  # type: ignore[arg-type]
+
+        with self.assertRaises(TypeError):
+            embedding.testNoNoneRaw(raw, True)
+
 
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
 testRunner = unittest.TextTestRunner(verbosity=2)
