@@ -397,7 +397,6 @@ class Parser:
                 value_ref = ensure_kind(args[1], CursorKind.DECL_REF_EXPR)
                 value_decl = value_ref.referenced
                 assert value_decl.kind == CursorKind.ENUM_CONSTANT_DECL
-                _ensure_only_child_recursive(value_decl, CursorKind.INTEGER_LITERAL)
                 value = int(value_decl.enum_value)
             elif value_py_type == "str":
                 # first argument is the cpp value, which we ignore
