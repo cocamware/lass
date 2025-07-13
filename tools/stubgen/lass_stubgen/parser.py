@@ -495,11 +495,11 @@ class Parser:
 
         module_def = self._parse_module_ref(children[0])
 
-        cpp_type, value = self._parse_constant(children[1])
+        _, value = self._parse_constant(children[1])
         py_name = self._parse_name(children[2])
 
         module_def.add_constant(
-            ConstDefinition(py_name=py_name, cpp_type=cpp_type, value=value)
+            ConstDefinition(py_name=py_name, cpp_type=TypeInfo("int"), value=value)
         )
         return True
 
@@ -512,11 +512,11 @@ class Parser:
             return False
         module_def = self._parse_module_ref(children[0])
 
-        cpp_type, value = self._parse_constant(children[1])
+        _, value = self._parse_constant(children[1])
         py_name = self._parse_name(children[2])
 
         module_def.add_constant(
-            ConstDefinition(py_name=py_name, cpp_type=cpp_type, value=value)
+            ConstDefinition(py_name=py_name, cpp_type=TypeInfo("str"), value=value)
         )
         return True
 

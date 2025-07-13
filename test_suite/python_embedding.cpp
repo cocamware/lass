@@ -78,6 +78,11 @@ enum Color
 	BLUE = 3,
 };
 
+enum UnexportedEnum
+{
+	SOME_CONSTANT = 50,
+};
+
 int test()
 {
 	int b = lass::python::impl::ShadowTraits< int >::isShadow ;
@@ -744,6 +749,7 @@ PY_MODULE_FUNCTION(embedding, testNoNoneRaw)
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
 PY_MODULE_STRING_CONSTANT( embedding, "STRING_CONSTANT", "string constant")
 PY_MODULE_INTEGER_CONSTANT( embedding, "INTEGER_CONSTANT", 42)
+PY_MODULE_INTEGER_CONSTANT( embedding, "SOME_CONSTANT", SOME_CONSTANT)
 
 PY_MODULE_ENUM( embedding, lass::test::Color )
 PY_MODULE_FUNCTION( embedding, passColor )
