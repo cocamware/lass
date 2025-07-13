@@ -55,6 +55,9 @@ Lass uses the CMake build system.
     `ON` if Python version >= 3.10 and libclang(.dll|.so) can be found.
 -   **`Lass_LIBCLANG_LIBRARY`**(`FILEPATH`): Override the full path to the
     libclang library to be used to generate the Python *.pyi stubs.
+-   **`Lass_LIBCLANG_SYSTEM_INCLUDE_DIR`**(`PATH`): Override the Clang system
+    include directory to be used to generate the Python *.pyi stubs. This typically
+    is `"${Lass_LIBCLANG_LIBRARY}/../lib/clang/<version>/include"`.
 
 ### Generic options
 

@@ -1,9 +1,10 @@
 set(_Lass_get_libclang_version_py "${CMAKE_CURRENT_LIST_DIR}/_get_libclang_version.py")
 
-function(Lass_find_libclang libclang_library libclang_version)
-	if (Lass_LIBCLANG_LIBRARY AND _Lass_LIBCLANG_VERSION)
+function(Lass_find_libclang libclang_library libclang_version libclang_system_include_dir)
+	if (Lass_LIBCLANG_LIBRARY AND _Lass_LIBCLANG_VERSION AND Lass_LIBCLANG_SYSTEM_INCLUDE_DIR)
 		set(${libclang_library} "${Lass_LIBCLANG_LIBRARY}" PARENT_SCOPE)
 		set(${libclang_version} "${_Lass_LIBCLANG_VERSION}" PARENT_SCOPE)
+		set(${libclang_system_include_dir} "${Lass_LIBCLANG_SYSTEM_INCLUDE_DIR}" PARENT_SCOPE)
 		return()
 	endif()
 
@@ -94,12 +95,37 @@ function(Lass_find_libclang libclang_library libclang_version)
 	endif()
 
 	if (Lass_LIBCLANG_LIBRARY AND _Lass_LIBCLANG_VERSION)
+		# On Windows, libclang.dll resides in the bin directory, so we need to go up an extra level
+		get_filename_component(_parent "${Lass_LIBCLANG_LIBRARY}" DIRECTORY)
+		get_filename_component(_root "${_parent}" DIRECTORY)
+		
+		if (_Lass_LIBCLANG_VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)")
+			set(_major "${CMAKE_MATCH_1}")
+			set(_minor "${CMAKE_MATCH_2}")
+			set(_patch "${CMAKE_MATCH_3}")
+
+			find_path(Lass_LIBCLANG_SYSTEM_INCLUDE_DIR
+				NAMES stddef.h
+				PATHS 
+					"${_root}/lib/clang/${_major}.${_minor}.${_patch}/include"
+					"${_root}/lib/clang/${_major}.${_minor}/include"
+					"${_root}/lib/clang/${_major}/include"
+				NO_DEFAULT_PATH
+			)
+		else()
+			set(_Lass_LIBCLANG_VERSION "_Lass_LIBCLANG_VERSION-NOTFOUND" CACHE INTERNAL "Version of libclang" FORCE)
+		endif()
+	endif()
+
+	if (Lass_LIBCLANG_LIBRARY AND _Lass_LIBCLANG_VERSION AND Lass_LIBCLANG_SYSTEM_INCLUDE_DIR)
 		message(STATUS "Looking for libclang - found: ${_Lass_LIBCLANG_VERSION}")
 		set(${libclang_library} "${Lass_LIBCLANG_LIBRARY}" PARENT_SCOPE)
 		set(${libclang_version} "${_Lass_LIBCLANG_VERSION}" PARENT_SCOPE)
+		set(${libclang_system_include_dir} "${Lass_LIBCLANG_SYSTEM_INCLUDE_DIR}" PARENT_SCOPE)
 	else()
 		message(STATUS "Looking for libclang - not found")
 		set(${libclang_library} "" PARENT_SCOPE)
 		set(${libclang_version} "" PARENT_SCOPE)
+		set(${libclang_system_include_dir} "" PARENT_SCOPE)
 	endif()
 endfunction()

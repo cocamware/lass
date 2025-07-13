@@ -65,6 +65,16 @@ Module Functions
 
   ``Lass_LIBCLANG_LIBRARY``
     Full path to the libclang(.dll|.so) library to be used.
+  ``Lass_LIBCLANG_SYSTEM_INCLUDE_DIR``
+    Full path to the Clang system include directory, typically
+    ``"${Lass_LIBCLANG_LIBRARY}/../lib/clang/<version>/include"``.
+    If found or set, this directory will be prepended to the compiler's system include
+    directories.
+    If not found or set, only the compiler's system include directories will be used,
+    which _may_ be sufficient if no intrinsics are used in the bindings.
+    If the ``SYSTEM_INCLUDE_DIRECTORIES`` option is used, then both the
+    ``Lass_LIBCLANG_SYSTEM_INCLUDE_DIR`` and compiler's system include directories are
+    ignored and not used.
 
 #]======================================================================]
 
@@ -133,9 +143,6 @@ function(Lass_generate_stubs target)
 	foreach(import ${_IMPORT})
 		set(_imports "--import=${import}")
 	endforeach()
-	if(NOT _SYSTEM_INCLUDE_DIRECTORIES)
-		set(_SYSTEM_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
-	endif()
 	if(_WITH_SIGNATURES)
 		set(_with_signatures "--with-signatures")
 	else()
@@ -146,7 +153,7 @@ function(Lass_generate_stubs target)
 	endif()
 
 	# Find libclang library
-	Lass_find_libclang(libclang_library libclang_version)
+	Lass_find_libclang(libclang_library libclang_version libclang_system_include_dir)
 	if (NOT libclang_library)
 		message(FATAL_ERROR "Lass_generate_stubs requires a valid libclang library. Please set Lass_LIBCLANG_LIBRARY.")
 	endif()
@@ -154,6 +161,10 @@ function(Lass_generate_stubs target)
 		set(_libclang_major_minor "${CMAKE_MATCH_1}")
 	else()
 		message(FATAL_ERROR "Lass_generate_stubs: libclang version '${libclang_version}' does not match expected format 'X.Y.Z'.")
+	endif()
+
+	if(NOT _SYSTEM_INCLUDE_DIRECTORIES)
+		set(_SYSTEM_INCLUDE_DIRECTORIES ${libclang_system_include_dir} ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 	endif()
 
 	# Create virtual environment to run stubgen
@@ -209,11 +220,7 @@ function(Lass_generate_stubs target)
 	set(_includes "$<TARGET_PROPERTY:${target},INCLUDE_DIRECTORIES>")
 	set(includes "$<$<BOOL:${_includes}>:-I$<JOIN:${_includes},;-I>>")
 
-	if(_SYSTEM_INCLUDE_DIRECTORIES)
-		set(system_includes "$<$<BOOL:${_SYSTEM_INCLUDE_DIRECTORIES}>:-isystem;$<JOIN:${_SYSTEM_INCLUDE_DIRECTORIES},;-isystem;>>")
-	else()
-		set(system_includes)
-	endif()
+	set(system_includes "$<$<BOOL:${_SYSTEM_INCLUDE_DIRECTORIES}>:-isystem;$<JOIN:${_SYSTEM_INCLUDE_DIRECTORIES},;-isystem;>>")
 
 	# Scan the dependencies of target, and see which ones also have stubs
 	# add them as imports to this stubgen command
