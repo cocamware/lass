@@ -677,6 +677,7 @@ BuiltinTyper: TypeAlias = Callable[[StubGenerator, TypeArgs, str | None], str]
 
 BUILTIN_TYPES: dict[str, str | BuiltinTyper] = {
     "void": "None",
+    "_object *": "Any",
     "std::vector": _pytype_sequence,
     "std::list": _pytype_sequence,
     "std::deque": _pytype_sequence,

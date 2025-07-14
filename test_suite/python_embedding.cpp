@@ -662,6 +662,11 @@ python::NoNone<RawType*> testNoNoneRaw(python::NoNone<RawType*> bar, bool return
 		: pBar;
 }
 
+lass::python::TPyObjPtr testRawPyObject(PyObject* obj)
+{
+	return lass::python::fromNakedToSharedPtrCast<PyObject>(obj);
+}
+
 }
 }
 
@@ -737,6 +742,7 @@ PY_MODULE_FUNCTION( embedding, testTuple )
 PY_MODULE_FUNCTION( embedding, testVariant )
 
 PY_MODULE_FUNCTION( embedding, testNoNoneBar )
+PY_MODULE_FUNCTION(embedding, testRawPyObject)
 
 PY_SHADOW_CLASS_PTRTRAITS(LASS_DLL_EXPORT, PyRawType, lass::test::RawType, lass::python::NakedPointerTraits)
 PY_SHADOW_CASTERS(PyRawType)

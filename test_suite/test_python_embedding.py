@@ -1283,6 +1283,13 @@ class TestNoNone(unittest.TestCase):
             embedding.testNoNoneRaw(raw, True)
 
 
+class TestRawPointer(unittest.TestCase):
+    def testRawPyObject(self) -> None:
+        x = [1, 2, 3]
+        y = embedding.testRawPyObject(x)
+        self.assertIs(y, x)
+
+
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
 testRunner = unittest.TextTestRunner(verbosity=2)
 result = testRunner.run(test)
