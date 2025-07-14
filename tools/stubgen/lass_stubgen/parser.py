@@ -41,7 +41,7 @@ import re
 import sysconfig
 from collections.abc import Collection, Iterator
 from pathlib import Path
-from typing import NamedTuple, cast
+from typing import Any, NamedTuple, cast
 
 from clang import cindex  # type: ignore
 from clang.cindex import AccessSpecifier, CursorKind, TypeKind  # type: ignore
@@ -1206,9 +1206,25 @@ class NodeVisitor:
         self.parser = parser
         self.error: BaseException | None = None
         self._handlers = parser._handlers
-        self._visitor_cb = cindex.callbacks["cursor_visit"](self.visit_node)
         self._clang_visitChildren = cindex.conf.lib.clang_visitChildren
-        self._clang_getCursorSpelling = cindex.conf.lib.clang_getCursorSpelling
+
+        if cursor_visit_callback := getattr(cindex, "cursor_visit_callback", None):
+            # clang >= 20
+            self._visitor_cb = cursor_visit_callback(self.visit_node)
+
+            def _clang_getCursorSpelling(
+                cursor: cindex.Cursor,
+                clang_getCursorSpelling: Any = cindex.conf.lib.clang_getCursorSpelling,
+            ) -> str:
+                return cast(
+                    str, cindex._CXString.from_result(clang_getCursorSpelling(cursor))
+                )
+
+            self._clang_getCursorSpelling = _clang_getCursorSpelling
+        else:
+            self._visitor_cb = cindex.callbacks["cursor_visit"](self.visit_node)
+            self._clang_getCursorSpelling = cindex.conf.lib.clang_getCursorSpelling
+
         self._kind_ids = (
             2,  # STRUCT_DECL
             32,  # CLASS_TEMPLATE_PARTIAL_SPECIALIZATION
