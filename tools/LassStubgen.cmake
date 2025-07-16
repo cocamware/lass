@@ -163,8 +163,31 @@ function(Lass_generate_stubs target)
 		message(FATAL_ERROR "Lass_generate_stubs: libclang version '${libclang_version}' does not match expected format 'X.Y.Z'.")
 	endif()
 
-	if(NOT _SYSTEM_INCLUDE_DIRECTORIES)
-		set(_SYSTEM_INCLUDE_DIRECTORIES ${libclang_system_include_dir} ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+	if(libclang_system_include_dir AND NOT _SYSTEM_INCLUDE_DIRECTORIES)
+		# If we have a libclang system include directory, use it instead of the compiler's implicit include directories
+		if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+			set(_regex "/lib/clang/.+/include")
+		elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+			set(_regex "/lib/gcc/.+/include")
+		else()
+			set(_regex)
+		endif()
+		set(_substituted FALSE)
+		foreach (include_dir ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+			if (include_dir MATCHES "${_regex}")
+				if (NOT _substituted)
+					# If we have a libclang system include directory, use it instead
+					list(APPEND _SYSTEM_INCLUDE_DIRECTORIES "${libclang_system_include_dir}")
+					set(_substituted TRUE)
+				endif()
+			else()
+				list(APPEND _SYSTEM_INCLUDE_DIRECTORIES "${include_dir}")
+			endif()
+		endforeach()
+		if (NOT _substituted)
+			# If we didn't substitute any include directories, just prepend it
+			list(PREPEND _SYSTEM_INCLUDE_DIRECTORIES "${libclang_system_include_dir}")
+		endif()
 	endif()
 
 	# Create virtual environment to run stubgen
