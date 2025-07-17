@@ -72,6 +72,14 @@ public:
 	const T& reference() const { return value_; }
 	operator T&() { return value_; }
 	operator const T&() const { return value_; }
+	
+	auto operator->() const { return value_.operator->(); }
+	auto operator->() { return value_.operator->(); }
+	auto& operator*() const { return value_.operator*(); }
+	auto& operator*() { return value_.operator*(); }
+
+	bool operator!() const { return !value_; }
+	explicit operator bool() const { return static_cast<bool>(value_); }
 private:
 	T value_;
 };
