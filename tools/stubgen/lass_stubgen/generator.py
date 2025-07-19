@@ -41,6 +41,7 @@ import functools
 import re
 import sys
 import textwrap
+from io import StringIO
 from typing import Callable, NamedTuple, ParamSpec, TextIO, TypeAlias, TypeVar
 
 from .stubdata import (
@@ -111,37 +112,66 @@ class StubGenerator:
                 print(f"import {other_module.fully_qualified_name}", file=file)
         print("", file=file)
 
-        scope = module_def.fully_qualified_name
-        for enum_name in module_def.enums:
-            print("", file=file)
-            enum_def = self.stubdata.enums[enum_name]
-            self.write_enum(enum_def, file=file, with_signature=with_signature)
+        self._write_module_enums(module_def, file=file, with_signature=with_signature)
+        self._write_module_classes(module_def, file=file, with_signature=with_signature)
+        self._write_module_constants(module_def, file=file)
+        self._write_module_functions(
+            module_def, file=file, with_signature=with_signature
+        )
 
+    def _write_module_enums(
+        self, module_def: ModuleDefinition, *, file: TextIO, with_signature: bool
+    ) -> None:
+        for enum_name in module_def.enums:
+            enum_def = self.stubdata.enums[enum_name]
+            self.write_enum(
+                enum_def, file=file, indent=0, with_signature=with_signature
+            )
+
+    def _write_module_classes(
+        self,
+        module_def: ModuleDefinition,
+        *,
+        file: TextIO,
+        with_signature: bool,
+    ) -> None:
         for class_name in module_def.classes:
-            print("", file=file)
             class_def = self.stubdata.shadow_classes[class_name]
             self.write_class(
                 class_def,
-                scope=scope,
                 file=file,
+                scope=module_def.fully_qualified_name,
+                indent=0,
                 with_signature=with_signature,
             )
 
-        if len(module_def.constants) > 0:
-            print("", file=file)
+    def _write_module_constants(
+        self,
+        module_def: ModuleDefinition,
+        *,
+        file: TextIO,
+    ) -> None:
         for const in module_def.constants.values():
-            self.write_const(const, scope=scope, file=file)
+            self.write_const(
+                const, file=file, scope=module_def.fully_qualified_name, indent=0
+            )
 
+    def _write_module_functions(
+        self,
+        module_def: ModuleDefinition,
+        *,
+        file: TextIO,
+        with_signature: bool,
+    ) -> None:
         for funcs in module_def.functions.values():
-            print("", file=file)
             is_overload = len(funcs) > 1
             for func in funcs:
                 if is_overload:
-                    print("@overload", file=file)
+                    file.write("@overload\n")
                 self.write_module_function(
                     func,
-                    scope=scope,
                     file=file,
+                    scope=module_def.fully_qualified_name,
                     with_signature=with_signature,
                 )
 
@@ -151,8 +181,8 @@ class StubGenerator:
         func: FunctionDefinition,
         *,
         file: TextIO,
+        scope: str | None,
         with_signature: bool,
-        scope: str | None = None,
     ) -> None:
         name = func.py_name
         params = self.python_params(None, func.cpp_params, scope=scope)
@@ -171,8 +201,8 @@ class StubGenerator:
         const: ConstDefinition,
         *,
         file: TextIO,
-        scope: str | None = None,
-        indent: int = 0,
+        scope: str | None,
+        indent: int,
     ) -> None:
         py_name = const.py_name
         py_type = self.python_type(const.cpp_type, scope=scope)
@@ -188,9 +218,9 @@ class StubGenerator:
         class_def: ClassDefinition,
         *,
         file: TextIO,
+        scope: str | None,
+        indent: int,
         with_signature: bool,
-        scope: str | None = None,
-        indent: int = 0,
     ) -> None:
         parent = self.stubdata.shadow_classes.get(class_def.parent_type)
         if parent:
@@ -207,79 +237,156 @@ class StubGenerator:
         else:
             signature = ""
 
-        print(f"{' ' * indent}class {class_def.py_name}{bases}:{signature}", file=file)
+        file.write(f"{' ' * indent}class {class_def.py_name}{bases}:{signature}\n")
 
-        self.write_doc(class_def.doc, indent=indent + 4, file=file)
-        is_empty = not class_def.doc
+        with StringIO() as buf:
+            self._write_class_body(
+                class_def,
+                file=buf,
+                scope=scope,
+                indent=indent + 4,
+                with_signature=with_signature,
+            )
+            if body := buf.getvalue():
+                file.write(body)
+            else:
+                file.write(f"{' ' * indent}    ...\n")
 
+    def _write_class_body(
+        self,
+        class_def: ClassDefinition,
+        *,
+        file: TextIO,
+        scope: str | None,
+        indent: int,
+        with_signature: bool,
+    ) -> None:
+        self.write_doc(class_def.doc, indent=indent, file=file)
+
+        funcs = [
+            self._write_class_enums,
+            self._write_class_classes,
+            self._write_class_constants,
+            self._write_class_constructors,
+            self._write_class_getsetters,
+            self._write_class_methods,
+        ]
+        for func in funcs:
+            func(
+                class_def,
+                scope=scope,
+                indent=indent,
+                with_signature=with_signature,
+                file=file,
+            )
+
+    def _write_class_enums(
+        self,
+        class_def: ClassDefinition,
+        *,
+        file: TextIO,
+        scope: str | None,
+        indent: int,
+        with_signature: bool,
+    ) -> None:
         for inner_enum in class_def.inner_enums:
-            print("", file=file)
             self.write_enum(
                 self.stubdata.enums[inner_enum],
-                indent=indent + 4,
                 file=file,
+                indent=indent,
                 with_signature=with_signature,
             )
-            is_empty = False
 
+    def _write_class_classes(
+        self,
+        class_def: ClassDefinition,
+        *,
+        file: TextIO,
+        scope: str | None,
+        indent: int,
+        with_signature: bool,
+    ) -> None:
         for inner_class in class_def.inner_classes:
-            print("", file=file)
             self.write_class(
                 self.stubdata.shadow_classes[inner_class],
-                indent=indent + 4,
-                scope=scope,
                 file=file,
+                scope=scope,
+                indent=indent,
                 with_signature=with_signature,
             )
-            is_empty = False
 
+    def _write_class_constants(
+        self,
+        class_def: ClassDefinition,
+        *,
+        file: TextIO,
+        scope: str | None,
+        indent: int,
+        with_signature: bool,
+    ) -> None:
         for const in class_def.consts.values():
-            print("", file=file)
-            self.write_const(const, indent=indent + 4, scope=scope, file=file)
-            is_empty = False
+            self.write_const(const, file=file, scope=scope, indent=indent)
 
-        print("", file=file)
+    def _write_class_constructors(
+        self,
+        class_def: ClassDefinition,
+        *,
+        file: TextIO,
+        scope: str | None,
+        indent: int,
+        with_signature: bool,
+    ) -> None:
         is_overload = len(class_def.constructors) > 1
         for constructor in class_def.constructors:
             if is_overload:
-                print(f"{' ' * indent}    @overload", file=file)
+                file.write(f"{' ' * indent}@overload\n")
             self.write_constructor(
                 constructor,
-                indent=indent + 4,
-                scope=scope,
                 file=file,
+                scope=scope,
+                indent=indent,
                 with_signature=with_signature,
             )
-            is_empty = False
 
+    def _write_class_getsetters(
+        self,
+        class_def: ClassDefinition,
+        *,
+        file: TextIO,
+        scope: str | None,
+        indent: int,
+        with_signature: bool,
+    ) -> None:
         for getsetter in class_def.getsetters.values():
-            print("", file=file)
             self.write_getsetter(
                 getsetter,
-                indent=indent + 4,
-                scope=scope,
                 file=file,
+                scope=scope,
+                indent=indent,
                 with_signature=with_signature,
             )
-            is_empty = False
 
+    def _write_class_methods(
+        self,
+        class_def: ClassDefinition,
+        *,
+        file: TextIO,
+        scope: str | None,
+        indent: int,
+        with_signature: bool,
+    ) -> None:
         for methods in class_def.methods.values():
-            print("", file=file)
             is_overload = len(methods) > 1
             for method in methods:
                 if is_overload:
-                    print(f"{' ' * indent}    @overload", file=file)
+                    file.write(f"{' ' * indent}@overload\n")
                 self.write_method(
                     method,
-                    indent=indent + 4,
+                    indent=indent,
                     scope=scope,
                     file=file,
                     with_signature=with_signature,
                 )
-            is_empty = False
-
-        if is_empty:
-            print(f"{' ' * indent}    ...", file=file)
 
     @_add_note
     def write_constructor(
@@ -287,17 +394,16 @@ class StubGenerator:
         constructor: ConstructorDefinition,
         *,
         file: TextIO,
+        scope: str | None,
+        indent: int,
         with_signature: bool,
-        scope: str | None = None,
-        indent: int = 0,
     ) -> None:
         params = self.python_params("self", constructor.cpp_params, scope=scope)
         signature = f"  # {constructor.cpp_signature}" if with_signature else ""
-        print(
-            f"{' ' * indent}def __init__({', '.join(params)}) -> None:{signature}",
-            file=file,
+        file.write(
+            f"{' ' * indent}def __init__({', '.join(params)}) -> None:{signature}\n"
         )
-        print(f"{' ' * indent}    ...", file=file)
+        file.write(f"{' ' * indent}    ...\n")
 
     @_add_note
     def write_getsetter(
@@ -305,33 +411,31 @@ class StubGenerator:
         getsetter: GetSetterDefinition,
         *,
         file: TextIO,
+        scope: str | None,
+        indent: int,
         with_signature: bool,
-        scope: str | None = None,
-        indent: int = 0,
     ) -> None:
         name = getsetter.py_name
         get_type = getsetter.get_type
         py_get_type = self.python_type(get_type, scope=scope)
         get_signature = f"  # {get_type}" if with_signature else ""
-        print(f"{' ' * indent}@property", file=file)
-        print(
-            f"{' ' * indent}def {name}(self, /) -> {py_get_type}:{get_signature}",
-            file=file,
+        file.write(f"{' ' * indent}@property\n")
+        file.write(
+            f"{' ' * indent}def {name}(self, /) -> {py_get_type}:{get_signature}\n"
         )
         self.write_doc(getsetter.doc, indent=indent + 4, file=file)
-        print(f"{' ' * indent}    ...", file=file)
+        file.write(f"{' ' * indent}    ...\n")
 
         if set_type := getsetter.set_type:
             value_name = getsetter.set_value_name
             assert value_name, "set_value_name must be set when set_type is provided"
             py_set_type = self.python_type(set_type, scope=scope)
             set_signature = f"  # {set_type}" if with_signature else ""
-            print(f"{' ' * indent}@{name}.setter", file=file)
-            print(
-                f"{' ' * indent}def {name}(self, {value_name}: {py_set_type}, /) -> None:{set_signature}",
-                file=file,
+            file.write(f"{' ' * indent}@{name}.setter\n")
+            file.write(
+                f"{' ' * indent}def {name}(self, {value_name}: {py_set_type}, /) -> None:{set_signature}\n"
             )
-            print(f"{' ' * indent}    ...", file=file)
+            file.write(f"{' ' * indent}    ...\n")
 
     @_add_note
     def write_method(
@@ -339,9 +443,9 @@ class StubGenerator:
         method: MethodDefinition,
         *,
         file: TextIO,
+        scope: str | None,
+        indent: int,
         with_signature: bool,
-        scope: str | None = None,
-        indent: int = 0,
     ) -> None:
         name = method.py_name
 
@@ -359,13 +463,12 @@ class StubGenerator:
             ret_type = self.python_type(method.cpp_return_type, scope=scope)
         signature = f"  # {method.cpp_signature}" if with_signature else ""
         if method.is_static:
-            print(f"{' ' * indent}@classmethod", file=file)
-        print(
-            f"{' ' * indent}def {name}({', '.join(params)}) -> {ret_type}:{signature}",
-            file=file,
+            file.write(f"{' ' * indent}@classmethod\n")
+        file.write(
+            f"{' ' * indent}def {name}({', '.join(params)}) -> {ret_type}:{signature}\n"
         )
         self.write_doc(method.doc, indent=indent + 4, file=file)
-        print(f"{' ' * (indent)}    ...", file=file)
+        file.write(f"{' ' * (indent)}    ...\n")
 
     @_add_note
     def write_enum(
@@ -373,8 +476,8 @@ class StubGenerator:
         enum_def: EnumDefinition,
         *,
         file: TextIO,
+        indent: int,
         with_signature: bool,
-        indent: int = 0,
     ) -> None:
         py_name = enum_def.py_name
         value_py_type = enum_def.value_py_type
@@ -388,16 +491,16 @@ class StubGenerator:
         else:
             base = "enum.Enum"
         signature = f"  # {enum_def.cpp_name}" if with_signature else ""
-        print(f"{' ' * indent}class {py_name}({base}):{signature}", file=file)
+        file.write(f"{' ' * indent}class {py_name}({base}):{signature}\n")
         if enum_def.doc:
             self.write_doc(enum_def.doc, indent=indent + 4, file=file)
-        print(f"{' ' * indent}    _value_: {value_py_type}", file=file)
+        file.write(f"{' ' * indent}    _value_: {value_py_type}\n")
         for name, value in enum_def.values.items():
             if value is Ellipsis:
                 py_value = "..."
             else:
                 py_value = repr(value)
-            print(f"{' ' * indent}    {name} = {py_value}", file=file)
+            file.write(f"{' ' * indent}    {name} = {py_value}\n")
 
     def write_doc(self, doc: str | None, *, file: TextIO, indent: int = 0) -> None:
         if not doc:
@@ -408,7 +511,7 @@ class StubGenerator:
         doc = textwrap.fill(
             doc, width=72, initial_indent="", subsequent_indent=" " * indent
         )
-        print(f'{" " * indent}"""{doc}"""', file=file)
+        file.write(f'{" " * indent}"""{doc}"""\n')
 
     def python_params(
         self,
@@ -563,7 +666,7 @@ def _match_template(
         return True  # both are None
     if tmpl is None or type_ is None:
         return False  # one is None, the other is not
-    
+
     if tmpl.is_pointer:
         if not type_.is_pointer:
             return False
