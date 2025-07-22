@@ -118,7 +118,8 @@ namespace test
 
 void testLockFreeStack()
 {
-	const size_t numWorkers = std::max<size_t>(std::thread::hardware_concurrency() / 2, 2);
+	const size_t maxCores = std::min<size_t>(std::thread::hardware_concurrency(), 16);
+	const size_t numWorkers = std::max<size_t>(maxCores / 2, 2);
 	LASS_COUT << "#producers = " << numWorkers << ", #consumers = " << numWorkers << std::endl;
 	constexpr size_t n = sizeof(size_t) == 4
 		? 10'000 // numWorkers * (n - 1) * (n / 2) must fit in a 32 bit unsigned int
@@ -188,7 +189,8 @@ void testLockFreeStack()
 
 void testLockFreeStackObject()
 {
-	const size_t numWorkers = std::max<size_t>(std::thread::hardware_concurrency() / 2, 2);
+	const size_t maxCores = std::min<size_t>(std::thread::hardware_concurrency(), 16);
+	const size_t numWorkers = std::max<size_t>(maxCores / 2, 2);
 	LASS_COUT << "#producers = " << numWorkers << ", #consumers = " << numWorkers << std::endl;
 	constexpr size_t n = sizeof(size_t) == 4
 		? 10'000 // numWorkers * (n - 1) * (n / 2) must fit in a 32 bit unsigned int

@@ -88,7 +88,8 @@ void testUtilIdGeneratorConcurrent()
 #else
 	constexpr size_t N = 10'000;
 #endif
-	const size_t n = std::max<size_t>(std::thread::hardware_concurrency(), 2);
+	const size_t maxCores = std::min<size_t>(std::thread::hardware_concurrency(), 16);
+	const size_t n = std::max<size_t>(maxCores, 2);
 	LASS_COUT << "#consumers = " << n << std::endl;
 
 	IdGenerator<size_t> generator;

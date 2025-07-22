@@ -53,8 +53,9 @@ namespace test
 
 void testUtilRWLock()
 {
-	const int numProducers = std::max<int>(static_cast<int>(std::thread::hardware_concurrency()) / 8, 2);
-	const int numConsumers = std::max<int>(static_cast<int>(std::thread::hardware_concurrency()) - numProducers, 2);
+	const int maxCores = std::min<int>(static_cast<int>(std::thread::hardware_concurrency()), 16);
+	const int numProducers = std::max<int>(maxCores / 8, 2);
+	const int numConsumers = std::max<int>(maxCores - numProducers, 2);
 	LASS_COUT << "#producers = " << numProducers << ", #consumers = " << numConsumers << std::endl;
 
 	util::RWLock lock(std::max(numConsumers / 2, 1));

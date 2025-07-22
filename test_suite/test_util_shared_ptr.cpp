@@ -159,7 +159,8 @@ void testUtilSharedPtrConcurent()
 {
     using namespace lass;
 
-    const size_t c = std::max<size_t>(std::thread::hardware_concurrency() - 1, 2);
+    const size_t maxCores = std::min<size_t>(std::thread::hardware_concurrency(), 16);
+    const size_t c = std::max<size_t>(maxCores - 1, 2);
     LASS_COUT << "#producers = 1, #consumers = " << c << std::endl;
 
     constexpr size_t n = sizeof(size_t) == 4
@@ -238,7 +239,7 @@ void testUtilSharedPtrConcurentIntrinsic()
 {
     using namespace lass;
 
-    const size_t c = std::max<size_t>(std::thread::hardware_concurrency() - 1, 2);
+    const size_t c = num::clamp<size_t>(std::thread::hardware_concurrency() - 1, 2, 8);
     LASS_COUT << "#producers = 1, #consumers = " << c << std::endl;
 
     constexpr size_t n = sizeof(size_t) == 4
