@@ -109,17 +109,25 @@ class StubGenerator:
             "from typing import Any, Callable, Final, Iterator, Literal, Mapping, Sequence, Union, overload",
             file=file,
         )
-        for other_module in self.stubdata.modules.values():
-            if other_module.fully_qualified_name != module_def.fully_qualified_name:
-                print(f"import {other_module.fully_qualified_name}", file=file)
-        print("", file=file)
 
-        self._write_module_enums(module_def, file=file, with_signature=with_signature)
-        self._write_module_classes(module_def, file=file, with_signature=with_signature)
-        self._write_module_constants(module_def, file=file)
-        self._write_module_functions(
-            module_def, file=file, with_signature=with_signature
-        )
+        imports: set[str] = set()
+
+        with StringIO() as buf:
+            self._write_module_enums(
+                module_def, file=buf, with_signature=with_signature
+            )
+            self._write_module_classes(
+                module_def, file=buf, imports=imports, with_signature=with_signature
+            )
+            self._write_module_constants(module_def, file=buf, imports=imports)
+            self._write_module_functions(
+                module_def, file=buf, imports=imports, with_signature=with_signature
+            )
+
+            for import_ in sorted(imports):
+                file.write(f"import {import_}\n")
+
+            file.write(buf.getvalue())
 
     def _write_module_enums(
         self, module_def: ModuleDefinition, *, file: TextIO, with_signature: bool
@@ -135,6 +143,7 @@ class StubGenerator:
         module_def: ModuleDefinition,
         *,
         file: TextIO,
+        imports: set[str],
         with_signature: bool,
     ) -> None:
         for class_name in module_def.classes:
@@ -143,6 +152,7 @@ class StubGenerator:
                 class_def,
                 file=file,
                 scope=module_def.fully_qualified_name,
+                imports=imports,
                 indent=0,
                 with_signature=with_signature,
             )
@@ -152,10 +162,15 @@ class StubGenerator:
         module_def: ModuleDefinition,
         *,
         file: TextIO,
+        imports: set[str],
     ) -> None:
         for const in module_def.constants.values():
             self.write_const(
-                const, file=file, scope=module_def.fully_qualified_name, indent=0
+                const,
+                file=file,
+                scope=module_def.fully_qualified_name,
+                imports=imports,
+                indent=0,
             )
 
     def _write_module_functions(
@@ -163,6 +178,7 @@ class StubGenerator:
         module_def: ModuleDefinition,
         *,
         file: TextIO,
+        imports: set[str],
         with_signature: bool,
     ) -> None:
         for name, funcs in module_def.functions.items():
@@ -175,6 +191,7 @@ class StubGenerator:
                     func,
                     file=file,
                     scope=module_def.fully_qualified_name,
+                    imports=imports,
                     with_signature=with_signature,
                 )
             if common_doc:
@@ -189,11 +206,12 @@ class StubGenerator:
         *,
         file: TextIO,
         scope: str | None,
+        imports: set[str],
         with_signature: bool,
     ) -> None:
         name = func.py_name
-        params = self.python_params(None, func.cpp_params, scope=scope)
-        ret_type = self.python_type(func.cpp_return_type, scope=scope)
+        params = self.python_params(None, func.cpp_params, scope=scope, imports=imports)
+        ret_type = self.python_type(func.cpp_return_type, scope=scope, imports=imports)
         signature = f"  # {func.cpp_signature}" if with_signature else ""
         print(
             f"def {name}({', '.join(params)}) -> {ret_type}:{signature}",
@@ -209,10 +227,11 @@ class StubGenerator:
         *,
         file: TextIO,
         scope: str | None,
+        imports: set[str],
         indent: int,
     ) -> None:
         py_name = const.py_name
-        py_type = self.python_type(const.cpp_type, scope=scope)
+        py_type = self.python_type(const.cpp_type, scope=scope, imports=imports)
         if const.value is None:
             py_value = "..."
         else:
@@ -226,13 +245,17 @@ class StubGenerator:
         *,
         file: TextIO,
         scope: str | None,
+        imports: set[str],
         indent: int,
         with_signature: bool,
     ) -> None:
         parent = self.stubdata.shadow_classes.get(class_def.parent_type)
         if parent:
             assert parent.fully_qualified_name
-            bases = f"({_strip_scope(parent.fully_qualified_name, scope)})"
+            base, _ = self._strip_scope(
+                parent.fully_qualified_name, scope=scope, imports=imports
+            )
+            bases = f"({base})"
         else:
             bases = ""
 
@@ -251,6 +274,7 @@ class StubGenerator:
                 class_def,
                 file=buf,
                 scope=scope,
+                imports=imports,
                 indent=indent + 4,
                 with_signature=with_signature,
             )
@@ -265,6 +289,7 @@ class StubGenerator:
         *,
         file: TextIO,
         scope: str | None,
+        imports: set[str],
         indent: int,
         with_signature: bool,
     ) -> None:
@@ -282,6 +307,7 @@ class StubGenerator:
             func(
                 class_def,
                 scope=scope,
+                imports=imports,
                 indent=indent,
                 with_signature=with_signature,
                 file=file,
@@ -293,6 +319,7 @@ class StubGenerator:
         *,
         file: TextIO,
         scope: str | None,
+        imports: set[str],
         indent: int,
         with_signature: bool,
     ) -> None:
@@ -310,6 +337,7 @@ class StubGenerator:
         *,
         file: TextIO,
         scope: str | None,
+        imports: set[str],
         indent: int,
         with_signature: bool,
     ) -> None:
@@ -318,6 +346,7 @@ class StubGenerator:
                 self.stubdata.shadow_classes[inner_class],
                 file=file,
                 scope=scope,
+                imports=imports,
                 indent=indent,
                 with_signature=with_signature,
             )
@@ -328,11 +357,14 @@ class StubGenerator:
         *,
         file: TextIO,
         scope: str | None,
+        imports: set[str],
         indent: int,
         with_signature: bool,
     ) -> None:
         for const in class_def.consts.values():
-            self.write_const(const, file=file, scope=scope, indent=indent)
+            self.write_const(
+                const, file=file, scope=scope, imports=imports, indent=indent
+            )
 
     def _write_class_constructors(
         self,
@@ -340,6 +372,7 @@ class StubGenerator:
         *,
         file: TextIO,
         scope: str | None,
+        imports: set[str],
         indent: int,
         with_signature: bool,
     ) -> None:
@@ -351,6 +384,7 @@ class StubGenerator:
                 constructor,
                 file=file,
                 scope=scope,
+                imports=imports,
                 indent=indent,
                 with_signature=with_signature,
             )
@@ -361,6 +395,7 @@ class StubGenerator:
         *,
         file: TextIO,
         scope: str | None,
+        imports: set[str],
         indent: int,
         with_signature: bool,
     ) -> None:
@@ -369,6 +404,7 @@ class StubGenerator:
                 getsetter,
                 file=file,
                 scope=scope,
+                imports=imports,
                 indent=indent,
                 with_signature=with_signature,
             )
@@ -379,6 +415,7 @@ class StubGenerator:
         *,
         file: TextIO,
         scope: str | None,
+        imports: set[str],
         indent: int,
         with_signature: bool,
     ) -> None:
@@ -392,6 +429,7 @@ class StubGenerator:
                     method,
                     indent=indent,
                     scope=scope,
+                    imports=imports,
                     file=file,
                     with_signature=with_signature,
                 )
@@ -408,10 +446,13 @@ class StubGenerator:
         *,
         file: TextIO,
         scope: str | None,
+        imports: set[str],
         indent: int,
         with_signature: bool,
     ) -> None:
-        params = self.python_params("self", constructor.cpp_params, scope=scope)
+        params = self.python_params(
+            "self", constructor.cpp_params, scope=scope, imports=imports
+        )
         signature = f"  # {constructor.cpp_signature}" if with_signature else ""
         file.write(
             f"{' ' * indent}def __init__({', '.join(params)}) -> None:{signature}\n"
@@ -425,12 +466,13 @@ class StubGenerator:
         *,
         file: TextIO,
         scope: str | None,
+        imports: set[str],
         indent: int,
         with_signature: bool,
     ) -> None:
         name = getsetter.py_name
         get_type = getsetter.get_type
-        py_get_type = self.python_type(get_type, scope=scope)
+        py_get_type = self.python_type(get_type, scope=scope, imports=imports)
         get_signature = f"  # {get_type}" if with_signature else ""
         file.write(f"{' ' * indent}@property\n")
         file.write(
@@ -442,7 +484,7 @@ class StubGenerator:
         if set_type := getsetter.set_type:
             value_name = getsetter.set_value_name
             assert value_name, "set_value_name must be set when set_type is provided"
-            py_set_type = self.python_type(set_type, scope=scope)
+            py_set_type = self.python_type(set_type, scope=scope, imports=imports)
             set_signature = f"  # {set_type}" if with_signature else ""
             file.write(f"{' ' * indent}@{name}.setter\n")
             file.write(
@@ -457,6 +499,7 @@ class StubGenerator:
         *,
         file: TextIO,
         scope: str | None,
+        imports: set[str],
         indent: int,
         with_signature: bool,
     ) -> None:
@@ -472,8 +515,11 @@ class StubGenerator:
                 "cls" if method.is_static else "self",
                 method.cpp_params,
                 scope=scope,
+                imports=imports,
             )
-            ret_type = self.python_type(method.cpp_return_type, scope=scope)
+            ret_type = self.python_type(
+                method.cpp_return_type, scope=scope, imports=imports
+            )
         signature = f"  # {method.cpp_signature}" if with_signature else ""
         if method.is_static:
             file.write(f"{' ' * indent}@classmethod\n")
@@ -530,10 +576,12 @@ class StubGenerator:
         self,
         self_: str | None,
         cpp_params: list[ParamInfo],
+        *,
         scope: str | None,
+        imports: set[str],
     ) -> list[str]:
         params = [
-            f"{p.name or f'_{i}'}: {self.python_type(p.type_, scope=scope)}"
+            f"{p.name or f'_{i}'}: {self.python_type(p.type_, scope=scope, imports=imports)}"
             for i, p in enumerate(cpp_params)
         ]
         if self_:
@@ -542,13 +590,23 @@ class StubGenerator:
             params.append("/")
         return params
 
+    def python_type(
+        self, cpp_type: TypeInfo, *, scope: str | None, imports: set[str]
+    ) -> str:
+        py_type, imports_ = self._python_type(cpp_type, scope=scope)
+        imports.update(imports_)
+        return py_type
+
     @functools.cache
-    def python_type(self, cpp_type: TypeInfo, *, scope: str | None) -> str:
+    def _python_type(
+        self, cpp_type: TypeInfo, *, scope: str | None
+    ) -> tuple[str, set[str]]:
         """Return the Python type for a given C++ type.
 
         If the C++ type is not recognized, return the C++ type as a string.
         If scope is specified, strip the scope from the fully qualified name.
         """
+        imports: set[str] = set()
         cpp_name = cpp_type.name
         if class_def := self.stubdata.cpp_classes.get(str(cpp_type)):
             if not class_def.fully_qualified_name:
@@ -556,37 +614,46 @@ class StubGenerator:
                     f"Class {class_def.py_name} ({cpp_name}) "
                     + "is not part of a module or class"
                 )
-            return _strip_scope(class_def.fully_qualified_name, scope)
-
+            return self._strip_scope(
+                class_def.fully_qualified_name, scope=scope, imports=imports
+            )
         if enum_def := self.stubdata.enums.get(cpp_name):
             if not enum_def.fully_qualified_name:
                 raise StubGeneratorError(
                     f"Class {enum_def.py_name} ({cpp_name}) "
                     + "is not part of a module or class"
                 )
-            return _strip_scope(enum_def.fully_qualified_name, scope)
+            return self._strip_scope(
+                enum_def.fully_qualified_name, scope=scope, imports=imports
+            )
 
         if specializations := self.stubdata.export_traits.get(cpp_name):
             if py_type := self._match_export_traits(
-                cpp_type=cpp_type, specializations=specializations, scope=scope
+                cpp_type=cpp_type,
+                specializations=specializations,
+                scope=scope,
+                imports=imports,
             ):
-                return py_type
+                return py_type, imports
 
         if py_typer := BUILTIN_TYPES.get(cpp_name):
             if callable(py_typer):
-                return py_typer(self, cpp_type.args, scope)
-            return py_typer
+                py_type = py_typer(self, cpp_type.args, scope, imports)
+                return py_type, imports
+            return py_typer, imports
 
         for regex, py_type_match in BUILTIN_TYPES_REGEX:
             if match := re.match(regex, cpp_name):
                 if callable(py_type_match):
-                    return py_type_match(self, cpp_type.args, scope, match)
-                return py_type_match
+                    py_type = py_type_match(self, cpp_type.args, scope, imports, match)
+                    return py_type, imports
+                return py_type_match, imports
 
         if cpp_type.is_pointer:
-            return f"{self.python_type(cpp_type.base_type, scope=scope)} | None"
+            py_type = f"{self.python_type(cpp_type.base_type, scope=scope, imports=imports)} | None"
+            return py_type, imports
 
-        return cpp_name
+        return cpp_name, imports
 
     def _match_export_traits(
         self,
@@ -594,6 +661,7 @@ class StubGenerator:
         cpp_type: TypeInfo,
         specializations: dict[str, ExportTraits],
         scope: str | None,
+        imports: set[str],
     ) -> str | None:
         # do we have a full specialization?
         if full_specialization := specializations.get(str(cpp_type)):
@@ -627,12 +695,14 @@ class StubGenerator:
         if len(best) > 1:
             best_str = "\n".join(map(str, best))
             raise StubGeneratorError(f"Ambigous matches found:\n{best_str}\n")
+        imports.update(best[0].imports)
         return best[0].py_type
 
     def _python_type_export_traits(
         self, *, cpp_type: TypeInfo, export_traits: ExportTraits, scope: str | None
-    ) -> tuple[str, MatchedParams] | None:
+    ) -> tuple[str, MatchedParams, set[str]] | None:
         assert cpp_type.name == export_traits.cpp_type.name
+        imports: set[str] = set()
 
         # match template parameters
         matched_params: MatchedParams = {
@@ -648,22 +718,33 @@ class StubGenerator:
         for param, arg in matched_params.items():
             assert arg is not None
             if isinstance(arg, tuple):
-                py_arg = ", ".join(self.python_type(a, scope=scope) for a in arg)
+                py_arg = ", ".join(
+                    self.python_type(a, scope=scope, imports=imports) for a in arg
+                )
                 py_type = re.sub(rf"\b{re.escape(param)}\.\.\.", py_arg, py_type)
             else:
-                py_arg = self.python_type(arg, scope=scope)
+                py_arg = self.python_type(arg, scope=scope, imports=imports)
                 py_type = re.sub(rf"\b{re.escape(param)}\b", py_arg, py_type)
 
-        return py_type, matched_params
+        return py_type, matched_params, imports
 
-
-def _strip_scope(fqname: str, scope: str | None) -> str:
-    """
-    Strip the scope from a fully qualified name.
-    """
-    if scope and fqname.startswith(scope + "."):
-        return fqname[len(scope) + 1 :]
-    return fqname
+    def _strip_scope(
+        self, fqname: str, *, scope: str | None, imports: set[str]
+    ) -> tuple[str, set[str]]:
+        """
+        Strip the scope from a fully qualified name.
+        """
+        if scope and fqname.startswith(scope + "."):
+            return fqname[len(scope) + 1 :], imports
+        else:
+            if matches := [
+                module_def.fully_qualified_name
+                for module_def in self.stubdata.modules.values()
+                if fqname.startswith(module_def.fully_qualified_name + ".")
+            ]:
+                longest_match = max(matches, key=len)
+                imports.add(longest_match)
+            return fqname, imports
 
 
 MatchedParams: TypeAlias = dict[str, TypeInfo | tuple[TypeInfo, ...] | None]
@@ -738,6 +819,7 @@ class MatchedExportTraits(NamedTuple):
     export_traits: ExportTraits
     py_type: str
     matched_params: MatchedParams
+    imports: set[str]
 
     def __str__(self) -> str:
         params = ", ".join(f"{p}={typ}" for p, typ in self.matched_params.items())
@@ -802,20 +884,24 @@ def _extract_common_docstring(
     return None, funcs
 
 
-def _pytype_sequence(stubgen: StubGenerator, args: TypeArgs, scope: str | None) -> str:
+def _pytype_sequence(
+    stubgen: StubGenerator, args: TypeArgs, scope: str | None, imports: set[str]
+) -> str:
     assert args and len(args) >= 1, args
-    element_type = stubgen.python_type(args[0], scope=scope)
+    element_type = stubgen.python_type(args[0], scope=scope, imports=imports)
     return f"Sequence[{element_type}]"
 
 
-def _pytype_mapping(stubgen: StubGenerator, args: TypeArgs, scope: str | None) -> str:
+def _pytype_mapping(
+    stubgen: StubGenerator, args: TypeArgs, scope: str | None, imports: set[str]
+) -> str:
     assert args and len(args) >= 2, args
-    key_type = stubgen.python_type(args[0], scope=scope)
-    value_type = stubgen.python_type(args[1], scope=scope)
+    key_type = stubgen.python_type(args[0], scope=scope, imports=imports)
+    value_type = stubgen.python_type(args[1], scope=scope, imports=imports)
     return f"Mapping[{key_type}, {value_type}]"
 
 
-BuiltinTyper: TypeAlias = Callable[[StubGenerator, TypeArgs, str | None], str]
+BuiltinTyper: TypeAlias = Callable[[StubGenerator, TypeArgs, str | None, set[str]], str]
 
 BUILTIN_TYPES: dict[str, str | BuiltinTyper] = {
     "void": "None",
@@ -838,7 +924,7 @@ BUILTIN_TYPES: dict[str, str | BuiltinTyper] = {
 }
 
 BuiltinTyperRegex: TypeAlias = Callable[
-    [StubGenerator, TypeArgs, str | None, re.Match[str]], str
+    [StubGenerator, TypeArgs, str | None, set[str], re.Match[str]], str
 ]
 
 
