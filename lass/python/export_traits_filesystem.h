@@ -65,7 +65,8 @@ namespace python
 template <>
 struct PyExportTraits<std::filesystem::path>
 {
-	constexpr static const char* py_typing = "str | bytes | os.PathLike";
+	constexpr static const char* py_typing = "StrOrBytesPath";
+	constexpr static const char* py_typing_preamble = "from _typeshed import StrOrBytesPath";
 
 	LASS_PYTHON_DLL static PyObject* build(const std::filesystem::path& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::filesystem::path& v);

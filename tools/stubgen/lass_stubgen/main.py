@@ -248,7 +248,7 @@ If not provided, the number of threads will be set to the number of CPU cores.""
             print(note, file=sys.stderr)
         print(f"{len(err.errors)} parse errors found, aborting", file=sys.stderr)
         return 1
-    except DuplicateError as err:
+    except StubDataError as err:
         print(f"Error: {str(err)}", file=sys.stderr)
         for note in err.__notes__:
             print(note, file=sys.stderr)

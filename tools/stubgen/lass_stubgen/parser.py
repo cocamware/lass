@@ -88,7 +88,7 @@ class Parser:
         self.object_files_map = object_files_map or {}
         self.pch_path = pch_path
 
-        if libclang_library:
+        if libclang_library and not cindex.Config.loaded:
             cindex.Config.set_library_file(str(libclang_library))
 
         self._handlers = {
@@ -957,20 +957,17 @@ class Parser:
         assert type_.args and len(type_.args) == 1
         cpp_type = type_.args[0]
 
-        def find_py_typing(n: cindex.Cursor) -> str | None:
+        def find_py_typing(n: cindex.Cursor, spelling: str) -> str | None:
             for child in iter_children(n, CursorKind.VAR_DECL):
-                if child.spelling == "py_typing":
+                if child.spelling == spelling:
                     typing = _ensure_only_child_recursive(
                         child, CursorKind.STRING_LITERAL
                     )
                     return string_literal(typing)
-            return None
 
-        py_type = find_py_typing(node)
-        if py_type is None:
             # look in base class
             if cxx_base_specifier := _find_first_child(
-                node, CursorKind.CXX_BASE_SPECIFIER
+                n, CursorKind.CXX_BASE_SPECIFIER
             ):
                 try:
                     template_ref = ensure_first_child(
@@ -982,14 +979,30 @@ class Parser:
                     self._debug(cxx_base_specifier)
                     raise
                 base = template_ref.referenced
-                py_type = find_py_typing(base)
+                for child in iter_children(base, CursorKind.VAR_DECL):
+                    if child.spelling == spelling:
+                        typing = _ensure_only_child_recursive(
+                            child, CursorKind.STRING_LITERAL
+                        )
+                        return string_literal(typing)
+
+            return None
+
+        py_type = find_py_typing(node, "py_typing")
         if not py_type:
             return False
+        preamble_str = find_py_typing(node, "py_typing_preamble")
+        if preamble_str:
+            preamble = [line for line in preamble_str.splitlines() if line]
+        else:
+            preamble = []
 
         if node.kind == CursorKind.STRUCT_DECL:
             # A full specialization
             self.stubdata.add_export_traits(
-                ExportTraits(cpp_type=cpp_type, py_type=py_type)
+                ExportTraits(
+                    cpp_type=cpp_type, py_type=py_type, preamble=tuple(preamble)
+                )
             )
 
         elif node.kind == CursorKind.CLASS_TEMPLATE_PARTIAL_SPECIALIZATION:
@@ -1007,7 +1020,8 @@ class Parser:
                 ExportTraits(
                     cpp_type=cpp_type,
                     py_type=py_type,
-                    template_params=list(intermediate_params.values()),
+                    preamble=tuple(preamble),
+                    template_params=tuple(intermediate_params.values()),
                 )
             )
 

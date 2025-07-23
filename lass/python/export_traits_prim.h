@@ -304,7 +304,8 @@ template <typename T>
 struct PyExportTraits< prim::Vector2D<T> >:
 	public impl::PyExportTraitsVectorPoint< prim::Vector2D<T>, PyExportTraits< prim::Vector2D<T> > >
 {
-	constexpr static const char* py_typing = "tuple[T, T]";
+	constexpr static const char* py_typing = "_Vector2D[T]";
+	constexpr static const char* py_typing_preamble = "type _Vector2D[T] = tuple[T, T]";
 
 	static const char* className() { return "Vector2D"; }
 };
@@ -325,7 +326,8 @@ template <typename T>
 struct PyExportTraits< prim::Vector3D<T> >:
 	public impl::PyExportTraitsVectorPoint< prim::Vector3D<T>, PyExportTraits< prim::Vector3D<T> > >
 {
-	constexpr static const char* py_typing = "tuple[T, T, T]";
+	constexpr static const char* py_typing = "_Vector3D[T]";
+	constexpr static const char* py_typing_preamble = "type _Vector3D[T] = tuple[T, T, T]";
 
 	static const char* className() { return "Vector3D"; }
 };
@@ -345,7 +347,8 @@ template <typename T>
 struct PyExportTraits< prim::Vector4D<T> >:
 	public impl::PyExportTraitsVectorPoint< prim::Vector4D<T>, PyExportTraits< prim::Vector4D<T> > >
 {
-	constexpr static const char* py_typing = "tuple[T, T, T, T]";
+	constexpr static const char* py_typing = "_Vector4D[T]";
+	constexpr static const char* py_typing_preamble = "type _Vector4D[T] = tuple[T, T, T, T]";
 
 	static const char* className() { return "Vector4D"; }
 };
@@ -368,7 +371,8 @@ template <typename T>
 struct PyExportTraits< prim::Point2D<T> >:
 	public impl::PyExportTraitsVectorPoint< prim::Point2D<T>, PyExportTraits< prim::Point2D<T> > >
 {
-	constexpr static const char* py_typing = "tuple[T, T]";
+	constexpr static const char* py_typing = "_Point2D[T]";
+	constexpr static const char* py_typing_preamble = "type _Point2D[T] = tuple[T, T]";
 
 	static const char* className() { return "Point2D"; }
 };
@@ -389,7 +393,8 @@ template <typename T>
 struct PyExportTraits< prim::Point3D<T> >:
 	public impl::PyExportTraitsVectorPoint< prim::Point3D<T>, PyExportTraits< prim::Point3D<T> > >
 {
-	constexpr static const char* py_typing = "tuple[T, T, T]";
+	constexpr static const char* py_typing = "_Point3D[T]";
+	constexpr static const char* py_typing_preamble = "type _Point3D[T] = tuple[T, T, T]";
 
 	static const char* className() { return "Point3D"; }
 };
@@ -412,7 +417,8 @@ template <typename T, typename MMP>
 struct PyExportTraits< prim::Aabb2D<T, MMP> >:
 	public impl::PyExportTraitsPrimAabb< prim::Aabb2D<T, MMP>, PyExportTraits< prim::Aabb2D<T, MMP> > >
 {
-	constexpr static const char* py_typing = "tuple[tuple[T, T], tuple[T, T]]";
+	constexpr static const char* py_typing = "_Aabb2D[T]";
+	constexpr static const char* py_typing_preamble = "type _Aabb2D[T] = tuple[tuple[T, T], tuple[T, T]]";
 
 	static const char* className() { return "Aabb2D"; }
 };
@@ -431,7 +437,8 @@ template <typename T, typename MMP>
 struct PyExportTraits< prim::Aabb3D<T, MMP> >:
 	public impl::PyExportTraitsPrimAabb< prim::Aabb3D<T, MMP>, PyExportTraits< prim::Aabb3D<T, MMP> > >
 {
-	constexpr static const char* py_typing = "tuple[tuple[T, T, T], tuple[T, T, T]]";
+	constexpr static const char* py_typing = "_Aabb3D[T]";
+	constexpr static const char* py_typing_preamble = "type _Aabb3D[T] = tuple[tuple[T, T, T], tuple[T, T, T]]";
 
 	static const char* className() { return "Aabb3D"; }
 };
@@ -454,7 +461,8 @@ template <typename T, typename PP>
 struct PyExportTraits< prim::LineSegment2D<T, PP> >:
 	public impl::PyExportTraitsPrimLineSegment< prim::LineSegment2D<T, PP>, PyExportTraits< prim::LineSegment2D<T, PP> > >
 {
-	constexpr static const char* py_typing = "tuple[tuple[T, T], tuple[T, T]]";
+	constexpr static const char* py_typing = "_LineSegment2D[T]";
+	constexpr static const char* py_typing_preamble = "type _LineSegment2D[T] = tuple[tuple[T, T], tuple[T, T]]";
 
 	static const char* className() { return "LineSegment2D"; }
 };
@@ -473,7 +481,8 @@ template <typename T, typename PP>
 struct PyExportTraits< prim::LineSegment3D<T, PP> >:
 	public impl::PyExportTraitsPrimLineSegment< prim::LineSegment3D<T, PP>, PyExportTraits< prim::LineSegment3D<T, PP> > >
 {
-	constexpr static const char* py_typing = "tuple[tuple[T, T, T], tuple[T, T, T]]";
+	constexpr static const char* py_typing = "_LineSegment3D[T]";
+	constexpr static const char* py_typing_preamble = "type _LineSegment3D[T] = tuple[tuple[T, T, T], tuple[T, T, T]]";
 
 	static const char* className() { return "LineSegment3D"; }
 };
@@ -496,7 +505,8 @@ template <typename T>
 struct PyExportTraits< prim::Transformation2D<T> >: 
 	public impl::PyExportTraitsPrimTransformation< prim::Transformation2D<T>, PyExportTraits< prim::Transformation2D<T> > >
 {
-	constexpr static const char* py_typing = "tuple[tuple[T, T, T], tuple[T, T, T], tuple[T, T, T]]";
+	constexpr static const char* py_typing = "_Transformation2D[T]";
+	constexpr static const char* py_typing_preamble = "type _Transformation2D[T] = tuple[tuple[T, T, T], tuple[T, T, T], tuple[T, T, T]]";
 
 	static const char* className() { return "Transformation2D"; }
 };
@@ -515,7 +525,8 @@ template <typename T>
 struct PyExportTraits< prim::Transformation3D<T> >: 
 	public impl::PyExportTraitsPrimTransformation< prim::Transformation3D<T>, PyExportTraits< prim::Transformation3D<T> > >
 {
-	constexpr static const char* py_typing = "tuple[tuple[T, T, T, T], tuple[T, T, T, T], tuple[T, T, T, T], tuple[T, T, T, T]]";
+	constexpr static const char* py_typing = "_Transformation3D[T]";
+	constexpr static const char* py_typing_preamble = "type _Transformation3D[T] = tuple[tuple[T, T, T, T], tuple[T, T, T, T], tuple[T, T, T, T], tuple[T, T, T, T]]";
 
 	static const char* className() { return "Transformation3D"; }
 };
@@ -544,7 +555,8 @@ template <typename T, typename DP>
 struct PyExportTraits< prim::SimplePolygon2D<T, DP> >:
 	public impl::PyExportTraitsPrimSimplePolygon< prim::SimplePolygon2D<T, DP>, PyExportTraits< prim::SimplePolygon2D<T, DP> > >
 {
-	constexpr static const char* py_typing = "Sequence[tuple[T, T]]";
+	constexpr static const char* py_typing = "_SimplePolygon2D[T]";
+	constexpr static const char* py_typing_preamble = "type _SimplePolygon2D[T] = Sequence[tuple[T, T]]";
 
 	static const char* className() { return "SimplePolygon2D"; }
 };
@@ -564,7 +576,8 @@ template <typename T, typename DP>
 struct PyExportTraits< prim::SimplePolygon3D<T, DP> >:
 	public impl::PyExportTraitsPrimSimplePolygon< prim::SimplePolygon3D<T, DP>, PyExportTraits< prim::SimplePolygon3D<T, DP> > >
 {
-	constexpr static const char* py_typing = "Sequence[tuple[T, T, T]]";
+	constexpr static const char* py_typing = "_SimplePolygon3D[T]";
+	constexpr static const char* py_typing_preamble = "type _SimplePolygon3D[T] = Sequence[tuple[T, T, T]]";
 
 	static const char* className() { return "SimplePolygon3D"; }
 };
@@ -628,7 +641,7 @@ struct PyExportTraits<prim::XYZW>:
 	public impl::PyExportTraitsPrimAxis<prim::XYZW, PyExportTraits<prim::XYZW> >
 {
 	constexpr static const char* py_typing = "Literal['x', 'X', 'y', 'Y', 'z', 'Z', 'w', 'W']";
-	static const char* className() { return "XYWZ"; }
+	static const char* className() { return "XYZW"; }
 };
 
 #	endif
@@ -646,7 +659,8 @@ struct PyExportTraits<prim::XYZW>:
 template <>
 struct PyExportTraits<prim::ColorRGBA>
 {
-	constexpr static const char* py_typing = "tuple[float, float, float, float]";
+	constexpr static const char* py_typing = "_RGBA";
+	constexpr static const char* py_typing_preamble = "type _RGBA = tuple[float, float, float, float]";
 
 	static PyObject* build(const prim::ColorRGBA& v)
 	{
@@ -684,7 +698,10 @@ namespace impl
 template <>
 struct PyExportTraits<prim::IndexTriangle>
 {
-	constexpr static const char* py_typing = "tuple[tuple[int] | tuple[int, int | None] | tuple[int, int | None, int | None], tuple[int] | tuple[int, int | None] | tuple[int, int | None, int | None], tuple[int] | tuple[int, int | None] | tuple[int, int | None, int | None]]";
+	constexpr static const char* py_typing = "_IndexTriangle";
+	constexpr static const char* py_typing_preamble = 
+		"type _IndexVertex = tuple[int] | tuple[int, int | None] | tuple[int, int | None, int | None]\n"
+		"type _IndexTriangle = tuple[_IndexVertex, _IndexVertex, _IndexVertex]";
 
 	static PyObject* build(const prim::IndexTriangle& iTriangle)
 	{

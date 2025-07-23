@@ -40,6 +40,7 @@ from __future__ import annotations
 import dataclasses
 import json
 import os
+import re
 import sys
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
@@ -68,6 +69,7 @@ __all__ = [
     "ModuleDefinition",
     "ParamInfo",
     "StubData",
+    "StubDataError",
     "TypeInfo",
 ]
 
@@ -81,6 +83,7 @@ class StubData:
         self.enums: dict[str, EnumDefinition] = {}
         self.export_traits: dict[str, dict[str, ExportTraits]] = {}
         self.included_files: dict[str, set[str]] = {}
+        self._type_aliases: dict[str, _PreambleTypeAlias] = {}
 
     def asdict(self) -> dict[str, Any]:
         return {
@@ -203,6 +206,34 @@ class StubData:
 
     def add_export_traits(self, export_traits: ExportTraits) -> None:
         cpp_type = export_traits.cpp_type
+
+        for line in export_traits.preamble:
+            if not line.startswith("type"):
+                continue
+            match = re.match(r"type\s+(\w+)[=\[\s]", line)
+            if not match:
+                raise StubDataError(
+                    f"Invalid type alias line in preamble: {line!r}. "
+                    "Expected 'type <name> = ...' or 'type <name>[...] ='."
+                )
+            name = match.group(1)
+            if type_alias := self._type_aliases.get(name):
+                line_without_spaces = re.sub(r"\s+", "", line)
+                other_without_spaces = re.sub(r"\s+", "", type_alias.definition)
+                if line_without_spaces != other_without_spaces:
+                    others = ", ".join(
+                        str(t.cpp_type) for t in type_alias.export_traits
+                    )
+                    raise StubDataError(
+                        f"Preamble type alias '{line}' of {cpp_type} conflicts with "
+                        f"existing definition '{type_alias.definition}' of {others}"
+                    )
+                type_alias.export_traits.append(export_traits)
+            else:
+                self._type_aliases[name] = _PreambleTypeAlias(
+                    definition=line, export_traits=[export_traits]
+                )
+
         specializations = self.export_traits.setdefault(cpp_type.name, {})
         specializations[str(cpp_type)] = export_traits
 
@@ -659,13 +690,13 @@ class TypeInfo:
     @property
     def is_pointer(self) -> bool:
         return self.name.endswith("*")
-    
+
     @property
     def base_name(self) -> str:
         if self.is_pointer:
             return self.name[:-1].rstrip()
         return self.name
-    
+
     @property
     def base_type(self) -> TypeInfo:
         if self.is_pointer:
@@ -740,19 +771,35 @@ class ParamInfo(NamedTuple):
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class ExportTraits:
     cpp_type: TypeInfo
     py_type: str
-    template_params: list[str] = field(default_factory=list)
+    preamble: tuple[str, ...] = field(default_factory=tuple)
+    template_params: tuple[str, ...] = field(default_factory=tuple)
+
+    def __post_init__(self) -> None:
+        for line in self.preamble:
+            if not re.match(r"(import|from|type) ", line):
+                raise StubDataError(
+                    f"Invalid preamble line: {line!r}. "
+                    "Preamble lines must start with 'import', 'from' or 'type'."
+                )
+
+    def __str__(self) -> str:
+        return f"{self.cpp_type} => {self.py_type}"
 
     def asdict(self) -> dict[str, Any]:
         cpp_type = self.cpp_type.asdict()
-        return {
+        data = {
             "cpp_type": cpp_type,
             "py_type": self.py_type,
-            "template_params": self.template_params,
         }
+        if self.preamble:
+            data["preamble"] = self.preamble
+        if self.template_params:
+            data["template_params"] = self.template_params
+        return data
 
     @classmethod
     def fromdict(cls, data: dict[str, Any]) -> Self:
@@ -760,7 +807,8 @@ class ExportTraits:
         return cls(
             cpp_type=cpp_type,
             py_type=data["py_type"],
-            template_params=data["template_params"],
+            preamble=tuple(data.get("preamble") or []),
+            template_params=tuple(data.get("template_params") or []),
         )
 
     def __gt__(self, other: object) -> bool:
@@ -819,14 +867,14 @@ class ExportTraits:
         # if at least one of the types is a template, we can return early
         if self_is_template:
             if not other_is_template:
-                return -1 # other is more specific
+                return -1  # other is more specific
             # both are templates, but are they equally specific?
             if self_type.is_pointer:
                 if other_type.is_pointer:
                     return 0
-                return 1 # self is more specific
+                return 1  # self is more specific
             elif other_type.is_pointer:
-                return -1 # other is more specific
+                return -1  # other is more specific
             return 0
         if other_is_template:
             assert not self_is_template
@@ -861,7 +909,15 @@ class ExportTraits:
         return 0
 
 
-class DuplicateError(Exception):
+class StubDataError(Exception):
+    """
+    Base class for all exceptions related to stub data.
+    """
+
+    pass
+
+
+class DuplicateError(StubDataError):
     """
     Exception raised when a duplicate is found in the stub data.
     """
@@ -873,3 +929,9 @@ class DuplicateError(Exception):
 
     def __str__(self) -> str:
         return f"Duplicate {self.kind} found: {self.name}"
+
+
+@dataclass
+class _PreambleTypeAlias:
+    definition: str
+    export_traits: list[ExportTraits]
