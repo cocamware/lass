@@ -37,12 +37,14 @@
 
 from __future__ import annotations
 
+import dataclasses
 import functools
 import re
 import sys
 import textwrap
+from collections.abc import Sequence
 from io import StringIO
-from typing import Callable, NamedTuple, ParamSpec, TextIO, TypeAlias, TypeVar
+from typing import Callable, NamedTuple, ParamSpec, TextIO, TypeAlias, TypeVar, overload
 
 from .stubdata import (
     ClassDefinition,
@@ -163,8 +165,9 @@ class StubGenerator:
         file: TextIO,
         with_signature: bool,
     ) -> None:
-        for funcs in module_def.functions.values():
+        for name, funcs in module_def.functions.items():
             is_overload = len(funcs) > 1
+            common_doc, funcs = _extract_common_docstring(funcs)
             for func in funcs:
                 if is_overload:
                     file.write("@overload\n")
@@ -174,6 +177,10 @@ class StubGenerator:
                     scope=module_def.fully_qualified_name,
                     with_signature=with_signature,
                 )
+            if common_doc:
+                file.write(f"def {name}(*args, **kwargs): # type: ignore[misc]\n")
+                self.write_doc(common_doc, indent=4, file=file)
+                print("    ...", file=file)
 
     @_add_note
     def write_module_function(
@@ -375,8 +382,9 @@ class StubGenerator:
         indent: int,
         with_signature: bool,
     ) -> None:
-        for methods in class_def.methods.values():
+        for name, methods in class_def.methods.items():
             is_overload = len(methods) > 1
+            common_doc, methods = _extract_common_docstring(methods)
             for method in methods:
                 if is_overload:
                     file.write(f"{' ' * indent}@overload\n")
@@ -387,6 +395,11 @@ class StubGenerator:
                     file=file,
                     with_signature=with_signature,
                 )
+            if common_doc:
+                file.write(
+                    f"{' ' * indent}def {name}(self, *args, **kwargs): # type: ignore[misc]\n"
+                )
+                self.write_doc(common_doc, indent=indent + 4, file=file)
 
     @_add_note
     def write_constructor(
@@ -761,6 +774,32 @@ def _find_best_matches(matches: list[MatchedExportTraits]) -> list[MatchedExport
             best = new_best
 
     return best
+
+
+@overload
+def _extract_common_docstring(
+    funcs: Sequence[FunctionDefinition],
+) -> tuple[str | None, list[FunctionDefinition]]: ...
+@overload
+def _extract_common_docstring(
+    funcs: Sequence[MethodDefinition],
+) -> tuple[str | None, list[MethodDefinition]]: ...
+def _extract_common_docstring(
+    funcs: Sequence[FunctionDefinition | MethodDefinition],
+) -> tuple[str | None, Sequence[FunctionDefinition | MethodDefinition]]:
+    """
+    If there's only one overload with a docstring, or they all have the
+    same docstring, remove it from the overloads, and add an additional
+    stub function with the docstring
+    """
+    if len(funcs) < 2:
+        return None, funcs
+    if docs := [doc for func in funcs if (doc := func.doc)]:
+        first = docs[0]
+        if all(doc == first for doc in docs[1:]):
+            funcs = [dataclasses.replace(func, doc=None) for func in funcs]
+            return first, funcs
+    return None, funcs
 
 
 def _pytype_sequence(stubgen: StubGenerator, args: TypeArgs, scope: str | None) -> str:
