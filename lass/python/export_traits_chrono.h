@@ -113,6 +113,7 @@ template <>
 struct PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>
 {
 	constexpr static const char* py_typing = "datetime.datetime";
+	constexpr static const char* py_typing_preamble = "import datetime";
 
 	using TClock = std::chrono::system_clock;
 	using TDuration = TClock::duration;
@@ -140,6 +141,7 @@ template <>
 struct PyExportTraits<std::chrono::utc_clock::time_point>
 {
 	constexpr static const char* py_typing = "datetime.datetime";
+	constexpr static const char* py_typing_preamble = "import datetime";
 
 	LASS_PYTHON_DLL static PyObject* build(const std::chrono::utc_clock::time_point& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::chrono::utc_clock::time_point& v);
@@ -162,6 +164,7 @@ template <>
 struct PyExportTraits<std::chrono::gps_clock::time_point>
 {
 	constexpr static const char* py_typing = "datetime.datetime";
+	constexpr static const char* py_typing_preamble = "import datetime";
 
 	LASS_PYTHON_DLL static PyObject* build(const std::chrono::gps_clock::time_point& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::chrono::gps_clock::time_point& v);
@@ -184,6 +187,7 @@ template <>
 struct PyExportTraits<std::chrono::tai_clock::time_point>
 {
 	constexpr static const char* py_typing = "datetime.datetime";
+	constexpr static const char* py_typing_preamble = "import datetime";
 
 	LASS_PYTHON_DLL static PyObject* build(const std::chrono::tai_clock::time_point& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::chrono::tai_clock::time_point& v);
@@ -206,6 +210,7 @@ template <>
 struct PyExportTraits<std::chrono::file_clock::time_point>
 {
 	constexpr static const char* py_typing = "datetime.datetime";
+	constexpr static const char* py_typing_preamble = "import datetime";
 
 	LASS_PYTHON_DLL static PyObject* build(const std::chrono::file_clock::time_point& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::chrono::file_clock::time_point& v);
@@ -222,6 +227,7 @@ template <>
 struct PyExportTraits<std::chrono::year_month_day>
 {
 	constexpr static const char* py_typing = "datetime.date";
+	constexpr static const char* py_typing_preamble = "import datetime";
 
 	LASS_PYTHON_DLL static PyObject* build(const std::chrono::year_month_day& v);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::chrono::year_month_day& v);

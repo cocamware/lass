@@ -40,6 +40,7 @@ from __future__ import annotations
 import dataclasses
 import json
 import os
+import re
 import sys
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
@@ -68,6 +69,7 @@ __all__ = [
     "ModuleDefinition",
     "ParamInfo",
     "StubData",
+    "StubDataError",
     "TypeInfo",
 ]
 
@@ -659,13 +661,13 @@ class TypeInfo:
     @property
     def is_pointer(self) -> bool:
         return self.name.endswith("*")
-    
+
     @property
     def base_name(self) -> str:
         if self.is_pointer:
             return self.name[:-1].rstrip()
         return self.name
-    
+
     @property
     def base_type(self) -> TypeInfo:
         if self.is_pointer:
@@ -744,15 +746,31 @@ class ParamInfo(NamedTuple):
 class ExportTraits:
     cpp_type: TypeInfo
     py_type: str
+    preamble: list[str] = field(default_factory=list)
     template_params: list[str] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        for line in self.preamble:
+            if not re.match(r"(import|from|type) ", line):
+                raise StubDataError(
+                    f"Invalid preamble line: {line!r}. "
+                    "Preamble lines must start with 'import', 'from' or 'type'."
+                )
+
+    def __str__(self) -> str:
+        return f"{self.cpp_type} => {self.py_type}"
 
     def asdict(self) -> dict[str, Any]:
         cpp_type = self.cpp_type.asdict()
-        return {
+        data = {
             "cpp_type": cpp_type,
             "py_type": self.py_type,
-            "template_params": self.template_params,
         }
+        if self.preamble:
+            data["preamble"] = self.preamble
+        if self.template_params:
+            data["template_params"] = self.template_params
+        return data
 
     @classmethod
     def fromdict(cls, data: dict[str, Any]) -> Self:
@@ -760,7 +778,8 @@ class ExportTraits:
         return cls(
             cpp_type=cpp_type,
             py_type=data["py_type"],
-            template_params=data["template_params"],
+            preamble=data.get("preamble") or [],
+            template_params=data.get("template_params") or [],
         )
 
     def __gt__(self, other: object) -> bool:
@@ -819,14 +838,14 @@ class ExportTraits:
         # if at least one of the types is a template, we can return early
         if self_is_template:
             if not other_is_template:
-                return -1 # other is more specific
+                return -1  # other is more specific
             # both are templates, but are they equally specific?
             if self_type.is_pointer:
                 if other_type.is_pointer:
                     return 0
-                return 1 # self is more specific
+                return 1  # self is more specific
             elif other_type.is_pointer:
-                return -1 # other is more specific
+                return -1  # other is more specific
             return 0
         if other_is_template:
             assert not self_is_template
@@ -861,7 +880,15 @@ class ExportTraits:
         return 0
 
 
-class DuplicateError(Exception):
+class StubDataError(Exception):
+    """
+    Base class for all exceptions related to stub data.
+    """
+
+    pass
+
+
+class DuplicateError(StubDataError):
     """
     Exception raised when a duplicate is found in the stub data.
     """
