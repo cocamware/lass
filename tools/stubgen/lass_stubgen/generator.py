@@ -102,9 +102,9 @@ class StubGenerator:
         file: TextIO = sys.stdout,
         with_signature: bool = False,
     ) -> None:
-        print(
-            "from typing import Any, Callable, Final, Iterator, Literal, Mapping, Sequence, Union, overload",
-            file=file,
+        file.write("# mypy: disable-error-code = overload-overlap\n")
+        file.write(
+            "from typing import Any, Callable, Final, Iterator, Literal, Mapping, Sequence, Union, overload\n"
         )
 
         preamble: list[str] = []
@@ -260,7 +260,7 @@ class StubGenerator:
             None, func.cpp_params, scope=scope, preamble=preamble
         )
         ret_type = self.python_type(
-            func.cpp_return_type, scope=scope, preamble=preamble
+            func.cpp_return_type, scope=scope, preamble=preamble, as_param=False
         )
         signature = f"  # {func.cpp_signature}" if with_signature else ""
         print(
@@ -281,7 +281,9 @@ class StubGenerator:
         indent: int,
     ) -> None:
         py_name = const.py_name
-        py_type = self.python_type(const.cpp_type, scope=scope, preamble=preamble)
+        py_type = self.python_type(
+            const.cpp_type, scope=scope, preamble=preamble, as_param=False
+        )
         if const.value is None:
             py_value = "..."
         else:
@@ -523,7 +525,9 @@ class StubGenerator:
     ) -> None:
         name = getsetter.py_name
         get_type = getsetter.get_type
-        py_get_type = self.python_type(get_type, scope=scope, preamble=preamble)
+        py_get_type = self.python_type(
+            get_type, scope=scope, preamble=preamble, as_param=False
+        )
         get_signature = f"  # {get_type}" if with_signature else ""
         file.write(f"{' ' * indent}@property\n")
         file.write(
@@ -535,7 +539,9 @@ class StubGenerator:
         if set_type := getsetter.set_type:
             value_name = getsetter.set_value_name
             assert value_name, "set_value_name must be set when set_type is provided"
-            py_set_type = self.python_type(set_type, scope=scope, preamble=preamble)
+            py_set_type = self.python_type(
+                set_type, scope=scope, preamble=preamble, as_param=True
+            )
             set_signature = f"  # {set_type}" if with_signature else ""
             file.write(f"{' ' * indent}@{name}.setter\n")
             file.write(
@@ -569,7 +575,7 @@ class StubGenerator:
                 preamble=preamble,
             )
             ret_type = self.python_type(
-                method.cpp_return_type, scope=scope, preamble=preamble
+                method.cpp_return_type, scope=scope, preamble=preamble, as_param=False
             )
         signature = f"  # {method.cpp_signature}" if with_signature else ""
         if method.is_static:
@@ -636,7 +642,7 @@ class StubGenerator:
         preamble: list[str],
     ) -> list[str]:
         params = [
-            f"{p.name or f'_{i}'}: {self.python_type(p.type_, scope=scope, preamble=preamble)}"
+            f"{p.name or f'_{i}'}: {self.python_type(p.type_, scope=scope, preamble=preamble, as_param=True)}"
             for i, p in enumerate(cpp_params)
         ]
         if self_:
@@ -646,15 +652,20 @@ class StubGenerator:
         return params
 
     def python_type(
-        self, cpp_type: TypeInfo, *, scope: str | None, preamble: list[str]
+        self,
+        cpp_type: TypeInfo,
+        *,
+        scope: str | None,
+        preamble: list[str],
+        as_param: bool,
     ) -> str:
-        py_type, preamble_ = self._python_type(cpp_type, scope=scope)
+        py_type, preamble_ = self._python_type(cpp_type, scope=scope, as_param=as_param)
         preamble += preamble_
         return py_type
 
     @functools.cache
     def _python_type(
-        self, cpp_type: TypeInfo, *, scope: str | None
+        self, cpp_type: TypeInfo, *, scope: str | None, as_param: bool
     ) -> tuple[str, list[str]]:
         """Return the Python type for a given C++ type.
 
@@ -688,24 +699,27 @@ class StubGenerator:
                 specializations=specializations,
                 scope=scope,
                 preamble=preamble,
+                as_param=as_param,
             ):
                 return py_type, preamble
 
         if py_typer := BUILTIN_TYPES.get(cpp_name):
             if callable(py_typer):
-                py_type = py_typer(self, cpp_type.args, scope, preamble)
+                py_type = py_typer(self, cpp_type.args, scope, preamble, as_param)
                 return py_type, preamble
             return py_typer, preamble
 
         for regex, py_type_match in BUILTIN_TYPES_REGEX:
             if match := re.match(regex, cpp_name):
                 if callable(py_type_match):
-                    py_type = py_type_match(self, cpp_type.args, scope, preamble, match)
+                    py_type = py_type_match(
+                        self, cpp_type.args, scope, preamble, as_param, match
+                    )
                     return py_type, preamble
                 return py_type_match, preamble
 
         if cpp_type.is_pointer:
-            py_type = f"{self.python_type(cpp_type.base_type, scope=scope, preamble=preamble)} | None"
+            py_type = f"{self.python_type(cpp_type.base_type, scope=scope, preamble=preamble, as_param=as_param)} | None"
             return py_type, preamble
 
         return cpp_name, preamble
@@ -717,11 +731,14 @@ class StubGenerator:
         specializations: dict[str, ExportTraits],
         scope: str | None,
         preamble: list[str],
+        as_param: bool,
     ) -> str | None:
         # do we have a full specialization?
         if full_specialization := specializations.get(str(cpp_type)):
             if not full_specialization.template_params:
                 preamble += full_specialization.preamble
+                if as_param and full_specialization.py_type_param:
+                    return full_specialization.py_type_param
                 return full_specialization.py_type
 
         # do we have a partial specialization?
@@ -730,7 +747,10 @@ class StubGenerator:
             for export_traits in specializations.values()
             if (
                 match := self._python_type_export_traits(
-                    cpp_type=cpp_type, export_traits=export_traits, scope=scope
+                    cpp_type=cpp_type,
+                    export_traits=export_traits,
+                    scope=scope,
+                    as_param=as_param,
                 )
             )
         ]
@@ -756,7 +776,12 @@ class StubGenerator:
         return best[0].py_type
 
     def _python_type_export_traits(
-        self, *, cpp_type: TypeInfo, export_traits: ExportTraits, scope: str | None
+        self,
+        *,
+        cpp_type: TypeInfo,
+        export_traits: ExportTraits,
+        scope: str | None,
+        as_param: bool,
     ) -> tuple[str, MatchedParams, list[str]] | None:
         assert cpp_type.name == export_traits.cpp_type.name
         preamble: list[str] = []
@@ -771,16 +796,38 @@ class StubGenerator:
             return None
 
         # now substitute template parameters in py_type
-        py_type = export_traits.py_type
+        if as_param and export_traits.py_type_param:
+            py_type = export_traits.py_type_param
+        else:
+            py_type = export_traits.py_type
         for param, arg in matched_params.items():
             assert arg is not None
             if isinstance(arg, tuple):
+                # this is a pack expansion
+                # first substitute strict type T!..., aka not as a parameter
                 py_arg = ", ".join(
-                    self.python_type(a, scope=scope, preamble=preamble) for a in arg
+                    self.python_type(a, scope=scope, preamble=preamble, as_param=False)
+                    for a in arg
+                )
+                py_type = re.sub(rf"\b{re.escape(param)}\!\.\.\.", py_arg, py_type)
+                # then substitute non-strict type T..., maybe as a parameter
+                py_arg = ", ".join(
+                    self.python_type(
+                        a, scope=scope, preamble=preamble, as_param=as_param
+                    )
+                    for a in arg
                 )
                 py_type = re.sub(rf"\b{re.escape(param)}\.\.\.", py_arg, py_type)
             else:
-                py_arg = self.python_type(arg, scope=scope, preamble=preamble)
+                # first substitute strict type T!, aka not as a parameter
+                py_arg = self.python_type(
+                    arg, scope=scope, preamble=preamble, as_param=False
+                )
+                py_type = re.sub(rf"\b{re.escape(param)}\!", py_arg, py_type)
+                # then substitute non-strict type T..., maybe as a parameter
+                py_arg = self.python_type(
+                    arg, scope=scope, preamble=preamble, as_param=as_param
+                )
                 py_type = re.sub(rf"\b{re.escape(param)}\b", py_arg, py_type)
 
         preamble += export_traits.preamble
@@ -944,24 +991,38 @@ def _extract_common_docstring(
 
 
 def _pytype_sequence(
-    stubgen: StubGenerator, args: TypeArgs, scope: str | None, preamble: list[str]
+    stubgen: StubGenerator,
+    args: TypeArgs,
+    scope: str | None,
+    preamble: list[str],
+    as_param: bool,
 ) -> str:
     assert args and len(args) >= 1, args
-    element_type = stubgen.python_type(args[0], scope=scope, preamble=preamble)
+    element_type = stubgen.python_type(
+        args[0], scope=scope, preamble=preamble, as_param=as_param
+    )
     return f"Sequence[{element_type}]"
 
 
 def _pytype_mapping(
-    stubgen: StubGenerator, args: TypeArgs, scope: str | None, preamble: list[str]
+    stubgen: StubGenerator,
+    args: TypeArgs,
+    scope: str | None,
+    preamble: list[str],
+    as_param: bool,
 ) -> str:
     assert args and len(args) >= 2, args
-    key_type = stubgen.python_type(args[0], scope=scope, preamble=preamble)
-    value_type = stubgen.python_type(args[1], scope=scope, preamble=preamble)
+    key_type = stubgen.python_type(
+        args[0], scope=scope, preamble=preamble, as_param=as_param
+    )
+    value_type = stubgen.python_type(
+        args[1], scope=scope, preamble=preamble, as_param=as_param
+    )
     return f"Mapping[{key_type}, {value_type}]"
 
 
 BuiltinTyper: TypeAlias = Callable[
-    [StubGenerator, TypeArgs, str | None, list[str]], str
+    [StubGenerator, TypeArgs, str | None, list[str], bool], str
 ]
 
 BUILTIN_TYPES: dict[str, str | BuiltinTyper] = {
@@ -985,7 +1046,7 @@ BUILTIN_TYPES: dict[str, str | BuiltinTyper] = {
 }
 
 BuiltinTyperRegex: TypeAlias = Callable[
-    [StubGenerator, TypeArgs, str | None, list[str], re.Match[str]], str
+    [StubGenerator, TypeArgs, str | None, list[str], bool, re.Match[str]], str
 ]
 
 

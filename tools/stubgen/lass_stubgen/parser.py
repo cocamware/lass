@@ -991,6 +991,7 @@ class Parser:
         py_type = find_py_typing(node, "py_typing")
         if not py_type:
             return False
+        py_type_param = find_py_typing(node, "py_typing_param")
         preamble_str = find_py_typing(node, "py_typing_preamble")
         if preamble_str:
             preamble = preamble_str.splitlines()
@@ -1000,7 +1001,12 @@ class Parser:
         if node.kind == CursorKind.STRUCT_DECL:
             # A full specialization
             self.stubdata.add_export_traits(
-                ExportTraits(cpp_type=cpp_type, py_type=py_type, preamble=preamble)
+                ExportTraits(
+                    cpp_type=cpp_type,
+                    py_type=py_type,
+                    py_type_param=py_type_param,
+                    preamble=preamble,
+                )
             )
 
         elif node.kind == CursorKind.CLASS_TEMPLATE_PARTIAL_SPECIALIZATION:
@@ -1018,8 +1024,9 @@ class Parser:
                 ExportTraits(
                     cpp_type=cpp_type,
                     py_type=py_type,
-                    template_params=list(intermediate_params.values()),
+                    py_type_param=py_type_param,
                     preamble=preamble,
+                    template_params=list(intermediate_params.values()),
                 )
             )
 

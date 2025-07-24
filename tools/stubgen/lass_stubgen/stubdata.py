@@ -746,6 +746,7 @@ class ParamInfo(NamedTuple):
 class ExportTraits:
     cpp_type: TypeInfo
     py_type: str
+    py_type_param: str | None = None
     preamble: list[str] = field(default_factory=list)
     template_params: list[str] = field(default_factory=list)
 
@@ -766,6 +767,8 @@ class ExportTraits:
             "cpp_type": cpp_type,
             "py_type": self.py_type,
         }
+        if self.py_type_param:
+            data["py_type_param"] = self.py_type_param
         if self.preamble:
             data["preamble"] = self.preamble
         if self.template_params:
@@ -778,6 +781,7 @@ class ExportTraits:
         return cls(
             cpp_type=cpp_type,
             py_type=data["py_type"],
+            py_type_param=data.get("py_type_param"),
             preamble=data.get("preamble") or [],
             template_params=data.get("template_params") or [],
         )

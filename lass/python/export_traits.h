@@ -588,6 +588,10 @@ template <typename Float>
 struct PyExportTraitsFloat
 {
 	constexpr static const char* py_typing = "float";
+	constexpr static const char* py_typing_param = "_Float";
+	constexpr static const char* py_typing_preamble = 
+		"from typing import SupportsFloat\n"
+		"type _Float = float | SupportsFloat\n";
 
 	static PyObject* build(Float v)
 	{

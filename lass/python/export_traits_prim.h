@@ -660,7 +660,10 @@ template <>
 struct PyExportTraits<prim::ColorRGBA>
 {
 	constexpr static const char* py_typing = "_RGBA";
-	constexpr static const char* py_typing_preamble = "type _RGBA = tuple[float, float, float, float]";
+	constexpr static const char* py_typing_param = "_RGBA | _RGB";
+	constexpr static const char* py_typing_preamble = 
+		"type _RGBA = tuple[float, float, float, float]\n"
+		"type _RGB = tuple[float, float, float]";
 
 	static PyObject* build(const prim::ColorRGBA& v)
 	{

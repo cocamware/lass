@@ -623,7 +623,7 @@ class TestTuples(unittest.TestCase):
 
     def testVariableLength(self) -> None:
         bar = embedding.Bar()
-        self.assertSequenceAlmostEqual(bar.rgba((0.1, 0.2, 0.3)), (0.1, 0.2, 0.3, 1.0))  # type: ignore[arg-type]
+        self.assertSequenceAlmostEqual(bar.rgba((0.1, 0.2, 0.3)), (0.1, 0.2, 0.3, 1.0))
         self.assertSequenceAlmostEqual(
             bar.rgba([0.1, 0.2, 0.3, 0.4]),  # type: ignore[arg-type]
             (0.1, 0.2, 0.3, 0.4),
@@ -1009,13 +1009,13 @@ class TestTypes(unittest.TestCase):
                 embedding.testFloatSingle(2**1024)  # so not inf...
         if useOldExportTraits:
             with self.assertRaises(TypeError):
-                embedding.testFloatSingle(MyFloat(1.5))  # type: ignore[arg-type]
+                embedding.testFloatSingle(MyFloat(1.5))
         else:
             # Custom objects should be converted to float first
-            self.assertEqual(embedding.testFloatSingle(MyFloat(1.5)), 1.5)  # type: ignore[arg-type]
-            self.assertEqual(embedding.testFloatSingle(MyFloat("inf")), inf)  # type: ignore[arg-type]
-            self.assertEqual(embedding.testFloatSingle(MyFloat(1e40)), inf)  # type: ignore[arg-type]
-            self.assertTrue(math.isnan(embedding.testFloatSingle(MyFloat("nan"))))  # type: ignore[arg-type]
+            self.assertEqual(embedding.testFloatSingle(MyFloat(1.5)), 1.5)
+            self.assertEqual(embedding.testFloatSingle(MyFloat("inf")), inf)
+            self.assertEqual(embedding.testFloatSingle(MyFloat(1e40)), inf)
+            self.assertTrue(math.isnan(embedding.testFloatSingle(MyFloat("nan"))))
             with self.assertRaises(OverflowError):
                 float(MyFloat(2**1024))
 
@@ -1059,13 +1059,13 @@ class TestTypes(unittest.TestCase):
 
         if useOldExportTraits:
             with self.assertRaises(TypeError):
-                embedding.testFloatDouble(MyFloat(1.5))  # type: ignore[arg-type]
+                embedding.testFloatDouble(MyFloat(1.5))
         else:
             # Custom objects should be converted to float first
-            self.assertEqual(embedding.testFloatDouble(MyFloat(1.5)), 1.5)  # type: ignore[arg-type]
-            self.assertEqual(embedding.testFloatDouble(MyFloat("inf")), inf)  # type: ignore[arg-type]
-            self.assertEqual(embedding.testFloatDouble(MyFloat(1e400)), inf)  # type: ignore[arg-type]
-            self.assertTrue(math.isnan(embedding.testFloatDouble(MyFloat("nan"))))  # type: ignore[arg-type]
+            self.assertEqual(embedding.testFloatDouble(MyFloat(1.5)), 1.5)
+            self.assertEqual(embedding.testFloatDouble(MyFloat("inf")), inf)
+            self.assertEqual(embedding.testFloatDouble(MyFloat(1e400)), inf)
+            self.assertTrue(math.isnan(embedding.testFloatDouble(MyFloat("nan"))))
             with self.assertRaises(OverflowError):
                 float(MyFloat(2**1024))
 
