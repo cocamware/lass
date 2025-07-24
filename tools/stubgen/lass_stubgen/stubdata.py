@@ -44,14 +44,15 @@ import sys
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, NamedTuple, TypeAlias
+from typing import TYPE_CHECKING, Any, NamedTuple, TypeAlias
 
 if sys.version_info < (3, 11):
     from typing_extensions import Self
 else:
     from typing import Self
 
-StrPath: TypeAlias = str | os.PathLike[str]
+if TYPE_CHECKING:
+    from _typeshed import StrPath
 
 
 __all__ = [

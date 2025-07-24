@@ -37,18 +37,23 @@
 
 """Generate *.pyi stubs for Lass Python bindings using libclang."""
 
+from __future__ import annotations
+
 import enum
 import functools
 import multiprocessing
 import subprocess
 import sys
+import typing
 from argparse import ArgumentParser
 from pathlib import Path
 
 from .generator import StubGenerator, StubGeneratorError
 from .parser import ParseError, Parser
-from .stubdata import DuplicateError, StrPath, StubData
+from .stubdata import StubData, StubDataError
 
+if typing.TYPE_CHECKING:
+    from _typeshed import StrPath
 
 class Verbosity(enum.IntEnum):
     """Verbosity levels for the stub generator."""
