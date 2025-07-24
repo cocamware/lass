@@ -418,7 +418,9 @@ struct PyExportTraits< prim::Aabb2D<T, MMP> >:
 	public impl::PyExportTraitsPrimAabb< prim::Aabb2D<T, MMP>, PyExportTraits< prim::Aabb2D<T, MMP> > >
 {
 	constexpr static const char* py_typing = "_Aabb2D[T]";
-	constexpr static const char* py_typing_preamble = "type _Aabb2D[T] = tuple[tuple[T, T], tuple[T, T]]";
+	constexpr static const char* py_typing_preamble =
+		"type _Point2D[T] = tuple[T, T]\n"
+		"type _Aabb2D[T] = tuple[_Point2D[T], _Point2D[T]]";
 
 	static const char* className() { return "Aabb2D"; }
 };
@@ -438,7 +440,9 @@ struct PyExportTraits< prim::Aabb3D<T, MMP> >:
 	public impl::PyExportTraitsPrimAabb< prim::Aabb3D<T, MMP>, PyExportTraits< prim::Aabb3D<T, MMP> > >
 {
 	constexpr static const char* py_typing = "_Aabb3D[T]";
-	constexpr static const char* py_typing_preamble = "type _Aabb3D[T] = tuple[tuple[T, T, T], tuple[T, T, T]]";
+	constexpr static const char* py_typing_preamble =
+		"type _Point3D[T] = tuple[T, T, T]\n"
+		"type _Aabb3D[T] = tuple[_Point3D[T], _Point3D[T]]";
 
 	static const char* className() { return "Aabb3D"; }
 };
@@ -462,7 +466,9 @@ struct PyExportTraits< prim::LineSegment2D<T, PP> >:
 	public impl::PyExportTraitsPrimLineSegment< prim::LineSegment2D<T, PP>, PyExportTraits< prim::LineSegment2D<T, PP> > >
 {
 	constexpr static const char* py_typing = "_LineSegment2D[T]";
-	constexpr static const char* py_typing_preamble = "type _LineSegment2D[T] = tuple[tuple[T, T], tuple[T, T]]";
+	constexpr static const char* py_typing_preamble =
+		"type _Point2D[T] = tuple[T, T]\n"
+		"type _LineSegment2D[T] = tuple[_Point2D[T], _Point2D[T]]";
 
 	static const char* className() { return "LineSegment2D"; }
 };
@@ -482,7 +488,9 @@ struct PyExportTraits< prim::LineSegment3D<T, PP> >:
 	public impl::PyExportTraitsPrimLineSegment< prim::LineSegment3D<T, PP>, PyExportTraits< prim::LineSegment3D<T, PP> > >
 {
 	constexpr static const char* py_typing = "_LineSegment3D[T]";
-	constexpr static const char* py_typing_preamble = "type _LineSegment3D[T] = tuple[tuple[T, T, T], tuple[T, T, T]]";
+	constexpr static const char* py_typing_preamble =
+		"type _Point3D[T] = tuple[T, T, T]\n"
+		"type _LineSegment3D[T] = tuple[_Point3D[T], _Point3D[T]]";
 
 	static const char* className() { return "LineSegment3D"; }
 };
@@ -556,7 +564,9 @@ struct PyExportTraits< prim::SimplePolygon2D<T, DP> >:
 	public impl::PyExportTraitsPrimSimplePolygon< prim::SimplePolygon2D<T, DP>, PyExportTraits< prim::SimplePolygon2D<T, DP> > >
 {
 	constexpr static const char* py_typing = "_SimplePolygon2D[T]";
-	constexpr static const char* py_typing_preamble = "type _SimplePolygon2D[T] = Sequence[tuple[T, T]]";
+	constexpr static const char* py_typing_preamble =
+		"type _Point2D[T] = tuple[T, T]\n"
+		"type _SimplePolygon2D[T] = Sequence[_Point2D[T]]";
 
 	static const char* className() { return "SimplePolygon2D"; }
 };
@@ -577,7 +587,9 @@ struct PyExportTraits< prim::SimplePolygon3D<T, DP> >:
 	public impl::PyExportTraitsPrimSimplePolygon< prim::SimplePolygon3D<T, DP>, PyExportTraits< prim::SimplePolygon3D<T, DP> > >
 {
 	constexpr static const char* py_typing = "_SimplePolygon3D[T]";
-	constexpr static const char* py_typing_preamble = "type _SimplePolygon3D[T] = Sequence[tuple[T, T, T]]";
+	constexpr static const char* py_typing_preamble =
+		"type _Point3D[T] = tuple[T, T, T]\n"
+		"type _SimplePolygon3D[T] = Sequence[_Point3D[T]]";
 
 	static const char* className() { return "SimplePolygon3D"; }
 };
@@ -660,7 +672,10 @@ template <>
 struct PyExportTraits<prim::ColorRGBA>
 {
 	constexpr static const char* py_typing = "_RGBA";
-	constexpr static const char* py_typing_preamble = "type _RGBA = tuple[float, float, float, float]";
+	constexpr static const char* py_typing_param = "_RGBA | _RGB";
+	constexpr static const char* py_typing_preamble = 
+		"type _RGBA = tuple[float, float, float, float]\n"
+		"type _RGB = tuple[float, float, float]";
 
 	static PyObject* build(const prim::ColorRGBA& v)
 	{

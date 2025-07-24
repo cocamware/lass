@@ -252,7 +252,7 @@ struct PyExportTraits< util::Callback$x<$(P$x)$> >:
 		PyExportTraits< util::Callback$x<$(P$x)$> > 
 	>
 {
-	static constexpr const char* py_typing = "Callable[[$(P$x)$], None]";
+	static constexpr const char* py_typing = "Callable[[$(P$x!)$], None]";
 
 	static const char* className() { return "Callback$x"; }
 };
@@ -302,7 +302,7 @@ struct PyExportTraits< util::CallbackR0<R> >:
 		PyExportTraits< util::CallbackR0<R> > 
 	>
 {
-	static constexpr const char* py_typing = "Callable[[], R]";
+	static constexpr const char* py_typing = "Callable[[], R!]";
 	
 	static const char* className() { return "CallbackR0"; }
 };
@@ -348,7 +348,7 @@ struct PyExportTraits< util::CallbackR$x<R, $(P$x)$> >:
 		PyExportTraits< util::CallbackR$x<R, $(P$x)$> > 
 	>
 {
-	static constexpr const char* py_typing = "Callable[[$(P$x)$], R]";
+	static constexpr const char* py_typing = "Callable[[$(P$x!)$], R!]";
 	
 	static const char* className() { return "CallbackR$x"; }
 };

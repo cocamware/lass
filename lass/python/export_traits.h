@@ -588,6 +588,10 @@ template <typename Float>
 struct PyExportTraitsFloat
 {
 	constexpr static const char* py_typing = "float";
+	constexpr static const char* py_typing_param = "_Float";
+	constexpr static const char* py_typing_preamble =
+		"from typing import SupportsFloat, SupportsIndex\n"
+		"type _Float = float | SupportsFloat | SupportsIndex\n";
 
 	static PyObject* build(Float v)
 	{
@@ -671,6 +675,10 @@ template <typename T>
 struct PyExportTraits< std::complex<T> >
 {
 	constexpr static const char* py_typing = "complex";
+	constexpr static const char* py_typing_param = "_Complex";
+	constexpr static const char* py_typing_preamble = 
+		"from typing import SupportsComplex, SupportsFloat, SupportsIndex\n"
+		"type _Complex = complex | SupportsComplex | SupportsFloat | SupportsIndex\n";
 
 	static PyObject* build(const std::complex<T>& v)
 	{

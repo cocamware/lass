@@ -991,6 +991,7 @@ class Parser:
         py_type = find_py_typing(node, "py_typing")
         if not py_type:
             return False
+        py_type_param = find_py_typing(node, "py_typing_param")
         preamble_str = find_py_typing(node, "py_typing_preamble")
         if preamble_str:
             preamble = [line for line in preamble_str.splitlines() if line]
@@ -1001,7 +1002,10 @@ class Parser:
             # A full specialization
             self.stubdata.add_export_traits(
                 ExportTraits(
-                    cpp_type=cpp_type, py_type=py_type, preamble=tuple(preamble)
+                    cpp_type=cpp_type,
+                    py_type=py_type,
+                    py_type_param=py_type_param,
+                    preamble=tuple(preamble),
                 )
             )
 
@@ -1020,6 +1024,7 @@ class Parser:
                 ExportTraits(
                     cpp_type=cpp_type,
                     py_type=py_type,
+                    py_type_param=py_type_param,
                     preamble=tuple(preamble),
                     template_params=tuple(intermediate_params.values()),
                 )
