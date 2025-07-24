@@ -41,7 +41,7 @@ import re
 import sysconfig
 from collections.abc import Collection, Iterator
 from pathlib import Path
-from typing import Any, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from clang import cindex  # type: ignore
 from clang.cindex import AccessSpecifier, CursorKind, TypeKind  # type: ignore
@@ -57,10 +57,12 @@ from .stubdata import (
     MethodDefinition,
     ModuleDefinition,
     ParamInfo,
-    StrPath,
     StubData,
     TypeInfo,
 )
+
+if TYPE_CHECKING:
+    from _typeshed import StrPath
 
 __all__ = ["ParseError", "Parser"]
 
