@@ -211,6 +211,20 @@ public:
 	int imagineProperty_{ 1 };
 };
 
+class ClassC : public Base
+{
+public:
+	ClassC(std::string name) : name_(std::move(name)) {}
+	~ClassC() {}
+	const std::string& name() const { return name_; }
+private:
+	std::string name_;
+};
+typedef util::SharedPtr<ClassC> TClassCPtr;
+
+TClassCPtr testClassCPtr(const TClassCPtr& classC) { return classC; }
+ClassC testClassCCopy(const ClassC& classC) { return classC; }
+
 class ClassSeq
 {
 	typedef std::vector<float> TSeq;
@@ -404,6 +418,13 @@ PY_CLASS_FREE_MEMBER_R_NAME_DOC( PyClassB, lass::test::properGetMemberImagine, "
 PY_CLASS_METHOD_NAME( PyClassB, getitem, lass::python::methods::_getitem_);
 PY_CLASS_METHOD_NAME( PyClassB, len, lass::python::methods::_len_);
 PY_CLASS_METHOD_NAME( PyClassB, setitem, lass::python::methods::_setitem_);
+
+PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyClassC, lass::test::ClassC, PyBase)
+PY_SHADOW_CASTERS( PyClassC )
+PY_DECLARE_CLASS_NAME( PyClassC, "ClassC")
+PY_CLASS_CONSTRUCTOR_1( PyClassC, std::string )
+PY_CLASS_CONVERTOR( PyClassC, std::string )
+PY_CLASS_MEMBER_R( PyClassC, name )
 
 // full sequence protocol
 PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyClassSeq, lass::test::ClassSeq)
@@ -686,6 +707,7 @@ PY_MODULE_CLASS( embedding, Cyclic );
 PY_MODULE_CLASS( embedding, PyBase );
 PY_MODULE_CLASS( embedding, PyClassA );
 PY_MODULE_CLASS( embedding, PyClassB );
+PY_MODULE_CLASS( embedding, PyClassC );
 PY_MODULE_CLASS( embedding, PyClassSeq );
 PY_MODULE_CLASS( embedding, PyClassMap );
 
@@ -707,7 +729,8 @@ PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, std::string, const 
 PY_MODULE_FUNCTION_QUALIFIED_NAME_1( embedding, overloadedB, float, const std::complex<float>&, "overloaded" )
 PY_MODULE_FUNCTION_QUALIFIED_NAME_2( embedding, functionWithDefaultArgs, int, int, int , "functionWithDefaultArgs" )
 PY_MODULE_FUNCTION_CAST_NAME_1( embedding, functionWithDefaultArgs, int, int, "functionWithDefaultArgs" )
-
+PY_MODULE_FUNCTION( embedding, testClassCCopy )
+PY_MODULE_FUNCTION( embedding, testClassCPtr )
 
 PY_MODULE_FUNCTION( embedding, testCStringSupport )
 PY_MODULE_FUNCTION( embedding, writeStdout )

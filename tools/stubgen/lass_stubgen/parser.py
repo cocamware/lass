@@ -107,6 +107,7 @@ class Parser:
             "addLong": self._handle_module_add_long,
             "addString": self._handle_module_add_string,
             "addConstructor": self._handle_class_add_constructor,
+            "addConverter": self._handle_class_add_converter,
             "addMethod": self._handle_class_add_method,
             "addStaticMethod": self._handle_class_add_static_method,
             "addGetSetter": self._handle_class_add_get_setter,
@@ -689,6 +690,38 @@ class Parser:
             assert False, call_expr.spelling
 
         return True
+    
+    def _handle_class_add_converter(self, node: cindex.Cursor) -> bool:
+        assert node.kind == CursorKind.CALL_EXPR
+        children = list(node.get_children())
+
+        addConverter_ref = children[0]
+        while addConverter_ref.kind.is_unexposed():
+            addConverter_ref = ensure_only_child(addConverter_ref)
+        if addConverter_ref.kind != CursorKind.DECL_REF_EXPR:
+            return False
+        addConverter = addConverter_ref.referenced
+        if fully_qualified(addConverter) != "lass::python::impl::ShadowTraits::addConverter":
+            return False
+
+        converter_ref = children[1]
+        while converter_ref.kind.is_unexposed() or converter_ref.kind == CursorKind.PAREN_EXPR:
+            converter_ref = ensure_only_child(converter_ref)
+        ensure_kind(converter_ref, CursorKind.DECL_REF_EXPR)
+        if fully_qualified(converter_ref.referenced) != "lass::python::impl::defaultConvertor":
+            return False
+
+        type_refs = list(iter_children(converter_ref, CursorKind.TYPE_REF))
+        assert len(type_refs) == 2, type_refs
+
+        shadow_class = fully_qualified(type_refs[0].referenced)
+        class_def = self._get_shadow_class_def(shadow_class)
+
+        source_type = type_info(type_refs[1].referenced)
+
+        class_def.add_implicit_converter(source_type)
+
+        return True
 
     def _handle_class_add_method(self, node: cindex.Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
@@ -1078,6 +1111,12 @@ reference to a module defined in another file.
         """
         _lassPyClassDef = ensure_only_child(node, CursorKind.DECL_REF_EXPR)
         shadow_class = self._parse_class_ref(_lassPyClassDef)
+        return self._get_shadow_class_def(shadow_class)
+        
+    def _get_shadow_class_def(self, shadow_class: str) -> ClassDefinition:
+        """
+        Get the class definition from the shadow class name.
+        """
         try:
             return self.stubdata.shadow_classes[shadow_class]
         except KeyError:
