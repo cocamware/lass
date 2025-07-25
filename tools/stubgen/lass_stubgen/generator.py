@@ -674,15 +674,28 @@ class StubGenerator:
         """
         preamble: list[str] = []
         cpp_name = cpp_type.name
+        py_type: str | None = None
+        py_typer: str | BuiltinTyper | BuiltinTyperRegex | None = None
+
         if class_def := self.stubdata.cpp_classes.get(str(cpp_type)):
             if not class_def.fully_qualified_name:
                 raise StubGeneratorError(
                     f"Class {class_def.py_name} ({cpp_name}) "
                     + "is not part of a module or class"
                 )
-            return self._strip_scope(
+            py_type, _ = self._strip_scope(
                 class_def.fully_qualified_name, scope=scope, preamble=preamble
             )
+            if as_param and class_def.implicit_converters:
+                conv_types = [
+                    self.python_type(
+                        conv, scope=scope, preamble=preamble, as_param=True
+                    )
+                    for conv in class_def.implicit_converters
+                ]
+                py_type = f"{py_type} | {' | '.join(conv_types)}"
+            return py_type, preamble
+
         if enum_def := self.stubdata.enums.get(cpp_name):
             if not enum_def.fully_qualified_name:
                 raise StubGeneratorError(
@@ -709,18 +722,20 @@ class StubGenerator:
                 return py_type, preamble
             return py_typer, preamble
 
-        for regex, py_type_match in BUILTIN_TYPES_REGEX:
+        for regex, py_typer in BUILTIN_TYPES_REGEX:
             if match := re.match(regex, cpp_name):
-                if callable(py_type_match):
-                    py_type = py_type_match(
+                if callable(py_typer):
+                    py_type = py_typer(
                         self, cpp_type.args, scope, preamble, as_param, match
                     )
                     return py_type, preamble
-                return py_type_match, preamble
+                return py_typer, preamble
 
         if cpp_type.is_pointer:
-            py_type = f"{self.python_type(cpp_type.base_type, scope=scope, preamble=preamble, as_param=as_param)} | None"
-            return py_type, preamble
+            py_type = self.python_type(
+                cpp_type.base_type, scope=scope, preamble=preamble, as_param=as_param
+            )
+            return f"{py_type} | None", preamble
 
         return cpp_name, preamble
 

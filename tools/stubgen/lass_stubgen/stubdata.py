@@ -389,6 +389,7 @@ class ClassDefinition:
     methods: dict[str, list[MethodDefinition]] = field(default_factory=dict)
     getsetters: dict[str, GetSetterDefinition] = field(default_factory=dict)
     consts: dict[str, ConstDefinition] = field(default_factory=dict)
+    implicit_converters: set[TypeInfo] = field(default_factory=set)
     _cpp_constructors: dict[str, ConstructorDefinition] = field(default_factory=dict)
 
     def add_inner_class(self, shadow_class: str) -> None:
@@ -415,6 +416,9 @@ class ClassDefinition:
     def add_const(self, const_def: ConstDefinition) -> None:
         self.consts[const_def.py_name] = const_def
 
+    def add_implicit_converter(self, source_type: TypeInfo) -> None:
+        self.implicit_converters.add(source_type)
+
     def __str__(self) -> str:
         return f"class {self.py_name} ({self.shadow_name})"
 
@@ -432,6 +436,9 @@ class ClassDefinition:
         consts: list[dict[str, Any]] = []
         for const in self.consts.values():
             consts.append(const.asdict())
+        implicit_converters: list[dict[str, Any]] = []
+        for conv in self.implicit_converters:
+            implicit_converters.append(conv.asdict())
         _cpp_constructors: list[dict[str, Any]] = []
         for constr_def in self._cpp_constructors.values():
             _cpp_constructors.append(constr_def.asdict())
@@ -448,6 +455,7 @@ class ClassDefinition:
             "methods": methods,
             "getsetters": getsetters,
             "consts": consts,
+            "implicit_converters": implicit_converters,
             "_cpp_constructors": _cpp_constructors,
         }
 
@@ -470,6 +478,9 @@ class ClassDefinition:
         for const in data["consts"]:
             const_def = ConstDefinition.fromdict(const)
             consts[const_def.py_name] = const_def
+        implicit_converters: set[TypeInfo] = set()
+        for source_type in data.get("implicit_converters", []):
+            implicit_converters.add(TypeInfo.fromdict(source_type))
         _cpp_constructors: dict[str, ConstructorDefinition] = {}
         for constr in data["constructors"]:
             constr_def = ConstructorDefinition.fromdict(constr)
@@ -487,6 +498,7 @@ class ClassDefinition:
             methods=methods,
             getsetters=getsetters,
             consts=consts,
+            implicit_converters=implicit_converters,
             _cpp_constructors=_cpp_constructors,
         )
 

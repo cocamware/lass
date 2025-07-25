@@ -684,6 +684,30 @@ class TestShadowHierarchy(unittest.TestCase):
         self.assertTrue(embedding.spamToCppByReference(spam, spam))
 
 
+class TestShadowConvertors(unittest.TestCase):
+    def testClassC(self) -> None:
+        c = embedding.ClassC("hello")
+        c2 = embedding.testClassCPtr(c)
+        self.assertIsNotNone(c2)
+        assert c2 is not None
+        self.assertEqual(c2.name, "hello")
+
+        c3 = embedding.testClassCPtr("world")
+        self.assertIsNotNone(c3)
+        assert c3 is not None
+        self.assertEqual(c3.name, "world")
+
+        c4 = embedding.testClassCCopy(c)
+        self.assertIsNotNone(c4)
+        assert c4 is not None
+        self.assertEqual(c4.name, "hello")
+
+        c5 = embedding.testClassCCopy("bye")
+        self.assertIsNotNone(c5)
+        assert c5 is not None
+        self.assertEqual(c5.name, "bye")
+
+
 class TestCallbacks(unittest.TestCase):
     def setUp(self) -> None:
         self.isCalled = False
