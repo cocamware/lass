@@ -59,6 +59,31 @@ void doFixObjectType(PyObjectPlus* object)
 	}
 }
 
+bool decrementReference(PyObject* pointee)
+{
+	LASS_ASSERT(pointee);
+	bool r = false;
+	if (Py_IsInitialized())
+	{
+		LockGIL LASS_UNUSED(lock);
+		r = pointee->ob_refcnt <= 1;
+		Py_DECREF(pointee);
+	}
+	else
+	{
+		// fingers crossed!
+		r = pointee->ob_refcnt <= 1;
+		if (--pointee->ob_refcnt == 0)
+		{
+			PyTypeObject* type = Py_TYPE(pointee);
+			auto typeShim = ((impl::PyTypeObjectShim*)type);
+			destructor dealloc = typeShim->tp_dealloc;
+			(*dealloc)(pointee);
+		}
+	}
+	return r;
+}
+
 }
 }
 }

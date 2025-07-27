@@ -155,7 +155,8 @@ ClassDefinition::~ClassDefinition()
 
 const PyTypeObject* ClassDefinition::type() const
 {
-	return reinterpret_cast<PyTypeObject*>(type_.get());
+	LASS_ENFORCE(isFrozen_)(name())("is not frozen yet");
+	return _Py_CAST(PyTypeObject*, type_.get());
 }
 
 
@@ -163,7 +164,7 @@ const PyTypeObject* ClassDefinition::type() const
 PyTypeObject* ClassDefinition::type()
 {
 	LASS_ENFORCE(isFrozen_)(name())("is not frozen yet");
-	return reinterpret_cast<PyTypeObject*>(type_.get());
+	return _Py_CAST(PyTypeObject*, type_.get());
 }
 
 
@@ -423,7 +424,11 @@ void ClassDefinition::freezeDefinition(PyObject* module, const char* scopeName)
 #endif
 	isFrozen_ = true;
 
-	PyObject* typ = type_.get();
+	PyObject* typ = _PyObject_CAST(type());
+
+	// check a few assumptions
+	[[maybe_unused]] auto typeShim = _Py_CAST(impl::PyTypeObjectShim*, typ);
+	LASS_ASSERT(typeShim->tp_dealloc == &dealloc);
 
 	const char* qualname = className;
 	if (scopeName)
@@ -459,7 +464,7 @@ void ClassDefinition::freezeDefinition(PyObject* module, const char* scopeName)
 	}
 
 #if PY_VERSION_HEX >= 0x030a0000 // >= 3.10
-	type()->tp_flags |= Py_TPFLAGS_IMMUTABLETYPE;
+	((impl::PyTypeObjectShim*)type())->tp_flags |= Py_TPFLAGS_IMMUTABLETYPE;
 #endif
 }
 
