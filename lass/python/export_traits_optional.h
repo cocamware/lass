@@ -92,6 +92,19 @@ struct PyExportTraits< std::optional<T> >
 	}
 };
 
+
+
+/** MaybeNone<std::optional<T>> type-hints a type as `T | MaybeNone`
+ * 
+ *  @ingroup Python
+ *  @sa MaybeNone
+ *  @sa PyExportTraitsMaybeNone
+ */
+template <typename T>
+struct PyExportTraits< MaybeNone< std::optional<T> > > : public PyExportTraitsMaybeNone< std::optional<T> >
+{
+};
+
 }
 }
 

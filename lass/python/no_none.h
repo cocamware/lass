@@ -77,6 +77,7 @@ namespace lass::python
  *  @sa PyExportTraits<NoNone<T*>>
  *  @sa PyExportTraits<NoNone<util::SharedPtr<T,S,C>>>
  *  @sa PyExportTraits<NoNone<std::shared_ptr<T>>>
+ *  @sa MaybeNone
  */
 template <typename T>
 class NoNone

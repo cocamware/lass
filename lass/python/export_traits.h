@@ -48,6 +48,7 @@
 #include "exception.h"
 #include "pyobject_ptr.h"
 #include "no_none.h"
+#include "maybe_none.h"
 #include "../num/num_cast.h"
 
 namespace lass
@@ -401,6 +402,90 @@ struct PyExportTraits< NoNone< util::SharedPtr<T, S, C> > > : public PyExportTra
  */
 template <typename T>
 struct PyExportTraits< NoNone< std::shared_ptr<T> > > : public PyExportTraitsNoNone< std::shared_ptr<T> >
+{
+};
+
+
+
+// --- MaybeNone -----------------------------------------------------------------------------------
+
+/** Helper class to create PyExportTraits for MaybeNone wrapped types.
+ *
+ *  MaybeNone does not provide any runtime or compile-time checks. It only serves to alter the
+ *  type-hint to `T | MaybeNone` in Python, which is useful for type-checking, see [The Any Trick].
+ * 
+ *  MaybeNone<T> types can only be returned from C++ to Python, it doesn't make sense to pass them
+ *  as function parameters to C++.
+ *
+ *  Use this helper to create PyExportTraits for your own MaybeNone wrapped types by inheriting from it.
+ *
+ *  ```
+ *  template <typename T, template <typename, typename> class S, typename C>
+ *  struct PyExportTraits< MaybeNone< util::SharedPtr<T, S, C> > >: public PyExportTraitsMaybeNone< util::SharedPtr<T, S, C> >
+ *  {
+ *      constexpr static const char* py_typing = "T | MaybeNone"; // optional
+ *  };
+ *  ```
+ *
+ *  Built-in specializations are provided for raw pointers `T*`, util::SharedPtr<T>, `std::shared_ptr<T>`,
+ *  and `std::optional<T>`.
+ *
+ *  @note If you use `typename T` as the main template parameter for your actual type, then the
+ *  Python type will automatically be deduced. If not, or if you still see a `T | None` type-hint,
+ *  you can can override the `py_typing` member to specify the type-hint you want.
+ * 
+ *  [The Any Trick]: https://typing.python.org/en/latest/guides/writing_stubs.html#the-any-trick
+ *
+ *  @ingroup Python
+ *  @sa MaybeNone
+ *  @sa PyExportTraits<MaybeNone<T*>>
+ *  @sa PyExportTraits<MaybeNone<util::SharedPtr<T,S,C>>>
+ *  @sa PyExportTraits<MaybeNone<std::shared_ptr<T>>>
+ *  @sa PyExportTraits<MaybeNone<std::optional<T>>>
+ */
+template <typename T>
+struct PyExportTraitsMaybeNone
+{
+	constexpr static const char* py_typing = "T | MaybeNone";
+	constexpr static const char* py_typing_preamble = "from _typeshed import MaybeNone";
+
+	static PyObject* build(const MaybeNone<T>& value)
+	{
+		return PyExportTraits<T>::build(value);
+	}
+};
+
+/** MaybeNone<T*> type-hints a type as `T | MaybeNone`
+ * 
+ *  @ingroup Python
+ *  @sa MaybeNone
+ *  @sa PyExportTraitsMaybeNone
+ */
+template <typename T>
+struct PyExportTraits< MaybeNone<T*> > : public PyExportTraitsMaybeNone<T*>
+{
+};
+
+/** MaybeNone<util::SharedPtr<T>> type-hints a type as `T | MaybeNone`
+ * 
+ *  @ingroup Python
+ *  @sa MaybeNone
+ *  @sa util::SharedPtr
+ *  @sa PyExportTraitsMaybeNone
+ */
+template <typename T, template <typename, typename> class S, typename C>
+struct PyExportTraits< MaybeNone< util::SharedPtr<T, S, C> > > : public PyExportTraitsMaybeNone< util::SharedPtr<T, S, C> >
+{
+};
+
+/** MaybeNone<std::shared_ptr<T>> type-hints a type as `T | MaybeNone`
+ * 
+ *  @ingroup Python
+ *  @sa MaybeNone
+ *  @sa PyExportTraitsMaybeNone
+ */
+template <typename T>
+struct PyExportTraits< MaybeNone< std::shared_ptr<T> > > : public PyExportTraitsMaybeNone< std::shared_ptr<T> >
 {
 };
 
