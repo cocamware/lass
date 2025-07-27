@@ -75,7 +75,7 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 find_package(Python ${_Lass_FIND_PYTHON_ARGS} REQUIRED
-             COMPONENTS Interpreter OPTIONAL_COMPONENTS Development)
+             COMPONENTS Interpreter OPTIONAL_COMPONENTS Development Development.SABIModule)
 mark_as_advanced(CLEAR Python_EXECUTABLE)
 
 if(Python_Development_FOUND)
@@ -91,6 +91,33 @@ if(Python_Development_FOUND)
 	else()
 		set(LASS_PYTHON_HAS_DEBUG_BUILD 0)
 		set(LASS_PYTHON_DEBUG_POSTFIX)
+	endif()
+
+	if (Lass_Py_LIMITED_API)
+		if (NOT Python_Development.SABIModule_FOUND)
+			message(FATAL_ERROR "Build with Lass_Py_LIMITED_API=${Lass_Py_LIMITED_API} requested, by Python has no SABI module")
+		endif()
+		if (Lass_Py_LIMITED_API VERSION_GREATER Python_VERSION)
+			message(FATAL_ERROR "Lass_Py_LIMITED_API cannot be greater than Python_VERSION: ${Lass_Py_LIMITED_API} > ${Python_VERSION}")
+		endif()
+		if (Lass_Py_LIMITED_API VERSION_LESS "3.10.0")
+			message(FATAL_ERROR "Lass_Py_LIMITED_API cannot be smaller than 3.10: ${Lass_Py_LIMITED_API} < 3.10")
+		endif()
+		if(NOT Lass_Py_LIMITED_API MATCHES [[^3(\.([0-9]+))$]])
+			message(FATAL_ERROR "Lass_Py_LIMITED_API is not of form 3[.<minor>]")
+		endif()
+		if (CMAKE_MATCH_2 AND CMAKE_MATCH_2 GREATER_EQUAL 2)
+			math(EXPR _minor "${CMAKE_MATCH_2}" OUTPUT_FORMAT HEXADECIMAL)
+			string(REPLACE "0x" "" _minor "${_minor}")
+			if(CMAKE_MATCH_2 LESS 16)
+				set(_minor "0${_minor}")
+			endif()
+			set(LASS_PY_LIMITED_API "0x03${_minor}0000")
+		else()
+			set(LASS_PY_LIMITED_API "3")
+		endif()
+	else()
+		set(LASS_PY_LIMITED_API)
 	endif()
 
 	if(NOT DEFINED Lass_PYTHON_BASE_PREFIX)
@@ -474,8 +501,6 @@ if(NOT DEFINED Lass_HAVE_AVX)
     endif()
 endif()
 set(LASS_HAVE_AVX "${Lass_HAVE_AVX}")
-
-
 
 configure_file(
 	"${Lass_SOURCE_DIR}/lass/config/local_config.h.in" 

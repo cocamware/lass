@@ -8,11 +8,13 @@ if(Lass_HAVE_PYTHON)
 
     set(Lass_PYTHON_VERSION "@Python_VERSION_MAJOR@.@Python_VERSION_MINOR@")
     set(Lass_PYTHON_DEBUG_POSTFIX "@LASS_PYTHON_DEBUG_POSTFIX@")
+    set(Lass_Py_LIMITED_API "@Lass_Py_LIMITED_API@")
 
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
     set(_Lass_FIND_PYTHON_ARGS Python "${Lass_PYTHON_VERSION}" EXACT
-                               COMPONENTS Interpreter Development)
+                               COMPONENTS Interpreter Development
+                               OPTIONAL_COMPONENTS Development.SABIModule)
 
     include(CMakeFindDependencyMacro)
     find_dependency(${_Lass_FIND_PYTHON_ARGS})

@@ -174,8 +174,20 @@ if(Python_Development_FOUND)
 		PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" # for pre-compiled header
  		)
 	target_link_libraries(lass_python
-		PUBLIC Lass::lass Python::Module # also adds the include dirs
+		PUBLIC Lass::lass # also adds the include dirs
 		)
+	if (LASS_PY_LIMITED_API)
+		target_link_libraries(lass_python
+			PUBLIC Lass::lass Python::SABIModule
+		)
+		target_compile_definitions(lass_python
+			PRIVATE "Py_LIMITED_API=${LASS_PY_LIMITED_API}"
+		)
+	else()
+		target_link_libraries(lass_python
+			PUBLIC Lass::lass Python::Module
+		)
+	endif()
 	set_target_properties(lass_python PROPERTIES
 		DEFINE_SYMBOL LASS_PYTHON_EXPORTS 
 		SOVERSION "${Lass_VERSION_PATCH}"

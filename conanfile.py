@@ -76,6 +76,7 @@ class _Options(Protocol):
     without_iterator_debugging: _PackageOption
     have_avx: _PackageOption
     with_stubgen: _PackageOption
+    py_limited_api: _PackageOption
 
     def get_safe(self, name: str, default: Any = None) -> Optional[_PackageOption]: ...
     def rm_safe(self, name: str) -> None: ...
@@ -141,6 +142,7 @@ class LassConan(ConanFile):  # type: ignore[misc]
         "without_iterator_debugging": [True, False],
         "have_avx": [True, False],
         "with_stubgen": [True, False, "auto"],
+        "py_limited_api": [False, "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"],
     }
     default_options = {
         "shared": True,
@@ -149,8 +151,9 @@ class LassConan(ConanFile):  # type: ignore[misc]
         "without_iterator_debugging": False,
         "have_avx": True,
         "with_stubgen": "auto",
+        "py_limited_api": False,
     }
-    requires = "syspython/1.0.8@cocamware/stable"
+    requires = "syspython/1.0.9@cocamware/stable"
 
     def export_sources(self) -> None:
         git = Git(self)
@@ -201,6 +204,13 @@ class LassConan(ConanFile):  # type: ignore[misc]
                 )
         elif compiler in ["msvc"]:
             check_min_vs(self, "193")  # require VS 2019 as minimum
+        if py_limited_api := str(self.options.get_safe("py_limited_api") or ""):
+            py_version = str(self.dependencies["syspython"].options.python_version)
+            if _int_version(py_limited_api) > _int_version(py_version):
+                raise ConanInvalidConfiguration(
+                    "py_limited_api must be less or equal the Python version: "
+                    f"{py_limited_api} > {py_version}"
+                )
 
     def layout(self) -> None:
         cmake_layout(self)
@@ -247,6 +257,9 @@ class LassConan(ConanFile):  # type: ignore[misc]
             self.options.without_iterator_debugging
         )
         tc.cache_variables["Lass_PYTHON_VERSION"] = python.options.python_version
+        tc.cache_variables["Lass_Py_LIMITED_API"] = self.options.get_safe(
+            "py_limited_api", False
+        )
         tc.cache_variables["BUILD_TESTING"] = True
         tc.cache_variables["Lass_HAVE_AVX"] = self.options.get_safe("have_avx", False)
         if self.options.with_stubgen != "auto":

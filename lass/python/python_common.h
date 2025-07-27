@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -89,6 +89,12 @@ namespace lass::python
  */
 
 }
+
+#ifdef Py_LIMITED_API
+#   ifndef LASS_PY_LIMITED_API
+#       error "Lass was not built against the Limited API".
+#   endif
+#endif
 
 #ifdef LASS_PYTHON_DLL
 #	undef LASS_PYTHON_DLL

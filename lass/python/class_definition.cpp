@@ -135,16 +135,16 @@ ClassDefinition::~ClassDefinition()
 
 const PyTypeObject* ClassDefinition::type() const
 {
-	LASS_ENFORCE(type_)(name())(" is not frozen yet");
-	return reinterpret_cast<PyTypeObject*>(type_.get());
+	LASS_ENFORCE(type_)(name())("is not frozen yet");
+	return _Py_CAST(PyTypeObject*, type_.get());
 }
 
 
 
 PyTypeObject* ClassDefinition::type()
 {
-	LASS_ENFORCE(type_)(name())(" is not frozen yet");
-	return reinterpret_cast<PyTypeObject*>(type_.get());
+	LASS_ENFORCE(type_)(name())("is not frozen yet");
+	return _Py_CAST(PyTypeObject*, type_.get());
 }
 
 
@@ -432,6 +432,10 @@ PyObject* ClassDefinition::freezeDefinition(PyObject* module, const char* scopeN
 
 	PyObject* type = type_.get();
 
+	// check a few assumptions
+	[[maybe_unused]] auto typeShim = _Py_CAST(impl::PyTypeObjectShim*, type);
+	LASS_ASSERT(typeShim->tp_dealloc == &dealloc);
+
 	const char* qualname = className_;
 	std::string scopedQualname;
 	if (scopeName)
@@ -489,9 +493,9 @@ PyObject* ClassDefinition::freezeDefinition(PyObject* module, const char* scopeN
 
 int ClassDefinition::freezeType()
 {
-	PyTypeObject* type = reinterpret_cast<PyTypeObject*>(type_.get());
-#if PY_VERSION_HEX >= 0x030e0000 // >= 3.14
-	if (!PyType_HasFeature(type, Py_TPFLAGS_IMMUTABLETYPE))
+#if PY_VERSION_HEX >= 0x030e0000 && (!defined(LASS_PY_LIMITED_API) || LASS_PY_LIMITED_API+0 >= 0x030e0000) // >= 3.14
+	PyTypeObject* typ = type();
+	if (!PyType_HasFeature(typ, Py_TPFLAGS_IMMUTABLETYPE))
 	{
 		if (parent_ && !PyType_HasFeature(parent_->type(), Py_TPFLAGS_IMMUTABLETYPE))
 		{
@@ -499,7 +503,7 @@ int ClassDefinition::freezeType()
 			LASS_ASSERT(std::find(parent_->subClasses_.begin(), parent_->subClasses_.end(), this) != parent_->subClasses_.end());
 			return 0;
 		}
-		if (PyType_Freeze(type) != 0)
+		if (PyType_Freeze(typ) != 0)
 		{
 			return -1;
 		}
@@ -517,7 +521,7 @@ int ClassDefinition::freezeType()
 		LASS_ASSERT(PyType_HasFeature(subClass->type(), Py_TPFLAGS_IMMUTABLETYPE));
 	}
 #else
-	type->tp_flags |= Py_TPFLAGS_IMMUTABLETYPE;
+	((impl::PyTypeObjectShim*)type())->tp_flags |= Py_TPFLAGS_IMMUTABLETYPE;
 #endif
 	return 0;
 }
