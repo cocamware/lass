@@ -64,6 +64,8 @@ function(_try_run_checking RESULT_VAR fname what)
 	_try_run("${RESULT_VAR}" "${fname}" "Checking whether ${what}" "yes" "no" ${ARGN})
 endfunction()
 
+set (LASS_CPP_STANDARD "${CMAKE_CXX_STANDARD}")
+
 # --- about Python ---
 
 unset(_Lass_FIND_PYTHON_ARGS)

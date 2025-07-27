@@ -47,42 +47,13 @@
 #include "shadowee_traits.h"
 #include "exception.h"
 #include "pyobject_ptr.h"
+#include "no_none.h"
 #include "../num/num_cast.h"
 
 namespace lass
 {
 namespace python
 {
-
-/** Wrapper to prevent None values in Python.
- *	
- *	Use this class to wrap a type T that could be None in Python (for example, a pointer type).
- *	But you want to ensure that the value is always valid and not None.
- *
- *  Works in both directions: from and to Python. In case a None value is passed or returned,
- *  it will raise a TypeError instead.
- *	@ingroup Python
- */
-template <typename T>
-class NoNone
-{
-public:
-	NoNone(const T& x = T()): value_(x) {}
-	T& reference() { return value_; }
-	const T& reference() const { return value_; }
-	operator T&() { return value_; }
-	operator const T&() const { return value_; }
-	
-	auto operator->() const { return value_.operator->(); }
-	auto operator->() { return value_.operator->(); }
-	auto& operator*() const { return value_.operator*(); }
-	auto& operator*() { return value_.operator*(); }
-
-	bool operator!() const { return !value_; }
-	explicit operator bool() const { return static_cast<bool>(value_); }
-private:
-	T value_;
-};
 
 namespace impl
 {
@@ -326,69 +297,6 @@ struct PyExportTraits<void*>
 };
 
 
-/** NoNone refuses None as value.
- *  @ingroup Python
- */
-template <typename T>
-struct PyExportTraitsNoNone
-{
-	constexpr static const char* py_typing = "T";
-
-	static PyObject* build(const NoNone<T>& value)
-	{
-		const T& v = static_cast<const T&>(value);
-		if (!v)
-		{
-			PyErr_SetString(PyExc_TypeError, "value must be not be None");
-			return nullptr;
-		}
-		return PyExportTraits<T>::build(value);
-	}
-	static int get(PyObject* obj, NoNone<T>& value)
-	{
-		if (obj == Py_None)
-		{
-			PyErr_SetString(PyExc_TypeError, "argument must be not be None");
-			return 1;
-		}
-		return PyExportTraits<T>::get(obj, value);
-	}
-};
-
-
-/** NoNone refuses None as value.
- *  @ingroup Python
- */
-template <typename T>
-struct PyExportTraits< NoNone<T> > : public PyExportTraitsNoNone<T> {};
-
-/** NoNone refuses None as value.
- *  @ingroup Python
- */
-template <typename T>
-struct PyExportTraits< NoNone<T*> > : public PyExportTraitsNoNone<T*>
-{
-	constexpr static const char* py_typing = "T";
-};
-
-/** NoNone refuses None as value.
- *  @ingroup Python
- */
-template <typename T, template <typename, typename> class S, typename C>
-struct PyExportTraits< NoNone< util::SharedPtr<T, S, C> > > : public PyExportTraitsNoNone< util::SharedPtr<T, S, C> >
-{
-	constexpr static const char* py_typing = "T";
-};
-
-/** NoNone refuses None as value.
- *  @ingroup Python
- */
-template <typename T>
-struct PyExportTraits< NoNone< std::shared_ptr<T> > > : public PyExportTraitsNoNone< std::shared_ptr<T> >
-{
-	constexpr static const char* py_typing = "T";
-};
-
 
 /** @ingroup Python
  *  @internal
@@ -400,6 +308,100 @@ struct PyExportTraits<std::nullptr_t>
 
 	LASS_PYTHON_DLL static PyObject* build(std::nullptr_t value);
 	LASS_PYTHON_DLL static int get(PyObject* obj, std::nullptr_t& value);
+};
+
+
+
+// --- NoNone --------------------------------------------------------------------------------------
+
+/** Helper class to create PyExportTraits for NoNone wrapped types.
+ *
+ *  NoNone wrapped types are used to ensure that:
+ *  - No `None` values can be passed from Python to C++ (which would be translated to a `nullptr`),
+ *  - No `nullptr` values can be returned to Python (which would be translated to a `None`).
+ *
+ *  Use this helper to create PyExportTraits for your own NoNone wrapped types by inheriting from it.
+ *
+ *  ```
+ *  template <typename T, template <typename, typename> class S, typename C>
+ *  struct PyExportTraits< NoNone< util::SharedPtr<T, S, C> > >: public PyExportTraitsNoNone< util::SharedPtr<T, S, C> >
+ *  {
+ *      constexpr static const char* py_typing = "T"; // optional
+ *  };
+ *  ```
+ *
+ *  Built-in specializations are provided for raw pointers `T*`, util::SharedPtr<T>, and `std::shared_ptr<T>`.
+ *
+ *  @note If you use `typename T` as the main template parameter for your actual type, then the
+ *  Python type will automatically be deduced. If not, or if you still see a `T | None` type-hint,
+ *  you can can override the `py_typing` member to specify the type-hint you want.
+ *
+ *  @ingroup Python
+ *  @sa NoNone
+ *  @sa PyExportTraits<NoNone<T*>>
+ *  @sa PyExportTraits<NoNone<util::SharedPtr<T,S,C>>>
+ *  @sa PyExportTraits<NoNone<std::shared_ptr<T>>>
+ */
+template <typename T>
+struct PyExportTraitsNoNone
+{
+	constexpr static const char* py_typing = "T";
+
+	/** Raise a Python `TypeError` if @a value is equal to `nullptr` */
+	static PyObject* build(const NoNone<T>& value)
+	{
+		const T& v = static_cast<const T&>(value);
+		if (v == nullptr)
+		{
+			PyErr_SetString(PyExc_TypeError, "value must be not be None");
+			return nullptr;
+		}
+		return PyExportTraits<T>::build(value);
+	}
+	/** Raise a Python `TypeError` if @a obj is equal to `None` */
+	static int get(PyObject* obj, NoNone<T>& value)
+	{
+		if (obj == Py_None)
+		{
+			PyErr_SetString(PyExc_TypeError, "argument must be not be None");
+			return 1;
+		}
+		return PyExportTraits<T>::get(obj, value);
+	}
+};
+
+/** NoNone<T*> type-hints as `T` and refuses `None` as value.
+ *
+ *  @ingroup Python
+ *  @sa NoNone
+ *  @sa PyExportTraitsNoNone
+ */
+template <typename T>
+struct PyExportTraits< NoNone<T*> > : public PyExportTraitsNoNone<T*>
+{
+};
+
+/** Type-hints NoNone<util::SharedPtr<T>> as `T` and refuses `None` as value.
+ *
+ *  @ingroup Python
+ *  @sa NoNone
+ *  @sa util::SharedPtr
+ *  @sa PyExportTraitsNoNone
+ */
+template <typename T, template <typename, typename> class S, typename C>
+struct PyExportTraits< NoNone< util::SharedPtr<T, S, C> > > : public PyExportTraitsNoNone< util::SharedPtr<T, S, C> >
+{
+};
+
+/** NoNone<std::shared_ptr<T>> type-hints as `T` and refuses `None` as value.
+ *
+ *  @ingroup Python
+ *  @sa NoNone
+ *  @sa PyExportTraitsNoNone
+ */
+template <typename T>
+struct PyExportTraits< NoNone< std::shared_ptr<T> > > : public PyExportTraitsNoNone< std::shared_ptr<T> >
+{
 };
 
 
