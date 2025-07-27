@@ -1028,7 +1028,6 @@ class TestTypes(unittest.TestCase):
         self.assertEqual(embedding.testConstChar32Ptr(None), None)
 
     def testFloatSingle(self) -> None:
-        useOldExportTraits = getattr(embedding, "LASS_USE_OLD_EXPORTRAITS_FLOAT", False)
         # float to single conversion is not always exact
         inf = float("inf")
         self.assertEqual(embedding.testFloatSingle(0.0), 0.0)
@@ -1038,20 +1037,10 @@ class TestTypes(unittest.TestCase):
         self.assertEqual(embedding.testFloatSingle(1e-10), 1.000000013351432e-10)
         self.assertEqual(embedding.testFloatSingle(1e10), 1e10)
         self.assertEqual(embedding.testFloatSingle(1.0000000001), 1.0)
-        if useOldExportTraits:
-            with self.assertRaises(TypeError):
-                embedding.testFloatSingle(inf)
-            with self.assertRaises(TypeError):
-                embedding.testFloatSingle(-inf)
-            with self.assertRaises(TypeError):
-                embedding.testFloatSingle(1e40)
-            with self.assertRaises(TypeError):
-                embedding.testFloatSingle(1e400)
-        else:
-            self.assertEqual(embedding.testFloatSingle(inf), inf)
-            self.assertEqual(embedding.testFloatSingle(-inf), -inf)
-            self.assertEqual(embedding.testFloatSingle(1e40), inf)
-            self.assertEqual(embedding.testFloatSingle(1e400), inf)
+        self.assertEqual(embedding.testFloatSingle(inf), inf)
+        self.assertEqual(embedding.testFloatSingle(-inf), -inf)
+        self.assertEqual(embedding.testFloatSingle(1e40), inf)
+        self.assertEqual(embedding.testFloatSingle(1e400), inf)
         self.assertEqual(embedding.testFloatSingle(1e-50), 0.0)
         self.assertEqual(embedding.testFloatSingle(1e-500), 0.0)
         self.assertTrue(math.isnan(embedding.testFloatSingle(float("nan"))))
@@ -1067,26 +1056,18 @@ class TestTypes(unittest.TestCase):
         )  # !!!
         with self.assertRaises(OverflowError):
             float(2**1024)
-        if useOldExportTraits:
-            with self.assertRaises(TypeError):
-                embedding.testFloatSingle(2**1024)  # so not inf...
-        else:
-            with self.assertRaises(OverflowError):
-                embedding.testFloatSingle(2**1024)  # so not inf...
-        if useOldExportTraits:
-            with self.assertRaises(TypeError):
-                embedding.testFloatSingle(MyFloat(1.5))
-        else:
-            # Custom objects should be converted to float first
-            self.assertEqual(embedding.testFloatSingle(MyFloat(1.5)), 1.5)
-            self.assertEqual(embedding.testFloatSingle(MyFloat("inf")), inf)
-            self.assertEqual(embedding.testFloatSingle(MyFloat(1e40)), inf)
-            self.assertTrue(math.isnan(embedding.testFloatSingle(MyFloat("nan"))))
-            with self.assertRaises(OverflowError):
-                float(MyFloat(2**1024))
+        with self.assertRaises(OverflowError):
+            embedding.testFloatSingle(2**1024)  # so not inf...
+    
+        # Custom objects should be converted to float first
+        self.assertEqual(embedding.testFloatSingle(MyFloat(1.5)), 1.5)
+        self.assertEqual(embedding.testFloatSingle(MyFloat("inf")), inf)
+        self.assertEqual(embedding.testFloatSingle(MyFloat(1e40)), inf)
+        self.assertTrue(math.isnan(embedding.testFloatSingle(MyFloat("nan"))))
+        with self.assertRaises(OverflowError):
+            float(MyFloat(2**1024))
 
     def testFloatDouble(self) -> None:
-        useOldExportTraits = getattr(embedding, "LASS_USE_OLD_EXPORTRAITS_FLOAT", False)
         # float to double conversion should be exact
         inf = float("inf")
         self.assertEqual(embedding.testFloatDouble(0.0), 0.0)
@@ -1114,26 +1095,17 @@ class TestTypes(unittest.TestCase):
             embedding.testFloatDouble(12345678901234567890), 1.2345678901234567e19
         )
         self.assertRaises(OverflowError, float, 2**1024)
-        if useOldExportTraits:
-            self.assertRaises(
-                TypeError, embedding.testFloatDouble, 2**1024
-            )  # so not inf...
-        else:
-            self.assertRaises(
-                OverflowError, embedding.testFloatDouble, 2**1024
-            )  # so not inf...
+        self.assertRaises(
+            OverflowError, embedding.testFloatDouble, 2**1024
+        )  # so not inf...
 
-        if useOldExportTraits:
-            with self.assertRaises(TypeError):
-                embedding.testFloatDouble(MyFloat(1.5))
-        else:
-            # Custom objects should be converted to float first
-            self.assertEqual(embedding.testFloatDouble(MyFloat(1.5)), 1.5)
-            self.assertEqual(embedding.testFloatDouble(MyFloat("inf")), inf)
-            self.assertEqual(embedding.testFloatDouble(MyFloat(1e400)), inf)
-            self.assertTrue(math.isnan(embedding.testFloatDouble(MyFloat("nan"))))
-            with self.assertRaises(OverflowError):
-                float(MyFloat(2**1024))
+        # Custom objects should be converted to float first
+        self.assertEqual(embedding.testFloatDouble(MyFloat(1.5)), 1.5)
+        self.assertEqual(embedding.testFloatDouble(MyFloat("inf")), inf)
+        self.assertEqual(embedding.testFloatDouble(MyFloat(1e400)), inf)
+        self.assertTrue(math.isnan(embedding.testFloatDouble(MyFloat("nan"))))
+        with self.assertRaises(OverflowError):
+            float(MyFloat(2**1024))
 
     def testStdTuple(self) -> None:
         x = (True, "Hello")

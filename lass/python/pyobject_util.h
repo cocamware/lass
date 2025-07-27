@@ -98,7 +98,7 @@ namespace lass
 						{
 							return TPyObjPtr();
 						}
-						PyList_SET_ITEM(r.get(), i, item);
+						PyList_SetItem(r.get(), i, item);
 					}
 				}
 				return r;

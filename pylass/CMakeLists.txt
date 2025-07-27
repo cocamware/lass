@@ -1,10 +1,21 @@
 file(GLOB pylass_HDRS *.h *.inl)
 file(GLOB pylass_SRCS *.cpp)
 
-add_library(pylass MODULE
-	${pylass_HDRS}
+
+if (Python_Development.SABIModule_FOUND)
+	set(_USE_SABI USE_SABI 3.12)
+else()
+	set(_USE_SABI)
+endif()
+
+Python_add_library(
+	pylass
+	MODULE
+	WITH_SOABI
+	${_USE_SABI}
 	${pylass_SRCS}
-	)
+	${pylass_HDRS}
+)
 add_library(Lass::pylass ALIAS pylass)
 target_link_libraries(pylass
 	PUBLIC Lass::lass_python
@@ -12,15 +23,8 @@ target_link_libraries(pylass
 set_target_properties(pylass
 	PROPERTIES 
 	OUTPUT_NAME "lass"
-	PREFIX ""
 	DEBUG_POSTFIX "${LASS_PYTHON_DEBUG_POSTFIX}"
 	)
-if (WIN32)
-	set_target_properties(pylass
-		PROPERTIES 
-		SUFFIX ".pyd"
-		)
-endif()
 lass_add_precompiled_header(pylass
 	pylass_common.h
 	"${Lass_SOURCE_DIR}/pylass/pylass_common.cpp"

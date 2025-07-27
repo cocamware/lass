@@ -56,7 +56,12 @@ TPyObjPtr runString(const char *code, int start)
 {
 	LockGIL LASS_UNUSED(lock);
 	const TPyObjPtr dict = globals();
-	const TPyObjPtr result(PY_ENFORCE_POINTER(PyRun_String(code, start, dict.get(), dict.get())));
+	const TPyObjPtr codeObj(PY_ENFORCE_POINTER(Py_CompileString(code, "<string>", start)));
+	if (!codeObj)
+	{
+		return codeObj;
+	}
+	const TPyObjPtr result(PY_ENFORCE_POINTER(PyEval_EvalCode(codeObj.get(), dict.get(), dict.get())));
 	return result;
 }
 

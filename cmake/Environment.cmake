@@ -75,7 +75,7 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 find_package(Python ${_Lass_FIND_PYTHON_ARGS} REQUIRED
-             COMPONENTS Interpreter OPTIONAL_COMPONENTS Development)
+             COMPONENTS Interpreter OPTIONAL_COMPONENTS Development Development.SABIModule)
 mark_as_advanced(CLEAR Python_EXECUTABLE)
 
 if(Python_Development_FOUND)

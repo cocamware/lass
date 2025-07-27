@@ -225,15 +225,13 @@ PyObject* OverloadLink::call(PyObject* iSelf, PyObject* iArgs) const
 			// If it's one element, we are infact the slot as __delitem__,
 			// and value is implicitly NULL.
 			//
-			const TPyObjPtr args = impl::checkedFastSequence(iArgs, 1, 2);
+			impl::FastSequence args(iArgs, 1, 2);
 			if (!args)
 			{
 				return 0;
 			}
-			const Py_ssize_t argc = PySequence_Fast_GET_SIZE(args.get());
-			PyObject** const argv = PySequence_Fast_ITEMS(args.get());
-			PyObject* const key = argv[0];
-			PyObject* const value = argc == 2 ? argv[1] : 0;
+			PyObject* const key = args[0];
+			PyObject* const value = args.size() == 2 ? args[1] : nullptr;
 			const int ret = objobjargproc_(iSelf, key, value);
 			switch (ret)
 			{

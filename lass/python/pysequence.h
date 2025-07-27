@@ -173,7 +173,7 @@ namespace impl
 					// this odd place of advancing is to avoid stepping beyond end
 					std::advance(first, step);
 				}
-				PyList_SET_ITEM(s.get(), i, pyBuildSimpleObject(*first));
+				PyList_SetItem(s.get(), i, pyBuildSimpleObject(*first));
 			}
 			return fromSharedPtrToNakedCast(s);
 		}
@@ -420,8 +420,8 @@ namespace impl
 			for (Py_ssize_t i = 0; i < size; ++i)
 			{
 				typename TArgTraits::TStorage temp;
-				TPyObjPtr item( PySequence_ITEM(obj, i) );
-				if (pyGetSimpleObject( item.get() , temp ) != 0)
+				TPyObjPtr item(PySequence_GetItem(obj, i) );
+				if (PyExportTraits<typename TArgTraits::TStorage>::get( item.get() , temp ) != 0)
 				{
 					std::ostringstream buffer;
 					buffer << "sequence element " << i;

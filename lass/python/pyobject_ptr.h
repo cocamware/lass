@@ -73,11 +73,13 @@ namespace impl
 		if (object && object->ob_type != LASS_ENFORCE_POINTER(type))
 		{
 			LockGIL LASS_UNUSED(lock);
-			Py_XINCREF(type);
+			Py_XINCREF(_PyObject_CAST(type));
 			std::swap(object->ob_type, type);
-			Py_XDECREF(type);
+			Py_XDECREF(_PyObject_CAST(type));
 		}
 	}
+
+	LASS_PYTHON_DLL bool LASS_CALL decrementReference(PyObject* pointee);
 
 	LASS_PYTHON_DLL void LASS_CALL doFixObjectType(PyObjectPlus* object);
 	inline void doFixObjectType(const PyObjectPlus* object) { doFixObjectType(const_cast<PyObjectPlus*>(object)); }
@@ -189,37 +191,11 @@ protected:
 	}
 	template <typename T> bool decrement(T* pointee)
 	{
-		LASS_ASSERT(pointee);
-		bool r = false;
-		if (Py_IsInitialized())
-		{
-			LockGIL LASS_UNUSED(lock);
-			r = pointee->ob_refcnt <=1;
-			Py_DECREF(pointee);
-		}
-		else 
-		{
-			r = pointee->ob_refcnt <=1;
-			if (--pointee->ob_refcnt == 0)
-			{
-				if constexpr (std::is_convertible_v<T*, PyObjectPlus*>)
-				{
-					delete pointee;
-				}
-				else
-				{
-					// fingers crossed!
-					PyTypeObject* type = Py_TYPE(pointee);
-					destructor dealloc = type->tp_dealloc;
-					(*dealloc)(pointee);
-				}
-			}
-		}
-		return r;
+		return impl::decrementReference(pointee);
 	}
 	template <typename T> bool decrement(const T* pointee)
 	{
-		return decrement(const_cast<T*>(pointee));
+		return impl::decrementReference(const_cast<T*>(pointee));
 	}
 	template <typename T> TCount count(T* pointee) const
 	{

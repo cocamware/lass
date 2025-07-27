@@ -65,7 +65,7 @@ class _Options(Protocol):
 
 class SysPython(ConanFile):  # type: ignore[misc]
     name = "syspython"
-    version = "1.0.4"
+    version = "1.0.5"
     user = "cocamware"
     channel = "stable"
     description = "Discovers your system's Python and allow to use it as a requirement"
@@ -332,7 +332,7 @@ class SysPython(ConanFile):  # type: ignore[misc]
         if self.settings.os == "Windows":
             base = self._python_get_config_var("installed_platbase")
             major, _minor = self._python_get_config_var("py_version_short").split(".")
-            return os.path.join(base, f"python{major}{self._python_postfix}.lib")
+            return os.path.join(base, "libs", f"python{major}{self._python_postfix}.lib")
         return None
 
     @property
