@@ -211,7 +211,7 @@ private:
 
 	typedef Impl<T, isShadow> TImpl;
 
-	static bool checkSubType(PyObject* obj)
+	/*static bool checkSubType(PyObject* obj)
 	{
 		LASS_ASSERT(obj);
 		if (!PyType_IsSubtype(obj->ob_type , T::_lassPyClassDef.type() ))
@@ -220,7 +220,7 @@ private:
 			return false;
 		}
 		return true;
-	}
+	}*/
 
 public:
 
@@ -318,7 +318,8 @@ private:
 				PyErr_Clear();
 			}
 		}
-		PyErr_Format(PyExc_TypeError, "%s not convertable to %s", obj->ob_type->tp_name, T::_lassPyClassDef.name());
+		PyTypeObjectShim* typ = _Py_CAST(PyTypeObjectShim*, obj->ob_type);
+		PyErr_Format(PyExc_TypeError, "%s not convertable to %s", typ->tp_name, T::_lassPyClassDef.name());
 		return 1;
 	}
 

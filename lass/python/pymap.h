@@ -246,31 +246,35 @@ namespace impl
 			}
 
 			const util::SharedPtr<Container> result(new Container);
-			const Py_ssize_t size = PyMapping_Length(obj);
 			TPyObjPtr items(PyMapping_Items(obj));
 			if (!items)
 			{
 				PyErr_SetString(PyExc_TypeError, "Not a mapping");
 				return 1;
 			}
-			TPyObjPtr fast = impl::checkedFastSequence(items.get(), size);
-			if (!fast)
+			TPyObjPtr iterator(PyObject_GetIter(items.get()));
+			if (!iterator)
 			{
 				return 1;
 			}
-			PyObject** pairs = PySequence_Fast_ITEMS(fast.get());
-			for (Py_ssize_t i = 0; i < size; ++i)
+			TPyObjPtr item(PyIter_Next(iterator.get()));
+			while (item)
 			{
 				typename Container::key_type key;
 				typename Container::mapped_type mapped;
-				if (decodeTuple(pairs[i], key, mapped) != 0)
+				if (decodeTuple(item.get(), key, mapped) != 0)
 				{
 					impl::addMessageHeader("map");
 					return 1;
 				}
-				(*result)[key] = mapped;
+				result->emplace(std::make_pair(std::move(key), std::move(mapped)));
+				item.reset(PyIter_Next(iterator.get()));
 			}
-			value = result;
+			if (PyErr_Occurred())
+			{
+				return 1;
+			}
+			value = std::move(result);
 			return 0;
 		}
 	};

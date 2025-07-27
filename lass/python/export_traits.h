@@ -686,48 +686,13 @@ struct PyExportTraitsFloat
 	}
 	static int get(PyObject* obj, Float& v)
 	{
-#if LASS_USE_OLD_EXPORTRAITS_FLOAT
-		if (PyFloat_Check(obj))
+		double x = PyFloat_AsDouble(obj);
+		if (x == -1.0 && PyErr_Occurred())
 		{
-			return impl::pyNumCast(PyFloat_AS_DOUBLE(obj), v);
-		}
-		if (PyLong_Check(obj))
-		{
-			const double x = PyLong_AsDouble(obj);
-			if (PyErr_Occurred())
-			{
-				PyErr_Format(PyExc_TypeError, "not a %s: overflow", num::NumTraits<Float>::name().c_str());
-				return 1;
-			}
-			return impl::pyNumCast(x, v);
-		}
-		PyErr_SetString(PyExc_TypeError, "not a float or integer");
-		return 1;
-#else
-		double x;
-		if (PyFloat_CheckExact(obj))
-		{
-			x = PyFloat_AS_DOUBLE(obj);
-		}
-		else if (PyLong_Check(obj))
-		{
-			x = PyLong_AsDouble(obj);
-			if (x == -1.0 && PyErr_Occurred())
-			{
-				return 1;
-			}
-		}
-		else
-		{
-			x = PyFloat_AsDouble(obj);
-			if (x == -1.0 && PyErr_Occurred())
-			{
-				return 1;
-			}
+			return 1;
 		}
 		v = static_cast<Float>(x);
 		return 0;
-#endif
 	}
 };
 
