@@ -44,6 +44,12 @@
 #include "python_embedding.h"
 #include "../lass/python/python_api.h"
 #include "../lass/python/export_traits_chrono.h"
+
+#ifdef Py_LIMITED_API
+// we always link test suite against the Python interpreter
+// so we can use the non-limited API during tests.
+#	undef Py_LIMITED_API
+#endif
 #include <datetime.h>
 
 #define TEST_PYTHON_STRING_ROUNDTRIP(in, out, kind) \

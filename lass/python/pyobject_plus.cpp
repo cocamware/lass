@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -70,8 +70,12 @@ PyObjectPlus::PyObjectPlus()
 {
 	// initializing the type to NULL, when the object is exported to python the type is fixed
 	this->ob_type = NULL;
+#ifdef LASS_PY_LIMITED_API
+	this->ob_refcnt = 1;
+#else
 	LockGIL lock;
-	_Py_NewReference( this );
+	_Py_NewReference(this);
+#endif
 };
 
 PyObjectPlus::~PyObjectPlus()
@@ -85,10 +89,15 @@ PyObjectPlus::~PyObjectPlus()
 
 PyObjectPlus::PyObjectPlus(const PyObjectPlus& other)
 {
+	this->ob_refcnt = 0;
 	LockGIL lock;
 	this->ob_type = other.ob_type;
-	Py_XINCREF(this->ob_type);
+	Py_XINCREF(_PyObject_CAST(this->ob_type));
+#ifdef LASS_PY_LIMITED_API
+	this->ob_refcnt = 1;
+#else
 	_Py_NewReference( this );
+#endif
 }
 
 PyObjectPlus& PyObjectPlus::operator =([[maybe_unused]] const PyObjectPlus& iOther)
@@ -98,6 +107,20 @@ PyObjectPlus& PyObjectPlus::operator =([[maybe_unused]] const PyObjectPlus& iOth
 }
 
 // --- impl ----------------------------------------------------------------------------------------
+
+namespace
+{
+
+inline Py_ssize_t LASS_CALL fastSequenceSize(PyObject* obj)
+{
+#ifdef LASS_PY_LIMITED_API
+	return PyList_Check(obj) ? PyList_Size(obj) : PyTuple_Size(obj);
+#else
+	return PySequence_Fast_GET_SIZE(obj);
+#endif
+}
+
+}
 
 namespace impl
 {
@@ -143,7 +166,7 @@ TPyObjPtr checkedFastSequence(PyObject* obj, Py_ssize_t expectedSize)
 	TPyObjPtr result = checkedFastSequence(obj);
 	if (result)
 	{
-		const Py_ssize_t size = PySequence_Fast_GET_SIZE(result.get());
+		const Py_ssize_t size = fastSequenceSize(result.get());
 		if (size != expectedSize)
 		{
 			std::ostringstream buffer;
@@ -165,7 +188,7 @@ TPyObjPtr checkedFastSequence(PyObject* obj, Py_ssize_t minimumSize, Py_ssize_t 
 	TPyObjPtr result = checkedFastSequence(obj);
 	if (result)
 	{
-		const Py_ssize_t size = PySequence_Fast_GET_SIZE(result.get());
+		const Py_ssize_t size = fastSequenceSize(result.get());
 		if (size < minimumSize || size > maximumSize)
 		{
 			std::ostringstream buffer;
@@ -177,6 +200,27 @@ TPyObjPtr checkedFastSequence(PyObject* obj, Py_ssize_t minimumSize, Py_ssize_t 
 	}
 	return result;
 }
+
+
+
+FastSequence::FastSequence(PyObject* obj, Py_ssize_t size) :
+	fast_(checkedFastSequence(obj, size))
+{
+#ifndef LASS_PY_LIMITED_API
+	objects_ = fast_ ? PySequence_Fast_ITEMS(fast_.get()) : 0;
+#endif
+	size_ = fast_ ? size : 0; // by construction
+}
+
+FastSequence::FastSequence(PyObject* obj, Py_ssize_t minSize, Py_ssize_t maxSize) :
+	fast_(checkedFastSequence(obj, minSize, maxSize))
+{
+#ifndef LASS_PY_LIMITED_API
+	objects_ = fast_ ? PySequence_Fast_ITEMS(fast_.get()) : 0;
+#endif
+	size_ = fast_ ? fastSequenceSize(fast_.get()) : 0;
+}
+
 
 /** Here, we try to fix some lifetime issues to guarantee some lifetime requirements on self.
  */

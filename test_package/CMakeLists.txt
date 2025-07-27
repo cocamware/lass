@@ -10,3 +10,13 @@ target_link_libraries(test_package
         Lass::lass_python  # also links to Python::Module
         Python::Python     # so we to add Python::Python for embedding
 )
+
+Lass_target_limited_api(test_package)
+
+
+
+Lass_Python_add_library(test_module
+    MODULE
+    WITH_SOABI
+    module.cpp
+)

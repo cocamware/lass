@@ -1018,26 +1018,10 @@ struct PyExportTraitsFloat
 	}
 	static int get(PyObject* obj, Float& v)
 	{
-		double x;
-		if (PyFloat_CheckExact(obj))
+		double x = PyFloat_AsDouble(obj);
+		if (x == -1.0 && PyErr_Occurred())
 		{
-			x = PyFloat_AS_DOUBLE(obj);
-		}
-		else if (PyLong_Check(obj))
-		{
-			x = PyLong_AsDouble(obj);
-			if (x == -1.0 && PyErr_Occurred())
-			{
-				return 1;
-			}
-		}
-		else
-		{
-			x = PyFloat_AsDouble(obj);
-			if (x == -1.0 && PyErr_Occurred())
-			{
-				return 1;
-			}
+			return 1;
 		}
 		v = static_cast<Float>(x);
 		return 0;
@@ -1128,12 +1112,26 @@ struct PyExportTraits< std::complex<T> >
 	}
 	static int get(PyObject* obj, std::complex<T>& v)
 	{
+#ifdef LASS_PY_LIMITED_API
+		double re = PyComplex_RealAsDouble(obj);
+		if (re == -1.0 && PyErr_Occurred())
+		{
+			return 1;
+		}
+		double im = PyComplex_ImagAsDouble(obj);
+		if (im == -1.0 && PyErr_Occurred())
+		{
+			return 1;
+		}
+		v = std::complex<T>(static_cast<T>(re), static_cast<T>(im));
+#else
 		Py_complex c = PyComplex_AsCComplex(obj);
 		if (c.real == -1.0 && PyErr_Occurred())
 		{
 			return 1;
 		}
 		v = std::complex<T>(static_cast<T>(c.real), static_cast<T>(c.imag));
+#endif
 		return 0;
 	}
 };

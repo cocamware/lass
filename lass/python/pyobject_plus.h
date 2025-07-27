@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -176,11 +176,65 @@ namespace lass
 
 		namespace impl
 		{
-			LASS_PYTHON_DLL bool LASS_CALL checkSequenceSize(PyObject* iValue, Py_ssize_t iExpectedSize);
+			LASS_PYTHON_DLL bool LASS_CALL checkSequenceSize(PyObject* obj, Py_ssize_t expectedSize);
 			LASS_PYTHON_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj);
 			LASS_PYTHON_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj, Py_ssize_t expectedSize);
 			LASS_PYTHON_DLL TPyObjPtr LASS_CALL checkedFastSequence(PyObject* obj, Py_ssize_t minimumSize, Py_ssize_t maximumSize);
 			LASS_PYTHON_DLL PyObject* LASS_CALL establishMagicalBackLinks(PyObject* result, PyObject* self);
+
+			class LASS_PYTHON_DLL FastSequence
+			{
+			public:
+				FastSequence(PyObject* obj, Py_ssize_t size);
+				FastSequence(PyObject* obj, Py_ssize_t minSize, Py_ssize_t maxSize);
+				bool operator!() const
+				{
+					return !fast_;
+				}
+				PyObject* operator[](Py_ssize_t index) const
+				{
+#ifdef LASS_PY_LIMITED_API
+					PyObject* const f = fast_.get();
+					return PyList_Check(f) ? PyList_GetItem(f, index) : PyTuple_GetItem(f, index);
+#else
+					return objects_[index];
+#endif
+				}
+				Py_ssize_t size() const
+				{
+					return size_;
+				}
+			private:
+				TPyObjPtr fast_;
+#ifndef LASS_PY_LIMITED_API
+				PyObject** objects_;
+#endif
+				Py_ssize_t size_;
+			};
+
+			struct PyTypeObjectShim
+			{
+				PyObject_VAR_HEAD
+					const char* tp_name;
+				Py_ssize_t tp_basicsize;
+				Py_ssize_t tp_itemsize;
+				destructor tp_dealloc;
+				Py_ssize_t tp_vectorcall_offset;
+				getattrfunc tp_getattr;
+				setattrfunc tp_setattr;
+				void* tp_as_async;
+				reprfunc tp_repr;
+				void* tp_as_number;
+				void* tp_as_sequence;
+				void* tp_as_mapping;
+				hashfunc tp_hash;
+				ternaryfunc tp_call;
+				reprfunc tp_str;
+				getattrofunc tp_getattro;
+				setattrofunc tp_setattro;
+				void* tp_as_buffer;
+				unsigned long tp_flags;
+			};
 		}
 	}
 }

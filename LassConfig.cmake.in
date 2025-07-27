@@ -8,11 +8,16 @@ if(Lass_HAVE_PYTHON)
 
     set(Lass_PYTHON_VERSION "@Python_VERSION_MAJOR@.@Python_VERSION_MINOR@")
     set(Lass_PYTHON_DEBUG_POSTFIX "@LASS_PYTHON_DEBUG_POSTFIX@")
+    set(Lass_PYTHON_SABI "@Lass_PYTHON_SABI@")
+    set(Lass_Py_LIMITED_API "@LASS_PY_LIMITED_API@")
 
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
     set(_Lass_FIND_PYTHON_ARGS Python "${Lass_PYTHON_VERSION}" EXACT
                                COMPONENTS Interpreter Development)
+    if(Lass_PYTHON_SABI)
+        list(APPEND _Lass_FIND_PYTHON_ARGS Development.SABIModule)
+    endif()
 
     include(CMakeFindDependencyMacro)
     find_dependency(${_Lass_FIND_PYTHON_ARGS})
@@ -48,6 +53,33 @@ get_target_property(Lass_INCLUDE_DIRS Lass::lass INTERFACE_INCLUDE_DIRECTORIES)
 if(Lass_HAVE_PYTHON)
     list(APPEND Lass_LIBRARIES Lass::lass_python)
     list(APPEND Lass_INCLUDE_DIRS ${Python_INCLUDE_DIRS})
+
+    # Convenience function around Python_add_library to define Python extension targets
+    # that already links to Lass::lass_python, and sets USE_SABI to the same Python
+    # Limited API version as Lass::lass_python was built for (if any).
+    #
+    # It takes the same arguments as Python_add_library, except you shouldn't use the
+    # USE_SABI parameter explicitly, it won't work as expected.
+    #
+    function(Lass_Python_add_library name)
+        set(_args ${ARGV})
+        if (Lass_PYTHON_SABI)
+            list(APPEND _args USE_SABI "${Lass_PYTHON_SABI}")
+        endif()
+        Python_add_library(${_args})
+        target_link_libraries("${name}" PRIVATE Lass::lass_python)
+    endfunction()
+
+    # Convenience function to define a PRIVATE Py_LIMITED_API macro on a target to the
+    # same value as Lass::lass_python was built for.
+    #
+    # If Lass wasn't built with Python Limited API support, this is a no-op.
+    #
+    function(Lass_target_limited_api target)
+        if (Lass_Py_LIMITED_API)
+            target_compile_definitions(${target} PRIVATE "Py_LIMITED_API=${Lass_Py_LIMITED_API}")
+        endif()
+    endfunction()
 endif()
 
 
