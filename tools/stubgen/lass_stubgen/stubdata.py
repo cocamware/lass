@@ -134,6 +134,13 @@ class StubData:
         for cpp_file, included_files in self.included_files.items():
             dependencies.add(cpp_file)
             dependencies.update(included_files)
+
+        # add the parser itself as a dependency
+        self_path = Path(__file__).resolve().with_suffix(".py")
+        parser_path = self_path.parent / "parser.py"
+        dependencies.add(self_path.as_posix())
+        dependencies.add(parser_path.as_posix())
+
         escaped = (escape(p) for p in dependencies)
         with open(depfile, "w", encoding="utf-8", newline="\n") as fp:
             fp.write(f"{escape(str(target))}:{sep}{sep.join(escaped)}\n")
