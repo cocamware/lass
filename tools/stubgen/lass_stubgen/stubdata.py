@@ -82,7 +82,7 @@ class StubData:
         self.cpp_classes: dict[str, ClassDefinition] = {}
         self.enums: dict[str, EnumDefinition] = {}
         self.export_traits: dict[str, dict[str, ExportTraits]] = {}
-        self.included_files: dict[str, set[str]] = {}
+        self.included_files: dict[str, dict[str, None]] = {}
         self._type_aliases: dict[str, _PreambleTypeAlias] = {}
 
     def asdict(self) -> dict[str, Any]:
@@ -130,16 +130,16 @@ class StubData:
             return path
 
         sep = " \\\n  "
-        dependencies = set()
+        dependencies: dict[str, None] = {}
         for cpp_file, included_files in self.included_files.items():
-            dependencies.add(cpp_file)
+            dependencies[cpp_file] = None
             dependencies.update(included_files)
 
         # add the parser itself as a dependency
         self_path = Path(__file__).resolve().with_suffix(".py")
         parser_path = self_path.parent / "parser.py"
-        dependencies.add(self_path.as_posix())
-        dependencies.add(parser_path.as_posix())
+        dependencies[self_path.as_posix()] = None
+        dependencies[parser_path.as_posix()] = None
 
         escaped = (escape(p) for p in dependencies)
         with open(depfile, "w", encoding="utf-8", newline="\n") as fp:
@@ -157,7 +157,9 @@ class StubData:
         for traits_data in data["export_traits"]:
             stubdata.add_export_traits(ExportTraits.fromdict(traits_data))
         for cpp_file, included_files in data["included_files"].items():
-            stubdata.included_files.setdefault(cpp_file, set()).update(included_files)
+            stubdata.included_files.setdefault(cpp_file, {}).update(
+                (include, None) for include in included_files
+            )
         return stubdata
 
     @classmethod
@@ -190,7 +192,7 @@ class StubData:
             # duplicates are allowed
             self.export_traits.setdefault(class_, {}).update(specializations)
         for cpp_file, included_files in stubdata.included_files.items():
-            self.included_files.setdefault(cpp_file, set()).update(included_files)
+            self.included_files.setdefault(cpp_file, {}).update(included_files.items())
 
     def add_module_definition(self, mod_def: ModuleDefinition) -> None:
         if mod_def.cpp_name in self.modules:
@@ -248,8 +250,9 @@ class StubData:
         self, cpp_file: StrPath, included_files: Iterable[StrPath]
     ) -> None:
         key = Path(cpp_file).resolve().as_posix()
-        includes = (Path(include).resolve().as_posix() for include in included_files)
-        self.included_files.setdefault(key, set()).update(includes)
+        self.included_files.setdefault(key, {}).update(
+            (Path(include).resolve().as_posix(), None) for include in included_files
+        )
 
     def fix_fully_qualified_names(self) -> None:
         """Fix the fully qualified names of all modules, classes and enums."""
