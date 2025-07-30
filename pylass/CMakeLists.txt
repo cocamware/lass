@@ -51,6 +51,10 @@ endif()
 
 if (Lass_WITH_STUBGEN)
 	Lass_generate_stubs(pylass)
+	install(
+		FILES "$<TARGET_FILE_DIR:pylass>/lass.pyi"
+		DESTINATION "${_destination}"
+	)
 endif()
 
 if (WIN32)
