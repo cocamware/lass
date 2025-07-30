@@ -42,6 +42,7 @@ from __future__ import annotations
 import enum
 import functools
 import multiprocessing
+import re
 import subprocess
 import sys
 import typing
@@ -54,6 +55,7 @@ from .stubdata import StubData, StubDataError
 
 if typing.TYPE_CHECKING:
     from _typeshed import StrPath
+
 
 class Verbosity(enum.IntEnum):
     """Verbosity levels for the stub generator."""
@@ -404,6 +406,21 @@ def generate(
         if output_dir_:
             assert mod_def.fully_qualified_name
             rel_path = mod_def.fully_qualified_name.replace(".", "/")
+            if match := re.match(r"(\w+)-stubs$", output_dir_.name):
+                # If the output directory is named like "lass-stubs", then the module
+                # is either just "lass" and we save it as "lass-stubs/__init__.pyi",
+                # or it is a submodule like "lass.python" and we save it as
+                # "lass-stubs/python/__init__.pyi".
+                pkg_name = match.group(1)
+                if rel_path == pkg_name:
+                    rel_path = "__init__"
+                elif rel_path.startswith(pkg_name + "."):
+                    rel_path = rel_path[len(pkg_name) + 1 :]
+                else:
+                    raise StubGeneratorError(
+                        f"{output_dir_.name} output directory can't store stubs for "
+                        f"module {mod_def.fully_qualified_name}"
+                    )
             output_file = output_dir_ / f"{rel_path}.pyi"
             output_file.parent.mkdir(parents=True, exist_ok=True)
             if verbosity >= Verbosity.NORMAL:
