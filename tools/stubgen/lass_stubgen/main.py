@@ -447,7 +447,7 @@ def reformat(file: Path) -> None:
     ruff = bin_dir / "ruff"
     try:
         subprocess.run(
-            [ruff, "check", "--fix-only", file],
+            [ruff, "check", "--fix-only", "--extend-select", "I", file],
             check=True,
             capture_output=True,
             text=True,
