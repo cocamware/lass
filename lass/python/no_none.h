@@ -98,7 +98,7 @@ public:
 	bool operator!() const { return !value_; }
 	explicit operator bool() const { return static_cast<bool>(value_); }
 
-#if LASS_CPP_STANDARD >= 20
+#if __cpp_impl_three_way_comparison
 	auto operator<=>(const NoNone& other) const = default;
 #endif
 
@@ -106,7 +106,7 @@ private:
 	T value_;
 };
 
-#if LASS_CPP_STANDARD < 20
+#if !__cpp_impl_three_way_comparison
 
 template <typename T> bool operator==(const NoNone<T>& a, const NoNone<T>& b) { return a.reference() == b.reference(); }
 template <typename T> bool operator!=(const NoNone<T>& a, const NoNone<T>& b) { return a.reference() != b.reference(); }
