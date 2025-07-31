@@ -105,7 +105,7 @@ private:
 	T value_;
 };
 
-#if __cpp_impl_three_way_comparison
+#if !__cpp_impl_three_way_comparison
 
 template <typename T> bool operator==(const MaybeNone<T>& a, const MaybeNone<T>& b) { return a.reference() == b.reference(); }
 template <typename T> bool operator!=(const MaybeNone<T>& a, const MaybeNone<T>& b) { return a.reference() != b.reference(); }
