@@ -44,7 +44,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from clang import cindex  # type: ignore
-from clang.cindex import AccessSpecifier, CursorKind, TypeKind  # type: ignore
+from clang.cindex import AccessSpecifier, Cursor, CursorKind, TypeKind  # type: ignore
 
 from .stubdata import (
     ClassDefinition,
@@ -162,7 +162,7 @@ class Parser:
         if visitor.error:
             raise visitor.error
 
-    def _handle_declare_module(self, node: cindex.Cursor) -> bool:
+    def _handle_declare_module(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         if canonical_type(node).spelling != "lass::python::ModuleDefinition":
             return False
@@ -190,7 +190,7 @@ class Parser:
         )
         return True
 
-    def _handle_declare_class(self, node: cindex.Cursor) -> bool:
+    def _handle_declare_class(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         if canonical_type(node).spelling != "lass::python::impl::ClassDefinition":
             return False
@@ -346,7 +346,7 @@ class Parser:
 
         return True
 
-    def _handle_declare_enum(self, node: cindex.Cursor) -> bool:
+    def _handle_declare_enum(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         enum_type = type_info(node)
         if enum_type.name == "lass::python::IntEnumDefinition":
@@ -420,7 +420,7 @@ class Parser:
         )
         return True
 
-    def _handle_module_add_function(self, node: cindex.Cursor) -> bool:
+    def _handle_module_add_function(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -450,7 +450,7 @@ class Parser:
 
         return True
 
-    def _handle_module_add_class(self, node: cindex.Cursor) -> bool:
+    def _handle_module_add_class(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -465,7 +465,7 @@ class Parser:
 
         return True
 
-    def _handle_module_add_enum(self, node: cindex.Cursor) -> bool:
+    def _handle_module_add_enum(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -484,7 +484,7 @@ class Parser:
 
         return True
 
-    def _handle_module_add_long(self, node: cindex.Cursor) -> bool:
+    def _handle_module_add_long(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -505,7 +505,7 @@ class Parser:
         )
         return True
 
-    def _handle_module_add_string(self, node: cindex.Cursor) -> bool:
+    def _handle_module_add_string(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -522,7 +522,7 @@ class Parser:
         )
         return True
 
-    def _handle_module_inject_object(self, node: cindex.Cursor) -> bool:
+    def _handle_module_inject_object(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -547,7 +547,7 @@ class Parser:
 
         return True
 
-    def _handle_module_inject_class(self, node: cindex.Cursor) -> bool:
+    def _handle_module_inject_class(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -562,7 +562,7 @@ class Parser:
 
         return True
 
-    def _handle_module_inject_constant(self, node: cindex.Cursor) -> bool:
+    def _handle_module_inject_constant(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -589,7 +589,7 @@ class Parser:
         )
         return True
 
-    def _handle_module_add_integer_constants(self, node: cindex.Cursor) -> bool:
+    def _handle_module_add_integer_constants(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         decl_ref_expr = ensure_kind(children[0], CursorKind.DECL_REF_EXPR)
@@ -622,7 +622,7 @@ class Parser:
 
         return True
 
-    def _handle_class_add_constructor(self, node: cindex.Cursor) -> bool:
+    def _handle_class_add_constructor(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -691,7 +691,7 @@ class Parser:
 
         return True
 
-    def _handle_class_add_converter(self, node: cindex.Cursor) -> bool:
+    def _handle_class_add_converter(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
 
@@ -733,7 +733,7 @@ class Parser:
 
         return True
 
-    def _handle_class_add_method(self, node: cindex.Cursor) -> bool:
+    def _handle_class_add_method(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -806,7 +806,7 @@ class Parser:
             self_type = self_type.args[0]
         return self_type
 
-    def _handle_class_add_static_method(self, node: cindex.Cursor) -> bool:
+    def _handle_class_add_static_method(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -836,7 +836,7 @@ class Parser:
 
         return True
 
-    def _handle_class_add_get_setter(self, node: cindex.Cursor) -> bool:
+    def _handle_class_add_get_setter(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -929,7 +929,7 @@ class Parser:
 
         return True
 
-    def _handle_class_add_static_const(self, node: cindex.Cursor) -> bool:
+    def _handle_class_add_static_const(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -947,7 +947,7 @@ class Parser:
 
         return True
 
-    def _handle_class_add_inner_class(self, node: cindex.Cursor) -> bool:
+    def _handle_class_add_inner_class(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -964,7 +964,7 @@ class Parser:
 
         return True
 
-    def _handle_class_add_inner_enum(self, node: cindex.Cursor) -> bool:
+    def _handle_class_add_inner_enum(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
         children = list(node.get_children())
         if not is_member_ref_expr(
@@ -986,7 +986,7 @@ class Parser:
 
         return True
 
-    def _handle_export_traits(self, node: cindex.Cursor) -> bool:
+    def _handle_export_traits(self, node: Cursor) -> bool:
         if node.kind in (CursorKind.TEMPLATE_REF, CursorKind.CLASS_TEMPLATE):
             return False
         assert fully_qualified(node) == "lass::python::PyExportTraits"
@@ -1000,7 +1000,7 @@ class Parser:
         assert type_.args and len(type_.args) == 1
         cpp_type = type_.args[0]
 
-        def find_py_typing(n: cindex.Cursor, spelling: str) -> str | None:
+        def find_py_typing(n: Cursor, spelling: str) -> str | None:
             for child in iter_children(n, CursorKind.VAR_DECL):
                 if child.spelling == spelling:
                     typing = _ensure_only_child_recursive(
@@ -1082,7 +1082,7 @@ class Parser:
         return True
 
     @classmethod
-    def _debug(cls, node: cindex.Cursor, indent: str = "") -> None:
+    def _debug(cls, node: Cursor, indent: str = "") -> None:
         if not indent:
             print(f"---- {node.location.file}:{node.location.line}")
         kind = node.kind.name
@@ -1092,11 +1092,11 @@ class Parser:
             cls._debug(child, indent + "  ")
 
     @classmethod
-    def _error(cls, node: cindex.Cursor, message: str) -> None:
+    def _error(cls, node: Cursor, message: str) -> None:
         cls._debug(node)
         raise AssertionError(message)
 
-    def _parse_module_ref(self, node: cindex.Cursor) -> ModuleDefinition:
+    def _parse_module_ref(self, node: Cursor) -> ModuleDefinition:
         if node.kind == CursorKind.MEMBER_REF_EXPR:
             module_ref = ensure_only_child(node, CursorKind.DECL_REF_EXPR)
         else:
@@ -1115,7 +1115,7 @@ reference to a module defined in another file.
 """
             ) from None
 
-    def _get_class_def(self, node: cindex.Cursor) -> ClassDefinition:
+    def _get_class_def(self, node: Cursor) -> ClassDefinition:
         """
         Get the class definition from a _lassPyClassDef method call.
         """
@@ -1139,7 +1139,7 @@ reference to a class defined in another file.
 """
             ) from None
 
-    def _parse_class_ref(self, node: cindex.Cursor) -> str:
+    def _parse_class_ref(self, node: Cursor) -> str:
         """
         Get the shadow class name from a _lassPyClassDef reference.
         """
@@ -1150,7 +1150,7 @@ reference to a class defined in another file.
         shadow_class = fully_qualified(shadow_node)
         return shadow_class
 
-    def _parse_name(self, node: cindex.Cursor) -> str:
+    def _parse_name(self, node: Cursor) -> str:
         if node.kind.is_unexposed():
             assert node.type.spelling in (
                 "const char *",
@@ -1166,7 +1166,7 @@ reference to a class defined in another file.
             return self._parse_name(children[0])
         return string_literal(node)
 
-    def _parse_doc(self, node: cindex.Cursor) -> str | None:
+    def _parse_doc(self, node: Cursor) -> str | None:
         if node.kind.is_unexposed():
             assert node.type.spelling in (
                 "const char *",
@@ -1186,7 +1186,7 @@ reference to a class defined in another file.
             return None
         return string_literal(node)
 
-    def _parse_constant(self, node: cindex.Cursor) -> tuple[TypeInfo, str | int | None]:
+    def _parse_constant(self, node: Cursor) -> tuple[TypeInfo, str | int | None]:
         while node.kind.is_unexposed():
             node = ensure_only_child(node)
         cpp_type = type_info(node)
@@ -1205,7 +1205,7 @@ reference to a class defined in another file.
     @classmethod
     def _parse_dispatcher_ref(
         cls,
-        dispatcher_ref: cindex.Cursor,
+        dispatcher_ref: Cursor,
     ) -> DispatcherSignature:
         assert (
             canonical_type(dispatcher_ref).spelling == "_object *(_object *, _object *)"
@@ -1285,7 +1285,7 @@ class NodeVisitor:
             self._visitor_cb = cursor_visit_callback(self.visit_node)
 
             def _clang_getCursorSpelling(
-                cursor: cindex.Cursor,
+                cursor: Cursor,
                 clang_getCursorSpelling: Any = cindex.conf.lib.clang_getCursorSpelling,
             ) -> str:
                 return cast(
@@ -1304,7 +1304,7 @@ class NodeVisitor:
         )
 
     def visit_node(
-        self, node: cindex.Cursor, _parent: cindex.Cursor, tu: cindex.TranslationUnit
+        self, node: Cursor, _parent: Cursor, tu: cindex.TranslationUnit
     ) -> int:
         try:
             if node._kind_id in self._kind_ids:
@@ -1336,7 +1336,7 @@ class NodeVisitor:
             return 0
 
 
-def is_member_ref_expr(node: cindex.Cursor, member: str | Collection[str]) -> bool:
+def is_member_ref_expr(node: Cursor, member: str | Collection[str]) -> bool:
     if isinstance(member, str):
         member = {member}
     return (
@@ -1345,9 +1345,7 @@ def is_member_ref_expr(node: cindex.Cursor, member: str | Collection[str]) -> bo
     )
 
 
-def ensure_kind(
-    node: cindex.Cursor, kind: CursorKind | Collection[CursorKind]
-) -> cindex.Cursor:
+def ensure_kind(node: Cursor, kind: CursorKind | Collection[CursorKind]) -> Cursor:
     """
     Ensure node is of kind; or unexposed in which case you recurse.
     """
@@ -1364,8 +1362,8 @@ def ensure_kind(
 
 
 def _get_first_child(
-    node: cindex.Cursor, kind: CursorKind, *, skip: CursorKind | None = None
-) -> cindex.Cursor | None:
+    node: Cursor, kind: CursorKind, *, skip: CursorKind | None = None
+) -> Cursor | None:
     children = list(node.get_children())
     if skip is not None:
         children = [c for c in children if c.kind != skip]
@@ -1375,8 +1373,8 @@ def _get_first_child(
 
 
 def ensure_first_child(
-    node: cindex.Cursor, kind: CursorKind, *, skip: CursorKind | None = None
-) -> cindex.Cursor:
+    node: Cursor, kind: CursorKind, *, skip: CursorKind | None = None
+) -> Cursor:
     children = list(node.get_children())
     if skip is not None:
         children = [c for c in children if c.kind != skip]
@@ -1385,7 +1383,7 @@ def ensure_first_child(
     return children[0]
 
 
-def _get_only_child(node: cindex.Cursor, kind: CursorKind) -> cindex.Cursor | None:
+def _get_only_child(node: Cursor, kind: CursorKind) -> Cursor | None:
     children = list(node.get_children())
     if len(children) != 1:
         return None
@@ -1395,9 +1393,7 @@ def _get_only_child(node: cindex.Cursor, kind: CursorKind) -> cindex.Cursor | No
     return child
 
 
-def ensure_only_child(
-    node: cindex.Cursor, kind: CursorKind | None = None
-) -> cindex.Cursor:
+def ensure_only_child(node: Cursor, kind: CursorKind | None = None) -> Cursor:
     children = list(node.get_children())
     assert len(children) == 1, f"expected 1 child, got {len(children)}"
     if kind is not None:
@@ -1407,9 +1403,7 @@ def ensure_only_child(
     return children[0]
 
 
-def _ensure_only_child_recursive(
-    node: cindex.Cursor, kind: CursorKind
-) -> cindex.Cursor:
+def _ensure_only_child_recursive(node: Cursor, kind: CursorKind) -> Cursor:
     children = list(node.get_children())
     assert len(children) == 1, f"expected 1 child, got {len(children)}"
     child = children[0]
@@ -1421,17 +1415,17 @@ def _ensure_only_child_recursive(
     return child
 
 
-def canonical_type(node: cindex.Cursor) -> cindex.Type:
+def canonical_type(node: Cursor) -> cindex.Type:
     return node.type.get_canonical()
 
 
-def ensure_type(node: cindex.Cursor, type_: str) -> cindex.Cursor:
+def ensure_type(node: Cursor, type_: str) -> Cursor:
     t = canonical_type(node).spelling
     assert t == type_, f"expected {type_}, got {t}"
     return node
 
 
-def string_literal(node: cindex.Cursor) -> str:
+def string_literal(node: Cursor) -> str:
     assert node.kind == CursorKind.STRING_LITERAL
     s: str = node.spelling
     assert s.startswith('"') and s.endswith('"')
@@ -1443,16 +1437,14 @@ def string_literal(node: cindex.Cursor) -> str:
     return s
 
 
-def deref_decl_ref_expr(node: cindex.Cursor) -> cindex.Cursor:
+def deref_decl_ref_expr(node: Cursor) -> Cursor:
     while node.kind != CursorKind.DECL_REF_EXPR:
         assert node.kind in [CursorKind.UNEXPOSED_EXPR, CursorKind.UNARY_OPERATOR]
         node = ensure_only_child(node)
     return node.referenced
 
 
-def ensure_last_child(
-    node: cindex.Cursor, kind: CursorKind | list[CursorKind]
-) -> cindex.Cursor:
+def ensure_last_child(node: Cursor, kind: CursorKind | list[CursorKind]) -> Cursor:
     if isinstance(kind, CursorKind):
         kind = [kind]
     children = list(node.get_children())
@@ -1463,8 +1455,8 @@ def ensure_last_child(
 
 
 def _ensure_last_child_recursive(
-    node: cindex.Cursor, kind: CursorKind | list[CursorKind]
-) -> cindex.Cursor:
+    node: Cursor, kind: CursorKind | list[CursorKind]
+) -> Cursor:
     """ "
     Return last child, ensuring it's one of kind."
     If child is unexposed, recurse and find the last child of that.
@@ -1483,7 +1475,7 @@ def _ensure_last_child_recursive(
     return last_child
 
 
-def _find_first_child(node: cindex.Cursor, kind: CursorKind) -> cindex.Cursor | None:
+def _find_first_child(node: Cursor, kind: CursorKind) -> Cursor | None:
     for child in node.get_children():
         if child.kind == kind:
             return child
@@ -1491,8 +1483,8 @@ def _find_first_child(node: cindex.Cursor, kind: CursorKind) -> cindex.Cursor | 
 
 
 def iter_children(
-    node: cindex.Cursor, kind: CursorKind | list[CursorKind]
-) -> Iterator[cindex.Cursor]:
+    node: Cursor, kind: CursorKind | list[CursorKind]
+) -> Iterator[Cursor]:
     if isinstance(kind, CursorKind):
         kind = [kind]
     for child in node.get_children():
@@ -1500,7 +1492,7 @@ def iter_children(
             yield child
 
 
-def fully_qualified(node: cindex.Cursor) -> str:
+def fully_qualified(node: Cursor) -> str:
     if node is None:
         return ""
     elif node.kind == CursorKind.TRANSLATION_UNIT:
@@ -1510,7 +1502,7 @@ def fully_qualified(node: cindex.Cursor) -> str:
     return cast(str, node.spelling)
 
 
-def type_info(node_or_type: cindex.Cursor | cindex.Type) -> TypeInfo:
+def type_info(node_or_type: Cursor | cindex.Type) -> TypeInfo:
     type_ = node_or_type if isinstance(node_or_type, cindex.Type) else node_or_type.type
     type_ = type_.get_canonical()
 
