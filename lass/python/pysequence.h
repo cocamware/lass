@@ -52,6 +52,7 @@
 #include "shadowee_traits.h"
 #include "exception.h"
 #include "container.h"
+#include "argument_traits.h"
 #include "../util/string_cast.h"
 #include "../stde/extended_algorithm.h"
 
@@ -92,6 +93,7 @@ namespace impl
 		typedef typename TBase::TContainerTraits TContainerTraits;
 		typedef typename TContainerTraits::iterator TIterator;
 		typedef typename TContainerTraits::const_iterator TConstIterator;
+		typedef ArgumentTraits<typename TContainerTraits::value_type> TArgTraits;
 		typedef PySequenceImplBase::TPimpl TPimpl;
 
 		PySequenceContainer(const TContainerPtr& container, bool readOnly = false): 
@@ -125,13 +127,13 @@ namespace impl
 			{
 				return false;
 			}
-			typename TContainerTraits::value_type value;
+			typename TArgTraits::TStorage value;
 			if (pyGetSimpleObject(obj.get(), value) != 0)
 			{
 				return false;
 			}
 			TIterator end = this->next(this->begin(), this->length());
-			TContainerTraits::insert(this->container(), end, &value, &value + 1);
+			TContainerTraits::insert(this->container(), end, TArgTraits::arg(value));
 			return true;
 		}
 		bool pop(Py_ssize_t i) override
@@ -264,7 +266,7 @@ namespace impl
 		}
 		int contains(PyObject* obj) const override
 		{
-			typename Container::value_type value;
+			typename TArgTraits::TStorage value;
 			if (pyGetSimpleObject(obj, value) != 0)
 			{
 				if (PyErr_ExceptionMatches(PyExc_TypeError))
@@ -277,7 +279,7 @@ namespace impl
 				return -1;
 			}
 			TConstIterator end = this->next(this->begin(), this->length());
-			if (std::find(this->begin(), end, value) != end)
+			if (std::find(this->begin(), end, TArgTraits::arg(value)) != end)
 			{
 				return 1;
 			}
@@ -414,20 +416,21 @@ namespace impl
 			const util::SharedPtr<Container> result(new Container);
 			const Py_ssize_t size = PySequence_Length(obj);
 			ContainerTraits<Container>::reserve(*result, size);
+			typedef ArgumentTraits<typename Container::value_type> TArgTraits;
 			for (Py_ssize_t i = 0; i < size; ++i)
 			{
-				typename Container::value_type temp;
+				typename TArgTraits::TStorage temp;
 				TPyObjPtr item( PySequence_ITEM(obj, i) );
-				if (PyExportTraits<typename Container::value_type>::get( item.get() , temp ) != 0)
+				if (pyGetSimpleObject( item.get() , temp ) != 0)
 				{
 					std::ostringstream buffer;
 					buffer << "sequence element " << i;
 					impl::addMessageHeader(buffer.str().c_str());
 					return 1;
 				}
-				result->push_back( temp );
+				result->emplace_back(TArgTraits::arg(temp));
 			}
-			value = result;
+			value = std::move(result);
 			return 0;
 		}
 	};

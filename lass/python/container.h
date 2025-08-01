@@ -94,6 +94,10 @@ struct ContainerTraitsBase
 		std::advance(it, i); 
 		return it;
 	}
+	static void insert(container_type& c, iterator i, value_type value)
+	{
+		c.insert(i, std::move(value));
+	}
 	template <typename InputIt> 
 	static void insert(container_type& c, iterator i, InputIt first, InputIt last)
 	{

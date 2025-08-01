@@ -364,6 +364,18 @@ struct ArgumentTraits<void*>
 	static void* arg(const TStorage& storage) { return storage; }
 };
 
+template <typename T1, typename T2>
+struct ArgumentTraits<std::pair<T1, T2>>
+{
+	typedef ArgumentTraits<T1> TArgTraits1;
+	typedef ArgumentTraits<T2> TArgTraits2;
+	typedef std::pair<typename TArgTraits1::TStorage, typename TArgTraits2::TStorage> TStorage;
+	static  std::pair<T1, T2> arg(const TStorage& storage) 
+	{
+		return std::make_pair(TArgTraits1::arg(storage.first), TArgTraits2::arg(storage.second));
+	}
+};
+
 }
 }
 

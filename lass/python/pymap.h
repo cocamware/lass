@@ -52,6 +52,7 @@
 #include "pyiteratorrange.h"
 #include "container.h"
 #include "pyobject_util.h"
+#include "argument_traits.h"
 #include <map>
 #include "../stde/access_iterator.h"
 #include "../meta/type_traits.h"
@@ -82,6 +83,8 @@ namespace impl
 		typedef typename TBase::TConstContainerPtr TConstContainerPtr;
 		typedef typename TBase::TContainerTraits TContainerTraits;
 		typedef PyMapImplBase::TPimpl TPimpl;
+		typedef ArgumentTraits<typename Container::key_type> TKeyArgTraits;
+		typedef ArgumentTraits<typename Container::mapped_type> TMappedArgTraits;
 
 		PyMapImpl(const TContainerPtr& container, bool readOnly = false): 
 			TBase(container, readOnly)
@@ -95,13 +98,13 @@ namespace impl
 		PyObject* subscript(PyObject* key) const override
 		{
 			LockGIL LASS_UNUSED(lock);
-			typename Container::key_type k;
+			typename TKeyArgTraits::TStorage k;
 			if (pyGetSimpleObject(key, k) != 0)
 			{
 				PyErr_SetObject(PyExc_KeyError, key);
 				return 0;
 			}
-			typename Container::const_iterator it = this->container().find(k);
+			auto it = this->container().find(TKeyArgTraits::arg(k));
 			if (it == this->container().end())
 			{
 				PyErr_SetObject(PyExc_KeyError, key);
@@ -118,29 +121,29 @@ namespace impl
 			}
 			if (value)
 			{
-				typename Container::key_type k;
+				typename TKeyArgTraits::TStorage k;
 				if (pyGetSimpleObject(key, k) != 0)
 				{
 					impl::addMessageHeader("key");
 					return -1;
 				}
-				typename Container::mapped_type v;
+				typename TMappedArgTraits::TStorage v;
 				if (pyGetSimpleObject(value, v) != 0)
 				{
 					impl::addMessageHeader("value");
 					return -1;
 				}
-				this->container()[k] = v;
+				this->container().emplace(TKeyArgTraits::arg(k), TMappedArgTraits::arg(v));
 			}
 			else
 			{
-				typename Container::key_type k;
+				typename TKeyArgTraits::TStorage k;
 				if (pyGetSimpleObject(key, k) != 0)
 				{
 					PyErr_SetObject(PyExc_KeyError, key);
 					return -1;
 				}
-				typename Container::iterator it = this->container().find(k);
+				auto it = this->container().find(TKeyArgTraits::arg(k));
 				if (it == this->container().end())
 				{
 					PyErr_SetObject(PyExc_KeyError, key);
@@ -259,18 +262,20 @@ namespace impl
 				return 1;
 			}
 			PyObject** pairs = PySequence_Fast_ITEMS(fast.get());
+			typedef ArgumentTraits<typename Container::key_type> TKeyArgTraits;
+			typedef ArgumentTraits<typename Container::mapped_type> TMappedArgTraits;
 			for (Py_ssize_t i = 0; i < size; ++i)
 			{
-				typename Container::key_type key;
-				typename Container::mapped_type mapped;
+				typename TKeyArgTraits::TStorage key;
+				typename TMappedArgTraits::TStorage mapped;
 				if (decodeTuple(pairs[i], key, mapped) != 0)
 				{
 					impl::addMessageHeader("map");
 					return 1;
 				}
-				(*result)[key] = mapped;
+				result->emplace(TKeyArgTraits::arg(key), TMappedArgTraits::arg(mapped));
 			}
-			value = result;
+			value = std::move(result);
 			return 0;
 		}
 	};
