@@ -667,9 +667,8 @@ class Parser:
 
         elif call_expr.spelling == "callFunction":
             # Free function as construtor
-            func_arg = ensure_last_child(call_expr, CursorKind.UNEXPOSED_EXPR)
-            func_ref = ensure_only_child(func_arg, CursorKind.DECL_REF_EXPR)
-            func = func_ref.referenced
+            args = list(call_expr.get_arguments())
+            func = deref_decl_ref_expr(args[1])
             cpp_signature = canonical_type(func).spelling
 
             params = list(iter_children(func, CursorKind.PARM_DECL))
