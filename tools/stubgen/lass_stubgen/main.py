@@ -246,13 +246,13 @@ If not provided, the number of threads will be set to the number of CPU cores.""
     except ParseError as err:
         for error in err.errors:
             print(error, file=sys.stderr)
-        for note in err.__notes__:
+        for note in getattr(err, "__notes__", []):
             print(note, file=sys.stderr)
         print(f"{len(err.errors)} parse errors found, aborting", file=sys.stderr)
         return 1
     except StubDataError as err:
         print(f"Error: {str(err)}", file=sys.stderr)
-        for note in err.__notes__:
+        for note in getattr(err, "__notes__", []):
             print(note, file=sys.stderr)
         return 1
 
