@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(Lass VERSION 1.12.0)
+project(Lass VERSION 1.13.0)
 
 include(cmake/Helpers.cmake)
 
