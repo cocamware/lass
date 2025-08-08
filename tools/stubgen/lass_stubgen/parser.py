@@ -328,6 +328,11 @@ class Parser:
                     ParamInfo(p.spelling, type_info(p).substitute(template_args))
                     for p in params
                 ]
+                _cpp_params = [
+                    ParamInfo(arg.spelling, type_info(arg).substitute(template_args))
+                    for arg in constructor.get_arguments()
+                ]
+                assert cpp_params == _cpp_params
                 cpp_signature = f"void ({', '.join(str(t) for _, t in cpp_params)})"
                 cpp_constructors[cpp_signature] = ConstructorDefinition(
                     cpp_params, cpp_signature
@@ -675,6 +680,11 @@ class Parser:
             cpp_params = [
                 ParamInfo(cast(str, p.spelling), type_info(p)) for p in params
             ]
+            _cpp_params = [
+                ParamInfo(arg.spelling, type_info(arg))
+                for arg in func.get_arguments()
+            ]
+            assert cpp_params == _cpp_params
 
             class_def.add_constructor(
                 ConstructorDefinition(
@@ -1230,12 +1240,16 @@ reference to a class defined in another file.
         cpp_signature = canonical_type(func).spelling
         cpp_return_type = type_info(func.type.get_result())
 
-        params = list(iter_children(func, CursorKind.PARM_DECL))
         cpp_params = [
+            ParamInfo(arg.spelling, type_info(arg)) for arg in func.get_arguments()
+        ]
+        _params = list(iter_children(func, CursorKind.PARM_DECL))
+        _cpp_params = [
             ParamInfo(p.spelling, type_info(p))
-            for p in params
+            for p in _params
             if p.semantic_parent == func
         ]
+        assert cpp_params == _cpp_params
 
         is_free_method = call_expr.spelling in ("callFree", "callFreeMethod")
 
