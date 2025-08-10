@@ -821,9 +821,11 @@ struct PyExportTraits<std::basic_string_view<T>>
 /** @ingroup Python
  */
 template <>
-struct PyExportTraits<const char*>: PyExportTraits<std::string_view>
+struct PyExportTraits<const char*>
 {
-	constexpr static const char* py_typing = "str";
+	constexpr static const char* py_typing = "str | None";
+
+	LASS_PYTHON_DLL static PyObject* build(const char* v);
 };
 
 
@@ -863,9 +865,11 @@ struct PyExportTraits<std::string>
 /** @ingroup Python
  */
 template <>
-struct PyExportTraits<const wchar_t*>: PyExportTraits<std::wstring_view>
+struct PyExportTraits<const wchar_t*>
 {
-	constexpr static const char* py_typing = "str";
+	constexpr static const char* py_typing = "str | None";
+
+	LASS_PYTHON_DLL static PyObject* build(const wchar_t* v);
 };
 
 
@@ -907,9 +911,11 @@ struct PyExportTraits<std::wstring>
 /** @ingroup Python
  */
 template <>
-struct PyExportTraits<const char8_t*> : PyExportTraits<std::u8string_view>
+struct PyExportTraits<const char8_t*>
 {
-	constexpr static const char* py_typing = "str";
+	constexpr static const char* py_typing = "str | None";
+
+	LASS_PYTHON_DLL static PyObject* build(const char8_t* v);
 };
 
 
@@ -951,9 +957,11 @@ struct PyExportTraits<std::u8string>
 /** @ingroup Python
  */
 template <>
-struct PyExportTraits<const char16_t*> : PyExportTraits<std::u16string_view>
+struct PyExportTraits<const char16_t*>
 {
-	constexpr static const char* py_typing = "str";
+	constexpr static const char* py_typing = "str | None";
+
+	LASS_PYTHON_DLL static PyObject* build(const char16_t* v);
 };
 
 
@@ -992,9 +1000,11 @@ struct PyExportTraits<std::u16string>
 /** @ingroup Python
  */
 template <>
-struct PyExportTraits<const char32_t*> : PyExportTraits<std::u32string_view>
+struct PyExportTraits<const char32_t*>
 {
-	constexpr static const char* py_typing = "str";
+	constexpr static const char* py_typing = "str | None";
+
+	LASS_PYTHON_DLL static PyObject* build(const char32_t* v);
 };
 
 

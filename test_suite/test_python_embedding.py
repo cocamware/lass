@@ -999,27 +999,32 @@ class TestTypes(unittest.TestCase):
         self.assertEqual(embedding.testConstCharPtr(""), "")
         self.assertEqual(embedding.testConstCharPtr("abc"), "abc")
         self.assertEqual(embedding.testConstCharPtr("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+        self.assertEqual(embedding.testConstCharPtr(None), None)
 
     def testConstWcharPtr(self) -> None:
         self.assertEqual(embedding.testConstWcharPtr(""), "")
         self.assertEqual(embedding.testConstWcharPtr("abc"), "abc")
         self.assertEqual(embedding.testConstWcharPtr("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+        self.assertEqual(embedding.testConstWcharPtr(None), None)
 
     @skipIfNoU8string
     def testConstChar8Ptr(self) -> None:
         self.assertEqual(testConstChar8Ptr(""), "")
         self.assertEqual(testConstChar8Ptr("abc"), "abc")
         self.assertEqual(testConstChar8Ptr("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+        self.assertEqual(testConstChar8Ptr(None), None)
 
     def testConstChar16Ptr(self) -> None:
         self.assertEqual(embedding.testConstChar16Ptr(""), "")
         self.assertEqual(embedding.testConstChar16Ptr("abc"), "abc")
         self.assertEqual(embedding.testConstChar16Ptr("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+        self.assertEqual(embedding.testConstChar16Ptr(None), None)
 
     def testConstChar32Ptr(self) -> None:
         self.assertEqual(embedding.testConstChar32Ptr(""), "")
         self.assertEqual(embedding.testConstChar32Ptr("abc"), "abc")
         self.assertEqual(embedding.testConstChar32Ptr("𐌷𐌴𐌻𐌻𐍉"), "𐌷𐌴𐌻𐌻𐍉")
+        self.assertEqual(embedding.testConstChar32Ptr(None), None)
 
     def testFloatSingle(self) -> None:
         useOldExportTraits = getattr(embedding, "LASS_USE_OLD_EXPORTRAITS_FLOAT", False)

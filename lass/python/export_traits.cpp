@@ -298,6 +298,16 @@ int PyExportTraits<unsigned PY_LONG_LONG>::get(PyObject* obj, unsigned PY_LONG_L
 #endif
 
 
+PyObject* PyExportTraits<const char*>::build(const char* v)
+{
+	if (!v)
+	{
+		Py_RETURN_NONE;
+	}
+	return PyExportTraits<std::string_view>::build(v);
+}
+
+
 PyObject* PyExportTraits<std::string>::build(const std::string& v)
 {
 	return impl::buildStringImpl(v.data(), v.length());
@@ -307,6 +317,16 @@ PyObject* PyExportTraits<std::string>::build(const std::string& v)
 int PyExportTraits<std::string>::get(PyObject* obj, std::string& v)
 {
 	return getStringImpl(obj, v);
+}
+
+
+PyObject* PyExportTraits<const wchar_t*>::build(const wchar_t* v)
+{
+	if (!v)
+	{
+		Py_RETURN_NONE;
+	}
+	return PyExportTraits<std::wstring_view>::build(v);
 }
 
 
@@ -324,6 +344,16 @@ int PyExportTraits<std::wstring>::get(PyObject* obj, std::wstring& v)
 
 #if LASS_HAVE_STD_U8STRING
 
+PyObject* PyExportTraits<const char8_t*>::build(const char8_t* v)
+{
+	if (!v)
+	{
+		Py_RETURN_NONE;
+	}
+	return PyExportTraits<std::u8string_view>::build(v);
+}
+
+
 PyObject* PyExportTraits<std::u8string>::build(const std::u8string& v)
 {
 	return impl::buildStringImpl(reinterpret_cast<const char*>(v.data()), v.length());
@@ -336,6 +366,16 @@ int PyExportTraits<std::u8string>::get(PyObject* obj, std::u8string& v)
 }
 
 #endif
+
+
+PyObject* PyExportTraits<const char16_t*>::build(const char16_t* v)
+{
+	if (!v)
+	{
+		Py_RETURN_NONE;
+	}
+	return PyExportTraits<std::u16string_view>::build(v);
+}
 
 
 PyObject* PyExportTraits<std::u16string>::build(const std::u16string& v)
@@ -377,6 +417,16 @@ int PyExportTraits<std::u16string>::get(PyObject* obj, std::u16string& v)
 	v = std::u16string(data + 1, static_cast<size_t>((n / 2) - 1));
 	return 0;
 #endif
+}
+
+
+PyObject* PyExportTraits<const char32_t*>::build(const char32_t* v)
+{
+	if (!v)
+	{
+		Py_RETURN_NONE;
+	}
+	return PyExportTraits<std::u32string_view>::build(v);
 }
 
 

@@ -46,6 +46,7 @@
 #include "python_common.h"
 #include "pyobject_plus.h"
 #include "shadowee_traits.h"
+#include "export_traits_optional.h"
 
 namespace lass
 {
@@ -311,15 +312,15 @@ struct ArgumentTraits< util::SharedPtr<const T, S, C> >:
 template <>
 struct ArgumentTraits<const char*>
 {
-	typedef std::string TStorage;
-	static const char* arg(const TStorage& storage) { return storage.c_str(); }
+	typedef std::optional<std::string> TStorage;
+	static const char* arg(const TStorage& storage) { return storage ? storage->c_str() : nullptr; }
 };
 
 template <>
 struct ArgumentTraits<const wchar_t*>
 {
-	typedef std::wstring TStorage;
-	static const wchar_t* arg(const TStorage& storage) { return storage.c_str(); }
+	typedef std::optional<std::wstring> TStorage;
+	static const wchar_t* arg(const TStorage& storage) { return storage ? storage->c_str() : nullptr; }
 };
 
 #if LASS_HAVE_STD_U8STRING
@@ -328,8 +329,8 @@ struct ArgumentTraits<const wchar_t*>
 template <>
 struct ArgumentTraits<const char8_t*>
 {
-	typedef std::u8string TStorage;
-	static const char8_t* arg(const TStorage& storage) { return storage.c_str(); }
+	typedef std::optional <std::u8string> TStorage;
+	static const char8_t* arg(const TStorage& storage) { return storage ? storage->c_str() : nullptr; }
 };
 
 #endif
@@ -338,15 +339,15 @@ struct ArgumentTraits<const char8_t*>
 template <>
 struct ArgumentTraits<const char16_t*>
 {
-	typedef std::u16string TStorage;
-	static const char16_t* arg(const TStorage& storage) { return storage.c_str(); }
+	typedef std::optional <std::u16string> TStorage;
+	static const char16_t* arg(const TStorage& storage) { return storage ? storage->c_str() : nullptr; }
 };
 
 template <>
 struct ArgumentTraits<const char32_t*>
 {
-	typedef std::u32string TStorage;
-	static const char32_t* arg(const TStorage& storage) { return storage.c_str(); }
+	typedef std::optional<std::u32string> TStorage;
+	static const char32_t* arg(const TStorage& storage) { return storage ? storage->c_str() : nullptr; }
 };
 
 template <typename T>
