@@ -81,6 +81,7 @@ platform's package manager. Windows being the exception.
 | Debian Trixie    | x64                        | 3.31.6 | 3.13.5                                  | gcc 14.2.0, clang 19.1.7               |
 | Ubuntu Yammy     | x64                        | 3.22.1 | 3.10.4                                  | gcc 11.2.0, clang 14.0.0               |
 | Ubuntu Noble     | x64                        | 3.28.3 | 3.12.3                                  | gcc 13.2.0, clang 18.1.3               |
+| Ubuntu Plucky    | x64                        | 3.31.6 | 3.13.3                                  | gcc 14.2.0, clang 20.1.2               |
 | Windows 10       | x86, x64                   | 3.26.5 | 3.9.13, 3.10.11, 3.11.6, 3.12.0, 3.13.0 | vs 2019 (v16.11.31), vs 2022 (v17.7.5) |
 
 [1] armv7l support tested on Raspberry Pi 4 (ARM Cortex-A72, 32-bit Raspbian Bullseye,
