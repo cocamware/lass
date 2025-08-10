@@ -95,21 +95,14 @@ void dealloc(PyObject* obj)
 };
 
 
-#if PY_VERSION_HEX >= 0x03090000
+
 int traverse(PyObject* self, visitproc visit, void* arg)
 {
 	Py_VISIT(Py_TYPE(self));
 	return 0;
 }
-#endif
 
 
-#if PY_VERSION_HEX >= 0x03080000 && PY_VERSION_HEX < 0x03090000 // == 3.8
-#	if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_MSVC
-#		pragma GCC diagnostic push
-#		pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#	endif
-#endif
 
 ClassDefinition::ClassDefinition(
 		const char* name, const char* doc, Py_ssize_t typeSize, 
@@ -129,9 +122,7 @@ ClassDefinition::ClassDefinition(
 	};
 	spec_ = spec;
 	setSlot(Py_tp_dealloc, &dealloc);
-#if PY_VERSION_HEX >= 0x03090000
 	setSlot(Py_tp_traverse, &traverse);
-#endif
 	if (richcmp)
 	{
 		setSlot(Py_tp_richcompare, richcmp);
@@ -140,11 +131,6 @@ ClassDefinition::ClassDefinition(
 	getSetters_.push_back(impl::createPyGetSetDef( 0, 0, 0, 0, 0 ));
 }
 
-#if PY_VERSION_HEX >= 0x03080000 && PY_VERSION_HEX < 0x03090000 // == 3.8
-#	if LASS_COMPILER_TYPE != LASS_COMPILER_TYPE_MSVC
-#		pragma GCC diagnostic pop
-#	endif
-#endif
 
 
 ClassDefinition::~ClassDefinition()
@@ -416,11 +402,7 @@ void ClassDefinition::freezeDefinition(PyObject* module, const char* scopeName)
 	}
 #endif
 
-#if PY_VERSION_HEX >= 0x03090000 // >= 3.9
 	type_.reset(PY_ENFORCE_POINTER(PyType_FromModuleAndSpec(module, &spec_, nullptr)));
-#else
-	type_.reset(PY_ENFORCE_POINTER(PyType_FromSpec(&spec_)));
-#endif
 	isFrozen_ = true;
 
 	PyObject* typ = type_.get();
