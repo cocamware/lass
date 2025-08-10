@@ -45,8 +45,6 @@
 #include "python_common.h"
 #include "export_traits.h"
 
-#if LASS_HAVE_STD_OPTIONAL
-
 #include <optional>
 
 namespace lass
@@ -107,5 +105,3 @@ struct PyExportTraits< MaybeNone< std::optional<T> > > : public PyExportTraitsMa
 
 }
 }
-
-#endif

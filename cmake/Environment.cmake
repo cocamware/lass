@@ -399,7 +399,6 @@ if(NOT LASS_HAVE_STD_FILESYSTEM)
         list(APPEND lass_LIBS "stdc++fs")
     endif()
 endif()
-_try_compile_checking(LASS_HAVE_STD_OPTIONAL "check_std_optional.cpp" "std::optional is supported")
 _try_compile_checking(LASS_HAVE_STD_CHRONO_CPP20 "check_std_chrono_cpp20.cpp" "std::chrono C++20 is supported")
 _try_compile_checking(LASS_HAVE_STD_VARIANT "check_std_variant.cpp" "std::variant is supported")
 

@@ -45,8 +45,6 @@
 #include "../lass/python/python_api.h"
 #include "../lass/python/export_traits_optional.h"
 
-#if LASS_HAVE_STD_OPTIONAL
-
 namespace lass
 {
 namespace test
@@ -107,7 +105,5 @@ TUnitTest test_python_export_traits_optional()
 }
 
 }
-
-#endif
 
 // EOF
