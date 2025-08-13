@@ -415,6 +415,21 @@ class ClassDefinition:
         if not constr_def.free and not any(p.name for p in constr_def.cpp_params):
             if cpp_constr := self._cpp_constructors.get(constr_def.cpp_signature):
                 constr_def = cpp_constr
+            else:
+                # do we have a partial match with a constructor with default arguments?
+                n = len(constr_def.cpp_params)
+                for cpp_constr in self._cpp_constructors.values():
+                    if cpp_constr.num_required <= n <= len(cpp_constr.cpp_params):
+                        first_n_params = cpp_constr.cpp_params[:n]
+                        if all(
+                            a.type_ == b.type_
+                            for a, b in zip(first_n_params, constr_def.cpp_params)
+                        ):
+                            constr_def = dataclasses.replace(
+                                constr_def, cpp_params=first_n_params
+                            )
+                            break
+
         self.constructors.append(constr_def)
 
     def add_method(self, method_def: MethodDefinition) -> None:
@@ -599,6 +614,11 @@ class ConstructorDefinition:
     cpp_params: list[ParamInfo]
     cpp_signature: str
     free: bool = False
+    num_required: int = -1
+
+    def __post_init__(self) -> None:
+        if self.num_required < 0:
+            self.num_required = len(self.cpp_params)
 
     def __str__(self) -> str:
         params = [
@@ -611,6 +631,7 @@ class ConstructorDefinition:
         dct: dict[str, Any] = {
             "cpp_params": [param.asdict() for param in self.cpp_params],
             "cpp_signature": self.cpp_signature,
+            "num_required": self.num_required,
         }
         if self.free:
             dct["free"] = True
@@ -620,10 +641,12 @@ class ConstructorDefinition:
     def fromdict(cls, data: Any) -> Self:
         cpp_params = [ParamInfo.fromdict(param) for param in data["cpp_params"]]
         free = data.get("free") or False
+        num_required = data.get("num_required", -1)
         return cls(
             cpp_params=cpp_params,
             cpp_signature=data["cpp_signature"],
             free=free,
+            num_required=num_required,
         )
 
 

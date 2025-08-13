@@ -323,7 +323,7 @@ class Parser:
             for constructor in iter_children(cpp_class, CursorKind.CONSTRUCTOR):
                 if constructor.access_specifier != AccessSpecifier.PUBLIC:
                     continue
-                params = list(iter_children(constructor, CursorKind.PARM_DECL))
+                params = list(constructor.get_arguments())
                 cpp_params = [
                     ParamInfo(p.spelling, type_info(p).substitute(template_args))
                     for p in params
@@ -333,9 +333,22 @@ class Parser:
                     for arg in constructor.get_arguments()
                 ]
                 assert cpp_params == _cpp_params
+
+                # figure out how many parameters are required (i.e., without defaults)
+                has_default_value: list[bool] = [any(t.spelling == "=" for t in p.get_tokens()) for p in params]
+                num_required: int = -1
+                for i, has_default in enumerate(has_default_value):
+                    if num_required == -1:
+                        if has_default:
+                            num_required = i
+                    else:
+                        assert has_default, "non default parameter after default parameter?"
+                if num_required == -1:
+                    num_required = len(params)
+
                 cpp_signature = f"void ({', '.join(str(t) for _, t in cpp_params)})"
                 cpp_constructors[cpp_signature] = ConstructorDefinition(
-                    cpp_params, cpp_signature
+                    cpp_params, cpp_signature, num_required=num_required
                 )
 
         self.stubdata.add_class_definition(
