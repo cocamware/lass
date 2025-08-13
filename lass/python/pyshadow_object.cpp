@@ -61,6 +61,10 @@ ShadowBaseCommon::~ShadowBaseCommon()
 
 TPyObjPtr ShadowBaseCommon::findShadowObject(TShadoweeID shadoweeID, ShadoweeConstness constness)
 {
+	if (!shadoweeID)
+	{
+		return TPyObjPtr();
+	}
 	TCache& c = cache();
 	auto i = c.find(TCacheKey(shadoweeID, constness));
 	if (i == c.end())
@@ -73,6 +77,10 @@ TPyObjPtr ShadowBaseCommon::findShadowObject(TShadoweeID shadoweeID, ShadoweeCon
 
 void ShadowBaseCommon::registerShadowee(TShadoweeID shadoweeID, ShadoweeConstness constness)
 {
+	if (!shadoweeID)
+	{
+		return;
+	}
 	auto r = cache().emplace(TCacheKey(shadoweeID, constness), this);
 	LASS_ENFORCE(r.second);
 }
@@ -80,6 +88,10 @@ void ShadowBaseCommon::registerShadowee(TShadoweeID shadoweeID, ShadoweeConstnes
 
 void ShadowBaseCommon::unregisterShadowee(TShadoweeID shadoweeID, ShadoweeConstness constness)
 {
+	if (!shadoweeID)
+	{
+		return;
+	}
 	TCache& c = cache();
 	auto i = c.find(TCacheKey(shadoweeID, constness));
 	LASS_ENFORCE(i != c.end() && i->second == this);
