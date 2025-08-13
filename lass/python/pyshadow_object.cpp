@@ -73,13 +73,17 @@ TPyObjPtr ShadowBaseCommon::findShadowObject(TShadoweeID shadoweeID, ShadoweeCon
 
 void ShadowBaseCommon::registerShadowee(TShadoweeID shadoweeID, ShadoweeConstness constness)
 {
-	cache().emplace(TCacheKey(shadoweeID, constness), this);
+	auto r = cache().emplace(TCacheKey(shadoweeID, constness), this);
+	LASS_ENFORCE(r.second);
 }
 
 
 void ShadowBaseCommon::unregisterShadowee(TShadoweeID shadoweeID, ShadoweeConstness constness)
 {
-	cache().erase(TCacheKey(shadoweeID, constness));
+	TCache& c = cache();
+	auto i = c.find(TCacheKey(shadoweeID, constness));
+	LASS_ENFORCE(i != c.end() && i->second == this);
+	c.erase(i);
 }
 
 

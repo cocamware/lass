@@ -696,11 +696,17 @@ class TestShadowHierarchy(unittest.TestCase):
         sup: embedding.Ham = super(bacon.__class__, bacon)  # type: ignore[assignment]
         self.assertEqual(sup.virtualWho(), "Bacon")
         self.assertEqual(sup.overridenWho(), "Ham")
+        bacon2 = embedding.spamToCppByPointer(bacon)
+        self.assertIsInstance(bacon2, embedding.Bacon)
+        self.assertIs(bacon2, bacon)
 
     def testHam(self) -> None:
         ham = embedding.Ham()
         self.assertEqual(ham.virtualWho(), "Ham")
         self.assertEqual(ham.overridenWho(), "Ham")
+        ham2 = embedding.spamToCppByPointer(ham)
+        self.assertIsInstance(ham2, embedding.Ham)
+        self.assertIs(ham2, ham)
 
     def testEggs(self) -> None:
         eggs = embedding.Eggs(3)
@@ -709,16 +715,22 @@ class TestShadowHierarchy(unittest.TestCase):
         self.assertEqual(eggs.number, 3)
         eggs.number = 4
         self.assertEqual(eggs.number, 4)
+        eggs2 = embedding.spamToCppByPointer(eggs)
+        self.assertIsInstance(eggs2, embedding.Eggs)
+        self.assertIs(eggs2, eggs)
 
     def testSpam(self) -> None:
         spam = embedding.makeSpam("Bacon")
         self.assertIsNotNone(spam)
+        self.assertIsInstance(spam, embedding.Bacon)
         assert spam is not None
         self.assertEqual(spam.virtualWho(), "Bacon")
         self.assertEqual(spam.overridenWho(), "Bacon")
         self.assertFalse(embedding.spamToCppByCopy(spam, spam))
         self.assertTrue(embedding.spamToCppByConstReference(spam, spam))
         self.assertTrue(embedding.spamToCppByReference(spam, spam))
+        spam2 = embedding.spamToCppByPointer(spam)
+        self.assertIs(spam2, spam)
 
 
 class TestShadowConvertors(unittest.TestCase):
