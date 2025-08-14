@@ -65,7 +65,7 @@ class _Options(Protocol):
 
 class SysPython(ConanFile):  # type: ignore[misc]
     name = "syspython"
-    version = "1.0.4"
+    version = "1.0.5"
     user = "cocamware"
     channel = "stable"
     description = "Discovers your system's Python and allow to use it as a requirement"
@@ -126,6 +126,10 @@ class SysPython(ConanFile):  # type: ignore[misc]
             raise ConanInvalidConfiguration(
                 "python_version option not compatible with python_executable:"
                 f"{self.options.python_version!s} != {self._python_version_short}"
+            )
+        if self._python_version_short_int < (3, 9):
+            raise ConanInvalidConfiguration(
+                "python_version < 3.9 is not supported."
             )
         if self.options.python_debug != self._python_debug:
             raise ConanInvalidConfiguration(
@@ -375,14 +379,7 @@ class SysPython(ConanFile):  # type: ignore[misc]
     def _python_soabi(self) -> str:
         soabi = self._python_get_config_var("SOABI")
         if not soabi:
-            version = self._python_version_short_int
-            if self.settings.os == "Windows" and version <= (3, 9):
-                ext_suffix = self._python_query(
-                    "from distutils import sysconfig\n"
-                    + "print(sysconfig.get_config_var('EXT_SUFFIX') or '')"
-                )
-            else:
-                ext_suffix = self._python_get_config_var("EXT_SUFFIX")
+            ext_suffix = self._python_get_config_var("EXT_SUFFIX")
             match = re.match(r"^(_d)?\.(?P<soabi>.+)\.(so|lib|pyd)$", ext_suffix)
             if not match:
                 raise ConanInvalidConfiguration(f"Unexpected EXT_SUFFIX: {ext_suffix}")
