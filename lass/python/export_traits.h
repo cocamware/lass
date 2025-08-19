@@ -49,6 +49,7 @@
 #include "pyobject_ptr.h"
 #include "no_none.h"
 #include "maybe_none.h"
+#include "self.h"
 #include "../num/num_cast.h"
 
 namespace lass
@@ -487,6 +488,26 @@ struct PyExportTraits< MaybeNone< util::SharedPtr<T, S, C> > > : public PyExport
 template <typename T>
 struct PyExportTraits< MaybeNone< std::shared_ptr<T> > > : public PyExportTraitsMaybeNone< std::shared_ptr<T> >
 {
+};
+
+
+
+// --- Self --------------------------------------------------------------------------------------
+
+/** Self<T> type-hints as `Self`.
+ *
+ *  @ingroup Python
+ *  @sa Self
+ */
+template <typename T>
+struct PyExportTraits< Self<T> > : public PyExportTraits<T>
+{
+	constexpr static const char* py_typing = "Self";
+#if PY_VERSION_HEX < 0x030b0000 // < 3.11
+	constexpr static const char* py_typing_preamble = "from typing_extensions import Self";
+#else
+	constexpr static const char* py_typing_preamble = "from typing import Self";
+#endif
 };
 
 

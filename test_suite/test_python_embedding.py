@@ -77,6 +77,12 @@ else:
     MutableMappingStrStr = MutableMapping[str, str]
     CallableAnyAny = Callable[[Any], Any]
 
+if TYPE_CHECKING:
+    if sys.version_info < (3, 11):
+        from typing_extensions import assert_type
+    else:
+        from typing import assert_type
+
 
 class TestInternalLassModule(unittest.TestCase):
     def testInternalLassModule(self) -> None:
@@ -699,6 +705,10 @@ class TestShadowHierarchy(unittest.TestCase):
         bacon2 = embedding.spamToCppByPointer(bacon)
         self.assertIsInstance(bacon2, embedding.Bacon)
         self.assertIs(bacon2, bacon)
+        bacon3 = bacon.clone()
+        if TYPE_CHECKING:
+            assert_type(bacon3, embedding.Bacon)
+        self.assertIsInstance(bacon3, embedding.Bacon)
 
     def testHam(self) -> None:
         ham = embedding.Ham()
@@ -707,6 +717,10 @@ class TestShadowHierarchy(unittest.TestCase):
         ham2 = embedding.spamToCppByPointer(ham)
         self.assertIsInstance(ham2, embedding.Ham)
         self.assertIs(ham2, ham)
+        ham3 = ham.clone()
+        if TYPE_CHECKING:
+            assert_type(ham3, embedding.Ham)
+        self.assertIsInstance(ham3, embedding.Ham)
 
     def testEggs(self) -> None:
         eggs = embedding.Eggs(3)
@@ -718,6 +732,10 @@ class TestShadowHierarchy(unittest.TestCase):
         eggs2 = embedding.spamToCppByPointer(eggs)
         self.assertIsInstance(eggs2, embedding.Eggs)
         self.assertIs(eggs2, eggs)
+        eggs3 = eggs.clone()
+        if TYPE_CHECKING:
+            assert_type(eggs3, embedding.Eggs)
+        self.assertIsInstance(eggs3, embedding.Eggs)
 
     def testSpam(self) -> None:
         spam = embedding.makeSpam("Bacon")
@@ -731,6 +749,10 @@ class TestShadowHierarchy(unittest.TestCase):
         self.assertTrue(embedding.spamToCppByReference(spam, spam))
         spam2 = embedding.spamToCppByPointer(spam)
         self.assertIs(spam2, spam)
+        spam3 = spam.clone()
+        if TYPE_CHECKING:
+            assert_type(spam3, embedding.Spam)
+        self.assertIsInstance(spam3, embedding.Bacon)
 
 
 class TestShadowConvertors(unittest.TestCase):

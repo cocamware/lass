@@ -51,6 +51,9 @@ namespace lass
 namespace test
 {
 
+class Spam;
+typedef util::SharedPtr<Spam> TSpamPtr;
+
 class Spam
 {
 public:
@@ -58,9 +61,12 @@ public:
 	virtual std::string virtualWho() const;
 	std::string overridenWho() const;
 	std::string address() const;
+
+	lass::python::Self<TSpamPtr> clone() const;
+private:
+	virtual TSpamPtr doClone() const;
 };
 
-typedef util::SharedPtr<Spam> TSpamPtr;
 
 class Ham: public Spam
 {
@@ -69,6 +75,8 @@ public:
 	std::string virtualWho() const override;
 	std::string overridenWho() const;
 	static void say(const std::string& iWhat);
+private:
+	TSpamPtr doClone() const override;
 };
 
 class Bacon: public Ham
@@ -77,6 +85,8 @@ public:
 	~Bacon();
 	std::string virtualWho() const override;
 	std::string overridenWho() const;
+private:
+	TSpamPtr doClone() const override;
 };
 
 class Eggs: public Spam
@@ -91,6 +101,8 @@ public:
 	void setNumber(int iNumber);
 
 private:
+	TSpamPtr doClone() const override;
+
 	int number_;
 };
 

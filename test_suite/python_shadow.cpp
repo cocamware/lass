@@ -52,6 +52,7 @@ PY_DECLARE_CLASS_NAME(PySpam, "Spam")
 PY_CLASS_METHOD(PySpam, virtualWho)
 PY_CLASS_METHOD(PySpam, overridenWho)
 PY_CLASS_MEMBER_R(PySpam, address)
+PY_CLASS_METHOD(PySpam, clone)
 
 PY_DECLARE_CLASS_NAME(PyHam, "Ham")
 PY_CLASS_CONSTRUCTOR_0(PyHam)
@@ -88,6 +89,20 @@ std::string Spam::address() const
 	return util::stringCast<std::string>(const_cast<Spam*>(this));
 }
 
+lass::python::Self<TSpamPtr> Spam::clone() const
+{
+	auto result = doClone();
+	const Spam* cloned = result.get();
+	LASS_ENFORCE(typeid(*cloned) == typeid(*this));
+	return result;
+}
+
+TSpamPtr Spam::doClone() const
+{
+	return TSpamPtr(new Spam(*this));
+}
+
+
 // --- Ham -----------------------------------------------------------------------------------------
 
 Ham::~Ham()
@@ -109,6 +124,11 @@ void Ham::say(const std::string& iWhat)
 	LASS_COUT << "Ham & " << iWhat << "\n";
 }
 
+TSpamPtr Ham::doClone() const
+{
+	return TSpamPtr(new Ham(*this));
+}
+
 // --- Bacon ---------------------------------------------------------------------------------------
 
 Bacon::~Bacon()
@@ -123,6 +143,11 @@ std::string Bacon::virtualWho() const
 std::string Bacon::overridenWho() const
 {
 	return "Bacon";
+}
+
+TSpamPtr Bacon::doClone() const
+{
+	return TSpamPtr(new Bacon(*this));
 }
 
 // --- Eggs ----------------------------------------------------------------------------------------
@@ -155,6 +180,11 @@ int Eggs::number() const
 void Eggs::setNumber(int iNumber)
 {
 	number_ = iNumber;
+}
+
+TSpamPtr Eggs::doClone() const
+{
+	return TSpamPtr(new Eggs(*this));
 }
 
 // --- Free ----------------------------------------------------------------------------------------
