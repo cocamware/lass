@@ -1196,6 +1196,8 @@ reference to a class defined in another file.
                 "const std::string",
             )
             children = list(node.get_children())
+            if not children:
+                return None
             assert len(children) == 1
             return self._parse_doc(children[0])
         if node.kind == CursorKind.CALL_EXPR:
