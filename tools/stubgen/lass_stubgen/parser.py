@@ -328,21 +328,20 @@ class Parser:
                     ParamInfo(p.spelling, type_info(p).substitute(template_args))
                     for p in params
                 ]
-                _cpp_params = [
-                    ParamInfo(arg.spelling, type_info(arg).substitute(template_args))
-                    for arg in constructor.get_arguments()
-                ]
-                assert cpp_params == _cpp_params
 
                 # figure out how many parameters are required (i.e., without defaults)
-                has_default_value: list[bool] = [any(t.spelling == "=" for t in p.get_tokens()) for p in params]
+                has_default_value: list[bool] = [
+                    any(t.spelling == "=" for t in p.get_tokens()) for p in params
+                ]
                 num_required: int = -1
                 for i, has_default in enumerate(has_default_value):
                     if num_required == -1:
                         if has_default:
                             num_required = i
                     else:
-                        assert has_default, "non default parameter after default parameter?"
+                        assert has_default, (
+                            "non default parameter after default parameter?"
+                        )
                 if num_required == -1:
                     num_required = len(params)
 
@@ -688,16 +687,9 @@ class Parser:
             args = list(call_expr.get_arguments())
             func = deref_decl_ref_expr(args[1])
             cpp_signature = canonical_type(func).spelling
-
-            params = list(iter_children(func, CursorKind.PARM_DECL))
             cpp_params = [
-                ParamInfo(cast(str, p.spelling), type_info(p)) for p in params
+                ParamInfo(arg.spelling, type_info(arg)) for arg in func.get_arguments()
             ]
-            _cpp_params = [
-                ParamInfo(arg.spelling, type_info(arg))
-                for arg in func.get_arguments()
-            ]
-            assert cpp_params == _cpp_params
 
             class_def.add_constructor(
                 ConstructorDefinition(
@@ -1258,13 +1250,6 @@ reference to a class defined in another file.
         cpp_params = [
             ParamInfo(arg.spelling, type_info(arg)) for arg in func.get_arguments()
         ]
-        _params = list(iter_children(func, CursorKind.PARM_DECL))
-        _cpp_params = [
-            ParamInfo(p.spelling, type_info(p))
-            for p in _params
-            if p.semantic_parent == func
-        ]
-        assert cpp_params == _cpp_params
 
         is_free_method = call_expr.spelling in ("callFree", "callFreeMethod")
 
