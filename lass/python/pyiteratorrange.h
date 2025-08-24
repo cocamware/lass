@@ -129,6 +129,9 @@ private:
 template<>
 struct PyExportTraits<PyIteratorRange*>
 {
+	constexpr static const char* py_typing = "Iterator[Any]";
+	constexpr static const char* py_typing_preamble = "from collections.abc import Iterator";
+
 	/** we take ownership! */
 	static PyObject* build( PyIteratorRange* iV )
 	{

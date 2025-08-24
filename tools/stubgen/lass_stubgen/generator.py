@@ -103,9 +103,7 @@ class StubGenerator:
         with_signature: bool = False,
     ) -> None:
         file.write("# mypy: disable-error-code = overload-overlap\n")
-        file.write(
-            "from collections.abc import Callable, Iterator, Mapping, Sequence\n"
-        )
+        file.write("from collections.abc import Callable, Mapping, Sequence\n")
         file.write("from typing import Any, Final, Literal, Union, overload\n")
 
         preamble: list[str] = []
@@ -1058,7 +1056,6 @@ BUILTIN_TYPES: dict[str, str | BuiltinTyper] = {
     "std::__ndk1::list": _pytype_sequence,
     "std::__ndk1::deque": _pytype_sequence,
     "std::__ndk1::map": _pytype_mapping,
-    "lass::python::PyIteratorRange *": "Iterator[Any]",
     "lass::stde::static_vector": _pytype_sequence,
     "lass::stde::vector_map": _pytype_mapping,
 }
