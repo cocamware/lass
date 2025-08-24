@@ -53,6 +53,7 @@ namespace test
 
 class Spam;
 typedef util::SharedPtr<Spam> TSpamPtr;
+typedef util::SharedPtr<const Spam> TConstSpamPtr;
 
 class Spam
 {
@@ -119,11 +120,166 @@ PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyBacon, Bacon, PyHam)
 PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyEggs, Eggs, PySpam)
 
 
-}
+
+template <typename IteratorType>
+class ConstSpamIteratorAdapter
+{
+public:
+	using iterator_category = typename std::iterator_traits<IteratorType>::iterator_category;
+	using value_type = python::NoNone<TConstSpamPtr>;
+	using difference_type = typename std::iterator_traits<IteratorType>::difference_type;
+	using pointer = void;
+	using reference = void;
+
+	ConstSpamIteratorAdapter(IteratorType iterator):
+		iterator_(iterator) 
+	{
+	}
+	~ConstSpamIteratorAdapter() = default;
+	ConstSpamIteratorAdapter& operator++()
+	{
+		iterator_++;
+		return *this;
+	}
+	ConstSpamIteratorAdapter operator++(int)
+	{
+		ConstSpamIteratorAdapter retval = *this;
+		++(*this);
+		return retval;
+	}
+	bool operator==(const ConstSpamIteratorAdapter& other) const
+	{
+		return iterator_ == other.iterator_;
+	}
+	bool operator!=(const ConstSpamIteratorAdapter& other) const
+	{
+		return !(*this == other);
+	}
+	value_type operator*() const
+	{
+		return value_type(iterator_->reference());
+	}
+private:
+	IteratorType iterator_;
+};
+
+
+class ShadowedIteratorContainer
+{
+public:
+	using TValue = python::NoNone<TSpamPtr>;
+	using TConstValue = python::NoNone<TConstSpamPtr>;
+	using TItems = std::vector<TValue>;
+	using TIterator = TItems::iterator;
+	using TConstIterator = ConstSpamIteratorAdapter<TItems::const_iterator>;
+	ShadowedIteratorContainer(TItems items);
+	TIterator begin();
+	TIterator end();
+	TConstIterator begin() const;
+	TConstIterator end() const;
+	static python::NoNone<util::SharedPtr<ShadowedIteratorContainer>> make(TItems items);
+	static python::NoNone<util::SharedPtr<const ShadowedIteratorContainer>> makeConst(TItems items);
+private:
+	TItems items_;
+};
+
+
+class ShadowedMemberIteratorContainer
+{
+public:
+	using TValue = python::NoNone<TSpamPtr>;
+	using TItems = std::vector<TValue>;
+	using TIterator = TItems::iterator;
+	using TConstIterator = ConstSpamIteratorAdapter<TItems::const_iterator>;
+	ShadowedMemberIteratorContainer(TItems items);
+	TIterator myBegin();
+	TIterator myEnd();
+	TConstIterator myBeginConst() const;
+	TConstIterator myEndConst() const;
+	static python::NoNone<util::SharedPtr<ShadowedMemberIteratorContainer>> make(TItems items);
+	static python::NoNone<util::SharedPtr<const ShadowedMemberIteratorContainer>> makeConst(TItems items);
+private:
+	TItems items_;
+};
+
+
+class ShadowedFreeIteratorContainer
+{
+public:
+	using TValue = python::NoNone<TSpamPtr>;
+	using TItems = std::vector<TValue>;
+	using TIterator = TItems::iterator;
+	using TConstIterator = ConstSpamIteratorAdapter<TItems::const_iterator>;
+	ShadowedFreeIteratorContainer(TItems items);
+	static python::NoNone<util::SharedPtr<ShadowedFreeIteratorContainer>> make(TItems items);
+	static python::NoNone<util::SharedPtr<const ShadowedFreeIteratorContainer>> makeConst(TItems items);
+private:
+	friend TIterator shadowedFreeIteratorContainerBegin(ShadowedFreeIteratorContainer& self);
+	friend TIterator shadowedFreeIteratorContainerEnd(ShadowedFreeIteratorContainer& self);
+	friend TConstIterator shadowedFreeIteratorContainerBeginConst(const ShadowedFreeIteratorContainer& self);
+	friend TConstIterator shadowedFreeIteratorContainerEndConst(const ShadowedFreeIteratorContainer& self);
+	TItems items_;
+};
+
+ShadowedFreeIteratorContainer::TIterator shadowedFreeIteratorContainerBegin(ShadowedFreeIteratorContainer& self);
+ShadowedFreeIteratorContainer::TIterator shadowedFreeIteratorContainerEnd(ShadowedFreeIteratorContainer& self);
+ShadowedFreeIteratorContainer::TConstIterator shadowedFreeIteratorContainerBeginConst(const ShadowedFreeIteratorContainer& self);
+ShadowedFreeIteratorContainer::TConstIterator shadowedFreeIteratorContainerEndConst(const ShadowedFreeIteratorContainer& self);
+
+
+class ShadowedIndexContainer
+{
+public:
+	using TValue = python::NoNone<TSpamPtr>;
+	using TConstValue = python::NoNone<TConstSpamPtr>;
+	using TItems = std::vector<TValue>;
+	ShadowedIndexContainer(TItems items);
+	TValue operator[](size_t index);
+	TConstValue operator[](size_t index) const;
+	size_t size() const;
+	static python::NoNone<util::SharedPtr<ShadowedIndexContainer>> make(TItems items);
+	static python::NoNone<util::SharedPtr<const ShadowedIndexContainer>> makeConst(TItems items);
+private:
+	TItems items_;
+};
+
+
+class ShadowedFreeIndexContainer
+{
+public:
+	using TValue = python::NoNone<TSpamPtr>;
+	using TConstValue = python::NoNone<TConstSpamPtr>;
+	using TItems = std::vector<TValue>;
+	ShadowedFreeIndexContainer(TItems items);
+	static python::NoNone<util::SharedPtr<ShadowedFreeIndexContainer>> make(TItems items);
+	static python::NoNone<util::SharedPtr<const ShadowedFreeIndexContainer>> makeConst(TItems items);
+private:
+	friend size_t shadowedFreeIndexContainerSize(const ShadowedFreeIndexContainer& self);
+	friend TValue shadowedFreeIndexContainerAt(ShadowedFreeIndexContainer& self, size_t index);
+	friend TConstValue shadowedFreeIndexContainerAtConst(const ShadowedFreeIndexContainer& self, size_t index);
+	TItems items_;
+};
+
+size_t shadowedFreeIndexContainerSize(const ShadowedFreeIndexContainer& self);
+ShadowedFreeIndexContainer::TValue shadowedFreeIndexContainerAt(ShadowedFreeIndexContainer& self, size_t index);
+ShadowedFreeIndexContainer::TConstValue shadowedFreeIndexContainerAtConst(const ShadowedFreeIndexContainer& self, size_t index);
+
+
+PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyShadowedIteratorContainer, ShadowedIteratorContainer);
+PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyShadowedMemberIteratorContainer, ShadowedMemberIteratorContainer);
+PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyShadowedFreeIteratorContainer, ShadowedFreeIteratorContainer);
+PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyShadowedIndexContainer, ShadowedIndexContainer);
+PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyShadowedFreeIndexContainer, ShadowedFreeIndexContainer);
 
 }
 
-typedef lass::test::PySpam TPySpam;
-PY_SHADOW_DOWN_CASTERS(TPySpam)
+}
+
+PY_SHADOW_CASTERS(lass::test::PySpam)
+PY_SHADOW_CASTERS(lass::test::PyShadowedIteratorContainer)
+PY_SHADOW_CASTERS(lass::test::PyShadowedMemberIteratorContainer)
+PY_SHADOW_CASTERS(lass::test::PyShadowedFreeIteratorContainer)
+PY_SHADOW_CASTERS(lass::test::PyShadowedIndexContainer)
+PY_SHADOW_CASTERS(lass::test::PyShadowedFreeIndexContainer)
 
 #endif

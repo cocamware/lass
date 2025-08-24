@@ -35,6 +35,8 @@
 #
 # *** END LICENSE INFORMATION ***
 
+from __future__ import annotations
+
 import datetime
 import errno
 import inspect
@@ -53,7 +55,7 @@ from collections.abc import (
     Sequence,
 )
 from contextlib import redirect_stdout
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, Protocol
 
 import embedding
 
@@ -70,18 +72,22 @@ if sys.version_info < (3, 9):
     MutableSequenceFloat = MutableSequence
     MutableMappingStrStr = MutableMapping
     CallableAnyAny = Callable
+    SequenceSpam = Sequence
+    IteratorSpam = Iterator
 else:
     SequenceFloat = Sequence[float]
     MappingStrStr = Mapping[str, str]
     MutableSequenceFloat = MutableSequence[float]
     MutableMappingStrStr = MutableMapping[str, str]
     CallableAnyAny = Callable[[Any], Any]
+    SequenceSpam = Sequence[embedding.Spam]
+    IteratorSpam = Iterator[embedding.Spam]
 
 if TYPE_CHECKING:
     if sys.version_info < (3, 11):
-        from typing_extensions import assert_type
+        from typing_extensions import Self, assert_type
     else:
-        from typing import assert_type
+        from typing import Self, assert_type
 
 
 class TestInternalLassModule(unittest.TestCase):
@@ -1462,6 +1468,79 @@ class TestException(unittest.TestCase):
                 embedding.throwException(RaisedExceptionType.WindowsError)
             self.assertEqual(cm3.exception.winerror, 6)
             self.assertEqual(cm3.exception.errno, errno.EBADF)
+
+
+class SpamContainer(Protocol):
+    @classmethod
+    def make(cls, items: SequenceSpam) -> Self: ...
+
+    @classmethod
+    def makeConst(cls, items: SequenceSpam) -> Self: ...
+
+    def __iter__(self) -> IteratorSpam: ...
+
+
+class TestIteratorRanges(unittest.TestCase):
+    def testIteratorContainer(self) -> None:
+        items = (embedding.Eggs(0), embedding.Ham(), embedding.Eggs(2))
+        constContainer = embedding.IteratorContainer(items)
+        self.assertListEqual(list(constContainer), list(items))
+        for item in constContainer:
+            if isinstance(item, embedding.Eggs):
+                item.number += 1
+        self.assertEqual(items[0].number, 1)
+        self.assertEqual(items[2].number, 3)
+
+    def testShadowedIteratorContainer(self) -> None:
+        return self._testContainer(embedding.ShadowedIteratorContainer)
+
+    def testShadowedIteratorContainerConst(self) -> None:
+        return self._testContainerConst(embedding.ShadowedIteratorContainer)
+
+    def testShadowedFreeIteratorContainer(self) -> None:
+        return self._testContainer(embedding.ShadowedFreeIteratorContainer)
+
+    def testShadowedFreeIteratorContainerConst(self) -> None:
+        return self._testContainerConst(embedding.ShadowedFreeIteratorContainer)
+
+    def testShadowedMemberIteratorContainer(self) -> None:
+        return self._testContainer(embedding.ShadowedMemberIteratorContainer)
+
+    def testShadowedMemberIteratorContainerConst(self) -> None:
+        return self._testContainerConst(embedding.ShadowedMemberIteratorContainer)
+
+    def testShadowedIndexContainer(self) -> None:
+        return self._testContainer(embedding.ShadowedIndexContainer)
+
+    def testShadowedIndexContainerConst(self) -> None:
+        return self._testContainerConst(embedding.ShadowedIndexContainer)
+
+    def testShadowedFreeIndexContainer(self) -> None:
+        return self._testContainer(embedding.ShadowedFreeIndexContainer)
+
+    def testShadowedFreeIndexContainerConst(self) -> None:
+        return self._testContainerConst(embedding.ShadowedFreeIndexContainer)
+
+    def _testContainer(self, constainerType: type[SpamContainer]) -> None:
+        items = (embedding.Eggs(0), embedding.Ham(), embedding.Eggs(2))
+        constContainer = constainerType.make(items)
+        self.assertListEqual(list(constContainer), list(items))
+        for item in constContainer:
+            if isinstance(item, embedding.Eggs):
+                item.number += 1
+        self.assertEqual(items[0].number, 1)
+        self.assertEqual(items[2].number, 3)
+
+    def _testContainerConst(self, constainerType: type[SpamContainer]) -> None:
+        items = (embedding.Eggs(0), embedding.Ham(), embedding.Eggs(2))
+        constContainer = constainerType.makeConst(items)
+        self.assertTrue([a.address == b.address for a, b in zip(constContainer, items)])
+        for item in constContainer:
+            if isinstance(item, embedding.Eggs):
+                with self.assertRaises(TypeError):
+                    item.number += 1
+        self.assertEqual(items[0].number, 0)
+        self.assertEqual(items[2].number, 2)
 
 
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])

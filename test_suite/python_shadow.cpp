@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -67,6 +67,56 @@ PY_DECLARE_CLASS_NAME(PyEggs, "Eggs")
 PY_CLASS_CONSTRUCTOR_1(PyEggs, int)
 PY_CLASS_METHOD(PyEggs, overridenWho)
 PY_CLASS_MEMBER_RW(PyEggs, number, setNumber)
+
+PY_DECLARE_CLASS_NAME(PyShadowedIteratorContainer, "ShadowedIteratorContainer")
+PY_CLASS_FREE_METHOD_NAME(PyShadowedIteratorContainer, python::makeContainerRangeView<ShadowedIteratorContainer>, lass::python::methods::_iter_);
+PY_CLASS_FREE_METHOD_NAME(PyShadowedIteratorContainer, python::makeContainerRangeView<const ShadowedIteratorContainer>, lass::python::methods::_iter_);
+PY_CLASS_STATIC_METHOD(PyShadowedIteratorContainer, make);
+PY_CLASS_STATIC_METHOD(PyShadowedIteratorContainer, makeConst);
+
+PY_DECLARE_CLASS_NAME(PyShadowedMemberIteratorContainer, "ShadowedMemberIteratorContainer")
+PY_CLASS_FREE_METHOD_NAME(PyShadowedMemberIteratorContainer,
+	python::makeMemberRangeViewFactory<ShadowedMemberIteratorContainer>(&ShadowedMemberIteratorContainer::myBegin, &ShadowedMemberIteratorContainer::myEnd),
+	lass::python::methods::_iter_);
+PY_CLASS_FREE_METHOD_NAME(PyShadowedMemberIteratorContainer,
+	python::makeMemberRangeViewFactory<const ShadowedMemberIteratorContainer>(&ShadowedMemberIteratorContainer::myBeginConst, &ShadowedMemberIteratorContainer::myEndConst),
+	lass::python::methods::_iter_);
+PY_CLASS_STATIC_METHOD(PyShadowedMemberIteratorContainer, make);
+PY_CLASS_STATIC_METHOD(PyShadowedMemberIteratorContainer, makeConst);
+
+PY_DECLARE_CLASS_NAME(PyShadowedFreeIteratorContainer, "ShadowedFreeIteratorContainer")
+PY_CLASS_FREE_METHOD_NAME(PyShadowedFreeIteratorContainer,
+	python::makeFreeRangeViewFactory<ShadowedFreeIteratorContainer>(shadowedFreeIteratorContainerBegin, shadowedFreeIteratorContainerEnd),
+	lass::python::methods::_iter_);
+PY_CLASS_FREE_METHOD_NAME(PyShadowedFreeIteratorContainer,
+	python::makeFreeRangeViewFactory<const ShadowedFreeIteratorContainer>(shadowedFreeIteratorContainerBeginConst, shadowedFreeIteratorContainerEndConst),
+	lass::python::methods::_iter_);
+PY_CLASS_STATIC_METHOD(PyShadowedFreeIteratorContainer, make);
+PY_CLASS_STATIC_METHOD(PyShadowedFreeIteratorContainer, makeConst);
+
+PY_DECLARE_CLASS_NAME(PyShadowedIndexContainer, "ShadowedIndexContainer")
+using AtNonConst = ShadowedIndexContainer::TValue (ShadowedIndexContainer::*)(size_t);
+using AtConst = ShadowedIndexContainer::TConstValue (ShadowedIndexContainer::*)(size_t) const;
+PY_CLASS_FREE_METHOD_NAME(PyShadowedIndexContainer,
+	python::makeIndexedRangeViewFactory<ShadowedIndexContainer>(static_cast<AtNonConst>(&ShadowedIndexContainer::operator[]), &ShadowedIndexContainer::size),
+	lass::python::methods::_iter_);
+PY_CLASS_FREE_METHOD_NAME(PyShadowedIndexContainer,
+	python::makeIndexedRangeViewFactory<const ShadowedIndexContainer>(static_cast<AtConst>(&ShadowedIndexContainer::operator[]), &ShadowedIndexContainer::size),
+	lass::python::methods::_iter_);
+PY_CLASS_STATIC_METHOD(PyShadowedIndexContainer, make);
+PY_CLASS_STATIC_METHOD(PyShadowedIndexContainer, makeConst);
+
+
+PY_DECLARE_CLASS_NAME(PyShadowedFreeIndexContainer, "ShadowedFreeIndexContainer")
+PY_CLASS_FREE_METHOD_NAME(PyShadowedFreeIndexContainer,
+	python::makeFreeIndexedRangeViewFactory<ShadowedFreeIndexContainer>(shadowedFreeIndexContainerAt, shadowedFreeIndexContainerSize),
+	lass::python::methods::_iter_);
+PY_CLASS_FREE_METHOD_NAME(PyShadowedFreeIndexContainer,
+	python::makeFreeIndexedRangeViewFactory<const ShadowedFreeIndexContainer>(shadowedFreeIndexContainerAtConst, shadowedFreeIndexContainerSize),
+	lass::python::methods::_iter_);
+PY_CLASS_STATIC_METHOD(PyShadowedFreeIndexContainer, make);
+PY_CLASS_STATIC_METHOD(PyShadowedFreeIndexContainer, makeConst);
+
 
 // --- Spam ----------------------------------------------------------------------------------------
 
@@ -234,6 +284,238 @@ bool spamToCppByReference(Spam& a, const util::SharedPtr<const Spam>& b)
 {
 	return &a == b.get();
 }
+
+// --- ShadowedIteratorContainer ------------------------------------------------------------------
+
+ShadowedIteratorContainer::ShadowedIteratorContainer(TItems items) :
+	items_(std::move(items))
+{
+}
+
+
+ShadowedIteratorContainer::TIterator ShadowedIteratorContainer::begin()
+{
+	return items_.begin();
+}
+
+
+ShadowedIteratorContainer::TIterator ShadowedIteratorContainer::end()
+{
+	return items_.end();
+}
+
+
+ShadowedIteratorContainer::TConstIterator ShadowedIteratorContainer::begin() const
+{
+	return TConstIterator(items_.begin());
+}
+
+
+ShadowedIteratorContainer::TConstIterator ShadowedIteratorContainer::end() const
+{
+	return TConstIterator(items_.end());
+}
+
+
+python::NoNone<util::SharedPtr<ShadowedIteratorContainer>> ShadowedIteratorContainer::make(TItems items)
+{
+	return util::SharedPtr<ShadowedIteratorContainer>(new ShadowedIteratorContainer(items));
+}
+
+
+python::NoNone<util::SharedPtr<const ShadowedIteratorContainer>> ShadowedIteratorContainer::makeConst(TItems items)
+{
+	return util::SharedPtr<const ShadowedIteratorContainer>(new ShadowedIteratorContainer(items));
+}
+
+
+
+// --- ShadowedMemberIteratorContainer ------------------------------------------------------------------
+
+ShadowedMemberIteratorContainer::ShadowedMemberIteratorContainer(TItems items) :
+	items_(std::move(items))
+{
+}
+
+
+ShadowedMemberIteratorContainer::TIterator ShadowedMemberIteratorContainer::myBegin()
+{
+	return items_.begin();
+}
+
+
+ShadowedMemberIteratorContainer::TIterator ShadowedMemberIteratorContainer::myEnd()
+{
+	return items_.end();
+}
+
+
+ShadowedMemberIteratorContainer::TConstIterator ShadowedMemberIteratorContainer::myBeginConst() const
+{
+	return TConstIterator(items_.begin());
+}
+
+
+ShadowedMemberIteratorContainer::TConstIterator ShadowedMemberIteratorContainer::myEndConst() const
+{
+	return TConstIterator(items_.end());
+}
+
+
+python::NoNone<util::SharedPtr<ShadowedMemberIteratorContainer>> ShadowedMemberIteratorContainer::make(TItems items)
+{
+	return util::SharedPtr<ShadowedMemberIteratorContainer>(new ShadowedMemberIteratorContainer(std::move(items)));
+}
+
+
+python::NoNone<util::SharedPtr<const ShadowedMemberIteratorContainer>> ShadowedMemberIteratorContainer::makeConst(TItems items)
+{
+	return util::SharedPtr<const ShadowedMemberIteratorContainer>(new ShadowedMemberIteratorContainer(std::move(items)));
+}
+
+
+
+// --- ShadowedFreeIteratorContainer ------------------------------------------------------------------
+
+ShadowedFreeIteratorContainer::ShadowedFreeIteratorContainer(TItems items) :
+	items_(std::move(items))
+{
+}
+
+
+python::NoNone<util::SharedPtr<ShadowedFreeIteratorContainer>> ShadowedFreeIteratorContainer::make(TItems items)
+{
+	return util::SharedPtr<ShadowedFreeIteratorContainer>(new ShadowedFreeIteratorContainer(std::move(items)));
+}
+
+
+python::NoNone<util::SharedPtr<const ShadowedFreeIteratorContainer>> ShadowedFreeIteratorContainer::makeConst(TItems items)
+{
+	return util::SharedPtr<const ShadowedFreeIteratorContainer>(new ShadowedFreeIteratorContainer(std::move(items)));
+}
+
+
+ShadowedFreeIteratorContainer::TIterator shadowedFreeIteratorContainerBegin(ShadowedFreeIteratorContainer& self)
+{
+	return self.items_.begin();
+}
+
+
+ShadowedFreeIteratorContainer::TIterator shadowedFreeIteratorContainerEnd(ShadowedFreeIteratorContainer& self)
+{
+	return self.items_.end();
+}
+
+
+ShadowedFreeIteratorContainer::TConstIterator shadowedFreeIteratorContainerBeginConst(const ShadowedFreeIteratorContainer& self)
+{
+	return ShadowedFreeIteratorContainer::TConstIterator(self.items_.begin());
+}
+
+
+ShadowedFreeIteratorContainer::TConstIterator shadowedFreeIteratorContainerEndConst(const ShadowedFreeIteratorContainer& self)
+{
+	return ShadowedFreeIteratorContainer::TConstIterator(self.items_.end());
+}
+
+
+
+// --- ShadowedIndexContainer ------------------------------------------------------------------
+
+ShadowedIndexContainer::ShadowedIndexContainer(TItems items) :
+	items_(std::move(items))
+{
+}
+
+
+ShadowedIndexContainer::TValue
+ShadowedIndexContainer::operator[](size_t index)
+{
+	if (index >= items_.size())
+	{
+		LASS_THROW("Index out of bounds: " << index << " >= " << items_.size());
+	}
+	return items_[index];
+}
+
+
+ShadowedIndexContainer::TConstValue
+ShadowedIndexContainer::operator[](size_t index) const
+{
+	if (index >= items_.size())
+	{
+		LASS_THROW("Index out of bounds: " << index << " >= " << items_.size());
+	}
+	return items_[index].reference().constCast<const Spam>();
+}
+
+
+size_t ShadowedIndexContainer::size() const
+{
+	return items_.size();
+}
+
+
+python::NoNone<util::SharedPtr<ShadowedIndexContainer>> ShadowedIndexContainer::make(TItems items)
+{
+	return util::SharedPtr<ShadowedIndexContainer>(new ShadowedIndexContainer(std::move(items)));
+}
+
+
+python::NoNone<util::SharedPtr<const ShadowedIndexContainer>> ShadowedIndexContainer::makeConst(TItems items)
+{
+	return util::SharedPtr<const ShadowedIndexContainer>(new ShadowedIndexContainer(std::move(items)));
+}
+
+
+
+// --- ShadowedFreeIndexContainer ------------------------------------------------------------------
+
+ShadowedFreeIndexContainer::ShadowedFreeIndexContainer(TItems items) :
+	items_(std::move(items))
+{
+}
+
+
+ShadowedFreeIndexContainer::TValue
+shadowedFreeIndexContainerAt(ShadowedFreeIndexContainer& self, size_t index)
+{
+	if (index >= self.items_.size())
+	{
+		LASS_THROW("Index out of bounds: " << index << " >= " << self.items_.size());
+	}
+	return self.items_[index];
+}
+
+
+ShadowedFreeIndexContainer::TConstValue
+shadowedFreeIndexContainerAtConst(const ShadowedFreeIndexContainer& self, size_t index)
+{
+	if (index >= self.items_.size())
+	{
+		LASS_THROW("Index out of bounds: " << index << " >= " << self.items_.size());
+	}
+	return self.items_[index].reference().constCast<const Spam>();
+}
+
+
+size_t shadowedFreeIndexContainerSize(const ShadowedFreeIndexContainer& self)
+{
+	return self.items_.size();
+}
+
+
+python::NoNone<util::SharedPtr<ShadowedFreeIndexContainer>> ShadowedFreeIndexContainer::make(TItems items)
+{
+	return util::SharedPtr<ShadowedFreeIndexContainer>(new ShadowedFreeIndexContainer(std::move(items)));
+}
+
+
+python::NoNone<util::SharedPtr<const ShadowedFreeIndexContainer>> ShadowedFreeIndexContainer::makeConst(TItems items)
+{
+	return util::SharedPtr<const ShadowedFreeIndexContainer>(new ShadowedFreeIndexContainer(std::move(items)));
+}
+
 
 }
 

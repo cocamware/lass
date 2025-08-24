@@ -465,7 +465,28 @@ PY_CLASS_FREE_ITERFUNC( PyClassMap, lass::test::freeBegin, lass::test::freeEnd )
 //PY_CLASS_METHOD_CAST_1( PyClassB, testConst, void, lass::python::PointerCast<const lass::test::ClassA&>  )
 //PY_CLASS_METHOD_CAST_1( PyClassB, testNonConst, void, lass::python::PointerCast<lass::test::ClassA&>  )
 
+namespace lass::test
+{
 
+class IteratorContainer: public python::PyObjectPlus
+{
+	PY_HEADER(python::PyObjectPlus)
+public:
+	using TValue = python::NoNone<TSpamPtr>;
+	using TItems = std::vector<TValue>;
+	using TIterator = TItems::iterator;
+	IteratorContainer(TItems items) : items_(std::move(items)) {}
+	TIterator begin() { return items_.begin(); }
+	TIterator end() { return items_.end(); }
+private:
+	TItems items_;
+};
+
+PY_DECLARE_CLASS(IteratorContainer)
+PY_CLASS_CONSTRUCTOR_1(IteratorContainer, IteratorContainer::TItems)
+PY_CLASS_FREE_METHOD_NAME(IteratorContainer, python::makeContainerRangeView<IteratorContainer>, python::methods::_iter_);
+
+}
 
 
 namespace lass { namespace python {
@@ -717,6 +738,12 @@ PY_MODULE_CLASS( embedding, PyClassB );
 PY_MODULE_CLASS( embedding, PyClassC );
 PY_MODULE_CLASS( embedding, PyClassSeq );
 PY_MODULE_CLASS( embedding, PyClassMap );
+PY_MODULE_CLASS( embedding, IteratorContainer);
+PY_MODULE_CLASS( embedding, PyShadowedIteratorContainer );
+PY_MODULE_CLASS( embedding, PyShadowedMemberIteratorContainer );
+PY_MODULE_CLASS( embedding, PyShadowedFreeIteratorContainer );
+PY_MODULE_CLASS( embedding, PyShadowedIndexContainer );
+PY_MODULE_CLASS( embedding, PyShadowedFreeIndexContainer );
 
 PY_MODULE_FUNCTION( embedding, anotherFreeFunction )
 PY_MODULE_FUNCTION( embedding, listInfo )
