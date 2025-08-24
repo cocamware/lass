@@ -77,6 +77,7 @@
 #include "pyobject_plus.h"
 #include "shadowee_traits.h"
 #include "../meta/is_derived.h"
+#include <type_traits>
 
 namespace lass
 {
@@ -637,6 +638,29 @@ private:
 
 template <typename S, typename T, typename PT> 
 typename ShadowClass<S, T, PyObjectPlus, PT>::TDerivedMakers* ShadowClass<S, T, PyObjectPlus, PT>::derivedMakers_ = 0;
+
+
+
+/** @ingroup Python
+ *  @brief Helper to get the pointer type holding the shadowee in a shadow object
+ * 
+ *  `ShadoweeType` is the C++ type being wrapped by a shadow object. This shadow object
+ *  holds the wrapped shadowee in a pointer type. This pointer type is defined by the
+ *  pointer traits passed to `PY_SHADOW_CLASS_EX` or `PY_SHADOW_CLASS_PTRTRAITS`.
+ *  By default, this is `SharedPointerTraits<ShadoweeType>`.
+ * 
+ *  This helper will directly give you the pointer type used to store the shadowee in
+ *  the shadow objects. Depending on the constness of the shadowee, you will either get
+ *  a pointer to a non-const ShadoweeType or a pointer to a const ShadoweeType.
+ * 
+ *  If `ShadoweeType` is _not_ a shadowed type but derives from `PyObjectPlus`, then
+ *  the pointer type `PyObjectPtr<ShadoweeType>::Type`
+ */
+template <typename ShadoweeType>
+using ShadoweePtr = std::conditional_t<std::is_const_v<ShadoweeType>,
+	typename impl::ShadowTraits<typename ShadoweeTraits<ShadoweeType>::TShadow>::TConstCppClassPtr,
+	typename impl::ShadowTraits<typename ShadoweeTraits<ShadoweeType>::TShadow>::TCppClassPtr
+>;
 
 }
 
