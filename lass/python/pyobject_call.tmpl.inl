@@ -380,6 +380,41 @@ $[
 	}
 ]$
 
+	/** call std::function as "free method" without arguments, passing object as first argument
+	 */
+	template <typename R, typename P0>
+	static PyObject* callFree( PyObject* args, PyObject* object, std::function<R(P0)> freeMethod )
+	{
+		typedef std::function<R(P0)> TFunction;
+		typedef ArgumentTraits<P0> TArg0; typedef typename TArg0::TStorage S0; S0 p0 = S0();
+		if ( pyGetSimpleObject(object, p0) != 0 || decodeTuple(args) != 0 )
+		{
+			return 0;
+		}
+		PyObject* result = Caller<R>::template callFunction<TFunction>(
+			freeMethod, TArg0::arg(p0) );
+		return establishMagicalBackLinks(result, object);
+	}
+$[
+	/** call "free method" with $x arguments translated from python arguments, passing object as first argument
+	 */
+	template <typename R, typename P0, $(typename P$x)$>
+	static PyObject* callFree( PyObject* args, PyObject* object, std::function<R(P0, $(P$x)$)> freeMethod )
+	{
+		typedef std::function<R(P0, $(P$x)$)> TFunction;
+		typedef ArgumentTraits<P0> TArg0; typedef typename TArg0::TStorage S0; S0 p0 = S0();
+		$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x = S$x();
+		)$
+		if ( pyGetSimpleObject(object, p0) != 0 || decodeTuple<$(S$x)$>(args, $(p$x)$) != 0 )
+		{
+			return 0;
+		}
+		PyObject* result = Caller<R>::template callFunction<TFunction>(
+			freeMethod, TArg0::arg(p0), $(TArg$x::arg(p$x))$ );
+		return establishMagicalBackLinks(result, object);
+	}
+]$
+
 	// member getters and setters
 
 	/** call const getter function.

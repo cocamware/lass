@@ -1230,7 +1230,7 @@ reference to a class defined in another file.
 
         compound = ensure_last_child(dispatcher, CursorKind.COMPOUND_STMT)
         return_stmt = ensure_last_child(compound, CursorKind.RETURN_STMT)
-        call_expr = ensure_only_child(return_stmt, CursorKind.CALL_EXPR)
+        call_expr = _ensure_only_child_recursive(return_stmt, CursorKind.CALL_EXPR)
         assert call_expr.spelling in (
             "call",
             "callFunction",
@@ -1239,17 +1239,31 @@ reference to a class defined in another file.
             "callFreeMethod",
         ), call_expr.spelling
 
-        func_arg = ensure_last_child(
-            call_expr, [CursorKind.UNEXPOSED_EXPR, CursorKind.UNARY_OPERATOR]
-        )
-        func = deref_decl_ref_expr(func_arg)
+        call_args = list(call_expr.get_arguments())
+        assert call_args, f"{call_expr.spelling} ({canonical_type(call_expr).spelling})"
+
+        func_arg = call_args[-1]
+        while func_arg.kind in [CursorKind.UNEXPOSED_EXPR, CursorKind.UNARY_OPERATOR]:
+            func_arg = ensure_only_child(func_arg)
+        if func_arg.kind == CursorKind.CALL_EXPR:
+            func = func_arg
+        else:
+            func = deref_decl_ref_expr(func_arg)
 
         cpp_signature = canonical_type(func).spelling
-        cpp_return_type = type_info(func.type.get_result())
 
-        cpp_params = [
-            ParamInfo(arg.spelling, type_info(arg)) for arg in func.get_arguments()
-        ]
+        func_type = type_info(func)
+        if func_type.name == "std::function":
+            assert func_type.args and len(func_type.args) == 1, f"{func_type.args=}"
+            func_type = func_type.args[0]
+            cpp_return_type = func_type.result
+            assert cpp_return_type, f"{func_type=} must have a result"
+            cpp_params = [ParamInfo("", arg) for arg in func_type.args or []]
+        else:
+            cpp_return_type = type_info(func.type.get_result())
+            cpp_params = [
+                ParamInfo(arg.spelling, type_info(arg)) for arg in func.get_arguments()
+            ]
 
         is_free_method = call_expr.spelling in ("callFree", "callFreeMethod")
 
