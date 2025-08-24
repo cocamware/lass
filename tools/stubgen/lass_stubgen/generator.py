@@ -104,8 +104,9 @@ class StubGenerator:
     ) -> None:
         file.write("# mypy: disable-error-code = overload-overlap\n")
         file.write(
-            "from typing import Any, Callable, Final, Iterator, Literal, Mapping, Sequence, Union, overload\n"
+            "from collections.abc import Callable, Iterator, Mapping, Sequence\n"
         )
+        file.write("from typing import Any, Final, Literal, Union, overload\n")
 
         preamble: list[str] = []
 
