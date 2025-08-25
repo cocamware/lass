@@ -40,8 +40,9 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-/** @defgroup Python
- *  @brief interface library to Python
+/** @defgroup PythonIterators Python Iterators
+ *  @brief Exposing iterators to Python
+ *  @ingroup Python
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYITERATORRANGE_H
@@ -95,30 +96,66 @@ namespace impl
 	};
 }
 
+
+/** Python iterator object
+ * 
+ *  This is the class that implements the Python iterator interface and that is exposed
+ *  to Python. It can be created directly with two iterators, or with a custom
+ *  implementation deriving from `PyIteratorRangeImplBase`.
+ * 
+ *  @ingroup PythonIterators
+ */
 class LASS_PYTHON_DLL PyIteratorRange : public lass::python::PyObjectPlus
 {
 	PY_HEADER(PyObjectPlus)
 public:
 	using TPimpl = std::unique_ptr<impl::PyIteratorRangeImplBase>;
 
+	/** Construct PyIteratorRange with custom implementation */
 	PyIteratorRange(TPimpl pimpl);
 
+	/** Construct PyIteratorRange with default implemenation iterating between two iterators */
 	template<typename Iterator> PyIteratorRange(Iterator first, Iterator last):
 		PyIteratorRange(std::make_unique<impl::PyIteratorRangeImpl<Iterator>>(first, last))
 	{
 	}
 
-	static PyObject* iter( PyObject* iPo);
-	static PyObject* iterNext( PyObject* iPO);
-
+	/** Owner object of the iterators
+	 * 
+	 *  This is the object that owns the iterators that PyIteratorRange is iterating over
+	 *  and that must stay alive while the PyIteratorRange is in use. If the owning object
+	 *  is destroyed while the PyIteratorRange is still in use, the iterators will become
+	 *  invalid and any further attempts to use the PyIteratorRange will result in undefined
+	 *  behavior.
+	 * 
+	 *  Setting the owner on the PyIteratorRange will prevent that it is destroyed while
+	 *  the PyIteratorRange is still in use.
+	 * 
+	 *  If a method or free method returns a PyIteratorRange, the owner will automatically
+	 *  be set to `self`, the instance the method was called on, if the owner was not yet
+	 *  set. If that doesn't work for your use case, you must set the owner manually.
+	 */
+	///@{
 	const TPyObjPtr& owner() const;
 	void setOwner(const TPyObjPtr& owner);
+	///@}
+
+	static PyObject* iter( PyObject* iPo);
+	static PyObject* iterNext( PyObject* iPO);
 	
 private:
 	TPimpl pimpl_;
 	TPyObjPtr owner_;
 };
 
+
+
+/** Passes a PyIteratorRange to Python
+ *
+ *  @note This steals a reference to the PyIteratorRange object.
+ *
+ *  @ingroup PythonIterators PyExportTraits
+ */
 template<>
 struct PyExportTraits<PyIteratorRange*>
 {
@@ -139,7 +176,7 @@ struct PyExportTraits<PyIteratorRange*>
 
 // --- iterators -------------------------------------------------------------------------------------
 
-/** @ingroup Python
+/** @ingroup PythonIterators
  *  Exports a set of C++ iterators to Python
  *
  *  @param t_cppClass
@@ -197,7 +234,7 @@ struct PyExportTraits<PyIteratorRange*>
 	lass::python::PyIteratorRange* LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch1 ) (const ::lass::python::impl::ShadowTraits< t_cppClass >::TCppClassPtr& iObj) { \
 	return new lass::python::PyIteratorRange(iObj->i_cppBegin (), iObj->i_cppEnd ()); } \
 	PY_CLASS_FREE_METHOD_NAME_DOC( t_cppClass, LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch1 ), lass::python::methods::_iter_, s_doc)
-/** @ingroup Python
+/** @ingroup PythonIterators
  *  convenience macro, wraps PY_CLASS_ITERFUNC_EX with
  *  @a i_dispatcher = lassPyImpl_method_ ## @a i_cppClass ## __LINE__.
  */
@@ -205,7 +242,7 @@ struct PyExportTraits<PyIteratorRange*>
 		PY_CLASS_ITERFUNC_EX(\
 			i_cppClass, i_cppBegin, icppEnd, s_doc,\
 			LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_method_, i_cppClass)))
-/** @ingroup Python
+/** @ingroup PythonIterators
  *  convenience macro, wraps PY_CLASS_ITERFUNC_DOC with @a s_doc = 0.
  */
 #define PY_CLASS_ITERFUNC( i_cppClass, i_cppBegin, icppEnd )\
@@ -215,7 +252,7 @@ struct PyExportTraits<PyIteratorRange*>
 lass::python::PyIteratorRange* LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch2 ) (const ::lass::python::impl::ShadowTraits< t_cppClass >::TCppClassPtr& iObj) { \
 return new lass::python::PyIteratorRange(i_cppBegin(iObj), i_cppEnd(iObj)); } \
 	PY_CLASS_FREE_METHOD_NAME_DOC( t_cppClass, LASS_CONCATENATE_3( lassPyImpl_method_, i_dispatcher, itDispatch2 ), lass::python::methods::_iter_, s_doc)
-/** @ingroup Python
+/** @ingroup PythonIterators
  *  convenience macro, wraps PY_CLASS_ITERFUNC_EX with
  *  @a i_dispatcher = lassPyImpl_method_ ## @a i_cppClass ## __LINE__.
  */
@@ -223,7 +260,7 @@ return new lass::python::PyIteratorRange(i_cppBegin(iObj), i_cppEnd(iObj)); } \
 		PY_CLASS_FREE_ITERFUNC_EX(\
 			i_cppClass, i_cppBegin, icppEnd, s_doc,\
 			LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_method_, i_cppClass)))
-/** @ingroup Python
+/** @ingroup PythonIterators
  *  convenience macro, wraps PY_CLASS_ITERFUNC_DOC with @a s_doc = 0.
  */
 #define PY_CLASS_FREE_ITERFUNC( i_cppClass, i_cppBegin, icppEnd )\

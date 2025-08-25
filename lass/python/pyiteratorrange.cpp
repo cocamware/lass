@@ -86,9 +86,6 @@ namespace python
 		return owner_;
 	}
 
-	/** Set an object that needs to stay alive while the iterator range exists.
-	 *  This typically is the object containing the actual data.
-	 */
 	void PyIteratorRange::setOwner(const TPyObjPtr& owner) 
 	{ 
 		owner_ = owner; 
