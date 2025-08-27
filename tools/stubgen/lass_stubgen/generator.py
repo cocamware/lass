@@ -186,6 +186,7 @@ class StubGenerator:
         with_signature: bool,
     ) -> None:
         for name, funcs in module_def.functions.items():
+            funcs = self._remove_duplicates(funcs)
             is_overload = len(funcs) > 1
             common_doc, funcs = _extract_common_docstring(funcs)
             for func in funcs:
@@ -472,6 +473,7 @@ class StubGenerator:
         with_signature: bool,
     ) -> None:
         for name, methods in class_def.methods.items():
+            methods = self._remove_duplicates(methods)
             is_overload = len(methods) > 1
             common_doc, methods = _extract_common_docstring(methods)
             for method in methods:
@@ -865,6 +867,49 @@ class StubGenerator:
                 longest_match = max(matches, key=len)
                 preamble.append(f"import {longest_match}")
             return fqname, preamble
+
+    @overload
+    def _remove_duplicates(
+        self, funcs: Sequence[FunctionDefinition]
+    ) -> list[FunctionDefinition]: ...
+    @overload
+    def _remove_duplicates(
+        self, funcs: Sequence[MethodDefinition]
+    ) -> list[MethodDefinition]: ...
+    def _remove_duplicates(
+        self, funcs: Sequence[FunctionDefinition | MethodDefinition]
+    ) -> Sequence[FunctionDefinition | MethodDefinition]:
+        uniques: dict[
+            tuple[tuple[tuple[str, str], ...], str, str | None],
+            FunctionDefinition | MethodDefinition,
+        ] = {}
+        for func in funcs:
+            py_params = tuple(
+                (
+                    p.name,
+                    self.python_type(p.type_, scope=None, preamble=[], as_param=True),
+                )
+                for p in func.cpp_params
+            )
+            py_return_type = self.python_type(
+                func.cpp_return_type, scope=None, preamble=[], as_param=False
+            )
+            sig_nodoc = (py_params, py_return_type, None)
+            if dup := uniques.get(sig_nodoc):
+                if isinstance(func, MethodDefinition):
+                    assert isinstance(dup, MethodDefinition)
+                    assert func.is_static == dup.is_static
+                if not dup.doc:
+                    if func.doc:
+                        # we already have a version without doc, replace it
+                        uniques[sig_nodoc] = func
+                elif func.doc and dup.doc != func.doc:
+                    # both have doc, but different, keep both
+                    sig_doc = (py_params, py_return_type, func.doc)
+                    uniques[sig_doc] = func
+            else:
+                uniques[sig_nodoc] = func
+        return list(uniques.values())
 
 
 MatchedParams: TypeAlias = dict[str, TypeInfo | tuple[TypeInfo, ...] | None]
