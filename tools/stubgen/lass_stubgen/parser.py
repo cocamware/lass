@@ -1528,7 +1528,10 @@ def type_info(node_or_type: Cursor | cindex.Type) -> TypeInfo:
     if pointee.kind != TypeKind.INVALID:
         pointee_type = type_info(pointee)
         if type_.kind == TypeKind.POINTER:
-            assert pointee_type.result is None, pointee_type
+            if pointee_type.result is not None:
+                assert not pointee_type.name, pointee_type
+                return pointee_type
+            assert pointee_type.name, pointee_type
             return TypeInfo(f"{pointee_type.name} *", pointee_type.args)
         return pointee_type
 
