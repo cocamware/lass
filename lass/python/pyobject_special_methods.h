@@ -223,7 +223,7 @@ namespace methods
 
 	// Iterator Protocol
 	const lass::python::impl::IterSlot _iter_("__iter__", Py_tp_iter);
-	const lass::python::impl::IterNextSlot next("next", Py_tp_iternext);
+	const lass::python::impl::IterNextSlot next("__next__", Py_tp_iternext);
 }
 
 }

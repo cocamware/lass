@@ -73,6 +73,8 @@ namespace lass
 					sSsizeSsizeObjArg,
 					sObjObj,
 					sObjObjArg,
+					sGetIterFunc,
+					sIterNextFunc,
 					sArgKw
 				};
 				OverloadLink();
@@ -87,6 +89,8 @@ namespace lass
 				void setSsizeSsizeObjArgProcfunc(ssizessizeobjargproc iOverload);
 				void setObjObjProcfunc(objobjproc iOverload);
 				void setObjObjArgProcfunc(objobjargproc iOverload);
+				void setGetIterFunc(getiterfunc iOverload);
+				void setIterNextFunc(iternextfunc iOverload);
 
 				void setArgKwfunc(ternaryfunc iOverload);
 

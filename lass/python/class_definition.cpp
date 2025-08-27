@@ -282,19 +282,19 @@ void ClassDefinition::addMethod(const ObjObjSlot& slot, const char*, objobjproc 
 	overloadChain.setObjObjProcfunc(setSlot(slot.slot, dispatcher));
 }
 
-void ClassDefinition::addMethod(const ObjObjArgSlot& slot, const char*,	objobjargproc dispatcher, OverloadLink& overloadChain) 
+void ClassDefinition::addMethod(const ObjObjArgSlot& slot, const char*, objobjargproc dispatcher, OverloadLink& overloadChain) 
 {
 	overloadChain.setObjObjArgProcfunc(setSlot(slot.slot, dispatcher));
 }
 
-void ClassDefinition::addMethod(const IterSlot& slot, const char*, getiterfunc dispatcher, OverloadLink&) 
+void ClassDefinition::addMethod(const IterSlot& slot, const char*, getiterfunc dispatcher, OverloadLink& overloadChain)
 {
-	setSlot(slot.slot, dispatcher);
+	overloadChain.setGetIterFunc(setSlot(slot.slot, dispatcher));
 }
 
-void ClassDefinition::addMethod(const IterNextSlot& slot, const char*, iternextfunc dispatcher, OverloadLink&) 
+void ClassDefinition::addMethod(const IterNextSlot& slot, const char*, iternextfunc dispatcher, OverloadLink& overloadChain)
 {
-	setSlot(slot.slot, dispatcher);
+	overloadChain.setIterNextFunc(setSlot(slot.slot, dispatcher));
 }
 
 void ClassDefinition::addMethod(const ArgKwSlot& slot, const char*, ternaryfunc dispatcher, OverloadLink& overloadChain) 

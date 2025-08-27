@@ -111,6 +111,16 @@ void OverloadLink::setObjObjArgProcfunc(objobjargproc iOverload)
 	signature_ = iOverload ? sObjObjArg : sNull;
 	objobjargproc_ = iOverload;
 }
+void OverloadLink::setGetIterFunc(getiterfunc iOverload)
+{
+	signature_ = iOverload ? sGetIterFunc : sNull;
+	getiterfunc_ = iOverload;
+}
+void OverloadLink::setIterNextFunc(iternextfunc iOverload)
+{
+	signature_ = iOverload ? sIterNextFunc : sNull;
+	iternextfunc_ = iOverload;
+}
 void OverloadLink::setArgKwfunc(ternaryfunc iOverload)
 {
 	signature_ = iOverload ? sArgKw : sNull;
@@ -246,6 +256,20 @@ PyObject* OverloadLink::call(PyObject* iSelf, PyObject* iArgs) const
 				return 0;
 			}
 		}
+
+	case sGetIterFunc:
+		if (decodeTuple(iArgs) != 0)
+		{
+			return 0;
+		}
+		return getiterfunc_(iSelf);
+
+	case sIterNextFunc:
+		if (decodeTuple(iArgs) != 0)
+		{
+			return 0;
+		}
+		return iternextfunc_(iSelf);
 
 	case sArgKw:
 		return ternaryfunc_(iSelf, iArgs, 0);
