@@ -85,16 +85,16 @@ class StubData:
         self.included_files: dict[str, dict[str, None]] = {}
         self._type_aliases: dict[str, _PreambleTypeAlias] = {}
 
-    def asdict(self) -> dict[str, Any]:
+    def tojson(self) -> dict[str, Any]:
         return {
             "package": self.package,
-            "modules": [mod_def.asdict() for mod_def in self.modules.values()],
+            "modules": [mod_def.tojson() for mod_def in self.modules.values()],
             "classes": [
-                class_def.asdict() for class_def in self.shadow_classes.values()
+                class_def.tojson() for class_def in self.shadow_classes.values()
             ],
-            "enums": [enum_def.asdict() for enum_def in self.enums.values()],
+            "enums": [enum_def.tojson() for enum_def in self.enums.values()],
             "export_traits": [
-                traits.asdict()
+                traits.tojson()
                 for specializations in self.export_traits.values()
                 for traits in specializations.values()
             ],
@@ -110,7 +110,7 @@ class StubData:
         """
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w", encoding="utf-8", newline="\n") as fp:
-            json.dump(self.asdict(), fp, indent=2)
+            json.dump(self.tojson(), fp, indent=2)
         if depfile:
             self.write_depfile(depfile, target=path)
 
@@ -146,16 +146,16 @@ class StubData:
             fp.write(f"{escape(str(target))}:{sep}{sep.join(escaped)}\n")
 
     @classmethod
-    def fromdict(cls, data: dict[str, Any]) -> Self:
+    def fromjson(cls, data: dict[str, Any]) -> Self:
         stubdata = cls(data["package"])
         for mod_data in data["modules"]:
-            stubdata.add_module_definition(ModuleDefinition.fromdict(mod_data))
+            stubdata.add_module_definition(ModuleDefinition.fromjson(mod_data))
         for class_data in data["classes"]:
-            stubdata.add_class_definition(ClassDefinition.fromdict(class_data))
+            stubdata.add_class_definition(ClassDefinition.fromjson(class_data))
         for enum_data in data["enums"]:
-            stubdata.add_enum_definition(EnumDefinition.fromdict(enum_data))
+            stubdata.add_enum_definition(EnumDefinition.fromjson(enum_data))
         for traits_data in data["export_traits"]:
-            stubdata.add_export_traits(ExportTraits.fromdict(traits_data))
+            stubdata.add_export_traits(ExportTraits.fromjson(traits_data))
         for cpp_file, included_files in data["included_files"].items():
             stubdata.included_files.setdefault(cpp_file, {}).update(
                 (include, None) for include in included_files
@@ -169,7 +169,7 @@ class StubData:
         """
         with open(path, "r", encoding="utf-8") as fp:
             data = json.load(fp)
-        stubdata = cls.fromdict(data)
+        stubdata = cls.fromjson(data)
         if imported:
             for mod_def in stubdata.modules.values():
                 mod_def.imported = True
@@ -344,12 +344,12 @@ class ModuleDefinition:
     def __str__(self) -> str:
         return f"module {self.py_name} ({self.cpp_name})"
 
-    def asdict(self) -> dict[str, Any]:
+    def tojson(self) -> dict[str, Any]:
         functions: list[dict[str, Any]] = []
         for func_defs in self.functions.values():
             for func_def in func_defs:
-                functions.append(func_def.asdict())
-        constants = [const.asdict() for const in self.constants.values()]
+                functions.append(func_def.tojson())
+        constants = [const.tojson() for const in self.constants.values()]
         return {
             "cpp_name": self.cpp_name,
             "py_name": self.py_name,
@@ -363,14 +363,14 @@ class ModuleDefinition:
         }
 
     @classmethod
-    def fromdict(cls, data: dict[str, Any]) -> Self:
+    def fromjson(cls, data: dict[str, Any]) -> Self:
         functions: dict[str, list[FunctionDefinition]] = {}
         for func in data["functions"]:
-            func_def = FunctionDefinition.fromdict(func)
+            func_def = FunctionDefinition.fromjson(func)
             functions.setdefault(func_def.py_name, []).append(func_def)
         constants: dict[str, ConstDefinition] = {}
         for const in data["constants"]:
-            const_def = ConstDefinition.fromdict(const)
+            const_def = ConstDefinition.fromjson(const)
             constants[const_def.py_name] = const_def
         return cls(
             cpp_name=data["cpp_name"],
@@ -447,29 +447,29 @@ class ClassDefinition:
     def __str__(self) -> str:
         return f"class {self.py_name} ({self.shadow_name})"
 
-    def asdict(self) -> dict[str, Any]:
+    def tojson(self) -> dict[str, Any]:
         constructors: list[dict[str, Any]] = []
         for constr_def in self.constructors:
-            constructors.append(constr_def.asdict())
+            constructors.append(constr_def.tojson())
         methods: list[dict[str, Any]] = []
         for meth_defs in self.methods.values():
             for meth_def in meth_defs:
-                methods.append(meth_def.asdict())
+                methods.append(meth_def.tojson())
         getsetters: list[dict[str, Any]] = []
         for getsetter in self.getsetters.values():
-            getsetters.append(getsetter.asdict())
+            getsetters.append(getsetter.tojson())
         consts: list[dict[str, Any]] = []
         for const in self.consts.values():
-            consts.append(const.asdict())
-        implicit_converters: list[dict[str, Any]] = []
+            consts.append(const.tojson())
+        implicit_converters: list[dict[str, Any] | str] = []
         for conv in self.implicit_converters:
-            implicit_converters.append(conv.asdict())
+            implicit_converters.append(conv.tojson())
         _cpp_constructors: list[dict[str, Any]] = []
         for constr_def in self._cpp_constructors.values():
-            _cpp_constructors.append(constr_def.asdict())
+            _cpp_constructors.append(constr_def.tojson())
         return {
             "py_name": self.py_name,
-            "cpp_type": self.cpp_type.asdict(),
+            "cpp_type": self.cpp_type.tojson(),
             "shadow_name": self.shadow_name,
             "parent_type": self.parent_type,
             "doc": self.doc,
@@ -485,30 +485,30 @@ class ClassDefinition:
         }
 
     @classmethod
-    def fromdict(cls, data: dict[str, Any]) -> Self:
-        cpp_type = TypeInfo.fromdict(data["cpp_type"])
+    def fromjson(cls, data: dict[str, Any]) -> Self:
+        cpp_type = TypeInfo.fromjson(data["cpp_type"])
         constructors: list[ConstructorDefinition] = []
         for constr in data["constructors"]:
-            constr_def = ConstructorDefinition.fromdict(constr)
+            constr_def = ConstructorDefinition.fromjson(constr)
             constructors.append(constr_def)
         methods: dict[str, list[MethodDefinition]] = {}
         for meth in data["methods"]:
-            meth_def = MethodDefinition.fromdict(meth)
+            meth_def = MethodDefinition.fromjson(meth)
             methods.setdefault(meth_def.py_name, []).append(meth_def)
         getsetters: dict[str, GetSetterDefinition] = {}
         for getsetter in data["getsetters"]:
-            getsetter_def = GetSetterDefinition.fromdict(getsetter)
+            getsetter_def = GetSetterDefinition.fromjson(getsetter)
             getsetters[getsetter_def.py_name] = getsetter_def
         consts: dict[str, ConstDefinition] = {}
         for const in data["consts"]:
-            const_def = ConstDefinition.fromdict(const)
+            const_def = ConstDefinition.fromjson(const)
             consts[const_def.py_name] = const_def
         implicit_converters: set[TypeInfo] = set()
         for source_type in data.get("implicit_converters", []):
-            implicit_converters.add(TypeInfo.fromdict(source_type))
+            implicit_converters.add(TypeInfo.fromjson(source_type))
         _cpp_constructors: dict[str, ConstructorDefinition] = {}
         for constr in data["constructors"]:
-            constr_def = ConstructorDefinition.fromdict(constr)
+            constr_def = ConstructorDefinition.fromjson(constr)
             _cpp_constructors[constr_def.cpp_signature] = constr_def
         return cls(
             py_name=data["py_name"],
@@ -539,19 +539,19 @@ class FunctionDefinition:
     def __str__(self) -> str:
         return f"function {self.py_name}"
 
-    def asdict(self) -> dict[str, Any]:
+    def tojson(self) -> dict[str, Any]:
         return {
             "py_name": self.py_name,
             "doc": self.doc,
-            "cpp_return_type": self.cpp_return_type.asdict(),
-            "cpp_params": [param.asdict() for param in self.cpp_params],
+            "cpp_return_type": self.cpp_return_type.tojson(),
+            "cpp_params": [param.tojson() for param in self.cpp_params],
             "cpp_signature": self.cpp_signature,
         }
 
     @classmethod
-    def fromdict(cls, data: Any) -> Self:
-        cpp_params = [ParamInfo.fromdict(param) for param in data["cpp_params"]]
-        cpp_return_type = TypeInfo.fromdict(data["cpp_return_type"])
+    def fromjson(cls, data: Any) -> Self:
+        cpp_params = [ParamInfo.fromjson(param) for param in data["cpp_params"]]
+        cpp_return_type = TypeInfo.fromjson(data["cpp_return_type"])
         return cls(
             py_name=data["py_name"],
             doc=data["doc"],
@@ -570,18 +570,18 @@ class ConstDefinition:
     def __str__(self) -> str:
         return f"const {self.py_name}"
 
-    def asdict(self) -> dict[str, Any]:
+    def tojson(self) -> dict[str, Any]:
         dct: dict[str, Any] = {
             "py_name": self.py_name,
-            "cpp_type": self.cpp_type.asdict(),
+            "cpp_type": self.cpp_type.tojson(),
         }
         if self.value is not None:
             dct["value"] = self.value
         return dct
 
     @classmethod
-    def fromdict(cls, data: Any) -> Self:
-        cpp_type = TypeInfo.fromdict(data["cpp_type"])
+    def fromjson(cls, data: Any) -> Self:
+        cpp_type = TypeInfo.fromjson(data["cpp_type"])
         return cls(
             py_name=data["py_name"],
             cpp_type=cpp_type,
@@ -601,11 +601,21 @@ class EnumDefinition:
     def __str__(self) -> str:
         return f"enum {self.py_name} ({self.cpp_name})"
 
-    def asdict(self) -> dict[str, Any]:
-        return dataclasses.asdict(self)
+    def tojson(self) -> dict[str, Any]:
+        dct: dict[str, Any] = {
+            "py_name": self.py_name,
+            "cpp_name": self.cpp_name,
+            "value_py_type": self.value_py_type,
+            "values": self.values,
+        }
+        if self.doc is not None:
+            dct["doc"] = self.doc
+        if self.fully_qualified_name is not None:
+            dct["fully_qualified_name"] = self.fully_qualified_name
+        return dct
 
     @classmethod
-    def fromdict(cls, data: Any) -> Self:
+    def fromjson(cls, data: Any) -> Self:
         return cls(**data)
 
 
@@ -627,9 +637,9 @@ class ConstructorDefinition:
         ]
         return f"constructor ({', '.join(params)})"
 
-    def asdict(self) -> dict[str, Any]:
+    def tojson(self) -> dict[str, Any]:
         dct: dict[str, Any] = {
-            "cpp_params": [param.asdict() for param in self.cpp_params],
+            "cpp_params": [param.tojson() for param in self.cpp_params],
             "cpp_signature": self.cpp_signature,
             "num_required": self.num_required,
         }
@@ -638,8 +648,8 @@ class ConstructorDefinition:
         return dct
 
     @classmethod
-    def fromdict(cls, data: Any) -> Self:
-        cpp_params = [ParamInfo.fromdict(param) for param in data["cpp_params"]]
+    def fromjson(cls, data: Any) -> Self:
+        cpp_params = [ParamInfo.fromjson(param) for param in data["cpp_params"]]
         free = data.get("free") or False
         num_required = data.get("num_required", -1)
         return cls(
@@ -662,12 +672,12 @@ class MethodDefinition:
     def __str__(self) -> str:
         return f"method {self.py_name}"
 
-    def asdict(self) -> dict[str, Any]:
+    def tojson(self) -> dict[str, Any]:
         dct: dict[str, Any] = {
             "py_name": self.py_name,
             "doc": self.doc,
-            "cpp_return_type": self.cpp_return_type.asdict(),
-            "cpp_params": [param.asdict() for param in self.cpp_params],
+            "cpp_return_type": self.cpp_return_type.tojson(),
+            "cpp_params": [param.tojson() for param in self.cpp_params],
             "cpp_signature": self.cpp_signature,
         }
         if self.is_static:
@@ -675,9 +685,9 @@ class MethodDefinition:
         return dct
 
     @classmethod
-    def fromdict(cls, data: Any) -> Self:
-        cpp_return_type = TypeInfo.fromdict(data["cpp_return_type"])
-        cpp_params = [ParamInfo.fromdict(param) for param in data["cpp_params"]]
+    def fromjson(cls, data: Any) -> Self:
+        cpp_return_type = TypeInfo.fromjson(data["cpp_return_type"])
+        cpp_params = [ParamInfo.fromjson(param) for param in data["cpp_params"]]
         is_static = data.get("is_static") or False
         return cls(
             py_name=data["py_name"],
@@ -700,30 +710,32 @@ class GetSetterDefinition:
     def __str__(self) -> str:
         return f"getsetter {self.py_name}"
 
-    def asdict(self) -> dict[str, Any]:
-        get_type = self.get_type.asdict()
-        set_type = self.set_type.asdict() if self.set_type else None
-        return {
+    def tojson(self) -> dict[str, Any]:
+        data = {
             "py_name": self.py_name,
-            "doc": self.doc,
-            "get_type": get_type,
-            "set_type": set_type,
-            "set_value_name": self.set_value_name,
+            "get_type":  self.get_type.tojson(),
         }
+        if self.set_type:
+            data["set_type"] = self.set_type.tojson()
+        if self.set_value_name is not None:
+            data["set_value_name"] = self.set_value_name
+        if self.doc is not None:
+            data["doc"] = self.doc
+        return data
 
     @classmethod
-    def fromdict(cls, data: Any) -> Self:
-        get_type = TypeInfo.fromdict(data["get_type"])
-        if set_type_data := data["set_type"]:
-            set_type = TypeInfo.fromdict(set_type_data)
+    def fromjson(cls, data: Any) -> Self:
+        get_type = TypeInfo.fromjson(data["get_type"])
+        if set_type_data := data.get("set_type"):
+            set_type = TypeInfo.fromjson(set_type_data)
         else:
             set_type = None
         return cls(
             py_name=data["py_name"],
-            doc=data["doc"],
+            doc=data.get("doc"),
             get_type=get_type,
             set_type=set_type,
-            set_value_name=data["set_value_name"],
+            set_value_name=data.get("set_value_name"),
         )
 
 
@@ -779,25 +791,29 @@ class TypeInfo:
             return self.name
         return f"{self.name}<{', '.join(str(arg) for arg in self.args)}>"
 
-    def asdict(self) -> dict[str, Any]:
+    def tojson(self) -> dict[str, Any] | str:
+        if self.args is None and self.result is None:
+            return self.name
         dct: dict[str, Any] = {}
         if self.name:
             dct["name"] = self.name
         if self.args is not None:
-            dct["args"] = [arg.asdict() for arg in self.args]
+            dct["args"] = [arg.tojson() for arg in self.args]
         if self.result is not None:
-            dct["result"] = self.result.asdict()
+            dct["result"] = self.result.tojson()
         return dct
 
     @classmethod
-    def fromdict(cls, data: dict[str, Any]) -> Self:
+    def fromjson(cls, data: dict[str, Any] | str) -> Self:
+        if isinstance(data, str):
+            return cls(name=data)
         name = data.get("name") or ""
         args = data.get("args")
         if args is not None:
-            args = tuple(cls.fromdict(arg) for arg in args)
+            args = tuple(cls.fromjson(arg) for arg in args)
         result = data.get("result")
         if result:
-            result = cls.fromdict(result)
+            result = cls.fromjson(result)
         return cls(
             name=name,  # type: ignore[arg-type]
             args=args,
@@ -844,17 +860,17 @@ class ParamInfo(NamedTuple):
     def __str__(self) -> str:
         return f"{self.name}: {self.type_}"
 
-    def asdict(self) -> dict[str, Any]:
+    def tojson(self) -> dict[str, Any]:
         if not self.name:
-            return {"type": self.type_.asdict()}
+            return {"type": self.type_.tojson()}
         return {
             "name": self.name,
-            "type": self.type_.asdict(),
+            "type": self.type_.tojson(),
         }
 
     @classmethod
-    def fromdict(cls, data: dict[str, Any]) -> Self:
-        type_ = TypeInfo.fromdict(data["type"])
+    def fromjson(cls, data: dict[str, Any]) -> Self:
+        type_ = TypeInfo.fromjson(data["type"])
         return cls(
             name=data.get("name") or "",
             type_=type_,
@@ -880,9 +896,9 @@ class ExportTraits:
     def __str__(self) -> str:
         return f"{self.cpp_type} => {self.py_type}"
 
-    def asdict(self) -> dict[str, Any]:
-        cpp_type = self.cpp_type.asdict()
-        data = {
+    def tojson(self) -> dict[str, Any]:
+        cpp_type = self.cpp_type.tojson()
+        data: dict[str, Any] = {
             "cpp_type": cpp_type,
             "py_type": self.py_type,
         }
@@ -895,8 +911,8 @@ class ExportTraits:
         return data
 
     @classmethod
-    def fromdict(cls, data: dict[str, Any]) -> Self:
-        cpp_type = TypeInfo.fromdict(data["cpp_type"])
+    def fromjson(cls, data: dict[str, Any]) -> Self:
+        cpp_type = TypeInfo.fromjson(data["cpp_type"])
         return cls(
             cpp_type=cpp_type,
             py_type=data["py_type"],
