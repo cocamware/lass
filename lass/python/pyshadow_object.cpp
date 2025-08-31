@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -93,6 +93,10 @@ void ShadowBaseCommon::unregisterShadowee(TShadoweeID shadoweeID, ShadoweeConstn
 		return;
 	}
 	TCache& c = cache();
+	if (c.empty())
+	{
+		return; // Cache has already been emptied.
+	}
 	auto i = c.find(TCacheKey(shadoweeID, constness));
 	LASS_ENFORCE(i != c.end() && i->second == this);
 	c.erase(i);
