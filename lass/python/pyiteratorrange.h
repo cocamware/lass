@@ -67,8 +67,8 @@ namespace impl
 	class LASS_PYTHON_DLL PyIteratorRangeImplBase
 	{
 	public:
-		PyIteratorRangeImplBase() {};
-		virtual ~PyIteratorRangeImplBase() {};
+		PyIteratorRangeImplBase() = default;
+		virtual ~PyIteratorRangeImplBase() = default;
 		virtual PyObject* iterNext() = 0;
 	};
 
@@ -77,42 +77,35 @@ namespace impl
 	{
 	public:
 		PyIteratorRangeImpl(Iterator first, Iterator last): first_(first), last_(last), current_(first) {}
-		~PyIteratorRangeImpl() {}
-		PyObject* iterNext() override;
+		~PyIteratorRangeImpl() = default;
+		PyObject* iterNext() override
+		{
+			if (current_ != last_)
+			{
+				return pyBuildSimpleObject(*current_++);
+			}
+			// according to python specs this is allowed and is equivalent of setting the 
+			// stopiteration exception
+			return nullptr;
+		}
 	private:
 		Iterator first_;
 		Iterator last_;
 		Iterator current_;
 	};
-
-	/*template<typename I>
-	int PyIteratorRangeImpl<I>::PyIteratorRange_Length() const
-	{
-		return std::distance(first_,last_);
-	}*/
-
-	template<typename I>
-	PyObject* PyIteratorRangeImpl<I>::iterNext()
-	{
-		if (current_ != last_)
-		{
-			return pyBuildSimpleObject(*current_++);
-		}
-		// according to python specs this is allowed and is equivalent of setting the 
-		// stopiteration exception
-		return NULL;	
-	}
 }
 
 class LASS_PYTHON_DLL PyIteratorRange : public lass::python::PyObjectPlus
 {
 	PY_HEADER(PyObjectPlus)
 public:
-	template<typename Iterator> PyIteratorRange(Iterator first, Iterator last) 
+	using TPimpl = std::unique_ptr<impl::PyIteratorRangeImplBase>;
+
+	PyIteratorRange(TPimpl pimpl);
+
+	template<typename Iterator> PyIteratorRange(Iterator first, Iterator last):
+		PyIteratorRange(std::make_unique<impl::PyIteratorRangeImpl<Iterator>>(first, last))
 	{
-		impl::initLassModule();
-		impl::fixObjectType(this);
-		pimpl_ = new impl::PyIteratorRangeImpl<Iterator>(first, last);
 	}
 
 	static PyObject* iter( PyObject* iPo);
@@ -122,7 +115,7 @@ public:
 	void setOwner(const TPyObjPtr& owner);
 	
 private:
-	impl::PyIteratorRangeImplBase* pimpl_;
+	TPimpl pimpl_;
 	TPyObjPtr owner_;
 };
 

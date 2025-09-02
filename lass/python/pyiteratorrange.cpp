@@ -57,6 +57,13 @@ namespace python
 		PyIteratorRange::_lassPyClassDef.setSlot(Py_tp_iternext, &PyIteratorRange::iterNext);
 	)
 
+	PyIteratorRange::PyIteratorRange(TPimpl pimpl):
+		pimpl_(std::move(pimpl))
+	{
+		impl::initLassModule();
+		impl::fixObjectType(this);
+	}
+
 	PyObject* PyIteratorRange::iter( PyObject* iPo) 
 	{ 
 		Py_XINCREF(iPo); 
