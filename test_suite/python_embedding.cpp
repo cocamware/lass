@@ -402,6 +402,15 @@ lass::test::Color badColor()
 	return static_cast<lass::test::Color>(0);
 }
 
+lass::test::Color testColorOverload1(lass::test::Color color)
+{
+	return color;
+}
+std::string testColorOverload2(std::string s)
+{
+	return s;
+}
+
 
 PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyBase, lass::test::Base)
 PY_SHADOW_CASTERS( PyBase )
@@ -817,6 +826,8 @@ PY_MODULE_INTEGER_CONSTANT( embedding, "SOME_CONSTANT", SOME_CONSTANT)
 PY_MODULE_ENUM( embedding, lass::test::Color )
 PY_MODULE_FUNCTION( embedding, passColor )
 PY_MODULE_FUNCTION( embedding, badColor )
+PY_MODULE_FUNCTION_NAME( embedding, testColorOverload1, "testColorOverload" )
+PY_MODULE_FUNCTION_NAME( embedding, testColorOverload2, "testColorOverload" )
 
 
 PY_MODULE_ENTRYPOINT( embedding )

@@ -139,7 +139,12 @@ namespace lass
 
 		TPyObjPtr EnumDefinitionBase::valueObject(PyObject* obj) const
 		{
-			if (PyObject_IsInstance(obj, type()))
+			return doValueObject(obj);
+		}
+
+		TPyObjPtr EnumDefinitionBase::doValueObject(PyObject* obj) const
+		{
+			if (PyObject_TypeCheck(obj, (PyTypeObject*) type()))
 			{
 				return TPyObjPtr(PyObject_GetAttrString(obj, "value"));
 			}

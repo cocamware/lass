@@ -111,6 +111,8 @@ namespace test
 		static Shape getShape();
 		static Shape badShape();
 		static bool isTriangle(Shape shape);
+		static Shape shapeOverload1(Shape shape);
+		static prim::Aabb3D<float> shapeOverload2(const prim::Aabb3D<float>& aabb);
 
 		int getInt() const noexcept;
 		int getInt() noexcept;

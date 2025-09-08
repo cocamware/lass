@@ -80,6 +80,7 @@ namespace lass
 			TPyObjPtr valueObject(PyObject* obj) const;
 
 			virtual TPyObjPtr doFreezeDefinition(TPyObjPtr&& kwargs) = 0;
+			virtual TPyObjPtr doValueObject(PyObject* obj) const;
 
 			TPyObjPtr type_;
 			const char* name_;
@@ -177,7 +178,29 @@ namespace lass
 
 				return impl::makeIntEnumType(name(), std::move(pyEnumerators), std::move(kwargs));
 			}
-		
+
+			TPyObjPtr doValueObject(PyObject* obj) const override
+			{
+				PyObject* type = this->type();
+				if (PyObject_TypeCheck(obj, (PyTypeObject*) type))
+				{
+					return TPyObjPtr(PyObject_GetAttrString(obj, "value"));
+				}
+
+				// try to convert it to an enum first ...
+				if (!PyLong_Check(obj))
+				{
+					PyErr_Format(PyExc_TypeError, "Expected %S or int, got %S", type, obj);
+					return TPyObjPtr();
+				}
+				TPyObjPtr o(PyObject_CallFunctionObjArgs(type, obj, nullptr));
+				if (!o)
+				{
+					return TPyObjPtr();
+				}
+				return TPyObjPtr(PyObject_GetAttrString(o.get(), "value"));
+			}
+
 		private:
 			std::vector<Enumerator> enumerators_;
 		};
@@ -333,6 +356,29 @@ namespace lass
 			TPyObjPtr doFreezeDefinition(TPyObjPtr&& kwargs) override
 			{
 				return impl::makeStrEnumType(this->name(), this->freezeEnumerators(), std::move(kwargs));
+			}
+
+			TPyObjPtr doValueObject(PyObject* obj) const override
+			{
+				PyObject* type = this->type();
+				if (PyObject_TypeCheck(obj, (PyTypeObject*) type))
+				{
+					return TPyObjPtr(PyObject_GetAttrString(obj, "value"));
+				}
+
+				// try to convert it to an enum first ...
+
+				if (!PyUnicode_Check(obj))
+				{
+					PyErr_Format(PyExc_TypeError, "Expected %S or str, got %S", type, obj);
+					return TPyObjPtr();
+				}
+				TPyObjPtr o(PyObject_CallFunctionObjArgs(type, obj, nullptr));
+				if (!o)
+				{
+					return TPyObjPtr();
+				}
+				return TPyObjPtr(PyObject_GetAttrString(o.get(), "value"));
 			}
 		};
 	}

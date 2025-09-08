@@ -1274,9 +1274,14 @@ class TestEnum(unittest.TestCase):
         self.assertIs(embedding.passColor(3), Color.BLUE)  # type: ignore[arg-type]
         with self.assertRaises(ValueError):
             _ = embedding.passColor(123)  # type: ignore[arg-type]
+        with self.assertRaises(TypeError):
+            _ = embedding.passColor("green")  # type: ignore[arg-type]
         with self.assertRaises(ValueError):
             _ = embedding.badColor()
         self.assertEqual(list(Color), [Color.RED, Color.GREEN, Color.BLUE])
+        self.assertIs(embedding.testColorOverload(Color.RED), Color.RED)
+        self.assertIs(embedding.testColorOverload(3), Color.BLUE)  # type: ignore[arg-type]
+        self.assertEqual(embedding.testColorOverload("green"), "green")
 
     def testStrEnum(self) -> None:
         Shape = embedding.Bar.Shape
@@ -1306,11 +1311,16 @@ class TestEnum(unittest.TestCase):
         self.assertFalse(embedding.Bar.isTriangle("square"))  # type: ignore[arg-type]
         with self.assertRaises(ValueError):
             _ = embedding.Bar.isTriangle("notashape")  # type: ignore[arg-type]
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             _ = embedding.Bar.isTriangle(2)  # type: ignore[arg-type]
         with self.assertRaises(ValueError):
             _ = embedding.Bar.badShape()
         self.assertEqual(list(Shape), [Shape.CIRCLE, Shape.SQUARE, Shape.TRIANGLE])
+        self.assertIs(embedding.Bar.shapeOverload(Shape.SQUARE), Shape.SQUARE)
+        self.assertIs(embedding.Bar.shapeOverload("triangle"), Shape.TRIANGLE)  # type: ignore[arg-type]
+        self.assertEqual(
+            embedding.Bar.shapeOverload(((1, 2, 3), (4, 5, 6))), ((1, 2, 3), (4, 5, 6))
+        )
 
     def testOldFashionedEnum(self) -> None:
         self.assertEqual(
