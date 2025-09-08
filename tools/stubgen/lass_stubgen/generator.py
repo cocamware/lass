@@ -703,9 +703,12 @@ class StubGenerator:
                     f"Class {enum_def.py_name} ({cpp_name}) "
                     + "is not part of a module or class"
                 )
-            return self._strip_scope(
+            py_type, _ = self._strip_scope(
                 enum_def.fully_qualified_name, scope=scope, preamble=preamble
             )
+            if as_param:
+                py_type = f"{py_type} | {enum_def.value_py_type}"
+            return py_type, preamble
 
         if specializations := self.stubdata.export_traits.get(cpp_name):
             if py_type := self._match_export_traits(
