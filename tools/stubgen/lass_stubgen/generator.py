@@ -304,7 +304,7 @@ class StubGenerator:
         parent = self.stubdata.shadow_classes.get(class_def.parent_type)
         if parent:
             assert parent.fully_qualified_name
-            base, _ = self._strip_scope(
+            base = self._strip_scope(
                 parent.fully_qualified_name, scope=scope, preamble=preamble
             )
             bases = f"({base})"
@@ -684,7 +684,7 @@ class StubGenerator:
                     f"Class {class_def.py_name} ({cpp_name}) "
                     + "is not part of a module or class"
                 )
-            py_type, _ = self._strip_scope(
+            py_type = self._strip_scope(
                 class_def.fully_qualified_name, scope=scope, preamble=preamble
             )
             if as_param and class_def.implicit_converters:
@@ -703,7 +703,7 @@ class StubGenerator:
                     f"Class {enum_def.py_name} ({cpp_name}) "
                     + "is not part of a module or class"
                 )
-            py_type, _ = self._strip_scope(
+            py_type = self._strip_scope(
                 enum_def.fully_qualified_name, scope=scope, preamble=preamble
             )
             if as_param:
@@ -854,12 +854,14 @@ class StubGenerator:
 
     def _strip_scope(
         self, fqname: str, *, scope: str | None, preamble: list[str]
-    ) -> tuple[str, list[str]]:
+    ) -> str:
         """
         Strip the scope from a fully qualified name.
+
+        Adds imports to `preamble` if required.
         """
         if scope and fqname.startswith(scope + "."):
-            return fqname[len(scope) + 1 :], preamble
+            return fqname[len(scope) + 1 :]
         else:
             if matches := [
                 module_def.fully_qualified_name
@@ -869,7 +871,7 @@ class StubGenerator:
             ]:
                 longest_match = max(matches, key=len)
                 preamble.append(f"import {longest_match}")
-            return fqname, preamble
+            return fqname
 
     @overload
     def _remove_duplicates(
