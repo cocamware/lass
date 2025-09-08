@@ -82,6 +82,8 @@ namespace lass
 		PY_CLASS_STATIC_METHOD(Bar, getShape);
 		PY_CLASS_STATIC_METHOD(Bar, badShape);
 		PY_CLASS_STATIC_METHOD(Bar, isTriangle);
+		PY_CLASS_STATIC_METHOD_NAME(Bar, shapeOverload1, "shapeOverload");
+		PY_CLASS_STATIC_METHOD_NAME(Bar, shapeOverload2, "shapeOverload");
 		PY_CLASS_MEMBER_RW_NAME( Bar, getInt, setInt, "myInt" );
 		PY_CLASS_MEMBER_RW_NAME( Bar, getFoo, setFoo, "foo" );
 		PY_CLASS_MEMBER_RW_NAME( Bar, coolMember, coolMember, "cool" );
@@ -263,6 +265,14 @@ namespace lass
 		bool Bar::isTriangle(Shape shape)
 		{
 			return shape == Shape::Triangle;
+		}
+		Bar::Shape Bar::shapeOverload1(Shape shape)
+		{
+			return shape;
+		}
+		prim::Aabb3D<float> Bar::shapeOverload2(const prim::Aabb3D<float>& aabb)
+		{
+			return aabb;
 		}
 
 		int Bar::getInt() const noexcept
