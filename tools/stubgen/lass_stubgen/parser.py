@@ -203,7 +203,7 @@ class Parser:
         # the fifth argument is the parent class definition
         arg4 = ensure_kind(args[4], CursorKind.UNARY_OPERATOR)
         parent_def = ensure_only_child(arg4, CursorKind.DECL_REF_EXPR).referenced
-        parent_type = fully_qualified(parent_def.semantic_parent)
+        parent_type = type_info(parent_def.semantic_parent)
 
         # we're assuming the last argument is _lassPyClassRegisterHook
         # which is defined on the C++ type, and is the way we can get to the C++ type
@@ -211,17 +211,16 @@ class Parser:
         register_hook = ensure_only_child(arg5, CursorKind.DECL_REF_EXPR)
         assert register_hook.spelling == "_lassPyClassRegisterHook"
         shadow_node = ensure_last_child(register_hook, CursorKind.TYPE_REF)
-        shadow_type = canonical_type(shadow_node)
-        shadow_name: str = shadow_type.spelling
+        shadow_decl = canonical_type(shadow_node).get_declaration()
+        shadow_type = type_info(shadow_node)
 
-        shadow_decl = shadow_type.get_declaration()
         for base in iter_children(shadow_decl, CursorKind.CXX_BASE_SPECIFIER):
             # if this is a shadow class, then we derive from ShadowClass
             # which will have the C++ class as first argument.
             base_type = type_info(base)
             if base_type.name == "lass::python::ShadowClass":
-                assert base_type.args and shadow_name == base_type.args[0].name, (
-                    f"{shadow_name=}, {base_type=}"
+                assert base_type.args and shadow_type == base_type.args[0], (
+                    f"{shadow_type=}, {base_type=}"
                 )
                 cpp_type = base_type.args[1]
 
@@ -354,7 +353,7 @@ class Parser:
             ClassDefinition(
                 py_name=py_name,
                 cpp_type=cpp_type,
-                shadow_name=shadow_name,
+                shadow_type=shadow_type,
                 parent_type=parent_type,
                 doc=doc,
                 _cpp_constructors=cpp_constructors,
@@ -365,20 +364,20 @@ class Parser:
 
     def _handle_declare_enum(self, node: Cursor) -> bool:
         assert node.kind == CursorKind.CALL_EXPR
-        enum_type = type_info(node)
-        if enum_type.name == "lass::python::IntEnumDefinition":
+        enum_definition = type_info(node)
+        if enum_definition.name == "lass::python::IntEnumDefinition":
             assert node.spelling == "IntEnumDefinition"
             value_py_type = "int"
-        elif enum_type.name == "lass::python::StrEnumDefinition":
+        elif enum_definition.name == "lass::python::StrEnumDefinition":
             assert node.spelling == "EnumDefinition"
             value_py_type = "str"
-        elif enum_type.name == "lass::python::EnumDefinition":
+        elif enum_definition.name == "lass::python::EnumDefinition":
             assert node.spelling == "EnumDefinition"
             value_py_type = "Any"
         else:
             return False
-        assert enum_type.args and enum_type.args[0].args is None
-        cpp_name = enum_type.args[0].name
+        assert enum_definition.args and enum_definition.args[0].args is None
+        enum_type = enum_definition.args[0]
 
         children = list(node.get_children())
         assert 0 < len(children) <= 3
@@ -429,7 +428,7 @@ class Parser:
         self.stubdata.add_enum_definition(
             EnumDefinition(
                 py_name=py_name,
-                cpp_name=cpp_name,
+                cpp_type=enum_type,
                 value_py_type=value_py_type,
                 values=values,
                 doc=doc,
@@ -476,9 +475,9 @@ class Parser:
             return False
         module_def = self._parse_module_ref(children[0])
 
-        shadow_class = self._parse_class_ref(children[1])
+        shadow_type = self._parse_class_ref(children[1])
 
-        module_def.add_class(shadow_class=shadow_class)
+        module_def.add_class(shadow_type=shadow_type)
 
         return True
 
@@ -493,11 +492,11 @@ class Parser:
 
         unary_op = ensure_only_child(children[1], CursorKind.UNARY_OPERATOR)
         decl_ref = ensure_only_child(unary_op, CursorKind.DECL_REF_EXPR)
-        enum_type = type_info(decl_ref)
-        assert enum_type.args, f"{enum_type=} must have template args"
-        cpp_name = enum_type.args[0].name
+        enum_definition = type_info(decl_ref)
+        assert enum_definition.args, f"{enum_definition=} must have template args"
+        enum_type = enum_definition.args[0]
 
-        module_def.add_enum(cpp_name)
+        module_def.add_enum(enum_type)
 
         return True
 
@@ -573,9 +572,9 @@ class Parser:
             return False
         module_def = self._parse_module_ref(children[0])
 
-        shadow_class = self._parse_class_ref(children[1])
+        shadow_type = self._parse_class_ref(children[1])
 
-        module_def.add_class(shadow_class=shadow_class)
+        module_def.add_class(shadow_type=shadow_type)
 
         return True
 
@@ -736,13 +735,13 @@ class Parser:
 
         converter = converter_ref.referenced
         assert converter.get_num_template_arguments() == 2
-        shadow_class = type_info(converter.get_template_argument_type(0))
+        shadow_type = type_info(converter.get_template_argument_type(0))
         source_type = type_info(converter.get_template_argument_type(1))
 
-        assert shadow_class.name, shadow_class
-        assert not shadow_class.args, shadow_class
+        assert shadow_type.name, shadow_type
+        assert not shadow_type.args, shadow_type
 
-        class_def = self._get_shadow_class_def(shadow_class.name)
+        class_def = self._get_shadow_class_def(shadow_type)
         class_def.add_implicit_converter(source_type)
 
         return True
@@ -972,7 +971,7 @@ class Parser:
 
         # first argument is the class definition of the inner class
         type_ref = ensure_only_child(children[1], CursorKind.TYPE_REF)
-        inner_class = canonical_type(type_ref).spelling
+        inner_class = type_info(type_ref)
 
         class_def.add_inner_class(inner_class)
 
@@ -989,14 +988,15 @@ class Parser:
 
         unary_op = ensure_only_child(children[1], CursorKind.UNARY_OPERATOR)
         decl_ref = ensure_only_child(unary_op, CursorKind.DECL_REF_EXPR)
-        enum_type = type_info(decl_ref)
-        assert enum_type.args, f"{enum_type=} must have template args"
-        cpp_name = enum_type.args[0].name
-        assert cpp_name in self.stubdata.enums
-        enum_def = self.stubdata.enums[cpp_name]
+        enum_definition = type_info(decl_ref)
+        assert enum_definition.args, f"{enum_definition=} must have template args"
+        enum_type = enum_definition.args[0]
 
+        assert enum_type in self.stubdata.enums
+        enum_def = self.stubdata.enums[enum_type]
         assert "." not in enum_def.py_name
-        class_def.add_enum(cpp_name)
+
+        class_def.add_enum(enum_type)
 
         return True
 
@@ -1134,18 +1134,18 @@ reference to a module defined in another file.
         Get the class definition from a _lassPyClassDef method call.
         """
         _lassPyClassDef = ensure_only_child(node, CursorKind.DECL_REF_EXPR)
-        shadow_class = self._parse_class_ref(_lassPyClassDef)
-        return self._get_shadow_class_def(shadow_class)
+        shadow_type = self._parse_class_ref(_lassPyClassDef)
+        return self._get_shadow_class_def(shadow_type)
 
-    def _get_shadow_class_def(self, shadow_class: str) -> ClassDefinition:
+    def _get_shadow_class_def(self, shadow_type: TypeInfo) -> ClassDefinition:
         """
         Get the class definition from the shadow class name.
         """
         try:
-            return self.stubdata.shadow_classes[shadow_class]
+            return self.stubdata.shadow_classes[shadow_type]
         except KeyError:
             raise ParseError(
-                rf"""Cannot find class definition for '{shadow_class}'.
+                rf"""Cannot find class definition for '{shadow_type}'.
 Make sure you add functions and other properties (with the PY_CLASS_* macros) 
 in the same source file as the class declaration (the PY_DECLARE_CLASS* macro).
 You must use the same identifier for the class in both macros, you cannot use a
@@ -1153,7 +1153,7 @@ reference to a class defined in another file.
 """
             ) from None
 
-    def _parse_class_ref(self, node: Cursor) -> str:
+    def _parse_class_ref(self, node: Cursor) -> TypeInfo:
         """
         Get the shadow class name from a _lassPyClassDef reference.
         """
@@ -1161,8 +1161,8 @@ reference to a class defined in another file.
         assert node.spelling == "_lassPyClassDef"
         assert canonical_type(node).spelling == "lass::python::impl::ClassDefinition"
         shadow_node = node.referenced.semantic_parent
-        shadow_class = fully_qualified(shadow_node)
-        return shadow_class
+        shadow_type = type_info(shadow_node)
+        return shadow_type
 
     def _parse_name(self, node: Cursor) -> str:
         if node.kind.is_unexposed():

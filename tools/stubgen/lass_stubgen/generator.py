@@ -132,8 +132,8 @@ class StubGenerator:
         preamble: list[str],
         with_signature: bool,
     ) -> None:
-        for enum_name in module_def.enums:
-            enum_def = self.stubdata.enums[enum_name]
+        for enum_type in module_def.enums:
+            enum_def = self.stubdata.enums[enum_type]
             self.write_enum(
                 enum_def,
                 file=file,
@@ -313,8 +313,8 @@ class StubGenerator:
 
         if with_signature:
             cpp_class = str(class_def.cpp_type)
-            if cpp_class != class_def.shadow_name:
-                cpp_class += f" (via {class_def.shadow_name})"
+            if class_def.cpp_type != class_def.shadow_type:
+                cpp_class += f" (via {class_def.shadow_type})"
             signature = f"  # {cpp_class}"
         else:
             signature = ""
@@ -608,7 +608,7 @@ class StubGenerator:
                 base = "enum.StrEnum"
         else:
             base = "enum.Enum"
-        signature = f"  # {enum_def.cpp_name}" if with_signature else ""
+        signature = f"  # {enum_def.cpp_type}" if with_signature else ""
         preamble.append("import enum")
 
         file.write(f"{' ' * indent}class {py_name}({base}):{signature}\n")
@@ -674,14 +674,13 @@ class StubGenerator:
         If scope is specified, strip the scope from the fully qualified name.
         """
         preamble: list[str] = []
-        cpp_name = cpp_type.name
         py_type: str | None = None
         py_typer: str | BuiltinTyper | BuiltinTyperRegex | None = None
 
-        if class_def := self.stubdata.cpp_classes.get(str(cpp_type)):
+        if class_def := self.stubdata.cpp_classes.get(cpp_type):
             if not class_def.fully_qualified_name:
                 raise StubGeneratorError(
-                    f"Class {class_def.py_name} ({cpp_name}) "
+                    f"Class {class_def.py_name} ({cpp_type}) "
                     + "is not part of a module or class"
                 )
             py_type = self._strip_scope(
@@ -697,10 +696,10 @@ class StubGenerator:
                 py_type = f"{py_type} | {' | '.join(conv_types)}"
             return py_type, preamble
 
-        if enum_def := self.stubdata.enums.get(cpp_name):
+        if enum_def := self.stubdata.enums.get(cpp_type):
             if not enum_def.fully_qualified_name:
                 raise StubGeneratorError(
-                    f"Class {enum_def.py_name} ({cpp_name}) "
+                    f"Class {enum_def.py_name} ({cpp_type}) "
                     + "is not part of a module or class"
                 )
             py_type = self._strip_scope(
@@ -710,7 +709,7 @@ class StubGenerator:
                 py_type = f"{py_type} | {enum_def.value_py_type}"
             return py_type, preamble
 
-        if specializations := self.stubdata.export_traits.get(cpp_name):
+        if specializations := self.stubdata.export_traits.get(cpp_type.name):
             if py_type := self._match_export_traits(
                 cpp_type=cpp_type,
                 specializations=specializations,
@@ -720,14 +719,14 @@ class StubGenerator:
             ):
                 return py_type, preamble
 
-        if py_typer := BUILTIN_TYPES.get(cpp_name):
+        if py_typer := BUILTIN_TYPES.get(cpp_type.name):
             if callable(py_typer):
                 py_type = py_typer(self, cpp_type.args, scope, preamble, as_param)
                 return py_type, preamble
             return py_typer, preamble
 
         for regex, py_typer in BUILTIN_TYPES_REGEX:
-            if match := re.match(regex, cpp_name):
+            if match := re.match(regex, cpp_type.name):
                 if callable(py_typer):
                     py_type = py_typer(
                         self, cpp_type.args, scope, preamble, as_param, match
@@ -741,7 +740,7 @@ class StubGenerator:
             )
             return f"{py_type} | None", preamble
 
-        return cpp_name, preamble
+        return str(cpp_type), preamble
 
     def _match_export_traits(
         self,

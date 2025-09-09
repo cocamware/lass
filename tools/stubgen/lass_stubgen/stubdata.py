@@ -78,9 +78,9 @@ class StubData:
     def __init__(self, package: str | None = None):
         self.package = package
         self.modules: dict[str, ModuleDefinition] = {}
-        self.shadow_classes: dict[str, ClassDefinition] = {}
-        self.cpp_classes: dict[str, ClassDefinition] = {}
-        self.enums: dict[str, EnumDefinition] = {}
+        self.shadow_classes: dict[TypeInfo, ClassDefinition] = {}
+        self.cpp_classes: dict[TypeInfo, ClassDefinition] = {}
+        self.enums: dict[TypeInfo, EnumDefinition] = {}
         self.export_traits: dict[str, dict[str, ExportTraits]] = {}
         self.included_files: dict[str, dict[str, None]] = {}
         self._type_aliases: dict[str, _PreambleTypeAlias] = {}
@@ -200,18 +200,17 @@ class StubData:
         self.modules[mod_def.cpp_name] = mod_def
 
     def add_class_definition(self, class_def: ClassDefinition) -> None:
-        if class_def.shadow_name in self.shadow_classes:
-            raise DuplicateError(class_def.shadow_name, "shadow class")
-        cpp_class = str(class_def.cpp_type)
-        if cpp_class in self.cpp_classes:
-            raise DuplicateError(cpp_class, "C++ class")
-        self.shadow_classes[class_def.shadow_name] = class_def
-        self.cpp_classes[cpp_class] = class_def
+        if class_def.shadow_type in self.shadow_classes:
+            raise DuplicateError(class_def.shadow_type, "shadow class")
+        if class_def.cpp_type in self.cpp_classes:
+            raise DuplicateError(class_def.cpp_type, "C++ class")
+        self.shadow_classes[class_def.shadow_type] = class_def
+        self.cpp_classes[class_def.cpp_type] = class_def
 
     def add_enum_definition(self, enum_def: EnumDefinition) -> None:
-        if enum_def.cpp_name in self.enums:
-            raise DuplicateError(enum_def.cpp_name, "enum")
-        self.enums[enum_def.cpp_name] = enum_def
+        if enum_def.cpp_type in self.enums:
+            raise DuplicateError(enum_def.cpp_type, "enum")
+        self.enums[enum_def.cpp_type] = enum_def
 
     def add_export_traits(self, export_traits: ExportTraits) -> None:
         cpp_type = export_traits.cpp_type
@@ -274,13 +273,13 @@ class StubData:
         )
         mod_def.fully_qualified_name = fully_qualified_name
 
-        for shadow_name in mod_def.classes:
-            if class_def := self.shadow_classes.get(shadow_name):
+        for shadow_type in mod_def.classes:
+            if class_def := self.shadow_classes.get(shadow_type):
                 self._fix_fully_qualified_name_class(
                     class_def, scope=fully_qualified_name
                 )
-        for enum_name in mod_def.enums:
-            if enum_def := self.enums.get(enum_name):
+        for enum_type in mod_def.enums:
+            if enum_def := self.enums.get(enum_type):
                 self._fix_fully_qualified_name_enum(
                     enum_def, scope=fully_qualified_name
                 )
@@ -300,8 +299,8 @@ class StubData:
                 self._fix_fully_qualified_name_class(
                     inner_def, scope=fully_qualified_name
                 )
-        for enum_name in class_def.inner_enums:
-            if enum_def := self.enums.get(enum_name):
+        for enum_type in class_def.inner_enums:
+            if enum_def := self.enums.get(enum_type):
                 self._fix_fully_qualified_name_enum(
                     enum_def, scope=fully_qualified_name
                 )
@@ -323,17 +322,19 @@ class ModuleDefinition:
     py_name: str
     doc: str | None
     fully_qualified_name: str | None = None
-    classes: list[str] = field(default_factory=list)
-    enums: list[str] = field(default_factory=list)
+    classes: list[TypeInfo] = field(default_factory=list)
+    enums: list[TypeInfo] = field(default_factory=list)
     functions: dict[str, list[FunctionDefinition]] = field(default_factory=dict)
     constants: dict[str, ConstDefinition] = field(default_factory=dict)
     imported: bool = False
 
-    def add_class(self, shadow_class: str) -> None:
-        self.classes.append(shadow_class)
+    def add_class(self, shadow_type: TypeInfo) -> None:
+        assert isinstance(shadow_type, TypeInfo)
+        self.classes.append(shadow_type)
 
-    def add_enum(self, enum_name: str) -> None:
-        self.enums.append(enum_name)
+    def add_enum(self, enum_type: TypeInfo) -> None:
+        assert isinstance(enum_type, TypeInfo)
+        self.enums.append(enum_type)
 
     def add_function(self, func_def: FunctionDefinition) -> None:
         self.functions.setdefault(func_def.py_name, []).append(func_def)
@@ -349,14 +350,16 @@ class ModuleDefinition:
         for func_defs in self.functions.values():
             for func_def in func_defs:
                 functions.append(func_def.tojson())
+        classes = [class_.tojson() for class_ in self.classes]
+        enums = [enum.tojson() for enum in self.enums]
         constants = [const.tojson() for const in self.constants.values()]
         return {
             "cpp_name": self.cpp_name,
             "py_name": self.py_name,
             "doc": self.doc,
             "fully_qualified_name": self.fully_qualified_name,
-            "classes": self.classes,
-            "enums": self.enums,
+            "classes": classes,
+            "enums": enums,
             "functions": functions,
             "constants": constants,
             "imported": self.imported,
@@ -368,6 +371,8 @@ class ModuleDefinition:
         for func in data["functions"]:
             func_def = FunctionDefinition.fromjson(func)
             functions.setdefault(func_def.py_name, []).append(func_def)
+        classes = [TypeInfo.fromjson(class_) for class_ in data["classes"]]
+        enums = [TypeInfo.fromjson(enum) for enum in data["enums"]]
         constants: dict[str, ConstDefinition] = {}
         for const in data["constants"]:
             const_def = ConstDefinition.fromjson(const)
@@ -377,8 +382,8 @@ class ModuleDefinition:
             py_name=data["py_name"],
             doc=data["doc"],
             fully_qualified_name=data["fully_qualified_name"],
-            classes=data["classes"],
-            enums=data["enums"],
+            classes=classes,
+            enums=enums,
             functions=functions,
             constants=constants,
             imported=data["imported"],
@@ -388,13 +393,13 @@ class ModuleDefinition:
 @dataclass
 class ClassDefinition:
     py_name: str
-    shadow_name: str
+    shadow_type: TypeInfo
     cpp_type: TypeInfo
-    parent_type: str
+    parent_type: TypeInfo
     doc: str | None = None
     fully_qualified_name: str | None = None
-    inner_classes: list[str] = field(default_factory=list)
-    inner_enums: list[str] = field(default_factory=list)
+    inner_classes: list[TypeInfo] = field(default_factory=list)
+    inner_enums: list[TypeInfo] = field(default_factory=list)
     constructors: list[ConstructorDefinition] = field(default_factory=list)
     methods: dict[str, list[MethodDefinition]] = field(default_factory=dict)
     getsetters: dict[str, GetSetterDefinition] = field(default_factory=dict)
@@ -402,11 +407,13 @@ class ClassDefinition:
     implicit_converters: set[TypeInfo] = field(default_factory=set)
     _cpp_constructors: dict[str, ConstructorDefinition] = field(default_factory=dict)
 
-    def add_inner_class(self, shadow_class: str) -> None:
-        self.inner_classes.append(shadow_class)
+    def add_inner_class(self, shadow_type: TypeInfo) -> None:
+        assert isinstance(shadow_type, TypeInfo)
+        self.inner_classes.append(shadow_type)
 
-    def add_enum(self, cpp_name: str) -> None:
-        self.inner_enums.append(cpp_name)
+    def add_enum(self, cpp_type: TypeInfo) -> None:
+        assert isinstance(cpp_type, TypeInfo)
+        self.inner_enums.append(cpp_type)
 
     def add_constructor(self, constr_def: ConstructorDefinition) -> None:
         # if constructor doesn't have parameter names, then search for a
@@ -442,12 +449,15 @@ class ClassDefinition:
         self.consts[const_def.py_name] = const_def
 
     def add_implicit_converter(self, source_type: TypeInfo) -> None:
+        assert isinstance(source_type, TypeInfo)
         self.implicit_converters.add(source_type)
 
     def __str__(self) -> str:
-        return f"class {self.py_name} ({self.shadow_name})"
+        return f"class {self.py_name} ({self.shadow_type})"
 
     def tojson(self) -> dict[str, Any]:
+        inner_classes = [class_.tojson() for class_ in self.inner_classes]
+        inner_enums = [enum.tojson() for enum in self.inner_enums]
         constructors: list[dict[str, Any]] = []
         for constr_def in self.constructors:
             constructors.append(constr_def.tojson())
@@ -470,12 +480,12 @@ class ClassDefinition:
         return {
             "py_name": self.py_name,
             "cpp_type": self.cpp_type.tojson(),
-            "shadow_name": self.shadow_name,
-            "parent_type": self.parent_type,
+            "shadow_type": self.shadow_type.tojson(),
+            "parent_type": self.parent_type.tojson(),
             "doc": self.doc,
             "fully_qualified_name": self.fully_qualified_name,
-            "inner_classes": self.inner_classes,
-            "inner_enums": self.inner_enums,
+            "inner_classes": inner_classes,
+            "inner_enums": inner_enums,
             "constructors": constructors,
             "methods": methods,
             "getsetters": getsetters,
@@ -487,6 +497,13 @@ class ClassDefinition:
     @classmethod
     def fromjson(cls, data: dict[str, Any]) -> Self:
         cpp_type = TypeInfo.fromjson(data["cpp_type"])
+        if shadow_name := data.get("shadow_name"):
+            shadow_type = TypeInfo(shadow_name)
+        else:
+            shadow_type = TypeInfo.fromjson(data["shadow_type"])
+        parent_type = TypeInfo.fromjson(data["parent_type"])
+        inner_classes = [TypeInfo.fromjson(class_) for class_ in data["inner_classes"]]
+        inner_enums = [TypeInfo.fromjson(enum) for enum in data["inner_enums"]]
         constructors: list[ConstructorDefinition] = []
         for constr in data["constructors"]:
             constr_def = ConstructorDefinition.fromjson(constr)
@@ -512,13 +529,13 @@ class ClassDefinition:
             _cpp_constructors[constr_def.cpp_signature] = constr_def
         return cls(
             py_name=data["py_name"],
-            shadow_name=data["shadow_name"],
+            shadow_type=shadow_type,
             cpp_type=cpp_type,
-            parent_type=data["parent_type"],
+            parent_type=parent_type,
             doc=data["doc"],
             fully_qualified_name=data["fully_qualified_name"],
-            inner_classes=data["inner_classes"],
-            inner_enums=data["inner_enums"],
+            inner_classes=inner_classes,
+            inner_enums=inner_enums,
             constructors=constructors,
             methods=methods,
             getsetters=getsetters,
@@ -592,19 +609,19 @@ class ConstDefinition:
 @dataclass
 class EnumDefinition:
     py_name: str
-    cpp_name: str
+    cpp_type: TypeInfo
     value_py_type: str
     values: dict[str, Any]
     doc: str | None = None
     fully_qualified_name: str | None = None
 
     def __str__(self) -> str:
-        return f"enum {self.py_name} ({self.cpp_name})"
+        return f"enum {self.py_name} ({self.cpp_type})"
 
     def tojson(self) -> dict[str, Any]:
         dct: dict[str, Any] = {
             "py_name": self.py_name,
-            "cpp_name": self.cpp_name,
+            "cpp_type": self.cpp_type.tojson(),
             "value_py_type": self.value_py_type,
             "values": self.values,
         }
@@ -616,7 +633,18 @@ class EnumDefinition:
 
     @classmethod
     def fromjson(cls, data: Any) -> Self:
-        return cls(**data)
+        if cpp_name := data.get("cpp_name"):
+            cpp_type = TypeInfo(cpp_name)
+        else:
+            cpp_type = TypeInfo.fromjson(data["cpp_type"])
+        return cls(
+            py_name=data["py_name"],
+            cpp_type=cpp_type,
+            value_py_type=data["value_py_type"],
+            values=data["values"],
+            doc=data.get("doc"),
+            fully_qualified_name=data.get("fully_qualified_name"),
+        )
 
 
 @dataclass
@@ -713,7 +741,7 @@ class GetSetterDefinition:
     def tojson(self) -> dict[str, Any]:
         data = {
             "py_name": self.py_name,
-            "get_type":  self.get_type.tojson(),
+            "get_type": self.get_type.tojson(),
         }
         if self.set_type:
             data["set_type"] = self.set_type.tojson()
@@ -816,8 +844,8 @@ class TypeInfo:
             result = cls.fromjson(result)
         return cls(
             name=name,  # type: ignore[arg-type]
-            args=args,
-            result=result,
+            args=args,  # pyright: ignore[reportArgumentType]
+            result=result,  # pyright: ignore[reportArgumentType]
         )
 
     def substitute(self, template_args: Mapping[str, str | TypeInfo]) -> TypeInfo:
@@ -1046,7 +1074,7 @@ class DuplicateError(StubDataError):
     Exception raised when a duplicate is found in the stub data.
     """
 
-    def __init__(self, name: str, kind: str):
+    def __init__(self, name: str | TypeInfo, kind: str):
         super().__init__(kind, name)
         self.name = name
         self.kind = kind
