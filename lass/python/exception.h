@@ -93,6 +93,47 @@ private:
 };
 
 
+
+/** Raise an explicitly chained Python exception
+ * 
+ *  Like `PyErr_Format`, but chains the new exception to the current one if any is set.
+ *  More explicitly, if a Python exception is already set, that is if `PyErr_Occurred()` returns true,
+ *  then the current exception is fetched and used as the `__cause__` and `__context__` of the new exception.
+ * 
+ *  Roughly equivalent to:
+ *  ```
+ *  except Exception as err:
+ *     raise exception(format % vargs) from err
+ *  ```
+ *
+ *  For more information on exception chaining, see:
+ *  https://docs.python.org/3/library/exceptions.html#exception-context
+ * 
+ *  If no exception is currently set, this function behaves like `PyErr_Format`.
+ * 
+ *  @param exception The Python exception type to raise, e.g. `PyExc_TypeError`.
+ *  @param format,... The format string and arguments, like in `PyErr_Format`.
+ *     They do **not** behave like `printf`, but they have the same meaning as in [PyUnicode_FromFormat].
+ *
+ *  @return Always returns `nullptr`, so that it can be used directly in return statements.
+ * 
+ *  @ingroup PythonExceptions
+ * 
+ * [PyUnicode_FromFormat]: https://docs.python.org/3/c-api/unicode.html#c.PyUnicode_FromFormat
+ */
+LASS_PYTHON_DLL PyObject* LASS_CALL chainErrFormat(PyObject* exception, const char* format, ...);
+
+
+
+/** Raise an explicitly chained Python exception
+ * 
+ *  Like chainErrFormat(), but takes a `va_list` instead of variable arguments.
+ *  @ingroup PythonExceptions
+ */
+LASS_PYTHON_DLL PyObject* LASS_CALL chainErrFormatV(PyObject* exception, const char* format, va_list vargs);
+
+
+
 namespace impl
 {
 	/** Prepend a message to the current Python exception value

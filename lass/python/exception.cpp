@@ -291,5 +291,56 @@ const std::string PythonException::extractMessage(PyObject* type, PyObject* valu
 	return message;
 }
 
+
+
+PyObject* chainErrFormat(PyObject* exception, const char* format, ...)
+{
+	va_list vargs;
+	va_start(vargs, format);
+	chainErrFormatV(exception, format, vargs);
+	va_end(vargs);
+	return nullptr;
+}
+
+
+
+PyObject* chainErrFormatV(PyObject* exception, const char* format, va_list vargs)
+{
+	LockGIL LASS_UNUSED(lock);
+	if (!PyErr_Occurred())
+	{
+		return PyErr_FormatV(exception, format, vargs);
+	}
+
+	// fetch current exception
+	PyObject *exc, *fromValue, *newValue, *traceback;
+	PyErr_Fetch(&exc, &fromValue, &traceback);
+	// normalize it so `fromValue` is a valid exception instance with traceback
+	PyErr_NormalizeException(&exc, &fromValue, &traceback);
+	if (traceback)
+	{
+		PyException_SetTraceback(fromValue, traceback);
+		Py_DECREF(traceback); // no longer needed
+	}
+	Py_DECREF(exc); // no longer needed
+	assert(!PyErr_Occurred());
+
+	// create new exception with formatted message
+	PyErr_FormatV(exception, format, vargs);
+	// fetch and normalize (no need to set traceback)
+	PyErr_Fetch(&exc, &newValue, &traceback);
+	PyErr_NormalizeException(&exc, &newValue, &traceback);
+	// chain the exceptions
+	Py_INCREF(fromValue); // increase refcount as both setcause and setcontext will steal one.
+	PyException_SetCause(newValue, fromValue);
+	PyException_SetContext(newValue, fromValue);
+	// restore the exception state
+	PyErr_Restore(exc, newValue, traceback);
+
+	return nullptr;
+}
+
+
+
 }
 }
