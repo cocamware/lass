@@ -51,6 +51,28 @@ namespace lass
 namespace python
 {
 
+
+/** @defgroup PythonExceptions Python Exceptions
+ *  @brief Handling Python exceptions in C++, and translating C++ exceptions to Python.
+ *
+ *  This module provides utilities for converting C++ exceptions into Python exceptions,
+ *  and for handling Python exceptions in C++ code.
+ * 
+ *  Its main part is the class `PythonException` that represents a Python exception in C++ code.
+ *  Additionally, it provides functions and macros to facilitate raising and handling Python exceptions.
+ * 
+ *  @ingroup Python
+ */
+
+
+/** C++ exception type that holds a Python exception
+ *
+ *  This class is used to propagate Python exceptions through C++ code. Can be used to both
+ *  - handle exceptions originating from Python,
+ *  - raise new Python exceptions from C++ code.
+ * 
+ *  @ingroup PythonExceptions
+ */
 class PythonException: public util::ExceptionMixin<PythonException>
 {
 public:
@@ -73,10 +95,62 @@ private:
 
 namespace impl
 {
+	/** Prepend a message to the current Python exception value
+	 *
+	 *  This function adds a custom header to the current Python exception message,
+	 *  if one is set. This can be useful for providing additional context about
+	 *  the error.
+	 * 
+	 *  If no exception is currently set, i.e. `PyErr_Occurred()` returns false, then
+	 *  this function does nothing.
+	 *
+	 *  @param header The header to add to the exception message.
+	 *  @note Only works for exceptions whose value is a string. If the value is not a string,
+	 * 	  the function does nothing.
+	 *  @ingroup PythonExceptions
+	 */
 	LASS_PYTHON_DLL void LASS_CALL addMessageHeader(const char* header);
-	LASS_PYTHON_DLL void LASS_CALL fetchAndThrowPythonException  [[noreturn]] (std::string loc = "");
+
+
+
+	/** Fetch the current Python exception and throw it as a C++ PythonException
+	 * 
+	 *  @ingroup PythonExceptions
+	 */
+	LASS_PYTHON_DLL void LASS_CALL fetchAndThrowPythonException [[noreturn]] (std::string loc = "");
+
+
+
+	/** Handle a C++ exception by raising an Python exception
+	 * 
+	 *  This function translates a C++ exception into a Python exception.
+	 *  It supports `PythonException`, `util::Exception`, and standard C++ exceptions.
+	 *  It also supports `std::filesystem::filesystem_error` and `std::system_error`
+	 *  by translating the error code to an appropriate OSError subclass.
+	 * 
+	 *  If the exception type is not recognized, it will be translated to a generic
+	 *  `Exception` with the what() message of the C++ exception.
+	 * 
+	 *  @param error The exception pointer to handle. This is typically obtained
+	 *     using `std::current_exception()`.
+	 * 
+	 *  @ingroup PythonExceptions
+	 */
 	LASS_PYTHON_DLL void LASS_CALL handleException(std::exception_ptr error);
 
+
+
+	/** Raiser type for enforcers that raises a Python exception
+	 * 
+	 *  This can be used as a building block for Python-related enforcers.
+	 *  It's used by the macros `PY_ENFORCE_POINTER()`, `PY_ENFORCE_ZERO()`, and `PY_ENFORCE_NOTZERO()`.
+	 * 
+	 *  If a Python error is set, it will be fetched and thrown as a `PythonException`.
+	 *  Otherwise, a new `PythonException` of type `AssertionError` will be thrown.
+	 * 
+	 *  @throws ::lass::python::PythonException
+	 *  @ingroup PythonExceptions Enforcers
+	 */
 	struct PythonFetchRaiser
 	{
  		template <typename T, typename C>
@@ -98,6 +172,7 @@ namespace impl
 }
 }
 
+
 #define LASS_PYTHON_CATCH_AND_RETURN_EX(v_errorReturnValue)\
 	catch (const ::std::exception&)\
 	{\
@@ -108,6 +183,15 @@ namespace impl
 #define LASS_PYTHON_CATCH_AND_RETURN\
 	LASS_PYTHON_CATCH_AND_RETURN_EX(0)
 
+
+
+/** Enforce that a Python pointer is not null
+ * 
+ *  @throws ::lass::python::PythonException
+ *  @sa ::lass::python::impl::PythonFetchRaiser
+ *  @ingroup PythonExceptions
+ *  @sa Enforcers
+ */
 #define PY_ENFORCE_POINTER(pointer)\
 		*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		::lass::util::impl::TruePredicate,\
@@ -116,6 +200,15 @@ namespace impl
 		int(0), \
 		"'" LASS_STRINGIFY(pointer) "' in " LASS_HERE)
 
+
+
+/** Enforce that an expression evaluates to zero
+ * 
+ *  @throws ::lass::python::PythonException
+ *  @sa ::lass::python::impl::PythonFetchRaiser
+ *  @ingroup PythonExceptions
+ *  @sa Enforcers
+ */
 #define PY_ENFORCE_ZERO(expression)\
 		*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		::lass::util::impl::EqualPredicate,\
@@ -124,6 +217,15 @@ namespace impl
 		int(0), \
 		"'" LASS_STRINGIFY(expression) "' in " LASS_HERE)
 
+
+
+/** Enforce that an expression evaluates to not zero
+ *
+ *  @throws ::lass::python::PythonException
+ *  @sa ::lass::python::impl::PythonFetchRaiser
+ *  @ingroup PythonExceptions
+ *  @sa Enforcers
+ */
 #define PY_ENFORCE_NOTZERO(expression)\
 		*LASS_UTIL_IMPL_MAKE_ENFORCER(\
 		::lass::util::impl::UnequalPredicate,\
@@ -131,4 +233,5 @@ namespace impl
 		(expression), \
 		int(0), \
 		"'" LASS_STRINGIFY(expression) "' in " LASS_HERE)
+
 #endif
