@@ -147,6 +147,7 @@ namespace lass
 			{
 			public:
 				typedef void(*TClassRegisterHook)();
+				typedef int TSlotID;
 
 				ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize, 
 					richcmpfunc richcmp, ClassDefinition* parent, TClassRegisterHook registerHook);
@@ -184,14 +185,14 @@ namespace lass
 				void addInnerClass(ClassDefinition& innerClass);
 				void addInnerEnum(EnumDefinitionBase* enumDefinition);
 
-				void* getSlot(int slotId);
-				void* setSlot(int slotId, void* value);
-				template <typename Ptr> Ptr setSlot(int slotId, Ptr value)
+				void* getSlot(TSlotID slotId);
+				void* setSlot(TSlotID slotId, void* value);
+				template <typename Ptr> Ptr setSlot(TSlotID slotId, Ptr value)
 				{
 					return reinterpret_cast<Ptr>(setSlot(slotId, reinterpret_cast<void*>(value)));
 				}
 
-				void freezeDefinition(PyObject* module = nullptr);
+				PyObject* freezeDefinition(PyObject* module = nullptr);
 
 				PyObject* callRichCompare(PyObject* self, PyObject* other, int op);
 
@@ -209,12 +210,11 @@ namespace lass
 				typedef std::vector<EnumDefinitionBase*> TEnumDefs;
 				typedef std::vector<PyType_Slot> TSlots;
 
-				void freezeDefinition(PyObject* module, const char* scopeName);
+				PyObject* freezeDefinition(PyObject* module, const char* scopeName);
 
-				TSlots slots_;
 				PyType_Spec spec_;
 				TPyObjPtr type_;
-				const char* doc_;
+				TSlots slots_;
 				TMethods methods_;
 				TGetSetters getSetters_;
 				TCompareFuncs compareFuncs_;
@@ -224,6 +224,8 @@ namespace lass
 				TEnumDefs innerEnums_;
 				ClassDefinition* parent_;
 				TClassRegisterHook classRegisterHook_;
+				const char* className_;
+				const char* doc_;
 
 				/** Typeless slot for ExportTraits to store implicit converters.
 				*  This used to be a static in the templated ExportTraits, but since

@@ -54,28 +54,59 @@ namespace lass
 			TPyObjPtr makeEnumType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
 			{
 				TPyObjPtr enumMod(PyImport_ImportModule("enum"));
+				if (!enumMod)
+				{
+					return TPyObjPtr();
+				}
 				TPyObjPtr intEnumType(PyObject_GetAttrString(enumMod.get(), "Enum"));
+				if (!intEnumType)
+				{
+					return TPyObjPtr();
+				}
 
 				TPyObjPtr args = makeTuple(name, std::move(enumerators));
+				if (!args)
+				{
+					return TPyObjPtr();
+				}
 				TPyObjPtr type{ PyObject_Call(intEnumType.get(), args.get(), kwargs.get()) };
-
 				return type;
 			}
 
 			TPyObjPtr makeIntEnumType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
 			{
 				TPyObjPtr enumMod(PyImport_ImportModule("enum"));
+				if (!enumMod)
+				{
+					return TPyObjPtr();
+				}
 				TPyObjPtr intEnumType(PyObject_GetAttrString(enumMod.get(), "IntEnum"));
+				if (!intEnumType)
+				{
+					return TPyObjPtr();
+				}
 
 				TPyObjPtr args = makeTuple(name, std::move(enumerators));
+				if (!args)
+				{
+					return TPyObjPtr();
+				}
 				TPyObjPtr type{ PyObject_Call(intEnumType.get(), args.get(), kwargs.get()) };
 
 #if PY_VERSION_HEX < 0x030b0000 // < 3.11
+				if (!type)
+				{
+					return TPyObjPtr();
+				}
+
 				// set it's __str__ method to int.__repr__, to mimic 3.11 IntEnum behavior.
 				// Not int.__str__ because that is object.__str__, which resolves back to enum.__repr__
 				PyObject* intType = reinterpret_cast<PyObject*>(&PyLong_Type);
 				TPyObjPtr intRepr{ PyObject_GetAttrString(intType, "__repr__") };
-				PyObject_SetAttrString(type.get(), "__str__", intRepr.get());
+				if (!intRepr || PyObject_SetAttrString(type.get(), "__str__", intRepr.get()) != 0)
+				{
+					return TPyObjPtr();
+				}
 #endif
 
 				return type;
@@ -86,30 +117,52 @@ namespace lass
 #if PY_VERSION_HEX < 0x030b0000 // < 3.11
 				// mix in str type, so that they also behave like strings ...
 				PyObject* strType = reinterpret_cast<PyObject*>(&PyUnicode_Type);
-				PyDict_SetItemString(kwargs.get(), "type", strType);
+				if (PyDict_SetItemString(kwargs.get(), "type", strType) != 0)
+				{
+					return TPyObjPtr();
+				}
 
 				// build it as a normal Enum
 				TPyObjPtr type = makeEnumType(name, std::move(enumerators), std::move(kwargs));
+				if (!type)
+				{
+					return TPyObjPtr();
+				}
 
 				// set it's __str__ method to str.__str__, to mimic 3.11 StrEnum behavior.
 				TPyObjPtr strStr{ PyObject_GetAttrString(strType, "__str__") };
-				PyObject_SetAttrString(type.get(), "__str__", strStr.get());
+				if (!strStr || PyObject_SetAttrString(type.get(), "__str__", strStr.get()) != 0)
+				{
+					return TPyObjPtr();
+				}
 
 				return type;
 #else
 				TPyObjPtr enumMod(PY_ENFORCE_POINTER(PyImport_ImportModule("enum")));
+				if (!enumMod)
+				{
+					return TPyObjPtr();
+				}
 				TPyObjPtr strEnumType(PY_ENFORCE_POINTER(PyObject_GetAttrString(enumMod.get(), "StrEnum")));
+				if (!strEnumType)
+				{
+					return TPyObjPtr();
+				}
 
 				TPyObjPtr args = makeTuple(name, std::move(enumerators));
+				if (!args)
+				{
+					return TPyObjPtr();
+				}
 				TPyObjPtr type{ PyObject_Call(strEnumType.get(), args.get(), kwargs.get()) };
-
 				return type;
 #endif
 			}
 		}
 
 		EnumDefinitionBase::EnumDefinitionBase(const char* name) :
-			name_(name)
+			name_(name),
+			doc_(nullptr)
 		{
 		}
 		EnumDefinitionBase::EnumDefinitionBase(const char* name, const char* doc) :
@@ -158,29 +211,48 @@ namespace lass
 			return TPyObjPtr(PyObject_GetAttrString(o.get(), "value"));
 		}
 
-		void EnumDefinitionBase::freezeDefinition(const char* moduleName, const char* scopeName)
+		PyObject* EnumDefinitionBase::freezeDefinition(const char* moduleName, const char* scopeName)
 		{
-			TPyObjPtr kwargs(PyDict_New());
-			if (moduleName)
+			if (!type_)
 			{
-				TPyObjPtr moduleNameObj(pyBuildSimpleObject(moduleName));
-				PyDict_SetItemString(kwargs.get(), "module", moduleNameObj.get());
+				TPyObjPtr kwargs(PyDict_New());
+				if (!kwargs)
+				{
+					return nullptr;
+				}
+				if (moduleName)
+				{
+					TPyObjPtr moduleNameObj(pyBuildSimpleObject(moduleName));
+					if (!moduleNameObj || PyDict_SetItemString(kwargs.get(), "module", moduleNameObj.get()) != 0)
+					{
+						return nullptr;
+					}
+				}
+				if (scopeName)
+				{
+					std::string qualName = stde::safe_format("%s.%s", scopeName, name_);
+					TPyObjPtr qualNameObj(pyBuildSimpleObject(std::move(qualName)));
+					if (!qualNameObj || PyDict_SetItemString(kwargs.get(), "qualname", qualNameObj.get()) != 0)
+					{
+						return nullptr;
+					}
+				}
+				type_ = doFreezeDefinition(std::move(kwargs));
+				if (!type_)
+				{	
+					return nullptr;
+				}
 			}
-			if (scopeName)
-			{
-				std::string qualName = stde::safe_format("%s.%s", scopeName, name_);
-				TPyObjPtr qualNameObj(pyBuildSimpleObject(std::move(qualName)));
-				PyDict_SetItemString(kwargs.get(), "qualname", qualNameObj.get());
-			}
-
-			type_ = doFreezeDefinition(std::move(kwargs));
-
 			if (doc_)
 			{
 				// set the docstring
 				TPyObjPtr docStr(pyBuildSimpleObject(doc_));
-				PyObject_SetAttrString(type_.get(), "__doc__", docStr.get());
+				if (!docStr || PyObject_SetAttrString(type_.get(), "__doc__", docStr.get()) != 0)
+				{
+					return nullptr;
+				}
 			}
+			return type_.get();
 		}
 	}
 }

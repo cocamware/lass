@@ -107,18 +107,20 @@ int traverse(PyObject* self, visitproc visit, void* arg)
 ClassDefinition::ClassDefinition(
 		const char* name, const char* doc, Py_ssize_t typeSize, 
 		richcmpfunc richcmp, ClassDefinition* parent, TClassRegisterHook registerHook):
-	doc_(doc),
+	slots_({{ 0, nullptr }}),
 	parent_(parent),
 	classRegisterHook_(registerHook),
+	className_(name),
+	doc_(doc),
 	implicitConvertersSlot_(0),
 	isFrozen_(false)
 {
 	PyType_Spec spec = {
-		name, /* name */
+		nullptr, /* name */
 		static_cast<int>(typeSize), /* basicsize */
 		0, /* itemsize */
 		Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /* flags */
-		0, /* slots */
+		nullptr, /* slots */
 	};
 	spec_ = spec;
 	setSlot(Py_tp_dealloc, &dealloc);
@@ -141,6 +143,7 @@ ClassDefinition::~ClassDefinition()
 
 const PyTypeObject* ClassDefinition::type() const
 {
+	LASS_ENFORCE(isFrozen_)(name())(" is not frozen yet");
 	return reinterpret_cast<PyTypeObject*>(type_.get());
 }
 
@@ -148,7 +151,7 @@ const PyTypeObject* ClassDefinition::type() const
 
 PyTypeObject* ClassDefinition::type()
 {
-	LASS_ENFORCE(isFrozen_)(name())("is not frozen yet");
+	LASS_ENFORCE(isFrozen_)(name())(" is not frozen yet");
 	return reinterpret_cast<PyTypeObject*>(type_.get());
 }
 
@@ -156,7 +159,7 @@ PyTypeObject* ClassDefinition::type()
 
 const char* ClassDefinition::name() const
 {
-	return spec_.name;
+	return className_;
 }
 
 
@@ -183,10 +186,11 @@ void ClassDefinition::setDocIfNotNull(const char* doc)
 }
 
 
-void* ClassDefinition::getSlot(int slotId)
+void* ClassDefinition::getSlot(TSlotID slotId)
 {
-	PyType_Slot slot = { slotId, nullptr };
-	TSlots::iterator i = std::lower_bound(slots_.begin(), slots_.end(), slot, [](const PyType_Slot& a, const PyType_Slot& b) { return a.slot < b.slot; });
+	LASS_ASSERT(!slots_.empty() && slots_.back().slot == 0);
+	LASS_ASSERT(slotId > 0);
+	TSlots::iterator i = std::lower_bound(slots_.begin(), slots_.end() - 1, slotId, [](const PyType_Slot& a, TSlotID b) { return a.slot < b; });
 	if (i != slots_.end() && i->slot == slotId)
 	{
 		return i->pfunc;
@@ -195,13 +199,13 @@ void* ClassDefinition::getSlot(int slotId)
 }
 
 
-void* ClassDefinition::setSlot(int slotId, void* value)
+void* ClassDefinition::setSlot(TSlotID slotId, void* value)
 {
-	LASS_ASSERT(slotId > 0);
 	LASS_ASSERT(!isFrozen_);
+	LASS_ASSERT(!slots_.empty() && slots_.back().slot == 0);
+	LASS_ASSERT(slotId > 0);
 	LASS_ASSERT(value);
-	PyType_Slot slot = { slotId, value };
-	TSlots::iterator i = std::lower_bound(slots_.begin(), slots_.end(), slot, [](const PyType_Slot& a, const PyType_Slot& b) { return a.slot < b.slot; });
+	TSlots::iterator i = std::lower_bound(slots_.begin(), slots_.end() - 1, slotId, [](const PyType_Slot& a, TSlotID b) { return a.slot < b; });
 	if (i != slots_.end() && i->slot == slotId)
 	{
 		void* old = i->pfunc;
@@ -210,6 +214,7 @@ void* ClassDefinition::setSlot(int slotId, void* value)
 	}
 	else
 	{
+		PyType_Slot slot = { slotId, value };
 		slots_.insert(i, slot);
 		return nullptr;
 	}
@@ -344,17 +349,17 @@ void ClassDefinition::addInnerEnum(EnumDefinitionBase* enumDefinition)
 	innerEnums_.push_back(enumDefinition);
 }
 
-void ClassDefinition::freezeDefinition(PyObject* module)
+PyObject* ClassDefinition::freezeDefinition(PyObject* module)
 {
-	freezeDefinition(module, nullptr);
+	return freezeDefinition(module, nullptr);
 }
 
-void ClassDefinition::freezeDefinition(PyObject* module, const char* scopeName)
+PyObject* ClassDefinition::freezeDefinition(PyObject* module, const char* scopeName)
 {
 	LASS_ASSERT(!isFrozen_);
 	if (isFrozen_)
 	{
-		return;
+		return type_.get();
 	}
 
 	if (parent_)
@@ -363,76 +368,113 @@ void ClassDefinition::freezeDefinition(PyObject* module, const char* scopeName)
 		// However, in case of PyObjectPlus, nobody else will do it.
 		if (parent_ == &PyObjectPlus::_lassPyClassDef)
 		{
-			impl::initLassModule();
+			if (impl::initLassModule() != 0)
+			{
+				return nullptr;
+			}
 		}
-		LASS_ASSERT(parent_->isFrozen_);
+		if (!parent_->isFrozen_)
+		{
+			PyErr_Format(PyExc_AssertionError, "Parent class %s of %s is not frozen yet", parent_->className_, className_);
+		}
 		parent_->subClasses_.push_back(this);
 	}
 
-	const char* moduleName = module ? PyModule_GetName(module) : nullptr;
-	const char* className = name();
-	if (moduleName)
+	const char* moduleName = nullptr;
+	if (module)
 	{
-		const size_t n = std::strlen(moduleName) + std::strlen(className) + 2; // one extra for dot, and one extra for null
-		char* buf = static_cast<char*>(std::malloc(n));
-		const int r = ::snprintf(buf, n, "%s.%s", moduleName, className);
-		LASS_ENFORCE(r > 0 && static_cast<size_t>(r) < n);
-		spec_.name = buf;
+		moduleName = PyModule_GetName(module);
+		if (!moduleName)
+		{
+			return nullptr;
+		}
+		LASS_ASSERT(!spec_.name || std::strcmp(spec_.name, moduleName) == 0);
+		if (!spec_.name)
+		{
+			const size_t n = std::strlen(moduleName) + std::strlen(className_) + 2; // one extra for dot, and one extra for null
+			char* buf = static_cast<char*>(std::malloc(n));
+			const int r = ::snprintf(buf, n, "%s.%s", moduleName, className_);
+			LASS_ENFORCE(r > 0 && static_cast<size_t>(r) < n);
+			spec_.name = buf;
+		}
+	}
+	else
+	{
+		LASS_ASSERT(!spec_.name || std::strcmp(spec_.name, className_) == 0);
+		if (!spec_.name)
+		{
+			spec_.name = className_;
+		}
 	}
 
-	LASS_ASSERT(slots_.empty() || slots_.back().slot != 0);
-	setSlot(Py_tp_base, parent_ ? parent_->type() : &PyBaseObject_Type); // INCREF???
-	setSlot(Py_tp_methods, &methods_[0]);
-	setSlot(Py_tp_getset, &getSetters_[0]);
-	if (doc_) // a nullptr as Py_tp_doc causes access violation in PyType_FromSpec 
+	if (!type_)
 	{
-		setSlot(Py_tp_doc, const_cast<char*>(doc_));
-	}
-
-	PyType_Slot nullSlot = { 0, 0 };
-	slots_.push_back(nullSlot);
-	LASS_ASSERT(!spec_.slots);
-	spec_.slots = &slots_[0];
+		setSlot(Py_tp_base, parent_ ? parent_->type() : &PyBaseObject_Type); // INCREF???
+		setSlot(Py_tp_methods, &methods_[0]);
+		setSlot(Py_tp_getset, &getSetters_[0]);
+		if (doc_) // a nullptr as Py_tp_doc causes access violation in PyType_FromSpec 
+		{
+			setSlot(Py_tp_doc, const_cast<char*>(doc_));
+		}
+		LASS_ASSERT(slots_.back().slot == 0);
+		spec_.slots = &slots_[0];
 
 #if PY_VERSION_HEX >= 0x030a0000 // >= 3.10
-	if (getSlot(Py_tp_new) == nullptr)
-	{
-		// We don't have a constructor, so we disallow instantiation.
-		spec_.flags |= Py_TPFLAGS_DISALLOW_INSTANTIATION;
-	}
+		if (getSlot(Py_tp_new) == nullptr)
+		{
+			// We don't have a constructor, so we disallow instantiation.
+			spec_.flags |= Py_TPFLAGS_DISALLOW_INSTANTIATION;
+		}
 #endif
 
-	type_.reset(PY_ENFORCE_POINTER(PyType_FromModuleAndSpec(module, &spec_, nullptr)));
-	isFrozen_ = true;
+		type_.reset(PyType_FromModuleAndSpec(module, &spec_, nullptr));
+		if (!type_)
+		{
+			return nullptr;
+		}
+	}
 
-	PyObject* typ = type_.get();
+	PyObject* type = type_.get();
 
-	const char* qualname = className;
+	const char* qualname = className_;
 	if (scopeName)
 	{
-		const size_t n = std::strlen(scopeName) + std::strlen(className) + 2; // one extra for dot, and one extra for null
+		const size_t n = std::strlen(scopeName) + std::strlen(className_) + 2; // one extra for dot, and one extra for null
 		char* buf = static_cast<char*>(std::malloc(n));
-		const int r = ::snprintf(buf, n, "%s.%s", scopeName, className);
+		const int r = ::snprintf(buf, n, "%s.%s", scopeName, className_);
 		LASS_ENFORCE(r > 0 && static_cast<size_t>(r) < n);
 		qualname = buf;
-		TPyObjPtr objQualname(PY_ENFORCE_POINTER(pyBuildSimpleObject(qualname)));
-		PY_ENFORCE_ZERO(PyObject_SetAttrString(typ, "__qualname__", objQualname.get()));
+		TPyObjPtr objQualname(pyBuildSimpleObject(qualname));
+		if (!objQualname || PyObject_SetAttrString(type, "__qualname__", objQualname.get()) != 0)
+		{
+			return nullptr;
+		}
 	}
 	for (TStaticMembers::const_iterator i = statics_.begin(); i != statics_.end(); ++i)
 	{
-		PY_ENFORCE_ZERO(PyObject_SetAttrString(typ, i->name(), i->member()->build().get()));
+		TPyObjPtr obj = i->member()->build();
+		if (!obj || PyObject_SetAttrString(type, i->name(), obj.get()) != 0)
+		{
+			return nullptr;
+		}
 	}
 	for (TClassDefs::const_iterator i = innerClasses_.begin(); i != innerClasses_.end(); ++i)
 	{
 		ClassDefinition* innerClass = *i;
 		const char* shortName = innerClass->name();
-		innerClass->freezeDefinition(module, qualname);
-		PyObject_SetAttrString(typ, shortName, reinterpret_cast<PyObject*>(innerClass->type()));
+		PyObject* innerType = innerClass->freezeDefinition(module, qualname);
+		if (!innerType || PyObject_SetAttrString(type, shortName, innerType) != 0)
+		{
+			return nullptr;
+		}
 	}
 	for (auto def : innerEnums_)
 	{
-		def->freezeDefinition(moduleName, qualname);
-		PyObject_SetAttrString(typ, def->name(), def->type());
+		PyObject* enumType = def->freezeDefinition(moduleName, qualname);
+		if (!enumType || PyObject_SetAttrString(type, def->name(), enumType) != 0)
+		{
+			return nullptr;
+		}
 	}
 
 	if (classRegisterHook_)
@@ -441,8 +483,11 @@ void ClassDefinition::freezeDefinition(PyObject* module, const char* scopeName)
 	}
 
 #if PY_VERSION_HEX >= 0x030a0000 // >= 3.10
-	type()->tp_flags |= Py_TPFLAGS_IMMUTABLETYPE;
+	reinterpret_cast<PyTypeObject*>(type)->tp_flags |= Py_TPFLAGS_IMMUTABLETYPE;
 #endif
+
+	isFrozen_ = true;
+	return type;
 }
 
 PyObject* ClassDefinition::callRichCompare(PyObject* self, PyObject* other, int op)

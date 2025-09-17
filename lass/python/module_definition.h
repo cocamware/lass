@@ -86,7 +86,7 @@ public:
 		PyModule_AddObject(module_, name, lass::python::pyBuildSimpleObject( std::forward<T>(object) ));
 	}
 
-	void injectClass(impl::ClassDefinition& classDef);
+	bool injectClass(impl::ClassDefinition& classDef);
 	PyObject* inject();
 private:
 	typedef std::unique_ptr<char[]> TScopedCString;
@@ -111,6 +111,9 @@ private:
 	typedef std::vector<NamedObject*> TObjects;
 	typedef std::vector<LongObject*> TLongObjects;
 	typedef std::vector<StringObject*> TStringObjects;
+
+	PyObject* doInject();
+
 	TClassDefs classes_;
 	TEnumDefs enums_;
 	TMethods methods_;

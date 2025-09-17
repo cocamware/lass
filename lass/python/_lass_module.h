@@ -47,6 +47,6 @@
 namespace lass::python::impl
 {
 
-LASS_PYTHON_DLL void initLassModule();
+LASS_PYTHON_DLL int initLassModule();
 
 }

@@ -71,7 +71,7 @@ namespace lass
 			const char* doc() const;
 			PyObject* type() const;
 
-			void freezeDefinition(const char* moduleName, const char* scopeName);
+			PyObject* freezeDefinition(const char* moduleName, const char* scopeName);
 
 		protected:
 			EnumDefinitionBase(const char* name);
@@ -169,11 +169,18 @@ namespace lass
 			{
 				const Py_ssize_t n = static_cast<Py_ssize_t>(enumerators_.size());
 				TPyObjPtr pyEnumerators(PyTuple_New(n));
+				if (!pyEnumerators)
+				{
+					return TPyObjPtr();
+				}
 				for (Py_ssize_t i = 0; i < n; ++i)
 				{
 					const Enumerator& enumerator = enumerators_[static_cast<size_t>(i)];
 					TPyObjPtr pyEnumerator(makeTuple(enumerator.name, static_cast<TBase>(enumerator.enumerator)));
-					PyTuple_SetItem(pyEnumerators.get(), i, fromSharedPtrToNakedCast(pyEnumerator));
+					if (!pyEnumerator || PyTuple_SetItem(pyEnumerators.get(), i, fromSharedPtrToNakedCast(pyEnumerator)) != 0)
+					{
+						return TPyObjPtr();
+					}
 				}
 
 				return impl::makeIntEnumType(name(), std::move(pyEnumerators), std::move(kwargs));
@@ -323,7 +330,12 @@ namespace lass
 
 			TPyObjPtr doFreezeDefinition(TPyObjPtr &&kwargs) override
 			{
-				return impl::makeEnumType(this->name(), this->freezeEnumerators(), std::move(kwargs));
+				TPyObjPtr pyEnumerators = freezeEnumerators();
+				if (!pyEnumerators)
+				{
+					return TPyObjPtr();
+				}
+				return impl::makeEnumType(this->name(), std::move(pyEnumerators), std::move(kwargs));
 			}
 
 		private:

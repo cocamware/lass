@@ -60,16 +60,23 @@ PY_MODULE_CLASS( lassMod, lass::python::impl::Function )
 namespace lass::python::impl
 {
 
-void initLassModule()
+int initLassModule()
 {
 	if (lassMod.module())
 	{
-		return;
+		return 0;
 	}
 	LockGIL LASS_UNUSED(lock);
 	TPyObjPtr mod(lassMod.inject());
+	if (!mod)
+	{
+		return -1;
+	}
 	PyObject* sysModules = PySys_GetObject("modules");
-	PyDict_SetItemString(sysModules, "_lass", mod.get());
+	if (!sysModules || PyDict_SetItemString(sysModules, "_lass", mod.get()) != 0)
+	{
+		return -1;
+	}
 
 	// register lass containers with abstract base classes
 	// so that they will be recognized when using isinstance(x, collections.abc.Sequence)
@@ -77,16 +84,48 @@ void initLassModule()
 	// MultiCallback and PyIteratorRange are automatically recognized
 	//
 	TPyObjPtr abcMod(PyImport_ImportModule("collections.abc"));
+	if (!abcMod)
+	{
+		return -1;
+	}
+
 	{
 		TPyObjPtr astractType(PyObject_GetAttrString(abcMod.get(), "MutableSequence"));
+		if (!astractType)
+		{
+			return -1;
+		}
 		PyTypeObject* lassType = lass::python::impl::Sequence::_lassPyClassDef.type();
+		if (!lassType)
+		{
+			return -1;
+		}
 		TPyObjPtr r(PyObject_CallMethod(astractType.get(), "register", "O", lassType));
+		if (!r)
+		{
+			return -1;
+		}
 	}
+
 	{
 		TPyObjPtr astractType(PyObject_GetAttrString(abcMod.get(), "MutableMapping"));
+		if (!astractType)
+		{
+			return -1;
+		}
 		PyTypeObject* lassType = lass::python::impl::Map::_lassPyClassDef.type();
+		if (!lassType)
+		{
+			return -1;
+		}
 		TPyObjPtr r(PyObject_CallMethod(astractType.get(), "register", "O", lassType));
+		if (!r)
+		{
+			return -1;
+		}
 	}
+
+	return 0;
 }
 
 }

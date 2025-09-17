@@ -44,6 +44,27 @@
 #include "module_definition.h"
 #include "enum_definition.h"
 
+
+#if PY_VERSION_HEX < 0x030a0000 // < 3.10
+
+namespace
+{
+
+int PyModule_AddObjectRef(PyObject* module, const char* name, PyObject* value)
+{
+	Py_XINCREF(value);
+	if (PyModule_AddObject(module, name, value) != 0)
+	{
+		Py_XDECREF(value);
+		return -1;
+	}
+	return 0;
+}
+
+}
+
+#endif
+
 namespace lass
 {
 namespace python
@@ -176,14 +197,14 @@ void ModuleDefinition::addFunctionDispatcher(
 
 void ModuleDefinition::injectLong(const char* name, long value)
 {
-	LASS_ASSERT(isInjected_);
+	LASS_ENFORCE_POINTER(module_);
 	PyModule_AddIntConstant(module_, name, value);
 }
 
 
 void ModuleDefinition::injectString(const char* name, const char* value)
 {
-	LASS_ASSERT(isInjected_);
+	LASS_ENFORCE_POINTER(module_);
 	PyModule_AddStringConstant(module_, name, value);
 }
 
@@ -193,21 +214,29 @@ void ModuleDefinition::injectString(const char* name, const char* value)
  *  This function can injects a class in an already-injected module
  *  @deprecated
  */
-void ModuleDefinition::injectClass(impl::ClassDefinition& classDef)
+bool ModuleDefinition::injectClass(impl::ClassDefinition& classDef)
 {
-	LASS_ASSERT(isInjected_);
+	LASS_ENFORCE_POINTER(module_);
 	const char* shortName = classDef.name(); // finalizePyType will expand tp_name with module name.
-	classDef.freezeDefinition(module_);
-#if PY_VERSION_HEX < 0x030a0000 // < 3.10
-	PyObject* type = reinterpret_cast<PyObject*>(classDef.type());
-	Py_INCREF(type);
-	PyModule_AddObject(module_, const_cast<char*>(shortName), type);
-#else
-	PyModule_AddObjectRef(module_, const_cast<char*>(shortName), reinterpret_cast<PyObject*>(classDef.type()));
-#endif
+	PyObject* type = classDef.freezeDefinition(module_);
+	return PyModule_AddObjectRef(module_, const_cast<char*>(shortName), type) == 0;
 }
 
+
+
 PyObject* ModuleDefinition::inject()
+{
+	PyObject* mod = doInject();
+	if (!mod)
+	{
+		chainErrFormat(PyExc_ImportError, "Failed to import '%s'", name_.get());
+	}
+	return mod;
+}
+
+
+
+PyObject* ModuleDefinition::doInject()
 {
 	if (isInjected_)
 	{
@@ -218,29 +247,35 @@ PyObject* ModuleDefinition::inject()
 		Py_INCREF(module_);
 		return module_;
 	}
-	LASS_ASSERT(name_.get());
-	preInject_();
-	methods_.push_back(impl::createPyMethodDef(0, 0, 0, 0));
-	Py_Initialize();
-	def_.m_name = name_.get();
-	def_.m_doc = doc_.get();
-	def_.m_methods = &methods_[0];
-	module_ = PyModule_Create(&def_);
-	isInjected_ = true;
-	for (TClassDefs::const_iterator def = classes_.begin(); def != classes_.end(); ++def)
+	if (!module_)
 	{
-		injectClass(**def);
+		LASS_ASSERT(name_.get());
+		preInject_();
+		methods_.push_back(impl::createPyMethodDef(0, 0, 0, 0));
+		Py_Initialize();
+		def_.m_name = name_.get();
+		def_.m_doc = doc_.get();
+		def_.m_methods = &methods_[0];
+		module_ = PyModule_Create(&def_);
+		if (!module_)
+		{
+			return nullptr;
+		}
+	}
+	for (auto def: classes_)
+	{
+		if (!injectClass(*def) != 0)
+		{
+			return nullptr;
+		}
 	}
 	for (auto def: enums_)
 	{
-		def->freezeDefinition(name_.get(), nullptr);
-#if PY_VERSION_HEX < 0x030a0000 // < 3.10
-		PyObject* type = reinterpret_cast<PyObject*>(def->type());
-		Py_INCREF(type);
-		PyModule_AddObject(module_, def->name(), type);
-#else
-		PyModule_AddObjectRef(module_, def->name(), reinterpret_cast<PyObject*>(def->type()));
-#endif
+		PyObject* enumType = def->freezeDefinition(name_.get(), nullptr);
+		if (PyModule_AddObjectRef(module_, def->name(), enumType) != 0)
+		{
+			return nullptr;
+		}
 	}
 	for (TObjects::const_iterator obj = objects_.begin(); obj != objects_.end(); ++obj)
 	{
@@ -248,13 +283,20 @@ PyObject* ModuleDefinition::inject()
 	}
 	for (TLongObjects::const_iterator obj = longObjects_.begin(); obj != longObjects_.end(); ++obj)
 	{
-		PyModule_AddIntConstant(module_, (*obj)->name.get(), (*obj)->object);
+		if (PyModule_AddIntConstant(module_, (*obj)->name.get(), (*obj)->object) != 0)
+		{
+			return nullptr;
+		}
 	}
 	for (TStringObjects::const_iterator obj = stringObjects_.begin(); obj != stringObjects_.end(); ++obj)
 	{
-		PyModule_AddStringConstant(module_, (*obj)->name.get(), (*obj)->object.get());
+		if (PyModule_AddStringConstant(module_, (*obj)->name.get(), (*obj)->object.get()) != 0)
+		{
+			return nullptr;
+		}
 	}
 	postInject_(module_);
+	isInjected_ = true;
 	Py_INCREF(module_);
 	return module_;
 }
