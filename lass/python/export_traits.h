@@ -796,6 +796,7 @@ struct PyExportTraits< std::complex<T> >
 	}
 	static int get(PyObject* obj, std::complex<T>& v)
 	{
+#if LASS_USE_OLD_EXPORTRAITS_COMPLEX
 		T re, im;
 		if (PyExportTraits<T>::get(obj, re) == 0)
 		{
@@ -818,6 +819,15 @@ struct PyExportTraits< std::complex<T> >
 		}
 		v = std::complex<T>(re, im);
 		return 0;
+#else
+		Py_complex c = PyComplex_AsCComplex(obj);
+		if (c.real == -1.0 && PyErr_Occurred())
+		{
+			return 1;
+		}
+		v = std::complex<T>(static_cast<T>(c.real), static_cast<T>(c.imag));
+		return 0;
+#endif
 	}
 };
 

@@ -37,6 +37,7 @@
 
 from __future__ import annotations
 
+import cmath
 import datetime
 import errno
 import inspect
@@ -946,6 +947,14 @@ class MyFloat:
         return float(self.value)
 
 
+class MyComplex:
+    def __init__(self, value: Any):
+        self.value = value
+
+    def __complex__(self) -> complex:
+        return complex(self.value)
+
+
 LASS_HAVE_STD_U8STRING: bool = getattr(embedding, "LASS_HAVE_STD_U8STRING", False)
 
 skipIfNoU8string = unittest.skipIf(
@@ -1174,6 +1183,70 @@ class TestTypes(unittest.TestCase):
             self.assertTrue(math.isnan(embedding.testFloatDouble(MyFloat("nan"))))
             with self.assertRaises(OverflowError):
                 float(MyFloat(2**1024))
+
+    def testComplexFloatSingle(self) -> None:
+        useOldExportTraitsComplex = getattr(
+            embedding, "LASS_USE_OLD_EXPORTRAITS_COMPLEX", False
+        )
+        useOldExportTraitsFloat = getattr(
+            embedding, "LASS_USE_OLD_EXPORTRAITS_FLOAT", False
+        )
+        inf = float("inf")
+        self.assertEqual(embedding.testComplexFloatSingle(0j), 0j)
+        self.assertEqual(embedding.testComplexFloatSingle(1 + 2j), 1 + 2j)
+        self.assertEqual(embedding.testComplexFloatSingle(-1 - 2j), -1 - 2j)
+        self.assertEqual(embedding.testComplexFloatSingle(1.5 + 2.5j), 1.5 + 2.5j)
+        self.assertIsInstance(embedding.testComplexFloatSingle(0), complex)
+        self.assertEqual(embedding.testComplexFloatSingle(0), 0j)
+        self.assertIsInstance(embedding.testComplexFloatSingle(1), complex)
+        self.assertEqual(embedding.testComplexFloatSingle(1), 1 + 0j)
+        self.assertIsInstance(embedding.testComplexFloatSingle(1.5), complex)
+        self.assertEqual(embedding.testComplexFloatSingle(1.5), 1.5 + 0j)
+        with self.assertRaises(TypeError):
+            embedding.testComplexFloatSingle("1+2j")  # type: ignore[arg-type]
+        if useOldExportTraitsComplex:
+            with self.assertRaises(TypeError):
+                embedding.testComplexFloatSingle(complex(inf, -inf))
+            with self.assertRaises(TypeError):
+                embedding.testComplexFloatSingle(complex(1e40, -1e40))
+        else:
+            self.assertEqual(
+                embedding.testComplexFloatSingle(complex(+inf, -inf)),
+                complex(inf, -inf),
+            )
+            self.assertEqual(
+                embedding.testComplexFloatSingle(complex(1e40, -1e40)),
+                complex(inf, -inf),
+            )
+        if useOldExportTraitsFloat:
+            with self.assertRaises(TypeError):
+                embedding.testComplexFloatSingle(inf)
+            with self.assertRaises(TypeError):
+                embedding.testComplexFloatSingle(1e40)
+        else:
+            self.assertIsInstance(embedding.testComplexFloatSingle(inf), complex)
+            self.assertEqual(embedding.testComplexFloatSingle(inf), complex(inf, 0))
+            self.assertIsInstance(embedding.testComplexFloatSingle(1e40), complex)
+            self.assertEqual(embedding.testComplexFloatSingle(1e40), complex(inf, 0))
+        with self.assertRaises(OverflowError):
+            complex(2**1024)
+        if useOldExportTraitsComplex:
+            with self.assertRaises(TypeError):
+                embedding.testComplexFloatSingle(2**1024)  # so not inf...
+        else:
+            with self.assertRaises(OverflowError):
+                embedding.testComplexFloatSingle(2**1024)  # so not inf...
+        if useOldExportTraitsComplex:
+            with self.assertRaises(TypeError):
+                embedding.testComplexFloatSingle(MyComplex(1.5 + 2.5j))
+        else:
+            self.assertIsInstance(
+                embedding.testComplexFloatSingle(MyComplex(1.5 + 2.5j)), complex
+            )
+            self.assertEqual(
+                embedding.testComplexFloatSingle(MyComplex(1.5 + 2.5j)), 1.5 + 2.5j
+            )
+        cmath.isnan(embedding.testComplexFloatSingle(complex(0, float("nan"))))
 
     def testStdTuple(self) -> None:
         x = (True, "Hello")

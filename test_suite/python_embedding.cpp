@@ -674,6 +674,11 @@ double testFloatDouble(double v)
 	return v;
 }
 
+std::complex<float> testComplexFloatSingle(std::complex<float> v)
+{
+	return v;
+}
+
 std::chrono::system_clock::time_point testSystemClock(const std::chrono::system_clock::time_point& v)
 {
 	return v;
@@ -956,6 +961,9 @@ void embeddingPostInject(PyObject*)
 {
 #if LASS_USE_OLD_EXPORTRAITS_FLOAT
 	PY_MODULE_ADD_INTEGER_CONSTANT( embedding, "LASS_USE_OLD_EXPORTRAITS_FLOAT", 1 )
+#endif
+#if LASS_USE_OLD_EXPORTRAITS_COMPLEX
+		PY_MODULE_ADD_INTEGER_CONSTANT(embedding, "LASS_USE_OLD_EXPORTRAITS_COMPLEX", 1)
 #endif
 #if LASS_HAVE_STD_U8STRING
 	PY_MODULE_ADD_INTEGER_CONSTANT( embedding, "LASS_HAVE_STD_U8STRING", 1 )
