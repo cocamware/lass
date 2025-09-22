@@ -955,11 +955,21 @@ class MyComplex:
         return complex(self.value)
 
 
+class MyInt:
+    def __init__(self, value: Any):
+        self.value = value
+
+    def __index__(self) -> int:
+        return int(self.value)
+
+
 LASS_HAVE_STD_U8STRING: bool = getattr(embedding, "LASS_HAVE_STD_U8STRING", False)
+HAVE_LONG_LONG: bool = getattr(embedding, "HAVE_LONG_LONG", False)
 
 skipIfNoU8string = unittest.skipIf(
     not LASS_HAVE_STD_U8STRING, "std::u8string not supported"
 )
+skipIfNoLongLong = unittest.skipIf(not HAVE_LONG_LONG, "long long not supported")
 
 if TYPE_CHECKING:
     # Trick the type checker that we have testStdU8string
@@ -1247,6 +1257,134 @@ class TestTypes(unittest.TestCase):
                 embedding.testComplexFloatSingle(MyComplex(1.5 + 2.5j)), 1.5 + 2.5j
             )
         cmath.isnan(embedding.testComplexFloatSingle(complex(0, float("nan"))))
+
+    def testIntShort(self) -> None:
+        useOldExportTraits = getattr(embedding, "LASS_USE_OLD_EXPORTRAITS_INT", False)
+        self.assertEqual(embedding.testIntShort(0), 0)
+        self.assertEqual(embedding.testIntShort(12345), 12345)
+        self.assertEqual(embedding.testIntShort(-12345), -12345)
+        self.assertEqual(embedding.testIntShort(2**15 - 1), 2**15 - 1)
+        self.assertEqual(embedding.testIntShort(-(2**15)), -(2**15))
+        if useOldExportTraits:
+            with self.assertRaises(TypeError):
+                embedding.testIntShort(2**15)
+            with self.assertRaises(TypeError):
+                embedding.testIntShort(-(2**15) - 1)
+            with self.assertRaises(SystemError):
+                embedding.testIntLongLong(2**63)
+            with self.assertRaises(SystemError):
+                embedding.testIntLongLong(-(2**63) - 1)
+        else:
+            with self.assertRaises(OverflowError):
+                embedding.testIntShort(2**15)
+            with self.assertRaises(OverflowError):
+                embedding.testIntShort(-(2**15) - 1)
+            with self.assertRaises(OverflowError):
+                embedding.testIntLongLong(2**63)
+            with self.assertRaises(OverflowError):
+                embedding.testIntLongLong(-(2**63) - 1)
+        with self.assertRaises(TypeError):
+            embedding.testIntShort(1e10)  # type: ignore[arg-type]
+        with self.assertRaises(TypeError):
+            embedding.testIntShort("123")  # type: ignore[arg-type]
+        myint = MyInt(12345)
+        if useOldExportTraits:
+            with self.assertRaises(TypeError):
+                embedding.testIntShort(myint)  # type: ignore[arg-type]
+        else:
+            self.assertEqual(embedding.testIntShort(myint), 12345)  # type: ignore[arg-type]
+
+    def testUIntShort(self) -> None:
+        useOldExportTraits = getattr(embedding, "LASS_USE_OLD_EXPORTRAITS_INT", False)
+        self.assertEqual(embedding.testUIntShort(0), 0)
+        self.assertEqual(embedding.testUIntShort(12345), 12345)
+        self.assertEqual(embedding.testUIntShort(2**16 - 1), 2**16 - 1)
+        if useOldExportTraits:
+            with self.assertRaises(TypeError):
+                embedding.testUIntShort(-1)
+            with self.assertRaises(TypeError):
+                embedding.testUIntShort(2**16)
+            with self.assertRaises(TypeError):
+                embedding.testUIntShort(2**64)
+        else:
+            with self.assertRaises(OverflowError):
+                embedding.testUIntShort(-1)
+            with self.assertRaises(OverflowError):
+                embedding.testUIntShort(2**16)
+            with self.assertRaises(OverflowError):
+                embedding.testUIntShort(2**64)
+        with self.assertRaises(TypeError):
+            embedding.testUIntShort(1e10)  # type: ignore[arg-type]
+        with self.assertRaises(TypeError):
+            embedding.testUIntShort("123")  # type: ignore[arg-type]
+        myint = MyInt(12345)
+        if useOldExportTraits:
+            with self.assertRaises(TypeError):
+                embedding.testUIntShort(myint)  # type: ignore[arg-type]
+        else:
+            self.assertEqual(embedding.testUIntShort(myint), 12345)  # type: ignore[arg-type]
+
+    @skipIfNoLongLong
+    def testIntLongLong(self) -> None:
+        useOldExportTraits = getattr(embedding, "LASS_USE_OLD_EXPORTRAITS_INT", False)
+        self.assertEqual(embedding.testIntLongLong(0), 0)
+        self.assertEqual(
+            embedding.testIntLongLong(1234567890123456789), 1234567890123456789
+        )
+        self.assertEqual(
+            embedding.testIntLongLong(-1234567890123456789), -1234567890123456789
+        )
+        self.assertEqual(embedding.testIntLongLong(2**63 - 1), 2**63 - 1)
+        self.assertEqual(embedding.testIntLongLong(-(2**63)), -(2**63))
+        if useOldExportTraits:
+            with self.assertRaises(SystemError):
+                embedding.testIntLongLong(2**63)
+            with self.assertRaises(SystemError):
+                embedding.testIntLongLong(-(2**63) - 1)
+        else:
+            with self.assertRaises(OverflowError):
+                embedding.testIntLongLong(2**63)
+            with self.assertRaises(OverflowError):
+                embedding.testIntLongLong(-(2**63) - 1)
+        with self.assertRaises(TypeError):
+            embedding.testIntLongLong(1e20)  # type: ignore[arg-type]
+        with self.assertRaises(TypeError):
+            embedding.testIntLongLong("123")  # type: ignore[arg-type]
+        myint = MyInt(12345)
+        if useOldExportTraits:
+            with self.assertRaises(TypeError):
+                embedding.testIntLongLong(myint)  # type: ignore[arg-type]
+        else:
+            self.assertEqual(embedding.testIntLongLong(myint), 12345)  # type: ignore[arg-type]
+
+    @skipIfNoLongLong
+    def testUIntLongLong(self) -> None:
+        useOldExportTraits = getattr(embedding, "LASS_USE_OLD_EXPORTRAITS_INT", False)
+        self.assertEqual(embedding.testUIntLongLong(0), 0)
+        self.assertEqual(
+            embedding.testUIntLongLong(12345678901234567890), 12345678901234567890
+        )
+        self.assertEqual(embedding.testUIntLongLong(2**64 - 1), 2**64 - 1)
+        if useOldExportTraits:
+            with self.assertRaises(SystemError):
+                embedding.testUIntLongLong(-1)
+            with self.assertRaises(SystemError):
+                embedding.testUIntLongLong(2**64)
+        else:
+            with self.assertRaises(OverflowError):
+                embedding.testUIntLongLong(-1)
+            with self.assertRaises(OverflowError):
+                embedding.testUIntLongLong(2**64)
+        with self.assertRaises(TypeError):
+            embedding.testUIntLongLong(1e20)  # type: ignore[arg-type]
+        with self.assertRaises(TypeError):
+            embedding.testUIntLongLong("123")  # type: ignore[arg-type]
+        myint = MyInt(12345)
+        if useOldExportTraits:
+            with self.assertRaises(TypeError):
+                embedding.testUIntLongLong(myint)  # type: ignore[arg-type]
+        else:
+            self.assertEqual(embedding.testUIntLongLong(myint), 12345)  # type: ignore[arg-type]
 
     def testStdTuple(self) -> None:
         x = (True, "Hello")

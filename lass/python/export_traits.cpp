@@ -268,6 +268,7 @@ PyObject* PyExportTraits<signed PY_LONG_LONG>::build(signed PY_LONG_LONG v)
 
 int PyExportTraits<signed PY_LONG_LONG>::get(PyObject* obj, signed PY_LONG_LONG& v)
 {
+#if LASS_USE_OLD_EXPORTRAITS_INT
 	if (PyLong_Check(obj))
 	{
 		v = PyLong_AsLongLong(obj);
@@ -275,6 +276,29 @@ int PyExportTraits<signed PY_LONG_LONG>::get(PyObject* obj, signed PY_LONG_LONG&
 	}
 	PyErr_SetString(PyExc_TypeError, "not an integer");
 	return 1;
+#else
+#	if PY_VERSION_HEX < 0x030a0000 // < 3.10
+	// PyLong_AsLongLong also accept __int__, so floats are ints too :-(
+	// From 3.10 onwards, __int__ is no longer accepted, only __index__.
+	// Let's do the same for Python < 3.10.
+	if (!PyLong_Check(obj))
+	{
+		TPyObjPtr o(PyNumber_Index(obj));
+		if (!o)
+		{
+			// PyErr_SetString(PyExc_TypeError, "not an integer");
+			return 1;
+		}
+		return PyExportTraits<signed PY_LONG_LONG>::get(o.get(), v);
+	}
+#	endif
+	v = PyLong_AsLongLong(obj);
+	if (v == -1 && PyErr_Occurred())
+	{
+		return 1;
+	}
+	return 0;
+#endif
 }
 
 
@@ -286,6 +310,7 @@ PyObject* PyExportTraits<unsigned PY_LONG_LONG>::build(unsigned PY_LONG_LONG v)
 
 int PyExportTraits<unsigned PY_LONG_LONG>::get(PyObject* obj, unsigned PY_LONG_LONG& v)
 {
+#if LASS_USE_OLD_EXPORTRAITS_INT
 	if (PyLong_Check(obj))
 	{
 		v = PyLong_AsUnsignedLongLong(obj);
@@ -293,6 +318,26 @@ int PyExportTraits<unsigned PY_LONG_LONG>::get(PyObject* obj, unsigned PY_LONG_L
 	}
 	PyErr_SetString(PyExc_TypeError, "not an integer");
 	return 1;
+#else
+	if (!PyLong_Check(obj))
+	{
+		// PyLong_AsUnsignedLongLong only accepts PyLong objects.
+		// It doesn't try to use __index__, so let's do this explicitly.
+		TPyObjPtr o(PyNumber_Index(obj));
+		if (!o)
+		{
+			// PyErr_SetString(PyExc_TypeError, "not an integer");
+			return 1;
+		}
+		return PyExportTraits<unsigned PY_LONG_LONG>::get(o.get(), v);
+	}
+	v = PyLong_AsUnsignedLongLong(obj);
+	if (v == ((unsigned PY_LONG_LONG)-1) && PyErr_Occurred())
+	{
+		return 1;
+	}
+	return 0;
+#endif
 }
 
 #endif

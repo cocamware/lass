@@ -679,6 +679,28 @@ std::complex<float> testComplexFloatSingle(std::complex<float> v)
 	return v;
 }
 
+short testIntShort(short v)
+{
+	return v;
+}
+unsigned short testUIntShort(unsigned short v)
+{
+	return v;
+}
+
+#if HAVE_LONG_LONG
+
+long long testIntLongLong(long long v)
+{
+	return v;
+}
+unsigned long long testUIntLongLong(unsigned long long v)
+{
+	return v;
+}
+
+#endif
+
 std::chrono::system_clock::time_point testSystemClock(const std::chrono::system_clock::time_point& v)
 {
 	return v;
@@ -807,6 +829,13 @@ PY_MODULE_FUNCTION( embedding, testConstChar8Ptr )
 #endif
 PY_MODULE_FUNCTION( embedding, testFloatSingle )
 PY_MODULE_FUNCTION( embedding, testFloatDouble )
+PY_MODULE_FUNCTION( embedding, testComplexFloatSingle )
+PY_MODULE_FUNCTION( embedding, testIntShort )
+PY_MODULE_FUNCTION( embedding, testUIntShort )
+#if HAVE_LONG_LONG
+PY_MODULE_FUNCTION(embedding, testIntLongLong)
+PY_MODULE_FUNCTION(embedding, testUIntLongLong)
+#endif
 PY_MODULE_FUNCTION( embedding, testSystemClock )
 
 PY_MODULE_FUNCTION( embedding, testTuple )
@@ -964,6 +993,12 @@ void embeddingPostInject(PyObject*)
 #endif
 #if LASS_USE_OLD_EXPORTRAITS_COMPLEX
 		PY_MODULE_ADD_INTEGER_CONSTANT(embedding, "LASS_USE_OLD_EXPORTRAITS_COMPLEX", 1)
+#endif
+#if LASS_USE_OLD_EXPORTRAITS_INT
+		PY_MODULE_ADD_INTEGER_CONSTANT(embedding, "LASS_USE_OLD_EXPORTRAITS_INT", 1)
+#endif
+#ifdef HAVE_LONG_LONG
+	PY_MODULE_ADD_INTEGER_CONSTANT(embedding, "HAVE_LONG_LONG", 1)
 #endif
 #if LASS_HAVE_STD_U8STRING
 	PY_MODULE_ADD_INTEGER_CONSTANT( embedding, "LASS_HAVE_STD_U8STRING", 1 )
