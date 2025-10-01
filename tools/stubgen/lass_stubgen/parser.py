@@ -1165,22 +1165,14 @@ reference to a class defined in another file.
         return shadow_type
 
     def _parse_name(self, node: Cursor) -> str:
-        if node.kind.is_unexposed():
-            assert node.type.spelling in (
-                "const char *",
-                "std::string",
-                "const std::string",
-            )
-            children = list(node.get_children())
-            assert len(children) == 1
-            return self._parse_name(children[0])
-        if node.kind == CursorKind.CALL_EXPR:
-            assert node.spelling == "basic_string"
-            children = list(node.get_children())
-            return self._parse_name(children[0])
-        return string_literal(node)
+        s = self._parse_string(node)
+        assert s is not None
+        return s
 
     def _parse_doc(self, node: Cursor) -> str | None:
+        return self._parse_string(node)
+
+    def _parse_string(self, node: Cursor) -> str | None:
         if node.kind.is_unexposed():
             assert node.type.spelling in (
                 "const char *",
@@ -1191,14 +1183,16 @@ reference to a class defined in another file.
             if not children:
                 return None
             assert len(children) == 1
-            return self._parse_doc(children[0])
+            return self._parse_string(children[0])
         if node.kind == CursorKind.CALL_EXPR:
             assert node.spelling == "basic_string"
             children = list(node.get_children())
-            return self._parse_doc(children[0])
+            return self._parse_string(children[0])
         if node.kind == CursorKind.INTEGER_LITERAL:
             assert node.type.spelling == "int"
             assert node.spelling == ""
+            return None
+        if node.kind == CursorKind.CXX_NULL_PTR_LITERAL_EXPR:
             return None
         return string_literal(node)
 

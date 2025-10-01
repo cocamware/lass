@@ -370,7 +370,7 @@ Cyclic operator+(int a, const Cyclic& b) { return b + a; }
 Cyclic pow(const Cyclic& a, int b) { return Cyclic(num::pow(a.value(), b), a.period()); }
 Cyclic pow(const Cyclic& a, int b, int c) { return Cyclic(num::pow(a.value(), b), c); }
 
-PY_DECLARE_CLASS(Cyclic)
+PY_DECLARE_CLASS_DOC(Cyclic, nullptr)
 PY_CLASS_CONSTRUCTOR_2(Cyclic, int, int)
 PY_CLASS_MEMBER_R(Cyclic, value)
 PY_CLASS_MEMBER_R(Cyclic, period)
