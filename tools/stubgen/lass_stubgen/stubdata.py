@@ -610,9 +610,12 @@ class ConstDefinition:
 class EnumDefinition:
     py_name: str
     cpp_type: TypeInfo
+    base_py_type: str
     value_py_type: str
     values: dict[str, Any]
     doc: str | None = None
+    boundary: str | None = None
+    preamble: list[str] = field(default_factory=list)
     fully_qualified_name: str | None = None
 
     def __str__(self) -> str:
@@ -622,11 +625,16 @@ class EnumDefinition:
         dct: dict[str, Any] = {
             "py_name": self.py_name,
             "cpp_type": self.cpp_type.tojson(),
+            "base_py_type": self.base_py_type,
             "value_py_type": self.value_py_type,
             "values": self.values,
         }
         if self.doc is not None:
             dct["doc"] = self.doc
+        if self.boundary is not None:
+            dct["boundary"] = self.boundary
+        if self.preamble:
+            dct["preamble"] = self.preamble
         if self.fully_qualified_name is not None:
             dct["fully_qualified_name"] = self.fully_qualified_name
         return dct
@@ -637,12 +645,26 @@ class EnumDefinition:
             cpp_type = TypeInfo(cpp_name)
         else:
             cpp_type = TypeInfo.fromjson(data["cpp_type"])
+        value_py_type=data["value_py_type"]
+        if (base_py_type := data.get("base_py_type")) is None:
+            if value_py_type == "int":
+                base_py_type = "enum.IntEnum"
+            elif value_py_type == "str":
+                base_py_type = "enum.StrEnum"
+            else:
+                base_py_type = "enum.Enum"
+            preamble = ["import enum"]
+        else:
+            preamble = data.get("preamble", [])
         return cls(
             py_name=data["py_name"],
             cpp_type=cpp_type,
-            value_py_type=data["value_py_type"],
+            base_py_type=base_py_type,
+            value_py_type=value_py_type,
             values=data["values"],
             doc=data.get("doc"),
+            boundary=data.get("boundary"),
+            preamble=preamble,
             fully_qualified_name=data.get("fully_qualified_name"),
         )
 

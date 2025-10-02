@@ -73,14 +73,14 @@ namespace lass
 				return type;
 			}
 
-			TPyObjPtr makeIntEnumType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
+			TPyObjPtr makeIntEnumTypeImpl(const char* enumType, const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
 			{
 				TPyObjPtr enumMod(PyImport_ImportModule("enum"));
 				if (!enumMod)
 				{
 					return TPyObjPtr();
 				}
-				TPyObjPtr intEnumType(PyObject_GetAttrString(enumMod.get(), "IntEnum"));
+				TPyObjPtr intEnumType(PyObject_GetAttrString(enumMod.get(), enumType));
 				if (!intEnumType)
 				{
 					return TPyObjPtr();
@@ -110,6 +110,43 @@ namespace lass
 #endif
 
 				return type;
+			}
+
+			TPyObjPtr makeIntEnumType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
+			{
+				return makeIntEnumTypeImpl("IntEnum", name, std::move(enumerators), std::move(kwargs));
+			}
+
+			TPyObjPtr makeIntFlagType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs, FlagBoundary boundary)
+			{
+#if PY_VERSION_HEX < 0x030b0000 // < 3.11
+				if (boundary != FlagBoundary::Keep)
+				{
+					PyErr_SetString(PyExc_ValueError, "FlagBoundary other than KEEP is only supported on Python 3.11 and later");
+					return TPyObjPtr();
+				}
+#else
+				using TInt = std::underlying_type<FlagBoundary>::type;
+				constexpr TInt numBoundaries = 3;
+				const char* boundaries[numBoundaries] = { "KEEP", "STRICT", "CONFORM" };
+				LASS_ENFORCE(static_cast<TInt>(boundary) >= 0 && static_cast<TInt>(boundary) < numBoundaries);
+				const char* boundariesStr = boundaries[static_cast<TInt>(boundary)];
+				TPyObjPtr enumMod(PY_ENFORCE_POINTER(PyImport_ImportModule("enum")));
+				if (!enumMod)
+				{
+					return TPyObjPtr();
+				}
+				TPyObjPtr boundaryObj(PY_ENFORCE_POINTER(PyObject_GetAttrString(enumMod.get(), boundariesStr)));
+				if (!boundaryObj)
+				{
+					return TPyObjPtr();
+				}
+				if (PyDict_SetItemString(kwargs.get(), "boundary", boundaryObj.get()) != 0)
+				{
+					return TPyObjPtr();
+				}
+#endif
+				return makeIntEnumTypeImpl("IntFlag", name, std::move(enumerators), std::move(kwargs));
 			}
 
 			TPyObjPtr makeStrEnumType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)

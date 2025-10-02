@@ -55,10 +55,18 @@ namespace lass
 {
 	namespace python
 	{
+		enum class FlagBoundary
+		{
+			Keep,  ///< Out of range values are kept as-is
+			Strict, ///< Out of range values raise ValueError
+			Conform, ///< Out of range values are masked to valid range
+		};
+
 		namespace impl
 		{
 			LASS_PYTHON_DLL TPyObjPtr makeEnumType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs);
 			LASS_PYTHON_DLL TPyObjPtr makeIntEnumType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs);
+			LASS_PYTHON_DLL TPyObjPtr makeIntFlagType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs, FlagBoundary boundary=FlagBoundary::Keep);
 			LASS_PYTHON_DLL TPyObjPtr makeStrEnumType(const char* name, TPyObjPtr&& enumerators, TPyObjPtr&& kwargs);
 		}
 
@@ -156,8 +164,7 @@ namespace lass
 				TBase v;
 				if (PyExportTraits<TBase>::get(o.get(), v) != 0)
 				{
-					// by construction this should never happen
-					// o should always be the right type ...
+					// this can only happen for IntFlag with FlagBoundary::KEEP
 					return 1;
 				}
 				value = static_cast<TEnum>(v);
@@ -183,7 +190,7 @@ namespace lass
 					}
 				}
 
-				return impl::makeIntEnumType(name(), std::move(pyEnumerators), std::move(kwargs));
+				return this->doMakeEnumType(std::move(pyEnumerators), std::move(kwargs));
 			}
 
 			TPyObjPtr doValueObject(PyObject* obj) const override
@@ -208,8 +215,53 @@ namespace lass
 				return TPyObjPtr(PyObject_GetAttrString(o.get(), "value"));
 			}
 
+			virtual TPyObjPtr doMakeEnumType(TPyObjPtr&& enumerators, TPyObjPtr&& kwargs)
+			{
+				return impl::makeIntEnumType(this->name(), std::move(enumerators), std::move(kwargs));
+			}
+
 		private:
 			std::vector<Enumerator> enumerators_;
+		};
+
+		/** @ingroup Python
+		 * 
+		 *  C++ enums exported using IntFlagDefinition will generate a new
+		 *  enum type derived from enum.IntFlag. The values of the Python enum
+		 *  will map directly on the C++ enum values, but then names need to
+		 *  be defined at export.
+		 * 
+		 *  As enum.IntFlag is used, the Python enum instances will also be
+		 *  valid int instances, and int instances are accepted when converting
+		 *  from Python to C++.
+		 * 
+		 *  Because this defines a new type, it must be added to a module or
+		 *  other class.
+		 */
+		template <typename EnumType>
+		class IntFlagDefinition : public IntEnumDefinition<EnumType>
+		{
+		public:
+			using TEnum = typename IntFlagDefinition<EnumType>::TEnum;
+			using TBase = typename IntFlagDefinition<EnumType>::TBase;
+			using Enumerator = typename IntEnumDefinition<EnumType>::Enumerator;
+
+			using IntEnumDefinition<EnumType>::IntEnumDefinition; // inherit constructors
+
+			IntFlagDefinition(const char* name, const char* doc, FlagBoundary boundary, std::initializer_list<Enumerator> enumerators) :
+				IntEnumDefinition<EnumType>(name, doc, enumerators),
+				boundary_(boundary)
+			{
+			}
+
+		protected:
+			TPyObjPtr doMakeEnumType(TPyObjPtr&& enumerators, TPyObjPtr&& kwargs) override
+			{
+				return impl::makeIntFlagType(this->name(), std::move(enumerators), std::move(kwargs), boundary_);
+			}
+
+		private:
+			FlagBoundary boundary_ = FlagBoundary::Keep;
 		};
 
 		template <typename EnumType, typename ValueType>
@@ -424,6 +476,36 @@ namespace lass
 
 #define PY_DECLARE_INT_ENUM_EX(t_cppEnum) \
 	::lass::python::IntEnumDefinition<t_cppEnum> lass::python::PyExportTraits<t_cppEnum>::enumDefinition
+
+
+
+#define PY_SHADOW_INT_FLAG(dllInterface, t_cppEnum)\
+	namespace lass \
+	{ \
+	namespace python \
+	{ \
+		template <> \
+		struct PyExportTraits<t_cppEnum> \
+		{ \
+			using TEnum = t_cppEnum; \
+			using TEnumDefinition = IntFlagDefinition<TEnum>; \
+			static dllInterface TEnumDefinition enumDefinition; \
+			static PyObject* build(TEnum value) { return enumDefinition.build(value); } \
+			static int get(PyObject* obj, TEnum& value) { return enumDefinition.get(obj, value); } \
+		}; \
+	} \
+	} \
+	/**/
+
+#define PY_DECLARE_INT_FLAG_NAME(t_cppEnum, s_name) \
+	::lass::python::IntFlagDefinition<t_cppEnum> lass::python::PyExportTraits<t_cppEnum>::enumDefinition(s_name);
+
+#define PY_DECLARE_INT_FLAG_NAME_DOC(t_cppEnum, s_name, s_doc) \
+	::lass::python::IntFlagDefinition<t_cppEnum> lass::python::PyExportTraits<t_cppEnum>::enumDefinition(s_name, s_doc);
+
+#define PY_DECLARE_INT_FLAG_EX(t_cppEnum) \
+	::lass::python::IntFlagDefinition<t_cppEnum> lass::python::PyExportTraits<t_cppEnum>::enumDefinition
+
 
 
 #define PY_SHADOW_STR_ENUM(dllInterface, t_cppEnum)\

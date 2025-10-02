@@ -95,6 +95,7 @@ class Parser:
             "ModuleDefinition": self._handle_declare_module,
             "ClassDefinition": self._handle_declare_class,
             "IntEnumDefinition": self._handle_declare_enum,
+            "IntFlagDefinition": self._handle_declare_enum,
             "EnumDefinition": self._handle_declare_enum,
             "addFunctionDispatcher": self._handle_module_add_function,
             "addClass": self._handle_module_add_class,
@@ -367,29 +368,38 @@ class Parser:
         enum_definition = type_info(node)
         if enum_definition.name == "lass::python::IntEnumDefinition":
             assert node.spelling == "IntEnumDefinition"
+            base_py_type = "enum.IntEnum"
             value_py_type = "int"
         elif enum_definition.name == "lass::python::StrEnumDefinition":
             assert node.spelling == "EnumDefinition"
+            base_py_type = "enum.StrEnum"
             value_py_type = "str"
         elif enum_definition.name == "lass::python::EnumDefinition":
             assert node.spelling == "EnumDefinition"
+            base_py_type = "enum.Enum"
             value_py_type = "Any"
+        elif enum_definition.name == "lass::python::IntFlagDefinition":
+            assert node.spelling in ("IntEnumDefinition", "IntFlagDefinition")
+            base_py_type = "enum.IntFlag"
+            value_py_type = "int"
         else:
             return False
+
         assert enum_definition.args and enum_definition.args[0].args is None
         enum_type = enum_definition.args[0]
 
-        children = list(node.get_children())
-        assert 0 < len(children) <= 3
+        args = list(node.get_arguments())
+        assert 0 < len(args) <= 4
 
-        # zeroth child is the enum name
-        py_name = self._parse_name(children[0])
+        py_name = self._parse_name(args[0])
+        doc: str | None = None
+        boundary: str | None = None
+        init_list: Iterator[Cursor] = iter([])
 
-        if len(children) == 1:
-            doc = None
-            init_list = []
-        if len(children) == 2:
-            arg = children[1]
+        if len(args) == 1:
+            pass
+        if len(args) == 2:
+            arg = args[1]
             while arg.kind.is_unexposed():
                 arg = ensure_only_child(arg)
             if arg.kind == CursorKind.INIT_LIST_EXPR:
@@ -397,12 +407,17 @@ class Parser:
                 init_list = arg.get_children()
             else:
                 doc = self._parse_doc(arg)
-                init_list = []
-        else:
-            doc = self._parse_doc(children[1])
-            init_list = ensure_kind(
-                children[2], CursorKind.INIT_LIST_EXPR
-            ).get_children()
+                init_list = iter([])
+        elif len(args) == 3:
+            doc = self._parse_doc(args[1])
+            init_list = ensure_kind(args[2], CursorKind.INIT_LIST_EXPR).get_children()
+        elif len(args) == 4:
+            doc = self._parse_doc(args[1])
+            bound = ensure_kind(args[2], CursorKind.DECL_REF_EXPR).referenced
+            ensure_kind(bound, CursorKind.ENUM_CONSTANT_DECL)
+            assert canonical_type(bound).spelling == "lass::python::FlagBoundary"
+            boundary = f"enum.{bound.spelling.upper()}"
+            init_list = ensure_kind(args[3], CursorKind.INIT_LIST_EXPR).get_children()
 
         values = {}
         for init_list_expr in init_list:
@@ -429,9 +444,12 @@ class Parser:
             EnumDefinition(
                 py_name=py_name,
                 cpp_type=enum_type,
+                base_py_type=base_py_type,
+                boundary=boundary,
                 value_py_type=value_py_type,
                 values=values,
                 doc=doc,
+                preamble=["import enum"],
             )
         )
         return True

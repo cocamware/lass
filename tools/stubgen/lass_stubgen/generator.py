@@ -598,18 +598,14 @@ class StubGenerator:
         with_signature: bool,
     ) -> None:
         py_name = enum_def.py_name
+        base = enum_def.base_py_type
+        if base == "enum.StrEnum" and sys.version_info < (3, 11):
+            base = "str, enum.Enum"  # Python 3.10 and earlier do not have StrEnum
+        if enum_def.boundary:
+            base += f", boundary={enum_def.boundary}"
         value_py_type = enum_def.value_py_type
-        if value_py_type == "int":
-            base = "enum.IntEnum"
-        elif value_py_type == "str":
-            if sys.version_info < (3, 11):
-                base = "str, enum.Enum"  # Python 3.10 and earlier do not have StrEnum
-            else:
-                base = "enum.StrEnum"
-        else:
-            base = "enum.Enum"
         signature = f"  # {enum_def.cpp_type}" if with_signature else ""
-        preamble.append("import enum")
+        preamble.extend(enum_def.preamble)
 
         file.write(f"{' ' * indent}class {py_name}({base}):{signature}\n")
         if enum_def.doc:

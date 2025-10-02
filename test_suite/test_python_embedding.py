@@ -1533,6 +1533,97 @@ class TestEnum(unittest.TestCase):
             embedding.Bar.shapeOverload(((1, 2, 3), (4, 5, 6))), ((1, 2, 3), (4, 5, 6))
         )
 
+    def testIntFlag(self) -> None:
+        Breakfast = embedding.Breakfast
+        if sys.version_info < (3, 11):
+            self.assertListEqual(
+                list(Breakfast),
+                [
+                    Breakfast.EGG,
+                    Breakfast.BACON,
+                    Breakfast.SAUSAGE,
+                    Breakfast.SPAM,
+                    Breakfast.ALL,
+                ],
+            )
+        else:
+            self.assertListEqual(
+                list(Breakfast),
+                [
+                    Breakfast.EGG,
+                    Breakfast.BACON,
+                    Breakfast.SAUSAGE,
+                    Breakfast.SPAM,
+                ],
+            )
+        self.assertIsInstance(Breakfast.EGG, Breakfast)
+        self.assertIsInstance(Breakfast.BACON, Breakfast)
+        self.assertIsInstance(Breakfast.EGG, int)
+        self.assertIsInstance(Breakfast.BACON, int)
+        self.assertEqual(Breakfast.EGG.value, 1)
+        self.assertEqual(Breakfast.BACON.value, 2)
+        self.assertEqual(Breakfast.SAUSAGE.value, 4)
+        self.assertEqual(Breakfast.SPAM.value, 8)
+        self.assertEqual(Breakfast.ALL.value, 15)
+        self.assertEqual(Breakfast.EGG, 1)
+        self.assertEqual(Breakfast.BACON, 2)
+        self.assertEqual(Breakfast.SAUSAGE, 4)
+        self.assertEqual(Breakfast.SPAM, 8)
+        self.assertEqual(Breakfast.ALL, 15)
+        self.assertEqual(Breakfast(0), 0)
+        self.assertTrue(Breakfast.EGG)
+        self.assertFalse(Breakfast(0))
+        eggAndBacon = Breakfast.EGG | Breakfast.BACON
+        self.assertIs(eggAndBacon, Breakfast.EGG | Breakfast.BACON)
+        self.assertIsInstance(eggAndBacon, Breakfast)
+        self.assertIsInstance(eggAndBacon, int)
+        self.assertEqual(eggAndBacon.value, 3)
+        self.assertEqual(eggAndBacon, 3)
+        if not TYPE_CHECKING:
+            # These asserts are an arg-type error on Python 3.10, but not on 3.11 and
+            # later. Can't fix it for both, so avoid type checking it entirely.
+            self.assertIn(Breakfast.EGG, eggAndBacon)
+            self.assertIn(Breakfast.BACON, eggAndBacon)
+            self.assertNotIn(Breakfast.SAUSAGE, eggAndBacon)
+        self.assertEqual(Breakfast.EGG | Breakfast.SPAM, 9)
+        self.assertIs(Breakfast(7), Breakfast.EGG | Breakfast.BACON | Breakfast.SAUSAGE)
+        self.assertIs(
+            Breakfast.EGG | Breakfast.BACON | Breakfast.SAUSAGE | Breakfast.SPAM,
+            Breakfast.ALL,
+        )
+        self.assertIs(Breakfast.EGG & Breakfast.BACON, Breakfast(0))
+        outOfRange = Breakfast(1234)  # still allowed, because boundary=KEEP
+        self.assertIsInstance(outOfRange, Breakfast)
+        self.assertIsInstance(outOfRange, int)
+        self.assertEqual(outOfRange.value, 1234)
+        if not TYPE_CHECKING:
+            # These asserts are an arg-type error on Python 3.10, but not on 3.11 and
+            # later. Can't fix it for both, so avoid type checking it entirely.
+            self.assertIn(Breakfast.BACON, outOfRange)
+            self.assertNotIn(Breakfast.EGG, outOfRange)
+        with self.assertRaises(ValueError):
+            _ = Breakfast("EGG")  # type: ignore[arg-type]
+        self.assertIs(
+            embedding.orderBreakfast(Breakfast.BACON), Breakfast.BACON | Breakfast.SPAM
+        )
+        self.assertIs(
+            embedding.orderBreakfast(3),
+            Breakfast.EGG | Breakfast.BACON | Breakfast.SPAM,
+        )
+        self.assertIs(
+            embedding.orderBreakfast(
+                Breakfast.EGG | Breakfast.BACON | Breakfast.SAUSAGE
+            ),
+            Breakfast.ALL,
+        )
+        self.assertIs(embedding.orderBreakfast(0), Breakfast.SPAM)
+        with self.assertRaises(OverflowError):
+            _ = embedding.orderBreakfast(outOfRange)  # doesn't fit in C++ enum
+        with self.assertRaises(OverflowError):
+            _ = embedding.orderBreakfast(1234)  # doesn't fit in C++ enum
+        with self.assertRaises(TypeError):
+            _ = embedding.orderBreakfast("bacon")  # type: ignore[arg-type]
+
     def testOldFashionedEnum(self) -> None:
         self.assertEqual(
             embedding.testSomeEnum(embedding.INJECTED_ENUM_VALUE),

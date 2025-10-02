@@ -85,6 +85,15 @@ enum Color
 	BLUE, // = 3
 };
 
+enum Breakfast: unsigned char
+{
+	Egg = 0x01,
+	Bacon = 0x02,
+	Sausage = 0x04,
+	Spam = 0x08,
+	All = Egg | Bacon | Sausage | Spam
+};
+
 enum UnexportedEnum
 {
 	SOME_CONSTANT = 50,
@@ -409,6 +418,21 @@ lass::test::Color testColorOverload1(lass::test::Color color)
 std::string testColorOverload2(std::string s)
 {
 	return s;
+}
+
+
+PY_SHADOW_INT_FLAG(LASS_DLL_EXPORT, lass::test::Breakfast)
+PY_DECLARE_INT_FLAG_EX(lass::test::Breakfast)("Breakfast", nullptr, lass::python::FlagBoundary::Keep, {
+	{ "EGG", lass::test::Breakfast::Egg },
+	{ "BACON", lass::test::Breakfast::Bacon },
+	{ "SAUSAGE", lass::test::Breakfast::Sausage },
+	{ "SPAM", lass::test::Breakfast::Spam },
+	{ "ALL", lass::test::Breakfast::All },
+	});
+
+lass::test::Breakfast orderBreakfast(lass::test::Breakfast breakFast)
+{
+	return static_cast<lass::test::Breakfast>(breakFast | lass::test::Breakfast::Spam);
 }
 
 
@@ -863,6 +887,8 @@ PY_MODULE_FUNCTION( embedding, badColor )
 PY_MODULE_FUNCTION_NAME( embedding, testColorOverload1, "testColorOverload" )
 PY_MODULE_FUNCTION_NAME( embedding, testColorOverload2, "testColorOverload" )
 
+PY_MODULE_ENUM( embedding, lass::test::Breakfast )
+PY_MODULE_FUNCTION(embedding, orderBreakfast )
 
 PY_MODULE_ENTRYPOINT( embedding )
 
