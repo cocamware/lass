@@ -70,7 +70,7 @@ namespace prim
  *          @arg rOne: a intersection with @a t > @a tMin is found. @a t is assigned.
  *  
  *  @par Algorithm, based on ray/triangle intersection from:
- *  @arg Tomas Möller and Ben Trumbore.
+ *  @arg Tomas MÃ¶ller and Ben Trumbore.
  *	"Fast, minimum storage ray-triangle intersection."
  *	Journal of Graphics Tools, 2(1):21--28, 1997.
  *	http://www.graphics.cornell.edu/pubs/1997/MT97.html

@@ -253,7 +253,7 @@
  *
  *  @par TVector reject(const TVector& iVector):
  *  returns rejection of iVector by the plane.  This is already somewhat easier.  the rejection of
- *  iVector is that part of iVector that is parallel to the normal vector of the plane.  You can µ
+ *  iVector is that part of iVector that is parallel to the normal vector of the plane.  You can
  *  also say that it is the orthogonal projection of iVector on the normal vector.  Or the part of
  *  iVector that is orthogonal to the plane.   Again performance hit for Plane3DParametric because
  *  of the cartersian equation.

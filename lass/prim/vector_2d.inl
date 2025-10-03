@@ -317,7 +317,7 @@ const Vector2D<T> Vector2D<T>::reciprocal() const
 
 
 
-/** return the vector perpendicular to this one, 90° CCW (to the left).
+/** return the vector perpendicular to this one, 90Â° CCW (to the left).
  */
 template<typename T> inline
 const Vector2D<T> Vector2D<T>::perp() const
@@ -417,7 +417,7 @@ typename Vector2D<T>::TValue cos(const Vector2D<T>& a, const Vector2D<T>& b)
  *  @relates lass::prim::Vector2D
  *
  *  <i>The "perp dot product" for <b>a</b> and <b>b</b> vectors in the plane is a modification of
- *  the two-dimensional dot product in which a is replaced by the perpendicular vector rotated 90°
+ *  the two-dimensional dot product in which a is replaced by the perpendicular vector rotated 90Â°
  *  to the left defined by Hill (1994)</i>, http://mathworld.wolfram.com/PerpDotProduct.html.
  *
  *  It reminds a lot to the 3D cross product, as its result is equal to the z-value of the
