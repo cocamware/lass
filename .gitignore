@@ -43,6 +43,9 @@ __pycache__/
 /test_suite/test_util_callback.cpp
 /test_suite/embedding.pyi
 
+# ignore doxygen artifacts
+/docs/doxygen/html/
+
 # ignore intellisense in vscode
 /.vscode/ipch
 
