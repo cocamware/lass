@@ -56,7 +56,7 @@ namespace python
 
 /** std::monostate always maps to None
  *
- *  @ingroup Python
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<std::monostate>
@@ -175,7 +175,7 @@ struct PyExportTraitsVariantImpl<Variant>
  *    NOTE: std::pair and std::tuple are also sequences in Python. So
  *    std::pair<std::string, std::string> will match any two character string.
  *
- *  @ingroup Python
+ *  @ingroup PyExportTraits
  */
 template <typename... T>
 struct PyExportTraits< std::variant<T...> >

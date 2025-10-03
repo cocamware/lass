@@ -52,13 +52,13 @@ namespace lass
 namespace python
 {
 
-/** @ingroup Python
- *
- *  Uses None to represent a std::optional without value.
+/** Uses None to represent a std::optional without value.
  * 
  *  If None is also a valid value for the type T (such as pointers), then it
  *  will be impossible to differentiate between an unset std::optional, and
  *  a set std::optional with a value for None.
+ *
+ *  @ingroup PyExportTraits
  */
 template <typename T>
 struct PyExportTraits< std::optional<T> >
@@ -94,7 +94,7 @@ struct PyExportTraits< std::optional<T> >
 
 /** MaybeNone<std::optional<T>> type-hints a type as `T | MaybeNone`
  * 
- *  @ingroup Python
+ *  @ingroup PyExportTraits
  *  @sa MaybeNone
  *  @sa PyExportTraitsMaybeNone
  */

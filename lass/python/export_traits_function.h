@@ -143,9 +143,7 @@ private:
 
 }
 
-/** @ingroup Python
- *
- *  Bidirectional wrapper between Callable objects and std::function.
+/** Bidirectional wrapper between Callable objects and std::function.
  *
  *  Accepts Callable objects and wraps them in a std::function without checking the
  *  parameter types or return type, allowing to call them from C++. The parameters
@@ -157,13 +155,15 @@ private:
  *  checked when the function is called.
  *
  *  In both directions, unwrapping a previously wrapped function will be attempted.
- *  I.e. the std::function passed to Python already wraps a Callable Python object, this
- *  will be unwrapped and the Callable object will be passed back to Python. In the
+ *  I.e. if the std::function passed to Python already wraps a Callable Python object,
+ *  this will be unwrapped and the Callable object will be passed back to Python. In the
  *  other direction, if a Callable object that was passed to C++ already wraps a
  *  std::function, *and* this std::function matches the correct signature, then the
  *  std::function will be unwrapped and passed to C++. In other words, both directions
  *  will guarantee a perfect round trip if possible. In all other cases, the Callable
  *  or std::function will be wrapped in a new std::function or Callable object.
+ * 
+ *  @ingroup PyExportTraits
  */
 template <typename R, typename... Args>
 struct PyExportTraits< std::function<R(Args...)> >

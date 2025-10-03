@@ -55,9 +55,6 @@ namespace python
 namespace impl
 {
 
-/** @ingroup Python
- *  @internal
- */
 template <typename ObjectType, typename ExportTraits, size_t dimension = ObjectType::dimension>
 struct PyExportTraitsVectorPoint
 {
@@ -94,9 +91,6 @@ struct PyExportTraitsVectorPoint
 	}
 };
 
-/** @ingroup Python
- *  @internal
- */
 template < typename AabbType, typename ExportTraits >
 struct PyExportTraitsPrimAabb
 {
@@ -128,9 +122,6 @@ struct PyExportTraitsPrimAabb
 	}
 };
 
-/** @ingroup Python
- *  @internal
- */
 template < typename LineSegmentType, typename ExportTraits >
 struct PyExportTraitsPrimLineSegment
 {
@@ -152,9 +143,6 @@ struct PyExportTraitsPrimLineSegment
 	}
 };
 
-/** @ingroup Python
- *  @internal
- */
 template <typename TransformationType, typename ExporTraits>
 struct PyExportTraitsPrimTransformation
 {
@@ -215,9 +203,6 @@ struct PyExportTraitsPrimTransformation
 	}
 };
 
-/** @ingroup Python
- *  @internal
- */
 template <typename PolygonType, typename ExportTraits>
 struct PyExportTraitsPrimSimplePolygon
 {
@@ -243,9 +228,6 @@ struct PyExportTraitsPrimSimplePolygon
 	}
 };
 
-/** @ingroup Python
- *  @internal
- */
 template <typename AxisType, typename ExportTraits>
 struct PyExportTraitsPrimAxis
 {
@@ -297,8 +279,8 @@ namespace python
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_2D
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_2D
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::Vector2D<T> to a Python tuple of two elements of type T.
+ *  @ingroup PyExportTraits
  */
 template <typename T>
 struct PyExportTraits< prim::Vector2D<T> >:
@@ -319,8 +301,8 @@ struct PyExportTraits< prim::Vector2D<T> >:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_3D
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_3D
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::Vector3D<T> to a Python tuple of three elements of type T.
+ *  @ingroup PyExportTraits
  */
 template <typename T>
 struct PyExportTraits< prim::Vector3D<T> >:
@@ -340,8 +322,8 @@ struct PyExportTraits< prim::Vector3D<T> >:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_4D
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_VECTOR_4D
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::Vector4D<T> to a Python tuple of four elements of type T.
+ *  @ingroup PyExportTraits
  */
 template <typename T>
 struct PyExportTraits< prim::Vector4D<T> >:
@@ -364,8 +346,8 @@ struct PyExportTraits< prim::Vector4D<T> >:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_POINT_2D
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_POINT_2D
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::Point2D<T> to a Python tuple of two elements of type T.
+ *  @ingroup PyExportTraits
  */
 template <typename T>
 struct PyExportTraits< prim::Point2D<T> >:
@@ -386,8 +368,8 @@ struct PyExportTraits< prim::Point2D<T> >:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_POINT_3D
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_POINT_3D
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::Point3D<T> to a Python tuple of three elements of type T.
+ *  @ingroup PyExportTraits
  */
 template <typename T>
 struct PyExportTraits< prim::Point3D<T> >:
@@ -410,8 +392,8 @@ struct PyExportTraits< prim::Point3D<T> >:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AABB_2D
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AABB_2D
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::Aabb2D<T> to a Python tuple of two tuples of two elements of type T.
+ *  @ingroup PyExportTraits
  */
 template <typename T, typename MMP>
 struct PyExportTraits< prim::Aabb2D<T, MMP> >:
@@ -432,8 +414,8 @@ struct PyExportTraits< prim::Aabb2D<T, MMP> >:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AABB_3D
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_AABB_3D
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::Aabb3D<T> to a Python tuple of two tuples of three elements of type T.
+ *  @ingroup PyExportTraits
  */
 template <typename T, typename MMP>
 struct PyExportTraits< prim::Aabb3D<T, MMP> >:
@@ -458,8 +440,8 @@ struct PyExportTraits< prim::Aabb3D<T, MMP> >:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_LINE_SEGMENT_2D
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_LINE_SEGMENT_2D
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::LineSegment2D<T> to a Python tuple of two tuples of two elements of type T.
+ *  @ingroup PyExportTraits
  */
 template <typename T, typename PP>
 struct PyExportTraits< prim::LineSegment2D<T, PP> >:
@@ -480,8 +462,8 @@ struct PyExportTraits< prim::LineSegment2D<T, PP> >:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_LINE_SEGMENT_3D
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_LINE_SEGMENT_3D
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::LineSegment3D<T> to a Python tuple of two tuples of three elements of type T.
+ *  @ingroup PyExportTraits
  */
 template <typename T, typename PP>
 struct PyExportTraits< prim::LineSegment3D<T, PP> >:
@@ -506,8 +488,8 @@ struct PyExportTraits< prim::LineSegment3D<T, PP> >:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_TRANSFORMATION_2D
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_TRANSFORMATION_2D
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::Transformation2D<T> to a Python tuple of three tuples of three elements of type T.
+ *  @ingroup PyExportTraits
  */
 template <typename T>
 struct PyExportTraits< prim::Transformation2D<T> >: 
@@ -526,8 +508,8 @@ struct PyExportTraits< prim::Transformation2D<T> >:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_TRANSFORMATION_3D
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_TRANSFORMATION_3D
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::Transformation3D<T> to a Python tuple of four tuples of four elements of type T.
+ *  @ingroup PyExportTraits
  */
 template <typename T>
 struct PyExportTraits< prim::Transformation3D<T> >: 
@@ -556,8 +538,8 @@ struct PyExportTraits< prim::Transformation3D<T> >:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_SIMPLE_POLYGON_2D
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_SIMPLE_POLYGON_2D
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::SimplePolygon2D<T> to a Python sequence of tuples of two elements of type T.
+ *  @ingroup PyExportTraits
  */
 template <typename T, typename DP>
 struct PyExportTraits< prim::SimplePolygon2D<T, DP> >:
@@ -579,8 +561,8 @@ struct PyExportTraits< prim::SimplePolygon2D<T, DP> >:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_SIMPLE_POLYGON_3D
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_SIMPLE_POLYGON_3D
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::SimplePolygon3D<T> to a Python sequence of tuples of three elements of type T.
+ *  @ingroup PyExportTraits
  */
 template <typename T, typename DP>
 struct PyExportTraits< prim::SimplePolygon3D<T, DP> >:
@@ -609,8 +591,8 @@ struct PyExportTraits< prim::SimplePolygon3D<T, DP> >:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_XY
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_XY
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::XY to a Python string literal "x" or "y".
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<prim::XY>:
@@ -627,8 +609,8 @@ struct PyExportTraits<prim::XY>:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_XYZ
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_XYZ
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::XYZ to a Python string literal "x", "y" or "z".
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<prim::XYZ>:
@@ -645,8 +627,8 @@ struct PyExportTraits<prim::XYZ>:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_XYZW
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_XYZW
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::XYZW to a Python string literal "x", "y", "z" or "w".
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<prim::XYZW>:
@@ -665,8 +647,8 @@ struct PyExportTraits<prim::XYZW>:
 #	ifndef LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_COLOR_RGBA
 #	define LASS_GUARDIAN_OF_INCLUSION_PYTHON_EXPORT_TRAITS_PRIM_H_COLOR_RGBA
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::ColorRGBA to a Python tuple of four elements of type float.
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<prim::ColorRGBA>
@@ -707,8 +689,19 @@ namespace impl
 {
 }
 
-/** @ingroup Python
- *  @internal
+/** Maps prim::IndexTriangle to a Python tuple of three index vertices.
+ * 
+ *  An index vertex is a tuple of one, two or three size_t values:
+ *  - (vertex,)
+ *  - (vertex, normal)
+ *  - (vertex, normal, uv)
+ *  where 'vertex', 'normal' and 'uv' are indices in the corresponding arrays.
+ *  The indices are zero-based.
+ *
+ *  The 'normal' and 'uv' indices can be None to indicate that no normal or uv is specified.
+ *  The vertex index is mandatory.
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<prim::IndexTriangle>

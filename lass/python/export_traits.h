@@ -57,12 +57,241 @@ namespace lass
 namespace python
 {
 
+/** @defgroup PyExportTraits
+ *  @ingroup Python
+ *  @brief Traits to convert between C++ and Python types
+ * 
+ *  `PyExportTraits<T>` is a central part of the Lass Python binding system.
+ *  It defines how to convert between a C++ type `T` and a corresponding Python object.
+ *  It also provides type hinting information for Python type annotations.
+ * 
+ *  Client code will not usually use these traits directly, but rather use the functions
+ *  `pyBuildSimpleObject()` and `pyGetSimpleObject()`:
+ * 
+ *  ```
+ *  TPyObjPtr pyObj( pyBuildSimpleObject(cppValue) );
+ *  if (!pyObj)
+ *    // error occurred, Python exception set
+ *  
+ *  T cppValue2;
+ *  if (pyGetSimpleObject(pyObj.get(), cppValue2) != 0)
+ *    // error occurred, Python exception set
+ *  ```
+ * 
+ *  A well-defined `PyExportTraits<T>` specialization provides the following parts,
+ *  all of which are optional:
+ *  
+ *  - Python type hinting information: `py_typing`, `py_typing_param`, `py_typing_preamble`
+ *  - A static method `build(const T& value)` that converts a C++ value to a new Python object.
+ *  - A static method `get(PyObject* obj, T& value)` that converts a Python object to a C++ value.
+ * 
+ *  ```
+ *  template <typename T>
+ *  struct PyExportTraits<Spam<T>>
+ *  {
+ *      constexpr static const char* py_typing = "Spam[T]";
+ *      constexpr static const char* py_typing_param = "_Spam[T]";
+ *      constexpr static const char* py_typing_preamble = "type _Spam[T] = Spam[T] | T";
+ *
+ *      static PyObject* build(const Spam<T> &value)
+ *      {
+ *          // Construct PyObject from value and return new reference.
+ *          // Or set Python error and return nullptr on failure.
+ *      }
+ *      static int get(PyObject* obj, Spam<T>& value)
+ *      {
+ *          // Extract and set value from obj, and return 0 on success.
+ *          // Or set Python error and return -1 on failure.
+ *      }
+ *  }
+ *  ```
+ *
+ *
+ *
+ *  ### Building Python objects from C++ values
+ * 
+ *  The `build()` method should return a new reference to a Python object that represents the C++
+ *  value passed as argument. If the conversion fails, it should set a Python exception and
+ *  return nullptr. 
+ * 
+ *  Its return type must be `PyObject*`, and it must accept a single argument of type `const T&`.
+ * 
+ *  If a `PyExportTraits<T>` specialization does not provide a `build()` method, then the C++
+ *  type cannot be converted to Python. This is only useful for types that can only be used as
+ *  function parameters, but not as return values or attributes.
+ * 
+ *  Client code will usually not call the `build()` method directly, but rather use the
+ *  `pyBuildSimpleObject()` function, which will call the `build()` method internally.
+ *
+ *
+ *
+ *  ### Getting C++ values from Python objects
+ * 
+ *  The `get()` method should extract the C++ value from the Python object passed as argument,
+ *  and store it in the second argument passed by reference. If the conversion is successful,
+ *  it should return 0. If the conversion fails, it should set a Python exception and return 1.
+ * 
+ *  The first argument must be of type `PyObject*`, and the `get()` shall _not_ eat a reference.
+ *  In other words, the `get()` method gets a borrowed reference to the Python object.
+ * 
+ *  The second argument must be of type `T&`, and the `get()` method should set this value if
+ *  conversion is successful.
+ * 
+ *  @note Some types cannot define a meaningful `get()` method, such as types that cannot be
+ *  default-constructed, or types that don't have a well-defined lifetime, such as `char*` strings.
+ *  In such cases, the `PyExportTraits<T>` specialization should not provide a `get()` method.
+ *  But that does not mean that these types cannot be used as function parameters. By specializing
+ *  `ArgumentTraits` for these types, you can still support them as function parameters, and it may
+ *  still make sense to define `py_typing_param` for type hinting. See `ArgumentTraits` for more
+ *  details on techniques to support such types as function parameters.
+ *
+ *
+ * 
+ *  ### Type Hinting
+ * 
+ *  The three type hinting members are used in combination with lass_stubgen to automatically 
+ *  generate Python stub files (.pyi) that provide type hinting information for Python extension
+ *  modules that use the Lass binding system.
+ * 
+ *  All three members are of type `constexpr static const char*`, and are optional:
+ * 
+ *  - `py_typing`: the type in Python typing syntax.
+ *  - `py_typing_param`: the Python type when used as a function parameter.
+ *  - `py_typing_preamble`: additional Python code that needs to be included to support the type
+ *                          hinting, such as type aliases or imports.
+ *
+ *
+ *  #### `py_typing`
+ * 
+ *  To generate useful type hints, you need to provide at least the `py_typing` member. This should
+ *  be a string that describes the type in Python typing syntax. For example, for the C++ type 
+ *  `prim::ColorRGBA` will always convert to a tuple of 4 floats `(r, g, b, a)`, and can be
+ *  described as:
+ *  ```
+ *  template <>
+ *  struct PyExportTraits<prim::ColorRGBA>
+ *  {
+ *      constexpr static const char* py_typing = "tuple[float, float, float, float]";
+ *  };
+ *  ```
+ *
+ * 
+ *  #### `py_typing_param`
+ * 
+ *  When `py_typing_param` is provided, it will be used instead of `py_typing` when the type is used
+ *  as a function parameter. This is useful for types that can be converted from additional types
+ *  when used as a parameter. For example, `prim::ColorRGBA` will always convert to a tuple of 4
+ *  floats `(r, g, b, a)` when returned from a function, but it will also accept `(r, g, b), a tuple
+ *  of 3 floats without the alpha channel `(r, g, b)` as argument:
+ *  ```
+ *  template <>
+ *  struct PyExportTraits<prim::ColorRGBA>
+ *  {
+ *      constexpr static const char* py_typing = "tuple[float, float, float, float]";
+ *      constexpr static const char* py_typing_param = "tuple[float, float, float, float] | tuple[float, float, float]";
+ *  };
+ *  ```
+ *
+ *
+ *  #### `py_typing_preamble`
+ * 
+ *  `py_typing_preamble` can be used to provide additional Python code that needs to be added to the
+ *  generated stub files to support the type hinting. This can be used to define type aliases to
+ *  make the type hints more readable. For example, for `prim::ColorRGBA`, we define two aliases
+ *  `_RGBA` and `_RGB` to make the type hints more readable. The preamble can consist of multiple
+ *  lines, separated by newline characters. Each type alias will be of the form `type _Name = ...`:
+ *  ```
+ *  template <>
+ *  struct PyExportTraits<prim::ColorRGBA>
+ *  {
+ *      constexpr static const char* py_typing = "_RGBA";
+ *      constexpr static const char* py_typing_param = "_RGBA | _RGB";
+ *      constexpr static const char* py_typing_preamble =
+ *          "type _RGBA = tuple[float, float, float, float]\n"
+ *          "type _RGB = tuple[float, float, float]";
+ *  };
+ *  ```
+ *
+ *  The preamble can also be used to include necessary imports. For example, `std::filesystem::path`
+ *  is mapped to `pathlib.Path` in Python, so the `pathlib` module needs to be imported. And as 
+ *  parameter, it also accepts `str` and `bytes`, or anything that implements the `os.PathLike`
+ *  for which the `StrOrBytesPath` type alias from the `_typeshed` module is used:
+ * 
+ *  ```
+ *  template <>
+ *  struct PyExportTraits<std::filesystem::path>
+ *  {
+ *      constexpr static const char* py_typing = "pathlib.Path";
+ *      constexpr static const char* py_typing_param = "StrOrBytesPath";
+ *      constexpr static const char* py_typing_preamble = "import pathlib\nfrom _typeshed import StrOrBytesPath";
+ *  };
+ *  ```
+ * 
+ *  @note Type-aliases should start with an underscore to indicate they are private and not really
+ *        part of the module API. They only exist for the purpose of type hinting and checking.
+ *        Attempting to import them at runtime will result in a failure, unless you hide the code
+ *        in a `if TYPE_CHECKING:` block.
+ *        See https://docs.python.org/3/library/typing.html#typing.TYPE_CHECKING
+ *
+ *  @note It is also *your* responsibility to ensure that the type aliases do not conflict with any
+ *        other names in the module or in the Python standard library.
+ *
+ *  @note The preamble can only contain type aliases and imports.
+ *
+ *
+ *  #### Partial Specializations
+ *
+ *  If a `PyExportTraits` is partially specialized, such as for template classes, then the
+ *  template parameters can be used in the `py_typing` and `py_typing_param` members. They will be
+ *  substituted with the corresponding Python type hints of the template parameters. For example:
+ *  for the C++ type `std::pair<T, U>` translates to a Python tuple of two elements, and is
+ *  described as:
+ *  ```
+ *  template <typename T, typename U>
+ *  struct PyExportTraits<std::pair<T, U>>
+ *  {
+ *      constexpr static const char* py_typing = "tuple[T, U]";
+ *  };
+ *  ```
+ * 
+ *  When substituing template parameters in the context of function parameters, then
+ *  `py_typing_param` is used if the template argument defines it, even if the top-level
+ *  `PyExportTraits` specialization only defines `py_typing`. For example, `std::pair<T, U>` only
+ *  defines `py_typing`, but `float` defines the alias `_Float` as `py_typing_param`. So a
+ *  function taking `std::pair<float, float>` as a parameter would have the following type hint:
+ *  ```
+ *  def func(param: tuple[_Float, _Float]) -> None:
+ *      ...
+ *  ```
+ * 
+ *  But sometimes, you really want to substitute the template parameters by their `py_typing` type,
+ *  even in the context of function parameters. In that case, you can add an exlamation mark `!`
+ *  after the template parameter name as special syntax to indicate that you always want to replace
+ *  it by its `py_typing` type.
+ * 
+ *  One example where this is useful is callable types, such as `std::function<R(T, U)>`. What
+ *  you're really saying when a function takes a `std::function<R(T, U)>` as parameter, is that
+ *  it takes a callable that accepts two parameters of type `T` and `U`, and that you will call
+ *  that callable from C++, you are providing the arguments of type `T` and `U` from C++ to Python,
+ *  similar like returning values from a normal function. So in this case, you want the types of
+ *  the T and U arguments to be substituted by their `py_typing` type, not their `py_typing_param`
+ *  type. So you would define the `PyExportTraits` specialization as:
+ *  ```
+ *  template <typename R, typename T, typename U>
+ *  struct PyExportTraits<std::function<R(T, U)>>
+ *  {
+ *      constexpr static const char* py_typing = "Callable[[T!, U!], R!]";
+ *  };
+ *  ```
+ */
+
+
 namespace impl
 {
 	template <typename T> struct ShadowTraits;
 
 	template <typename In, typename Out>
-	int pyNumCast(In in, Out& out)
+	[[deprecated]] int pyNumCast(In in, Out& out)
 	{
 		try
 		{
@@ -91,7 +320,7 @@ namespace impl
 }
 
 /** by copy, general case assumes shadow type or PyObjectPlus based type.
- *	@ingroup Python
+ *	@ingroup PyExportTraits
  */
 template <typename T> 
 struct PyExportTraits
@@ -108,7 +337,7 @@ struct PyExportTraits
 };
 
 /** constant objects can only be build.
- *	@ingroup Python
+ *	@ingroup PyExportTraits
  */
 template <typename T>
 struct PyExportTraits<const T>
@@ -122,6 +351,8 @@ struct PyExportTraits<const T>
 
 // --- pointers ------------------------------------------------------------------------------------
 
+/** @ingroup PyExportTraits
+ */
 template <typename T>
 struct PyExportTraits< T* >
 {
@@ -146,7 +377,14 @@ struct PyExportTraits< T* >
 };
 
 /** SharedPtr assumes shadow types or PyObjectPlus types.
- *  @ingroup Python
+ * 
+ *  If it's a nullptr, it is mapped to `None`.
+ *  Otherwise, it is mapped to the actual Python object, increasing the reference count.
+ * 
+ *  When getting a SharedPtr from Python, `None` is mapped to a nullptr.
+ *  Otherwise it has to be of the correct type, and the SharedPtr will share ownership of the object.
+ *
+ *  @ingroup PyExportTraits
  */
 template <typename T, template <typename, typename> class S, typename C>
 struct PyExportTraits< util::SharedPtr<T, S, C> >
@@ -174,7 +412,16 @@ struct PyExportTraits< util::SharedPtr<T, S, C> >
 	}
 };
 
-/** @ingroup Python
+
+/** A shared `PyObject` pointer is mapped to `Any` in Python.
+ * 
+ *  If it's a nullptr, it is mapped to `None`.
+ *  Otherwise, it is mapped to the actual Python object, increasing the reference count.
+ * 
+ *  When getting a `PyObject` pointer from Python, `None` is mapped to a nullptr,
+ *  so you can never get `Py_None` as a TPyObjPtr value.
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<TPyObjPtr>
@@ -200,8 +447,8 @@ struct PyExportTraits<TPyObjPtr>
 	}
 };
 
-/** @ingroup Python
- *  @internal
+
+/** @ingroup PyExportTraits
  */
 /*
 template <typename T>
@@ -236,8 +483,9 @@ struct PyExportTraits< util::SharedPtr<T, PyObjectStorage, PyObjectCounter> >
 };
 */
 
+
 /** std::unique_ptr assumes shadow types
-*  @ingroup Python
+*  @ingroup PyExportTraits
 */
 template <typename T, typename Deleter>
 struct PyExportTraits< std::unique_ptr<T, Deleter> >
@@ -255,8 +503,9 @@ struct PyExportTraits< std::unique_ptr<T, Deleter> >
 	}
 };
 
+
 /** std::shared_ptr assumes shadow types.
- *  @ingroup Python
+ *  @ingroup PyExportTraits
  */
 template <typename T>
 struct PyExportTraits< std::shared_ptr<T> >
@@ -286,8 +535,7 @@ struct PyExportTraits< std::shared_ptr<T> >
 
 // --- void ptrs ------------------------------------------------------------------------------------
 
-/** @ingroup Python
- *  @internal
+/** @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<void*>
@@ -300,8 +548,7 @@ struct PyExportTraits<void*>
 
 
 
-/** @ingroup Python
- *  @internal
+/** @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<std::nullptr_t>
@@ -338,7 +585,7 @@ struct PyExportTraits<std::nullptr_t>
  *  Python type will automatically be deduced. If not, or if you still see a `T | None` type-hint,
  *  you can can override the `py_typing` member to specify the type-hint you want.
  *
- *  @ingroup Python
+ *  @ingroup PyExportTraits NoNone
  *  @sa NoNone
  *  @sa PyExportTraits<NoNone<T*>>
  *  @sa PyExportTraits<NoNone<util::SharedPtr<T,S,C>>>
@@ -374,7 +621,7 @@ struct PyExportTraitsNoNone
 
 /** NoNone<T*> type-hints as `T` and refuses `None` as value.
  *
- *  @ingroup Python
+ *  @ingroup PyExportTraits NoNone
  *  @sa NoNone
  *  @sa PyExportTraitsNoNone
  */
@@ -385,7 +632,7 @@ struct PyExportTraits< NoNone<T*> > : public PyExportTraitsNoNone<T*>
 
 /** Type-hints NoNone<util::SharedPtr<T>> as `T` and refuses `None` as value.
  *
- *  @ingroup Python
+ *  @ingroup PyExportTraits NoNone
  *  @sa NoNone
  *  @sa util::SharedPtr
  *  @sa PyExportTraitsNoNone
@@ -397,7 +644,7 @@ struct PyExportTraits< NoNone< util::SharedPtr<T, S, C> > > : public PyExportTra
 
 /** NoNone<std::shared_ptr<T>> type-hints as `T` and refuses `None` as value.
  *
- *  @ingroup Python
+ *  @ingroup PyExportTraits NoNone
  *  @sa NoNone
  *  @sa PyExportTraitsNoNone
  */
@@ -437,7 +684,7 @@ struct PyExportTraits< NoNone< std::shared_ptr<T> > > : public PyExportTraitsNoN
  * 
  *  [The Any Trick]: https://typing.python.org/en/latest/guides/writing_stubs.html#the-any-trick
  *
- *  @ingroup Python
+ *  @ingroup PyExportTraits
  *  @sa MaybeNone
  *  @sa PyExportTraits<MaybeNone<T*>>
  *  @sa PyExportTraits<MaybeNone<util::SharedPtr<T,S,C>>>
@@ -458,7 +705,7 @@ struct PyExportTraitsMaybeNone
 
 /** MaybeNone<T*> type-hints a type as `T | MaybeNone`
  * 
- *  @ingroup Python
+ *  @ingroup PyExportTraits
  *  @sa MaybeNone
  *  @sa PyExportTraitsMaybeNone
  */
@@ -469,7 +716,7 @@ struct PyExportTraits< MaybeNone<T*> > : public PyExportTraitsMaybeNone<T*>
 
 /** MaybeNone<util::SharedPtr<T>> type-hints a type as `T | MaybeNone`
  * 
- *  @ingroup Python
+ *  @ingroup PyExportTraits
  *  @sa MaybeNone
  *  @sa util::SharedPtr
  *  @sa PyExportTraitsMaybeNone
@@ -481,7 +728,7 @@ struct PyExportTraits< MaybeNone< util::SharedPtr<T, S, C> > > : public PyExport
 
 /** MaybeNone<std::shared_ptr<T>> type-hints a type as `T | MaybeNone`
  * 
- *  @ingroup Python
+ *  @ingroup PyExportTraits
  *  @sa MaybeNone
  *  @sa PyExportTraitsMaybeNone
  */
@@ -496,7 +743,7 @@ struct PyExportTraits< MaybeNone< std::shared_ptr<T> > > : public PyExportTraits
 
 /** Self<T> type-hints as `Self`.
  *
- *  @ingroup Python
+ *  @ingroup PyExportTraits
  *  @sa Self
  */
 template <typename T>
@@ -514,8 +761,7 @@ struct PyExportTraits< Self<T> > : public PyExportTraits<T>
 
 // --- booleans ------------------------------------------------------------------------------------
 
-/** @ingroup Python
- *  @internal
+/** @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<bool>
@@ -530,7 +776,10 @@ struct PyExportTraits<bool>
 // --- signed integers -----------------------------------------------------------------------------
 
 /** Helper class to create PyExportTraits for signed integers
- *  @ingroup Python
+ *
+ *  An `OverflowError` will be set when trying to get a value that is out of range.
+ *
+ *  @ingroup PyExportTraits
  */
 template <typename Integer>
 struct PyExportTraitsSigned
@@ -600,28 +849,44 @@ struct PyExportTraitsSigned
 	}
 };
 
-/** @ingroup Python
+/** `signed char` is mapped to Python `int`
+ *
+ *  An `OverflowError` will be set when trying to get a value that is out of range.
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<signed char>: PyExportTraitsSigned<signed char>
 {
 };
 
-/** @ingroup Python
+/** `signed short` is mapped to Python `int`
+ *
+ *  An `OverflowError` will be set when trying to get a value that is out of range.
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<signed short>: PyExportTraitsSigned<signed short>
 {
 };
 
-/** @ingroup Python
+/** `signed int` is mapped to Python `int`
+ *
+ *  An `OverflowError` will be set when trying to get a value that is out of range.
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<signed int>: PyExportTraitsSigned<signed int>
 {
 };
 
-/** @ingroup Python
+/** `signed long` is mapped to Python `int`
+ *
+ *  An `OverflowError` will be set when trying to get a value that is out of range.
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<signed long>: PyExportTraitsSigned<signed long>
@@ -633,7 +898,10 @@ struct PyExportTraits<signed long>: PyExportTraitsSigned<signed long>
 // --- unsigned integers ---------------------------------------------------------------------------
 
 /** Helper class to create PyExportTraits for unsigned integers
- *  @ingroup Python
+ *
+ *  An `OverflowError` will be set when trying to get a value that is out of range.
+ *
+ *  @ingroup PyExportTraits
  */
 template <typename Integer>
 struct PyExportTraitsUnsigned
@@ -704,28 +972,44 @@ struct PyExportTraitsUnsigned
 	}
 };
 
-/** @ingroup Python
+/** `unsigned char` is mapped to Python `int`
+ *
+ *  An `OverflowError` will be set when trying to get a value that is out of range.
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<unsigned char>: PyExportTraitsUnsigned<unsigned char>
 {
 };
 
-/** @ingroup Python
+/** `unsigned short` is mapped to Python `int`
+ *
+ *  An `OverflowError` will be set when trying to get a value that is out of range.
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<unsigned short>: PyExportTraitsUnsigned<unsigned short>
 {
 };
 
-/** @ingroup Python
+/** `unsigned int` is mapped to Python `int`
+ *
+ *  An `OverflowError` will be set when trying to get a value that is out of range.
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<unsigned int>: PyExportTraitsUnsigned<unsigned int>
 {
 };
 
-/** @ingroup Python
+/** `unsigned long` is mapped to Python `int`
+ *
+ *  An `OverflowError` will be set when trying to get a value that is out of range.
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<unsigned long>: PyExportTraitsUnsigned<unsigned long>
@@ -736,7 +1020,11 @@ struct PyExportTraits<unsigned long>: PyExportTraitsUnsigned<unsigned long>
 
 #ifdef HAVE_LONG_LONG
 
-/** @ingroup Python
+/** `signed long long` is mapped to Python `int`
+ *
+ *  An `OverflowError` will be set when trying to get a value that is out of range.
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<signed PY_LONG_LONG>
@@ -747,7 +1035,11 @@ struct PyExportTraits<signed PY_LONG_LONG>
 	LASS_PYTHON_DLL static int get(PyObject* obj, signed PY_LONG_LONG& v);
 };
 
-/** @ingroup Python
+/** `unsigned long long` is mapped to Python `int`
+ *
+ *  An `OverflowError` will be set when trying to get a value that is out of range.
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<unsigned PY_LONG_LONG>
@@ -765,7 +1057,7 @@ struct PyExportTraits<unsigned PY_LONG_LONG>
 // --- floating point numbers ----------------------------------------------------------------------
 
 /** Helper class to create PyExportTraits for floating point numbers
- *  @ingroup Python
+ *  @ingroup PyExportTraits
  */
 template <typename Float>
 struct PyExportTraitsFloat
@@ -827,21 +1119,50 @@ struct PyExportTraitsFloat
 	}
 };
 
-/** @ingroup Python
+/** `float` is mapped to Python `float` type, which is a C `double`.
+ *
+ *  As argument, other Python types than `float` are also accepted, as long as they can be
+ *  converted to a floating point number, i.e. `int`, and any type implementing the `__float__` or
+ *  `__index__` methods.
+ *
+ *  @note This means that precision may be lost when converting from a Python `float` to a
+ *        C++ `float`, similar to converting from a `double` to a `float` using a static cast:
+ *        `static_cast<float>(doubleValue)`. No exception is raised in this case.
+ *
+ *  @sa PyExportTraitsFloat
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<float>: PyExportTraitsFloat<float>
 {
 };
 
-/** @ingroup Python
+/** `double` is mapped to Python `float` type, which is also a C `double`.
+ *
+ *  As argument, other Python types than `float` are also accepted, as long as they can be
+ *  converted to a floating point number, i.e. `int`, and any type implementing the `__float__` or
+ *  `__index__` methods.
+ *
+ * @sa PyExportTraitsFloat
+ * @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<double>: PyExportTraitsFloat<double>
 {
 };
 
-/** @ingroup Python
+/** `long double` is mapped to Python `float` type, which is a C `double`.
+ *
+ *  As argument, other Python types than `float` are also accepted, as long as they can be
+ *  converted to a floating point number, i.e. `int`, and any type implementing the `__float__` or
+ *  `__index__` methods.
+ *
+ * @note This means that precision may be lost when converting from a C++ `long double` to a
+ *       Python `float`, similar to converting from a `long double` to a `double` using a static
+ *       cast: `static_cast<double>(longDoubleValue)`. No exception is raised in this case.
+ *
+ * @sa PyExportTraitsFloat
+ * @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<long double>: PyExportTraitsFloat<long double>
@@ -852,7 +1173,18 @@ struct PyExportTraits<long double>: PyExportTraitsFloat<long double>
 
 // --- complex numbers -----------------------------------------------------------------------------
 
-/** @ingroup Python
+/** `std::complex<T>` is always mapped to Python `complex` type.
+ *
+ *  As argument, other Python types than `complex` are also accepted, as long as they can be
+ *  converted to a complex number, i.e. `int`, `float`, and any type implementing the `__complex__`,
+ *  `__float__`, or `__index__` methods.
+ *
+ *  @note The Python `complex` type uses C `double` precision for both real and imaginary parts,
+ *        meaning that precision may be lost when converting to a `std::complex<float>` or from a
+ *        `std::complex<long double>`, similar to using `static_cast` to convert between floating
+ *        point types. No exception is raised in this case.
+ *
+ *  @ingroup PyExportTraits
  */
 template <typename T>
 struct PyExportTraits< std::complex<T> >
@@ -910,7 +1242,12 @@ struct PyExportTraits< std::complex<T> >
 
 // --- strings -------------------------------------------------------------------------------------
 
-/** @ingroup Python
+/** `std::basic_string_view<T>` is mapped to Python `str`
+ *
+ * There's no `get()` function as lifetime is not managed, but you can still use
+ * `std::basic_string_view<T>` as function parameters as `ArgumentTraits` is specialized for it.
+ *
+ * @ingroup PyExportTraits
  */
 template <typename T>
 struct PyExportTraits<std::basic_string_view<T>>
@@ -924,7 +1261,7 @@ struct PyExportTraits<std::basic_string_view<T>>
 };
 
 
-/** @ingroup Python
+/** @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<const char*>
@@ -935,7 +1272,7 @@ struct PyExportTraits<const char*>
 };
 
 
-/** @ingroup Python
+/** @ingroup PyExportTraits
  */
 template <size_t N>
 struct PyExportTraits<const char [N]>
@@ -948,7 +1285,7 @@ struct PyExportTraits<const char [N]>
 };
 
 
-/** @ingroup Python
+/** @ingroup PyExportTraits
  */
 template <size_t N>
 struct PyExportTraits<char [N]> : PyExportTraits<const char [N]>
@@ -956,7 +1293,7 @@ struct PyExportTraits<char [N]> : PyExportTraits<const char [N]>
 };
 
 
-/** @ingroup Python
+/** @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<std::string>
@@ -968,7 +1305,7 @@ struct PyExportTraits<std::string>
 };
 
 
-/** @ingroup Python
+/** @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<const wchar_t*>
@@ -979,7 +1316,7 @@ struct PyExportTraits<const wchar_t*>
 };
 
 
-/** @ingroup Python
+/** @ingroup PyExportTraits
  */
 template <size_t N>
 struct PyExportTraits<const wchar_t [N]>
@@ -991,7 +1328,7 @@ struct PyExportTraits<const wchar_t [N]>
 };
 
 
-/** @ingroup Python
+/** @ingroup PyExportTraits
  */
 template <size_t N>
 struct PyExportTraits<wchar_t [N]>: PyExportTraits<const wchar_t [N]>
@@ -999,7 +1336,7 @@ struct PyExportTraits<wchar_t [N]>: PyExportTraits<const wchar_t [N]>
 };
 
 
-/** @ingroup Python
+/** @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<std::wstring>
@@ -1014,7 +1351,14 @@ struct PyExportTraits<std::wstring>
 #if LASS_HAVE_STD_U8STRING
 #if __cpp_lib_char8_t
 
-/** @ingroup Python
+/** UTF-8 `const char8_t*` string is mapped to Python `str | None`, as it can be null.
+ *
+ * An empty string is mapped to an empty Python string, not to `None`.
+ *
+ * There's no `get()` function as lifetime is not managed, but you can still use `const char8_t*`
+ * as function parameters as `ArgumentTraits` is specialized for it.
+ *
+ * @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<const char8_t*>
@@ -1025,7 +1369,7 @@ struct PyExportTraits<const char8_t*>
 };
 
 
-/** @ingroup Python
+/** @ingroup PyExportTraits
  */
 template <size_t N>
 struct PyExportTraits<const char8_t[N]>
@@ -1037,7 +1381,7 @@ struct PyExportTraits<const char8_t[N]>
 };
 
 
-/** @ingroup Python
+/** @ingroup PyExportTraits
  */
 template <size_t N>
 struct PyExportTraits<char8_t[N]> : PyExportTraits<const char8_t[N]>
@@ -1045,7 +1389,9 @@ struct PyExportTraits<char8_t[N]> : PyExportTraits<const char8_t[N]>
 };
 
 
-/** @ingroup Python
+/** UTF-8 `std::u8string` is mapped to `str`
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<std::u8string>
@@ -1060,7 +1406,14 @@ struct PyExportTraits<std::u8string>
 #endif
 
 
-/** @ingroup Python
+/** UTF-16 `const char16_t*` string is mapped to Python `str | None`, as it can be null.
+ *
+ * An empty string is mapped to an empty Python string, not to `None`.
+ *
+ * There's no `get()` function as lifetime is not managed, but you can still use `const char16_t*`
+ * as function parameters as `ArgumentTraits` is specialized for it.
+ *
+ * @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<const char16_t*>
@@ -1071,7 +1424,7 @@ struct PyExportTraits<const char16_t*>
 };
 
 
-/** @ingroup Python
+/** @ingroup PyExportTraits
  */
 template <size_t N>
 struct PyExportTraits<const char16_t[N]>
@@ -1083,7 +1436,7 @@ struct PyExportTraits<const char16_t[N]>
 };
 
 
-/** @ingroup Python
+/** @ingroup PyExportTraits
  */
 template <size_t N>
 struct PyExportTraits<char16_t[N]> : PyExportTraits<const char16_t[N]>
@@ -1091,7 +1444,9 @@ struct PyExportTraits<char16_t[N]> : PyExportTraits<const char16_t[N]>
 };
 
 
-/** @ingroup Python
+/** UTF-16 `std::u16string` is mapped to `str`
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<std::u16string>
@@ -1103,7 +1458,14 @@ struct PyExportTraits<std::u16string>
 };
 
 
-/** @ingroup Python
+/** UTF-32 `const char32_t*` string is mapped to Python `str | None`, as it can be null.
+ *
+ * An empty string is mapped to an empty Python string, not to `None`.
+ *
+ * There's no `get()` function as lifetime is not managed, but you can still use `const char32_t*`
+ * as function parameters as `ArgumentTraits` is specialized for it.
+ *
+ * @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<const char32_t*>
@@ -1114,7 +1476,7 @@ struct PyExportTraits<const char32_t*>
 };
 
 
-/** @ingroup Python
+/** @ingroup PyExportTraits
  */
 template <size_t N>
 struct PyExportTraits<const char32_t[N]>
@@ -1126,7 +1488,7 @@ struct PyExportTraits<const char32_t[N]>
 };
 
 
-/** @ingroup Python
+/** @ingroup PyExportTraits
  */
 template <size_t N>
 struct PyExportTraits<char32_t[N]> : PyExportTraits<const char32_t[N]>
@@ -1134,7 +1496,9 @@ struct PyExportTraits<char32_t[N]> : PyExportTraits<const char32_t[N]>
 };
 
 
-/** @ingroup Python
+/** UTF-32 `std::u32string` is mapped to `str`
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<std::u32string>

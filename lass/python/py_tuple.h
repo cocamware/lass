@@ -234,8 +234,8 @@ int decodeTupleMinimum(const TPyObjPtr& obj, Py_ssize_t minumumLength, P&... p)
 
 // --- pairs ---------------------------------------------------------------------------------------
 
-/** @ingroup Python
- *  std::pair translates to a tuple by copy.
+/** std::pair translates to a tuple by copy.
+ *  @ingroup PyExportTraits
  */
 template <typename T1, typename T2>
 struct PyExportTraits< std::pair<T1, T2> >
@@ -259,8 +259,8 @@ struct PyExportTraits< std::pair<T1, T2> >
 };
 
 
-/** @ingroup Python
- *  std::tuple translates to a tuple by copy.
+/** std::tuple translates to a tuple by copy.
+ *  @ingroup PyExportTraits
  */
 template <typename... T>
 struct PyExportTraits< std::tuple<T...> >

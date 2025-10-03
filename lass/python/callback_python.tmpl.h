@@ -167,7 +167,15 @@ namespace impl
 	};
 }
 
-/** @internal
+/** Helper class to implement PyExportTraits for Callback types
+ * 
+ *  Only the `get()` method is implemented, which allows you to use callbacks as
+ *  C++ function parameters, but not als return values. Returning a callback from C++
+ *  to Python is not supported.
+ * 
+ *  For full bidirectional support, use std::function instead.
+ *
+ *  @ingroup PyExportTraits
  */
 template <typename CallbackType, typename PyCallbackImplType, typename ExportTraits>
 struct PyExportTraitsCallback
@@ -243,8 +251,6 @@ namespace python
 {
 namespace impl
 {
-	/** @internal
-	 */
 	class Functor0Python: public FunctorPythonBase
 	{
 	public:
@@ -279,7 +285,28 @@ namespace impl
 	};
 }
 
-/** @internal
+/** Bidirectional mapping between util::Callback0 and a Python callable object
+ *
+ *  Accepts Callable objects and wraps them in a util::Callback0 without checking the
+ *  parameter types or return type, allowing to call them from C++. The parameters
+ *  and return type are only checked when the function is called, and an exception will
+ *  be raised if the types do not match.
+ *
+ *  From C++ to Python, the util::Callback0 is converted to a Callable object, so that
+ *  it can be called from Python. Again, the parameter types and return type will be
+ *  checked when the function is called.
+ *
+ *  In both directions, unwrapping a previously wrapped function will be attempted.
+ *  I.e. if the util::Callback0 passed to Python already wraps a Callable Python
+ *  object, this will be unwrapped and the Callable object will be passed back to Python.
+ *  In the other direction, if a Callable object that was passed to C++ already wraps a
+ *  util::Callback0, *and* this util::Callback0 matches the correct signature, then
+ *  the util::Callback0 will be unwrapped and passed to C++. In other words, both
+ *  directions will guarantee a perfect round trip if possible. In all other cases, the
+ *  Callable or util::Callback0 will be wrapped in a new util::Callback0 or Callable
+ *  object.
+ *
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits< util::Callback0 >:
@@ -310,8 +337,6 @@ namespace python
 {
 namespace impl
 {
-	/** @internal
-	 */
 	template <$(typename P$x)$>
 	class Functor$xPython: public FunctorPythonBase
 	{
@@ -350,7 +375,28 @@ namespace impl
 	};
 }
 
-/** @internal
+/** Bidirectional mapping between util::Callback$x and a Python callable object
+ *
+ *  Accepts Callable objects and wraps them in a util::Callback$x without checking the
+ *  parameter types or return type, allowing to call them from C++. The parameters
+ *  and return type are only checked when the function is called, and an exception will
+ *  be raised if the types do not match.
+ *
+ *  From C++ to Python, the util::Callback$x is converted to a Callable object, so that
+ *  it can be called from Python. Again, the parameter types and return type will be
+ *  checked when the function is called.
+ *
+ *  In both directions, unwrapping a previously wrapped function will be attempted.
+ *  I.e. if the util::Callback$x passed to Python already wraps a Callable Python
+ *  object, this will be unwrapped and the Callable object will be passed back to Python.
+ *  In the other direction, if a Callable object that was passed to C++ already wraps a
+ *  util::Callback$x, *and* this util::Callback$x matches the correct signature, then
+ *  the util::Callback$x will be unwrapped and passed to C++. In other words, both
+ *  directions will guarantee a perfect round trip if possible. In all other cases, the
+ *  Callable or util::Callback$x will be wrapped in a new util::Callback$x or Callable
+ *  object.
+ *
+ *  @ingroup PyExportTraits
  */
 template <$(typename P$x)$>
 struct PyExportTraits< util::Callback$x<$(P$x)$> >:
@@ -385,8 +431,6 @@ namespace python
 {
 namespace impl
 {
-	/** @internal
-	 */
 	template <typename R>
 	class FunctorPythonR0: public FunctorPythonRBase<R>
 	{
@@ -423,7 +467,28 @@ namespace impl
 	};
 }
 
-/** @internal
+/** Bidirectional mapping between util::CallbackR0 and a Python callable object
+ *
+ *  Accepts Callable objects and wraps them in a util::CallbackR0 without checking the
+ *  parameter types or return type, allowing to call them from C++. The parameters
+ *  and return type are only checked when the function is called, and an exception will
+ *  be raised if the types do not match.
+ *
+ *  From C++ to Python, the util::CallbackR0 is converted to a Callable object, so that
+ *  it can be called from Python. Again, the parameter types and return type will be
+ *  checked when the function is called.
+ *
+ *  In both directions, unwrapping a previously wrapped function will be attempted.
+ *  I.e. if the util::CallbackR0 passed to Python already wraps a Callable Python
+ *  object, this will be unwrapped and the Callable object will be passed back to Python.
+ *  In the other direction, if a Callable object that was passed to C++ already wraps a
+ *  util::CallbackR0, *and* this util::CallbackR0 matches the correct signature, then
+ *  the util::CallbackR0 will be unwrapped and passed to C++. In other words, both
+ *  directions will guarantee a perfect round trip if possible. In all other cases, the
+ *  Callable or util::CallbackR0 will be wrapped in a new util::CallbackR0 or Callable
+ *  object.
+ *
+ *  @ingroup PyExportTraits
  */
 template <typename R>
 struct PyExportTraits< util::CallbackR0<R> >:
@@ -454,8 +519,6 @@ namespace python
 {
 namespace impl
 {
-	/** @internal
-	 */
 	template <typename R, $(typename P$x)$>
 	class FunctorPythonR$x: public FunctorPythonRBase<R>
 	{
@@ -495,7 +558,28 @@ namespace impl
 
 }
 
-/** @internal
+/** Bidirectional mapping between util::CallbackR$x and a Python callable object
+ *
+ *  Accepts Callable objects and wraps them in a util::CallbackR$x without checking the
+ *  parameter types or return type, allowing to call them from C++. The parameters
+ *  and return type are only checked when the function is called, and an exception will
+ *  be raised if the types do not match.
+ *
+ *  From C++ to Python, the util::CallbackR$x is converted to a Callable object, so that
+ *  it can be called from Python. Again, the parameter types and return type will be
+ *  checked when the function is called.
+ *
+ *  In both directions, unwrapping a previously wrapped function will be attempted.
+ *  I.e. if the util::CallbackR$x passed to Python already wraps a Callable Python
+ *  object, this will be unwrapped and the Callable object will be passed back to Python.
+ *  In the other direction, if a Callable object that was passed to C++ already wraps a
+ *  util::CallbackR$x, *and* this util::CallbackR$x matches the correct signature, then
+ *  the util::CallbackR$x will be unwrapped and passed to C++. In other words, both
+ *  directions will guarantee a perfect round trip if possible. In all other cases, the
+ *  Callable or util::CallbackR$x will be wrapped in a new util::CallbackR$x or Callable
+ *  object.
+ *
+ *  @ingroup PyExportTraits
  */
 template <typename R, $(typename P$x)$>
 struct PyExportTraits< util::CallbackR$x<R, $(P$x)$> >:

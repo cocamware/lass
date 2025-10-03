@@ -57,9 +57,9 @@ namespace impl
 	LASS_PYTHON_DLL int getTimedelta(PyObject* obj, int &days, int &secs, int &usecs);
 }
 
-/** @ingroup Python
+/** std::chrono::duration is mapped on datetime.timedelta by copy.
  *
- *  std::chrono::duration is mapped on datetime.timedelta by copy.
+ *  @ingroup PyExportTraits
  */
 template <typename Rep, typename Period>
 struct PyExportTraits<std::chrono::duration<Rep, Period>>
@@ -101,13 +101,13 @@ struct PyExportTraits<std::chrono::duration<Rep, Period>>
 };
 
 
-/** @ingroup Python
- *
- *  std::chrono::time_point<std::chrono::system_clock> is mapped on a
+/** std::chrono::time_point<std::chrono::system_clock> is mapped on a
  *  timezone-unaware datetime.datetime instance by copy, in local time.
  *
  *  datetime.datetime instances with a timezone will correctly be
  *  converted when interpreted as a time_point.
+ * 
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>
@@ -126,9 +126,7 @@ struct PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>
 #ifdef LASS_HAVE_STD_CHRONO_CPP20
 
 
-/** @ingroup Python
- *
- *  std::chrono::utc_clock::time_point is mapped on a timezone-aware
+/** std::chrono::utc_clock::time_point is mapped on a timezone-aware
  *  datetime.datetime instance by copy, in UTC.
  *
  *  datetime.datetime instances with other timezones will correctly be converted
@@ -136,6 +134,8 @@ struct PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>
  *
  *  Naive datetime.datetime instances without timezone will be interpreted as
  *  local time.
+ * 
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<std::chrono::utc_clock::time_point>
@@ -149,9 +149,7 @@ struct PyExportTraits<std::chrono::utc_clock::time_point>
 
 
 
-/** @ingroup Python
- *
- *  std::chrono::gps_clock::time_point is mapped on a timezone-aware
+/** std::chrono::gps_clock::time_point is mapped on a timezone-aware
  *  datetime.datetime instance by copy, in UTC.
  *
  *  datetime.datetime instances with other timezones will correctly be converted
@@ -159,6 +157,8 @@ struct PyExportTraits<std::chrono::utc_clock::time_point>
  *
  *  Naive datetime.datetime instances without timezone will be interpreted as
  *  local time.
+ * 
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<std::chrono::gps_clock::time_point>
@@ -172,9 +172,7 @@ struct PyExportTraits<std::chrono::gps_clock::time_point>
 
 
 
-/** @ingroup Python
- *
- *  std::chrono::tai_clock::time_point is mapped on a timezone-aware
+/** std::chrono::tai_clock::time_point is mapped on a timezone-aware
  *  datetime.datetime instance by copy, in UTC.
  *
  *  datetime.datetime instances with other timezones will correctly be converted
@@ -182,6 +180,8 @@ struct PyExportTraits<std::chrono::gps_clock::time_point>
  *
  *  Naive datetime.datetime instances without timezone will be interpreted as
  *  local time.
+ * 
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<std::chrono::tai_clock::time_point>
@@ -195,9 +195,7 @@ struct PyExportTraits<std::chrono::tai_clock::time_point>
 
 
 
-/** @ingroup Python
- *
- *  std::chrono::file_clock::time_point is mapped on a timezone-aware
+/** std::chrono::file_clock::time_point is mapped on a timezone-aware
  *  datetime.datetime instance by copy, in UTC.
  *
  *  datetime.datetime instances with other timezones will correctly be converted
@@ -205,6 +203,8 @@ struct PyExportTraits<std::chrono::tai_clock::time_point>
  *
  *  Naive datetime.datetime instances without timezone will be interpreted as
  *  local time.
+ * 
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<std::chrono::file_clock::time_point>
@@ -218,10 +218,9 @@ struct PyExportTraits<std::chrono::file_clock::time_point>
 
 
 
-/** @ingroup Python
+/** std::chrono::year_month_day is mapped on a datetime.date instance by copy.
  *
- *  std::chrono::year_month_day is mapped on a datetime.date instance
- *  by copy.
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<std::chrono::year_month_day>

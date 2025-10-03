@@ -110,7 +110,7 @@ namespace lass
 		}
 
 		/**	Helper to specialise PyExportTraits for enumerations.
-		 *	@ingroup Python
+		 *	@ingroup PyExportTraits
 		 *
 		 *	When you want to export enumeration types, you need to specialize PyExportTraits for it.
 		 *	This structure will help you

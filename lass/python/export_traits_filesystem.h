@@ -54,13 +54,15 @@ namespace lass
 namespace python
 {
 
-/** @ingroup Python
+/** Map std::filesystem::path to pathlib.Path
  *
  *  Accepts bytes, str or objects that implement the os.PathLike interface (having __fspath__())
  *  If conversion is needed from bytes to str (on Windows) or from str to bytes (on POSIX),
  *  then it is performed using sys.getfilesystemencoding() (which is usually UTF-8, but not always).
  * 
- *  Always converts them to str instances.
+ *  Always converts them to pathlib.Path instances.
+ * 
+ *  @ingroup PyExportTraits
  */
 template <>
 struct PyExportTraits<std::filesystem::path>
