@@ -87,6 +87,8 @@ namespace lass
 
 			TPyObjPtr valueObject(PyObject* obj) const;
 
+		private:
+		
 			virtual TPyObjPtr doFreezeDefinition(TPyObjPtr&& kwargs) = 0;
 			virtual TPyObjPtr doValueObject(PyObject* obj) const;
 
@@ -505,6 +507,35 @@ namespace lass
 
 #define PY_DECLARE_INT_FLAG_EX(t_cppEnum) \
 	::lass::python::IntFlagDefinition<t_cppEnum> lass::python::PyExportTraits<t_cppEnum>::enumDefinition
+
+
+
+#define PY_SHADOW_ENUM(dllInterface, t_cppEnum, t_valueType)\
+	namespace lass \
+	{ \
+	namespace python \
+	{ \
+		template <> \
+		struct PyExportTraits<t_cppEnum> \
+		{ \
+			using TEnum = t_cppEnum; \
+			using TEnumDefinition = EnumDefinition<TEnum, t_valueType>; \
+			static dllInterface TEnumDefinition enumDefinition; \
+			static PyObject* build(TEnum value) { return enumDefinition.build(value); } \
+			static int get(PyObject* obj, TEnum& value) { return enumDefinition.get(obj, value); } \
+		}; \
+	} \
+	} \
+	/**/
+
+#define PY_DECLARE_ENUM_NAME(t_cppEnum, t_valueType, s_name) \
+	::lass::python::EnumDefinition<t_cppEnum, t_valueType> lass::python::PyExportTraits<t_cppEnum>::enumDefinition(s_name);
+
+#define PY_DECLARE_ENUM_NAME_DOC(t_cppEnum, t_valueType, s_name, s_doc) \
+	::lass::python::EnumDefinition<t_cppEnum, t_valueType> lass::python::PyExportTraits<t_cppEnum>::enumDefinition(s_name, s_doc);
+
+#define PY_DECLARE_ENUM_EX(t_cppEnum, t_valueType) \
+	::lass::python::EnumDefinition<t_cppEnum, t_valueType> lass::python::PyExportTraits<t_cppEnum>::enumDefinition
 
 
 

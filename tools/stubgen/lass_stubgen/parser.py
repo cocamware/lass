@@ -419,12 +419,12 @@ class Parser:
             boundary = f"enum.{bound.spelling.upper()}"
             init_list = ensure_kind(args[3], CursorKind.INIT_LIST_EXPR).get_children()
 
-        values = {}
+        values: dict[str, Any] = {}
         for init_list_expr in init_list:
             args = list(init_list_expr.get_children())
             # zeroth argument is the name of the enum value.
             key = string_literal(args[0])
-            value: str | int | None
+            value: Any
             if value_py_type == "int":
                 # first argument is the cpp value _and_ the python value
                 # (there is no second argument)
@@ -437,7 +437,7 @@ class Parser:
                 # the second argument is a string that we want as python value
                 value = string_literal(args[2])
             else:
-                value = None
+                value = Ellipsis
             values[key] = value
 
         self.stubdata.add_enum_definition(

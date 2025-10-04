@@ -234,18 +234,14 @@ namespace lass
 
 		TPyObjPtr EnumDefinitionBase::doValueObject(PyObject* obj) const
 		{
-			if (PyObject_TypeCheck(obj, (PyTypeObject*) type()))
+			PyObject* type = this->type();
+			if (PyObject_TypeCheck(obj, (PyTypeObject*) type))
 			{
 				return TPyObjPtr(PyObject_GetAttrString(obj, "value"));
 			}
-
-			// try to convert it to an enum first ...
-			TPyObjPtr o(PyObject_CallFunctionObjArgs(type(), obj, nullptr));
-			if (!o)
-			{
-				return TPyObjPtr();
-			}
-			return TPyObjPtr(PyObject_GetAttrString(o.get(), "value"));
+			// in the generic case, we're strict: only the enum type itself is accepted
+			PyErr_Format(PyExc_TypeError, "Expected %S, got %S", type, obj);
+			return TPyObjPtr();
 		}
 
 		PyObject* EnumDefinitionBase::freezeDefinition(const char* moduleName, const char* scopeName)

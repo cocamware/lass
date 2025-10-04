@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import cmath
 import datetime
+import enum
 import errno
 import inspect
 import io
@@ -1623,6 +1624,42 @@ class TestEnum(unittest.TestCase):
             _ = embedding.orderBreakfast(1234)  # doesn't fit in C++ enum
         with self.assertRaises(TypeError):
             _ = embedding.orderBreakfast("bacon")  # type: ignore[arg-type]
+
+    def testGenericEnum(self) -> None:
+        Weekday = embedding.Weekday
+        self.assertIsInstance(Weekday.MONDAY, Weekday)
+        self.assertIsInstance(Weekday.MONDAY, enum.Enum)
+        self.assertEqual(Weekday.MONDAY.value, (1, "Monday"))
+        self.assertEqual(Weekday.TUESDAY.value, (2, "Tuesday"))
+        self.assertEqual(Weekday.SUNDAY.value, (7, "Sunday"))
+        self.assertIs(Weekday((1, "Monday")), Weekday.MONDAY)
+        self.assertIs(Weekday((7, "Sunday")), Weekday.SUNDAY)
+        with self.assertRaises(ValueError):
+            _ = Weekday((8, "NotADay"))
+        with self.assertRaises(ValueError):
+            _ = Weekday((1, "WrongName"))
+        with self.assertRaises(ValueError):
+            _ = Weekday("Monday")
+        self.assertIs(embedding.nextDay(Weekday.MONDAY), Weekday.TUESDAY)
+        self.assertIs(embedding.nextDay(Weekday.TUESDAY), Weekday.WEDNESDAY)
+        self.assertIs(embedding.nextDay(Weekday.SUNDAY), Weekday.MONDAY)  # wraps around
+        with self.assertRaises(TypeError):
+            self.assertIs(embedding.nextDay((2, "Tuesday")), Weekday.WEDNESDAY)  # type: ignore[arg-type]
+        with self.assertRaises(TypeError):
+            _ = embedding.nextDay((8, "NotADay"))  # type: ignore[arg-type]
+        with self.assertRaises(TypeError):
+            _ = embedding.nextDay("Monday")  # type: ignore[arg-type]
+        weekdays = list(Weekday)
+        expected_weekdays = [
+            Weekday.MONDAY,
+            Weekday.TUESDAY,
+            Weekday.WEDNESDAY,
+            Weekday.THURSDAY,
+            Weekday.FRIDAY,
+            Weekday.SATURDAY,
+            Weekday.SUNDAY,
+        ]
+        self.assertEqual(weekdays, expected_weekdays)
 
     def testOldFashionedEnum(self) -> None:
         self.assertEqual(

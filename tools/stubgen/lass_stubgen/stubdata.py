@@ -622,12 +622,13 @@ class EnumDefinition:
         return f"enum {self.py_name} ({self.cpp_type})"
 
     def tojson(self) -> dict[str, Any]:
+        values = {k: self._tojson_value(v) for k, v in self.values.items()}
         dct: dict[str, Any] = {
             "py_name": self.py_name,
             "cpp_type": self.cpp_type.tojson(),
             "base_py_type": self.base_py_type,
             "value_py_type": self.value_py_type,
-            "values": self.values,
+            "values": values,
         }
         if self.doc is not None:
             dct["doc"] = self.doc
@@ -639,13 +640,22 @@ class EnumDefinition:
             dct["fully_qualified_name"] = self.fully_qualified_name
         return dct
 
+    def _tojson_value(self, value: Any) -> Any:
+        if isinstance(value, (int, float, str, bool)) or value is None:
+            return value
+        if isinstance(value, Sequence):
+            return [self._tojson_value(v) for v in value]
+        if value is Ellipsis:
+            return {"__type__": "Ellipsis"}
+        raise StubDataError(f"Unsupported enum value type: {type(value)}")
+
     @classmethod
     def fromjson(cls, data: Any) -> Self:
         if cpp_name := data.get("cpp_name"):
             cpp_type = TypeInfo(cpp_name)
         else:
             cpp_type = TypeInfo.fromjson(data["cpp_type"])
-        value_py_type=data["value_py_type"]
+        value_py_type = data["value_py_type"]
         if (base_py_type := data.get("base_py_type")) is None:
             if value_py_type == "int":
                 base_py_type = "enum.IntEnum"
@@ -656,17 +666,28 @@ class EnumDefinition:
             preamble = ["import enum"]
         else:
             preamble = data.get("preamble", [])
+        values = {k: cls._fromjson_value(v) for k, v in data["values"].items()}
         return cls(
             py_name=data["py_name"],
             cpp_type=cpp_type,
             base_py_type=base_py_type,
             value_py_type=value_py_type,
-            values=data["values"],
+            values=values,
             doc=data.get("doc"),
             boundary=data.get("boundary"),
             preamble=preamble,
             fully_qualified_name=data.get("fully_qualified_name"),
         )
+
+    @staticmethod
+    def _fromjson_value(value: Any) -> Any:
+        if isinstance(value, (int, float, str, bool)) or value is None:
+            return value
+        if isinstance(value, Sequence):
+            return tuple(EnumDefinition._fromjson_value(v) for v in value)
+        if isinstance(value, Mapping) and value.get("__type__") == "Ellipsis":
+            return Ellipsis
+        raise StubDataError(f"Unsupported enum value type: {type(value)}")
 
 
 @dataclass

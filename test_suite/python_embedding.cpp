@@ -94,6 +94,17 @@ enum Breakfast: unsigned char
 	All = Egg | Bacon | Sausage | Spam
 };
 
+enum Weekday
+{
+	Monday = 1,
+	Tuesday,
+	Wednesday,
+	Thursday,
+	Friday,
+	Saturday,
+	Sunday
+};
+
 enum UnexportedEnum
 {
 	SOME_CONSTANT = 50,
@@ -435,6 +446,25 @@ lass::test::Breakfast orderBreakfast(lass::test::Breakfast breakFast)
 	return static_cast<lass::test::Breakfast>(breakFast | lass::test::Breakfast::Spam);
 }
 
+using WeekdayPair = std::pair<int, std::string>;
+PY_SHADOW_ENUM(LASS_DLL_EXPORT, lass::test::Weekday, WeekdayPair)
+PY_DECLARE_ENUM_EX(lass::test::Weekday, WeekdayPair)("Weekday", "An enumeration of the days of the week", {
+	{ "MONDAY", lass::test::Weekday::Monday, std::make_pair(lass::test::Weekday::Monday, "Monday") },
+	{ "TUESDAY", lass::test::Weekday::Tuesday, std::make_pair(lass::test::Weekday::Tuesday, "Tuesday") },
+	{ "WEDNESDAY", lass::test::Weekday::Wednesday, std::make_pair(lass::test::Weekday::Wednesday, "Wednesday") },
+	{ "THURSDAY", lass::test::Weekday::Thursday, std::make_pair(lass::test::Weekday::Thursday, "Thursday") },
+	{ "FRIDAY", lass::test::Weekday::Friday, std::make_pair(lass::test::Weekday::Friday, "Friday") },
+	{ "SATURDAY", lass::test::Weekday::Saturday, std::make_pair(lass::test::Weekday::Saturday, "Saturday") },
+	{ "SUNDAY", lass::test::Weekday::Sunday, std::make_pair(lass::test::Weekday::Sunday, "Sunday") },
+	});
+
+lass::test::Weekday nextDay(lass::test::Weekday day)
+{
+	using TInt = std::underlying_type<lass::test::Weekday>::type;
+	if (day == lass::test::Weekday::Sunday)
+		return lass::test::Weekday::Monday;
+	return static_cast<lass::test::Weekday>(static_cast<TInt>(day) + 1);
+}
 
 PY_SHADOW_CLASS(LASS_DLL_EXPORT, PyBase, lass::test::Base)
 PY_SHADOW_CASTERS( PyBase )
@@ -889,6 +919,9 @@ PY_MODULE_FUNCTION_NAME( embedding, testColorOverload2, "testColorOverload" )
 
 PY_MODULE_ENUM( embedding, lass::test::Breakfast )
 PY_MODULE_FUNCTION(embedding, orderBreakfast )
+
+PY_MODULE_ENUM( embedding, lass::test::Weekday )
+PY_MODULE_FUNCTION( embedding, nextDay )
 
 PY_MODULE_ENTRYPOINT( embedding )
 

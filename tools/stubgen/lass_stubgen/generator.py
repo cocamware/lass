@@ -701,8 +701,10 @@ class StubGenerator:
             py_type = self._strip_scope(
                 enum_def.fully_qualified_name, scope=scope, preamble=preamble
             )
-            if as_param:
-                py_type = f"{py_type} | {enum_def.value_py_type}"
+            if as_param and (
+                alt_type := self._ENUM_ALT_PARAM_TYPES.get(enum_def.base_py_type)
+            ):
+                py_type = f"{py_type} | {alt_type}"
             return py_type, preamble
 
         if specializations := self.stubdata.export_traits.get(cpp_type.name):
@@ -910,6 +912,12 @@ class StubGenerator:
             else:
                 uniques[sig_nodoc] = func
         return list(uniques.values())
+
+    _ENUM_ALT_PARAM_TYPES = {
+        "enum.IntEnum": "int",
+        "enum.StrEnum": "str",
+        "enum.IntFlag": "int",
+    }
 
 
 MatchedParams: TypeAlias = dict[str, TypeInfo | tuple[TypeInfo, ...] | None]
