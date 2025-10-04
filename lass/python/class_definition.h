@@ -53,6 +53,120 @@ namespace lass
 {
 	namespace python
 	{
+		/** @defgroup ClassDefinition Class Definitions
+		 *  @brief Defining Python classes from C++ with methods, properties, operators, and nested types.
+		 *
+		 *  This module provides the internal machinery used by the class export macros to define
+		 *  Python classes backed by C++ types. A class definition aggregates constructors, methods
+		 *  (including Python special methods/operators), properties, static members, nested classes
+		 *  and enums, and then materializes a Python type when frozen.
+		 *
+		 *
+		 *  ### Class Components
+		 *
+		 *  A Python class can contain:
+		 *
+		 *  - **Constructors**: Multiple overloads via \_\_new__ dispatchers
+		 *  - **Methods**: Regular instance methods with overload support
+		 *  - **Free Methods**: Functions that operate on the instance but are not members
+		 *  - **Static Methods**: Class-level methods accessible without instances
+		 *  - **Operators**: Python special methods (\_\_add__, \_\_eq__, etc.)
+		 *  - **Properties**: Getter/setter pairs for attribute access
+		 *  - **Public Members**: Direct access to public member variables
+		 *  - **Static Constants**: Class-level constant values
+		 *  - **Nested Classes**: Inner classes defined within the outer class
+		 *  - **Nested Enums**: Enum types scoped to the class
+		 *
+		 *
+		 *  ### Usage Overview
+		 *
+		 *  To export a C++ class to Python, you typically use macros that work with ClassDefinition:
+		 *
+		 *  ```cpp
+		 *  // Define class in header
+		 *  class MyClass: public PyObjectPlus
+		 *  {
+		 *      PY_HEADER(PyObjectPlus)
+		 *  public:
+		 *      MyClass();
+		 *      MyClass(int value);
+		 *      MyClass(const std::string& name, double factor);
+		 *      
+		 *      void process();
+		 *      void process(int iterations);                    // Overload #1 (member)
+		 *      int calculate(int input) const;
+		 *      std::string getName() const;
+		 *      void setName(const std::string& name);
+		 *      static int getGlobalCount();
+		 *      std::string toString() const;                    // For __str__
+		 *      
+		 *      int publicValue;
+		 *      static const int MAX_SIZE = 100;
+		 *  };
+		 *
+		 *  // Free functions for export as methods
+		 *  void reset(MyClass* obj);
+		 *  void process(MyClass* obj, const std::string& mode); // Overload #2 (free function)
+		 *  double computeScore(const MyClass& obj, double multiplier);
+		 *  MyClass combine(const MyClass& a, const MyClass& b);
+		 *  
+		 *  // Special method implementations
+		 *  bool operator==(const MyClass& a, const MyClass& b);
+		 *  bool operator<(const MyClass& a, const MyClass& b);
+		 *  MyClass operator+(const MyClass& a, const MyClass& b);
+		 *  MyClass operator-(const MyClass& a, const MyClass& b);
+		 *  std::string repr(const MyClass& obj);                // For __repr__
+		 *  size_t hash(const MyClass& obj);                     // For __hash__
+		 *
+		 *  // Register class methods and properties in source
+		 *  PY_DECLARE_CLASS_NAME_DOC(MyClass, "MyClass", "Demonstration class with various binding types")
+		 *  
+		 *  // Multiple constructor overloads
+		 *  PY_CLASS_CONSTRUCTOR_0(MyClass)
+		 *  PY_CLASS_CONSTRUCTOR_1(MyClass, int)
+		 *  PY_CLASS_CONSTRUCTOR_2(MyClass, const std::string&, double)
+		 *  
+		 *  // Mixed overloading: regular methods + free functions for same Python method
+		 *  PY_CLASS_METHOD(MyClass, process)                           // void process()
+		 *  PY_CLASS_METHOD_1(MyClass, process, int)                    // void process(int)
+		 *  PY_CLASS_FREE_METHOD_NAME(MyClass, process, "process")      // void process(MyClass*, const std::string&)
+		 *  
+		 *  // Other regular methods
+		 *  PY_CLASS_METHOD_DOC(MyClass, calculate, "Calculate result from input value")
+		 *  PY_CLASS_STATIC_METHOD(MyClass, getGlobalCount)
+		 *  
+		 *  // Properties (getter/setter pairs)
+		 *  PY_CLASS_MEMBER_RW_DOC(MyClass, name, getName, setName, "Object name property")
+		 *  
+		 *  // Public member access
+		 *  PY_CLASS_MEMBER_R(MyClass, publicValue)
+		 *  
+		 *  // Free functions as methods (various forms)
+		 *  PY_CLASS_FREE_METHOD(MyClass, reset)
+		 *  PY_CLASS_FREE_METHOD_NAME_DOC(MyClass, computeScore, "compute_score", "Calculate score with multiplier")
+		 *  PY_CLASS_FREE_METHOD_DOC(MyClass, combine, "Combine two objects")
+		 *  
+		 *  // Python special methods via member and free functions
+		 *  PY_CLASS_METHOD_NAME(MyClass, toString, methods::_str_)          // Member function for __str__
+		 *  PY_CLASS_FREE_METHOD_NAME(MyClass, repr, methods::_repr_)       // Free function for __repr__
+		 *  PY_CLASS_FREE_METHOD_NAME(MyClass, hash, methods::_hash_)       // Free function for __hash__
+		 *  
+		 *  // Comparison and arithmetic operators
+		 *  PY_CLASS_FREE_METHOD_NAME(MyClass, operator==, methods::_eq_)
+		 *  PY_CLASS_FREE_METHOD_NAME(MyClass, operator<, methods::_lt_)
+		 *  PY_CLASS_FREE_METHOD_NAME(MyClass, operator+, methods::_add_)
+		 *  PY_CLASS_FREE_METHOD_NAME(MyClass, operator-, methods::_sub_)
+		 *  
+		 *  // Static constants and values
+		 *  PY_CLASS_STATIC_CONST(MyClass, "MAX_SIZE", MyClass::MAX_SIZE)
+		 *  PY_CLASS_STATIC_CONST(MyClass, "VERSION", "1.2.3")
+		 *
+		 *  // Add to module
+		 *  PY_MODULE_CLASS(mymodule, MyClass)
+		 *  ```
+		 *	
+		 *  @ingroup Python
+		 */
 		class EnumDefinitionBase;
 
 		namespace impl
@@ -143,57 +257,131 @@ namespace lass
 				return CppClass::_lassPyClassDef.callRichCompare(self, other, op);
 			}
 
+			/** Definition of a Python class.
+			 *
+			 *  Collects all information required to define a Python type that wraps a C++ class.
+			 *  The definition accumulates constructors, methods (including Python slot methods),
+			 *  properties, static members, and nested types. When ready, call freezeDefinition()
+			 *  to create the underlying `PyTypeObject` and (optionally) inject it into a module
+			 *  or as a nested type.
+			 *
+			 *  The ClassDefinition class is typically not used directly by user code. Instead, use the
+			 *  provided macros in pyobject_macros.h that work with ClassDefinition instances.
+			 *
+			 *  @ingroup ClassDefinition
+			 */
 			class LASS_PYTHON_DLL ClassDefinition
 			{
 			public:
-				typedef void(*TClassRegisterHook)();
-				typedef int TSlotID;
+				typedef void(*TClassRegisterHook)(); /// Function to call during registration of the class (optional).
+				typedef int TSlotID; ///< Identifier type for indexing into the internal Python slot table.
 
-				ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize, 
+				/** Construct a class definition.
+				 *  @param name      Python class name
+				 *  @param doc       Class docstring (must outlive the definition unless changed via setDoc())
+				 *  @param typeSize  Size of the Python instance struct (derived from PyObject)
+				 *  @param richcmp   Optional rich-compare function (may be nullptr)
+				 *  @param parent    Optional parent to nest this class into (may be nullptr)
+				 *  @param registerHook Optional hook called when the class is registered
+				 */
+				ClassDefinition(const char* name, const char* doc, Py_ssize_t typeSize,
 					richcmpfunc richcmp, ClassDefinition* parent, TClassRegisterHook registerHook);
+				/** Destructor. */
 				~ClassDefinition();
 
+				/** Get the Python type object  (available after freezeDefinition() has been called). */
+				/// @{
 				PyTypeObject* type();
 				const PyTypeObject* type() const;
-				const char* name() const;
-				const char* doc() const;
-				void setDoc(const char* doc); ///< @a doc must be valid until another one is set
-				void setDocIfNotNull(const char* doc); ///< @a set doc string, but never unset existing doc string if @a doc == nullptr
+				/// @}
 
+				/** Get the class name. */
+				const char* name() const;
+				/** Get the class docstring. */
+				const char* doc() const;
+				/** Set the class docstring.
+				 *  Note: the provided string must remain valid until another docstring is set.
+				 */
+				void setDoc(const char* doc);
+				/** Set the class docstring if non-null (keeps existing one if nullptr). */
+				void setDocIfNotNull(const char* doc);
+
+				/** Add a constructor overload (\_\_init__ dispatcher).
+				 *  @param dispatcher   New-function dispatcher
+				 *  @param overloadChain Reference to overload chain
+				 */
 				void addConstructor(newfunc dispatcher, newfunc& overloadChain);
+
+				/** Add a named method.
+				 *  @param name, slot Python method name or special slot
+				 *  @param doc  Method docstring
+				 *  @param dispatcher Dispatcher implementing the method
+				 *  @param overloadChain Overload chain for this name
+				 */
+				/// @{
 				void addMethod(const char* name, const char* doc, PyCFunction dispatcher, OverloadLink& overloadChain);
+				/** Add a comparator-slot method (rich compare operator). */
 				void addMethod(const ComparatorSlot& slot, const char* doc, PyCFunction dispatcher, OverloadLink& overloadChain);
+				/** Add a unary-slot method (e.g., \_\_neg__, \_\_pos__, ...). */ 
 				void addMethod(const UnarySlot& slot, const char* doc, unaryfunc dispatcher, OverloadLink& overloadChain); 
+				/** Add a binary-slot method (e.g., arithmetic, comparisons). */ 
 				void addMethod(const BinarySlot& slot, const char* doc, binaryfunc dispatcher, OverloadLink& overloadChain); 
+				/** Add a ternary-slot method. */
 				void addMethod(const TernarySlot& slot, const char* doc, ternaryfunc dispatcher, OverloadLink& overloadChain);
+				/** Add a length-slot method (\_\_len__). */
 				void addMethod(const LenSlot& slot, const char* doc, lenfunc dispatcher, OverloadLink& overloadChain);
+				/** Add an ssize-arg-slot method. */
 				void addMethod(const SsizeArgSlot& slot, const char* doc, ssizeargfunc dispatcher, OverloadLink& overloadChain);
+				/** Add an ssize-obj-arg-slot method. */
 				void addMethod(const SsizeObjArgSlot& slot, const char* doc, ssizeobjargproc dispatcher, OverloadLink& overloadChain);
+				/** Add an obj-obj-slot method. */
 				void addMethod(const ObjObjSlot& slot, const char* doc, objobjproc dispatcher, OverloadLink& overloadChain);
+				/** Add an obj-obj-arg-slot method. */
 				void addMethod(const ObjObjArgSlot& slot, const char* doc, objobjargproc dispatcher, OverloadLink& overloadChain);
+				/** Add an iterator-slot method (\_\_iter__). */
 				void addMethod(const IterSlot& slot, const char* doc, getiterfunc dispatcher, OverloadLink& overloadChain);
+				/** Add an iternext-slot method (\_\_next__). */
 				void addMethod(const IterNextSlot& slot, const char* doc, iternextfunc dispatcher, OverloadLink& overloadChain);
+				/** Add an arg+kw-slot method (callable semantics). */
 				void addMethod(const ArgKwSlot& slot, const char* doc, ternaryfunc dispatcher, OverloadLink& overloadChain);
+				/** Add an inquiry-slot method. */
 				void addMethod(const InquirySlot& slot, const char* doc, inquiry dispatcher, OverloadLink& overloadChain);
+				/** Add a property with optional getter/setter. */
 				void addGetSetter(const char* name, const char* doc, getter get, setter set);
+				/** Add a static method with overload support. */
 				void addStaticMethod(const char* name, const char* doc, PyCFunction dispatcher, PyCFunction& overloadChain);
+				/// @}
+			
 				template <typename T> void addStaticConst(const char* name, const T& value)
 				{
 					LASS_ASSERT(std::count_if(statics_.begin(), statics_.end(), NamePredicate(name)) == 0);
 					statics_.push_back(StaticMember(name, staticMemberHelperObject(value)));
 				}
-				void addInnerClass(ClassDefinition& innerClass);
-				void addInnerEnum(EnumDefinitionBase* enumDefinition);
 
+				/// @{
+				/** Add a nested class definition (inner class). */
+				void addInnerClass(ClassDefinition& innerClass);
+				/** Add a nested enum definition (inner enum). */
+				void addInnerEnum(EnumDefinitionBase* enumDefinition);
+				/// @}
+
+				/// @{
+				/** Get raw pointer from a given slot id. */
 				void* getSlot(TSlotID slotId);
+				/** Set raw pointer for a given slot id. */
 				void* setSlot(TSlotID slotId, void* value);
 				template <typename Ptr> Ptr setSlot(TSlotID slotId, Ptr value)
 				{
 					return reinterpret_cast<Ptr>(setSlot(slotId, reinterpret_cast<void*>(value)));
 				}
+				/// @}
 
+				/** Finalize the definition and create the Python type.
+				 *  If a module is provided, the type is added to that module.
+				 */
 				PyObject* freezeDefinition(PyObject* module = nullptr);
 
+				/** Dispatch rich-compare for this class (used by operator slots). */
 				PyObject* callRichCompare(PyObject* self, PyObject* other, int op);
 
 			private:
