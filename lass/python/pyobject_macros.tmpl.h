@@ -58,71 +58,143 @@
 
 // --- modules -------------------------------------------------------------------------------------
 
-/** @ingroup Python
- *  Declare and define an object respresenting a python module.
+/** @addtogroup ModuleDefinition
+ *  @name Module Declaration Macros
  *
- *  @param i_module 
- *		the identifier of the module to be used in C++
+ *  These macros declare and define ModuleDefinition objects that represent Python modules.
+ *  They create the fundamental module object that serves as the container for all exported
+ *  functions, classes, and constants.
+ *
+ *  @{
+ */
+
+/** @ingroup ModuleDefinition
+ *  Declare and define a ModuleDefinition object representing a Python module.
+ *
+ *  Creates a ModuleDefinition instance that can be used to build a Python module
+ *  with the specified name and documentation.
+ *
+ *  @param i_module Identifier of the module to be used in C++ (must be unscoped identifier for token concatenation)
+ *  @param s_name Python module name (const char* string, will be copied and stored internally)
+ *  @param s_doc Optional module documentation string (const char* string, will be copied and stored internally, or nullptr)
  */
 #define PY_DECLARE_MODULE_NAME_DOC( i_module, s_name, s_doc ) \
 	::lass::python::ModuleDefinition i_module( s_name, s_doc );
 
-/** @ingroup Python
- *  convenience macro, wraps PY_DECLARE_MODULE_NAME_DOC with @a s_doc = 0
+/** @ingroup ModuleDefinition
+ *  Declare a module with name only (no documentation).
+ *  Convenience macro that wraps PY_DECLARE_MODULE_NAME_DOC() with s_doc = nullptr.
+ *
+ *  @param i_module Identifier of the module to be used as C++ variable name (must be valid C++ identifier)
+ *  @param s_name Python module name (const char* string, will be copied and stored internally)
  */
 #define PY_DECLARE_MODULE_NAME( i_module, s_name ) \
 	PY_DECLARE_MODULE_NAME_DOC( i_module, s_name, 0)
 
-/** @ingroup Python
- *  convenience macro, wraps PY_DECLARE_MODULE_NAME_DOC with @a s_moduleName = # @a i_module
+/** @ingroup ModuleDefinition
+ *  Declare a module with documentation, using the identifier as the module name.
+ *  Convenience macro that wraps PY_DECLARE_MODULE_NAME_DOC() with s_name derived from i_module.
+ *
+ *  @param i_module Identifier of the module (also used as Python module name)
+ *  @param s_doc Module documentation string (const char* string, will be copied and stored internally)
  */
 #define PY_DECLARE_MODULE_DOC( i_module, s_doc ) \
 	PY_DECLARE_MODULE_NAME_DOC( i_module, LASS_STRINGIFY(i_module), s_doc)
 
-/** @ingroup Python
- *  convenience macro, wraps PY_DECLARE_MODULE_NAME_DOC with @a s_moduleName = # @a i_module and @a s_doc = 0
+/** @ingroup ModuleDefinition
+ *  Declare a module with minimal setup (name derived from identifier, no documentation).
+ *  Convenience macro that wraps PY_DECLARE_MODULE_NAME_DOC() with defaults.
+ *
+ *  @param i_module Identifier of the module (also used as Python module name)
  */
 #define PY_DECLARE_MODULE( i_module ) \
 	PY_DECLARE_MODULE_NAME_DOC( i_module, LASS_STRINGIFY(i_module), 0)
 
-/** @def PY_INIT_MODULE
+/** @} */
+
+/** @addtogroup ModuleDefinition
+ *  @name Module Entrypoint and Injection Macros
+ *
+ *  These macros handle module initialization, injection, and extension module creation.
+ *  They manage the Python module lifecycle from creation to registration with the Python interpreter.
+ *
+ *  If you're building a Python extension module (a .pyd or .so file), you will typically use
+ *  the entrypoint macros to create the required `PyInit_*` function that Python calls:
+ *  ```cpp
+ *  // Declare module
+ *  PY_DECLARE_MODULE_NAME_DOC(mymodule, "mymodule", "My example module")
+ *  
+ *  // Add functions and classes
+ *  // ...
+ * 
+ *  // Create module entrypoint for Python extension
+ *  PY_MODULE_ENTRYPOINT(mymodule)
+ *  ```
+ * 
+ *  The injection macros are more low-level and can be used to create modules at runtime to be
+ *  registered with an embedded Python interpreter.
+ *
+ *  @{
+ */
+
+/** @ingroup ModuleDefinition
+ *  Create a `PyInit_*` Python module initialization function with custom name.
+ *
+ *  Generates the `PyInit_*` function required for Python extension modules.
+ *  This function will be called by Python when the module is imported.
+ * 
+ *  ```cpp
+ *  PY_DECLARE_MODULE_NAME_DOC(mymodule, "mymodule", "My example module")
+ *  // ...
+ *  PY_MODULE_ENTRYPOINT(mymodule)
+ *  ```
+ *
+ *  @param i_module Module identifier declared with PY_DECLARE_MODULE_*
+ *  @param i_name Name for the initialization function (PyInit_<i_name> will be generated)
  */
 #define PY_MODULE_ENTRYPOINT_NAME( i_module, i_name ) \
 	PyMODINIT_FUNC LASS_CONCATENATE(PyInit_, i_name)() { return i_module.inject(); }
 
-/** @ingroup Python
+/** @ingroup ModuleDefinition
+ *  Create a Python module initialization function using the module identifier as the function name.
+ *  Convenience macro that wraps PY_MODULE_ENTRYPOINT_NAME() with i_name = i_module.
+ *
+ *  @param i_module Module identifier (used for both module reference and function name)
  */
 #define PY_MODULE_ENTRYPOINT( i_module ) PY_MODULE_ENTRYPOINT_NAME( i_module, i_module )
 
-/** @ingroup Python
- *	Inject a python module so Python is aware of it.
+/** @ingroup ModuleDefinition
+ *  Inject a Python module so Python becomes aware of it.
  *
- *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
- *	function called by main.
+ *  Creates the actual Python module object with all accumulated definitions
+ *  (functions, classes, enums, constants). This should be done at runtime,
+ *  typically in your main() function or during Python initialization.
  *
- *  @param i_module
- *		the identifier of a module declared by PY_DECLARE_MODULE
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
  */
 #define PY_INJECT_MODULE( i_module )\
 	i_module.inject();
 
-/** @ingroup Python
- *  @deprecated
+/** @ingroup ModuleDefinition
+ *  @deprecated Use PY_DECLARE_MODULE_NAME_DOC and PY_INJECT_MODULE instead
+ *  Inject a module with name and documentation override.
  */
 #define PY_INJECT_MODULE_EX( i_module, s_moduleName, s_doc ) \
 	i_module.setName(s_moduleName); \
 	i_module.setDoc(s_doc); \
 	i_module.inject();
 
-/** @ingroup Python
- *  @deprecated
+/** @ingroup ModuleDefinition
+ *  @deprecated Use PY_DECLARE_MODULE_NAME and PY_INJECT_MODULE instead
+ *  Inject a module with name override.
  */
 #define PY_INJECT_MODULE_NAME( i_module, s_moduleName )\
 	i_module.setName(s_moduleName); \
 	i_module.inject();
 
-/** @ingroup Python
- *  @deprecated
+/** @ingroup ModuleDefinition
+ *  @deprecated Use PY_DECLARE_MODULE_DOC and PY_INJECT_MODULE instead
+ *  Inject a module with documentation override.
  */
 #define PY_INJECT_MODULE_DOC( i_module, s_doc )\
 	i_module.setDoc(s_doc);\
@@ -149,33 +221,49 @@
 		f_injection ();\
 	}
 
-/** @ingroup Python
- *  convenience macro, wraps PY_EXTENSION_MODULE_EX with
- *  @a s_moduleName = # @a i_module
+/** @ingroup ModuleDefinition
+ *  Create an extension module with documentation.
+ *  Convenience macro that wraps PY_EXTENSION_MODULE_EX() with s_doc parameter.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_injection Injection function to call during module creation
+ *  @param s_doc Module documentation string (const char* string with static storage duration)
  */
 #define PY_EXTENSION_MODULE_DOC( i_module, f_injection, s_doc )\
 	PY_EXTENSION_MODULE_EX( i_module, f_injection, s_doc)
 
-/** @ingroup Python
- *  convenience macro, wraps PY_EXTENSION_MODULE_EX with
- *  @a s_moduleName = # @a i_module and s_doc = 0
+/** @ingroup ModuleDefinition
+ *  Create an extension module (no documentation).
+ *  Convenience macro that wraps PY_EXTENSION_MODULE_EX() with s_doc = nullptr.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_injection Injection function to call during module creation
  */
 #define PY_EXTENSION_MODULE( i_module, f_injection )\
 	PY_EXTENSION_MODULE_EX( i_module, f_injection, 0)
 
+/** @} */
 
 // --- module variables ----------------------------------------------------------------------------
 
-
-/** @ingroup
- *	Inject a integer constant in a python module
+/** @addtogroup ModuleDefinition
+ *  @name Module Constants and Objects Macros
  *
- *	@param i_module
- *		the identifier of the module to inject the object in
- *	@param s_name
- *		name of constant as shown in the module (zero terminated C string)
- *  @param s_value
- *		value of the constant (zero terminated C string)
+ *  These macros add constants, variables, and arbitrary Python objects to modules.
+ *  They provide different approaches for exposing C++ values and objects to Python.
+ *
+ *  @{
+ */
+
+/** @ingroup ModuleDefinition
+ *  Add an integer constant to a Python module.
+ *
+ *  The constant will be added to the module during module creation (at injection time).
+ *  This is executed before main(), so the constant is available when the module is created.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param s_name Name of constant as shown in the module (const char* string with static storage duration)
+ *  @param s_value Integer value of the constant (long)
  */
 #define PY_MODULE_INTEGER_CONSTANT( i_module, s_name, s_value )\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
@@ -184,15 +272,15 @@
 
 
 
-/** @ingroup 
- *	Inject a string constant in a python module
+/** @ingroup ModuleDefinition
+ *  Add a string constant to a Python module.
  *
- *	@param i_module
- *		the identifier of the module to inject the object in
- *	@param s_name
- *		name of constant as shown in the module (zero terminated C string)
- *  @param v_value
- *		value of the constant (long)
+ *  The constant will be added to the module during module creation (at injection time).
+ *  This is executed before main(), so the constant is available when the module is created.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param s_name Name of constant as shown in the module (const char* string with static storage duration)
+ *  @param s_value String value of the constant (const char* string with static storage duration)
  */
 #define PY_MODULE_STRING_CONSTANT( i_module, s_name, s_value )\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
@@ -201,46 +289,44 @@
 
 
 
-/** @ingroup Python
- *	Inject a variable in a python module
+/** @ingroup ModuleDefinition
+ *  Inject an arbitrary object into an already created module at runtime.
  *
- *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
- *	function called by main.
+ *  This performs immediate injection into the module namespace, unlike the
+ *  PY_MODULE_*_CONSTANT macros which defer injection until module creation.
+ *  Must be called after the module has been injected with PY_INJECT_MODULE.
  *
- *  @param o_object
- *		the object/variable to be injected
- *	@param i_module
- *		the identifier of the module to inject the object in
- *	@param s_objectName
- *		name of object as shown in the module (zero terminated C string)
+ *  @param o_object Object/variable to be injected (will be converted to Python object)
+ *  @param i_module Module identifier of an already injected module
+ *  @param s_objectName Name of object as shown in the module (const char* string with static storage duration)
  */
 #define PY_INJECT_OBJECT_IN_MODULE_EX( o_object, i_module, s_objectName )\
 	{\
 		i_module.injectObject( o_object, s_objectName );\
 	}
 
-/** @ingroup Python
- *  convenience macro, wraps PY_INJECT_OBJECT_IN_MODULE_EX with
- *  @a s_objectName = # @a o_object
+/** @ingroup ModuleDefinition
+ *  Inject an object using its C++ identifier as the Python name.
+ *  Convenience macro that wraps PY_INJECT_OBJECT_IN_MODULE_EX() with s_objectName derived from o_object.
+ *
+ *  @param o_object Object/variable to be injected (name will be used as Python name)
+ *  @param i_module Module identifier of an already injected module
  */
 #define PY_INJECT_OBJECT_IN_MODULE( o_object, i_module )\
 	PY_INJECT_OBJECT_IN_MODULE_EX(o_object, i_module, LASS_STRINGIFY(o_object))
 
 
 
-/** @ingroup
- *  @deprecated
- *	Inject a integer constant in a python module
+/** @ingroup ModuleDefinition
+ *  @deprecated Use PY_MODULE_INTEGER_CONSTANT instead for compile-time registration
+ *  Inject an integer constant into an already created module at runtime.
  *
- *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
- *	function called by main.
+ *  This performs immediate injection, unlike PY_MODULE_INTEGER_CONSTANT which
+ *  registers the constant for inclusion during module creation.
  *
- *	@param i_module
- *		the identifier of the module to inject the object in
- *	@param s_name
- *		name of constant as shown in the module (zero terminated C string)
- *  @param v_value
- *		value of the constant (long)
+ *  @param i_module Module identifier of an already injected module
+ *  @param s_name Name of constant as shown in the module (const char* string with static storage duration)
+ *  @param v_value Integer value of the constant (long)
  */
 #define PY_MODULE_ADD_INTEGER_CONSTANT( i_module, s_name, v_value )\
 	{\
@@ -249,31 +335,48 @@
 
 
 
-/** @ingroup 
- *  @deprecated
- *	Inject a string constant in a python module
+/** @ingroup ModuleDefinition
+ *  @deprecated Use PY_MODULE_STRING_CONSTANT instead for compile-time registration
+ *  Inject a string constant into an already created module at runtime.
  *
- *  @remark This is to be done at @e runtime!  So, it has to be somewhere in your main or any
- *	function called by main.
+ *  This performs immediate injection, unlike PY_MODULE_STRING_CONSTANT which
+ *  registers the constant for inclusion during module creation.
  *
- *	@param i_module
- *		the identifier of the module to inject the object in
- *	@param s_name
- *		name of constant as shown in the module (zero terminated C string)
- *  @param s_value
- *		value of the constant (string)
+ *  @param i_module Module identifier of an already injected module
+ *  @param s_name Name of constant as shown in the module (const char* string with static storage duration)
+ *  @param s_value String value of the constant (const char* string with static storage duration)
  */
 #define PY_MODULE_ADD_STRING_CONSTANT( i_module, s_name, s_value )\
 	{\
 		i_module.injectString(s_name, s_value);\
 	}
 
+/** @} */
+
 // --- free module functions -----------------------------------------------------------------------
 
-/* @ingroup Python
- * @deprecated
- * Use this macro for backward compatibility when wrapper functions don't 
- * need to be automatically generated or you want specific Python behaviour.
+/** @addtogroup ModuleDefinition
+ *  @name Basic Function Export Macros
+ *
+ *  These macros export C++ functions to Python with automatic type deduction and wrapper generation.
+ *  Use these for simple function exports where overloading is not an issue and automatic type
+ *  deduction is sufficient.
+ *
+ *  @{
+ */
+
+/** @ingroup ModuleDefinition
+ *  Export a C++ function to Python without automatic wrapper generation.
+ *
+ *  Use this macro for backward compatibility when wrapper functions don't
+ *  need to be automatically generated or you want specific Python behavior.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param f_cppFunction C++ function to export (must already be a PyCFunction)
+ *  @param s_functionName Python function name
+ *  @param s_doc Function documentation string
+ *
+ *  @deprecated Use PY_MODULE_FUNCTION_EX instead for automatic wrapper generation
  */
 #define PY_MODULE_PY_FUNCTION_EX( i_module, f_cppFunction, s_functionName, s_doc )\
 	static PyCFunction LASS_CONCATENATE( pyOverloadChain_, i_dispatcher ) = 0;\
@@ -287,40 +390,35 @@
 
 
 
-/** @ingroup Python
- *  Exports a C++ free function to Python
+/** @ingroup ModuleDefinition
+ *  Export a C++ free function to Python with full control over overloading.
  *
- *  @param i_module
- *		the module object
- *  @param f_cppFunction
- *      the name of the function in C++
- *  @param s_functionName
- *      the name the method will have in Python
- *  @param s_doc
- *      documentation of function as shown in Python (zero terminated C string)
- *  @param i_dispatcher
- *      A unique name of the static C++ dispatcher function to be generated.  This name will be
- *      used for the names of automatic generated variables and functions and should be unique
- *      per exported C++ class/method pair.
+ *  This is the most flexible function export macro, allowing manual dispatcher naming
+ *  for creating overloaded Python functions. Multiple C++ functions can be exported
+ *  with the same Python name to create overloaded functions.
  *
- *  Invoke this macro to export a function to python.  You can use this to generate overloaded
- *  Python functions by exporting multiple functions with the same @a s_methodName name.
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param f_cppFunction C++ function to export
+ *  @param s_functionName Python function name (const char* string with static storage duration)
+ *  @param s_doc Function documentation string (const char* string with static storage duration, or nullptr)
+ *  @param i_dispatcher Unique name for the generated dispatcher function (must be unscoped identifier for token concatenation)
  *
- *  @note
- *      unlike in C++ overload issues will be not be solved by best fit, but by first fit.
- *      If such an overloaded Python functions is called, the different overloads are called in
- *      the same order of export.  The first one that fits the arguments will be called.
+ *  Use this macro to export functions to Python. You can create overloaded Python functions 
+ *  by exporting multiple C++ functions with the same s_functionName.
  *
- *  @note
- *      the documentation of the Python method will be the @a s_doc of the first exported
- *      overload.
+ *  @note Overload resolution uses first-fit, not best-fit like C++. The first exported
+ *        overload that matches the arguments will be called.
  *
+ *  @note The documentation of an overloaded Python function will be the s_doc of the
+ *        first exported overload.
+ *
+ *  @par Example:
  *  @code
  *  void barA(int a);
  *  void barB(const std::string& b);
  *
- *  PY_MODULE_FUNCTION_EX(foo_module, barA, "bar", 0, foo_bar_a)
- *  PY_MODULE_FUNCTION_EX(foo_module, barB, "bar", 0, foo_bar_b)
+ *  PY_MODULE_FUNCTION_EX(foo_module, barA, "bar", nullptr, foo_bar_a)
+ *  PY_MODULE_FUNCTION_EX(foo_module, barB, "bar", nullptr, foo_bar_b)
  *  @endcode
  */
 #define PY_MODULE_FUNCTION_EX( i_module, f_cppFunction, s_functionName, s_doc, i_dispatcher )\
@@ -347,36 +445,70 @@
 			);\
 	)
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_EX with 
- *	@a i_dispatcher = lassPyImpl_function_ ## @a i_module ## __LINE__
+/** @ingroup ModuleDefinition
+ *  Export a C++ free function to Python with custom name and documentation.
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_EX() with auto-generated dispatcher name.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param f_cppFunction C++ function to export
+ *  @param s_name Python function name (const char* string with static storage duration)
+ *  @param s_doc Function documentation string (const char* string with static storage duration, or nullptr)
  */
 #define PY_MODULE_FUNCTION_NAME_DOC( i_module, f_cppFunction, s_name, s_doc )\
 	PY_MODULE_FUNCTION_EX( i_module, f_cppFunction, s_name, s_doc,\
 		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_function_, i_module)))
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_NAME_DOC with @a s_doc = 0.
+/** @ingroup ModuleDefinition
+ *  Export a C++ free function to Python with custom name (no documentation).
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_NAME_DOC() with s_doc = nullptr.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param f_cppFunction C++ function to export
+ *  @param s_name Python function name (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_NAME( i_module, f_cppFunction, s_name)\
 	PY_MODULE_FUNCTION_NAME_DOC( i_module, f_cppFunction, s_name, 0)
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_NAME_DOC with @a s_name = "@a i_innerCppClass".
+/** @ingroup ModuleDefinition
+ *  Export a C++ free function to Python using the C++ function name with documentation.
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_NAME_DOC() with s_name derived from f_cppFunction.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param f_cppFunction C++ function to export (name will be used as Python name)
+ *  @param s_doc Function documentation string (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_DOC( i_module, f_cppFunction, s_doc )\
 	PY_MODULE_FUNCTION_NAME_DOC( i_module, f_cppFunction, LASS_STRINGIFY(f_cppFunction), s_doc)
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_NAME_DOC with @a s_name = "@a i_innerCppClass" and s_doc = 0.
+/** @ingroup ModuleDefinition
+ *  Export a C++ free function to Python using the C++ function name (no documentation).
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_NAME_DOC() with defaults.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param f_cppFunction C++ function to export (name will be used as Python name)
  */
 #define PY_MODULE_FUNCTION( i_module, f_cppFunction)\
 	PY_MODULE_FUNCTION_NAME_DOC( i_module, f_cppFunction, LASS_STRINGIFY(f_cppFunction), 0)
 
+/** @} */
 
 // --- casting free functions -----------------------------------------------------------
 
-/** @ingroup Python
+/** @addtogroup ModuleDefinition
+ *  @name Function Cast Export Macros (Deprecated)
+ *
+ *  @deprecated These macros are deprecated. Instead of using casting macros, define explicit
+ *  wrapper functions with the desired signatures and export those directly using the basic
+ *  function export macros.
+ *
+ *  These macros export C++ functions to Python with explicit type casting and support for
+ *  default parameters. They create wrapper functions that handle type conversions and
+ *  allow exporting functions with default parameters by omitting trailing parameters.
+ *
+ *  @{
+ */
+
+/** @ingroup ModuleDefinition
  *  Exports a C++ free functions to Python with on the fly casting on return type and parameters, including omission of default parameters
  *
  *  @param i_module
@@ -408,6 +540,18 @@
  */
 
 
+/** @ingroup ModuleDefinition
+ *  @deprecated Define an explicit wrapper function instead of using casting macros
+ *  Export a C++ function with explicit return type casting for 0-parameter functions with full control.
+ *  This macro allows exporting functions with default parameters or when explicit type casting is needed.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_cppFunction C++ function to export (0 parameters)
+ *  @param t_return Return type of the function (for explicit casting)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
+ *  @param s_doc Function documentation string (const char* string with static storage duration)
+ *  @param i_dispatcher Unique identifier for the function dispatcher
+ */
 #define PY_MODULE_FUNCTION_CAST_EX_0(i_module, f_cppFunction, t_return, s_functionName, s_doc, i_dispatcher) \
 	::lass::python::OwnerCaster<t_return>::TCaster::TTarget LASS_CONCATENATE(i_dispatcher, _caster) ()\
 	{\
@@ -417,9 +561,18 @@
 
 
  $[
-/** @ingroup Python
- *  @sa PY_CLASS_METHOD_CAST_EX
- *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX for $x arguments
+/** @ingroup ModuleDefinition
+ *  @deprecated Define an explicit wrapper function instead of using casting macros
+ *  Export a C++ function with explicit type casting for $x-parameter functions with full control.
+ *  This macro allows exporting functions with default parameters or when explicit type casting is needed.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_cppFunction C++ function to export ($x parameters)
+ *  @param t_return Return type of the function (for explicit casting)
+ *  @param $(t_P$x)$ Parameter types for the function (for explicit casting)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
+ *  @param s_doc Function documentation string (const char* string with static storage duration)
+ *  @param i_dispatcher Unique identifier for the function dispatcher
  */
  #define PY_MODULE_FUNCTION_CAST_EX_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, s_doc, i_dispatcher )\
 	::lass::python::OwnerCaster< t_return >::TCaster::TTarget LASS_CONCATENATE(i_dispatcher, _caster) ( \
@@ -431,18 +584,34 @@
 	PY_MODULE_FUNCTION_EX( i_module, LASS_CONCATENATE(i_dispatcher, _caster), s_functionName, s_doc, i_dispatcher );
  ]$
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_CAST_EX_0 with
- *  @a i_dispatcher = lassPyImpl_function_ ## @a i_module ## __LINE__.
+/** @ingroup ModuleDefinition
+ *  @deprecated Define an explicit wrapper function instead of using casting macros
+ *  Export a C++ function with explicit type casting for 0-parameter functions with custom name and documentation.
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_CAST_EX_0() with automatically generated dispatcher name.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_cppFunction C++ function to export (0 parameters)
+ *  @param t_return Return type of the function (for explicit casting)
+ *  @param t_params Parameter types as lass::meta::TypeTuple (for explicit casting - should be empty TypeTuple<>)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
+ *  @param s_doc Function documentation string (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_CAST_NAME_DOC_0( i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc )\
 	PY_MODULE_FUNCTION_CAST_EX_0(\
 		i_module, f_cppFunction, t_return, s_functionName, s_doc,\
 		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_function_, i_module)))
 $[
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_CAST_EX_$x with
- *  @a i_dispatcher = lassPyImpl_function_ ## @a i_module ## __LINE__.
+/** @ingroup ModuleDefinition
+ *  @deprecated Define an explicit wrapper function instead of using casting macros
+ *  Export a C++ function with explicit type casting for $x-parameter functions with custom name and documentation.
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_CAST_EX_$x() with automatically generated dispatcher name.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_cppFunction C++ function to export ($x parameters)
+ *  @param t_return Return type of the function (for explicit casting)
+ *  @param $(t_P$x)$ Parameter types for the function (for explicit casting)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
+ *  @param s_doc Function documentation string (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_CAST_NAME_DOC_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, s_doc )\
 	PY_MODULE_FUNCTION_CAST_EX_$x(\
@@ -451,53 +620,88 @@ $[
 ]$
 
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_CAST_NAME_DOC_0 with @a s_doc = 0.
+/** @ingroup ModuleDefinition
+ *  @deprecated Define an explicit wrapper function instead of using casting macros
+ *  Export a C++ function with explicit type casting for 0-parameter functions with custom name (no documentation).
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_CAST_NAME_DOC_0() with s_doc = nullptr.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_cppFunction C++ function to export (0 parameters)
+ *  @param t_return Return type of the function (for explicit casting)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_CAST_NAME_0( i_module, f_cppFunction, t_return, s_functionName )\
 	PY_MODULE_FUNCTION_CAST_NAME_DOC_0(\
 		i_module, f_cppFunction, t_return, s_functionName, 0 )
 $[
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_CAST_NAME_DOC_$x with @a s_doc = 0.
+/** @ingroup ModuleDefinition
+ *  @deprecated Define an explicit wrapper function instead of using casting macros
+ *  Export a C++ function with explicit type casting for $x-parameter functions with custom name (no documentation).
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_CAST_NAME_DOC_$x() with s_doc = nullptr.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_cppFunction C++ function to export ($x parameters)
+ *  @param t_return Return type of the function (for explicit casting)
+ *  @param $(t_P$x)$ Parameter types for the function (for explicit casting)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_CAST_NAME_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName )\
 	PY_MODULE_FUNCTION_CAST_NAME_DOC_$x(\
 		i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, 0 )
 ]$
 
+/** @} */
 
 // --- explicit qualified free functions -----------------------------------------------------------
 
-/** @ingroup Python
- *  Exports a C++ free functions to Python with fully qualified return type and parameters
+/** @addtogroup ModuleDefinition
+ *  @name Type-Qualified Function Export Macros
  *
- *  @param i_module
- *		the module object
- *  @param f_cppFunction
- *      the name of the function in C++
- *  @param t_return
- *      the return type of @a f_cppFunction
- *  @param t_params
- *      a lass::meta::TypeTuple of the parameter types of @a f_cppFunction
- *  @param s_functionName
- *      the name the method will have in Python
- *  @param s_doc
- *      documentation of function as shown in Python (zero terminated C string)
- *  @param i_dispatcher
- *      A unique name of the static C++ dispatcher function to be generated.  This name will be
- *      used for the names of automatic generated variables and functions and should be unique
+ *  These macros export C++ functions to Python with explicit type qualification to resolve
+ *  function overload ambiguities. They provide fine-grained control over function signatures
+ *  and are essential when exporting overloaded functions that would otherwise be ambiguous.
  *
- *  You can use this macro instead of PY_MODULE_FUNCTION_EX if there's an ambiguity on 
- *	@a f_cppFunction. This macro will help you to solve this ambiguity by explicitely 
- *	specifying return type and parameter types.
+ *  The macros are organized in layers:
+ *  - PY_MODULE_FUNCTION_QUALIFIED_EX(): Full control with custom dispatcher and meta::TypeTuple for parameters
+ *  - PY_MODULE_FUNCTION_QUALIFIED_EX_0() through PY_MODULE_FUNCTION_QUALIFIED_EX_15(): Full control with custom dispatcher, for 0-15 parameters
+ *  - PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC(): Automatic dispatcher with custom name and documentation, and meta::TypeTuple for parameters
+ *  - PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0() through PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_15(): Automatic dispatcher with custom name, for 0-15 parameters
+ *  - PY_MODULE_FUNCTION_QUALIFIED_NAME(): Automatic dispatcher with custom name, no documentation, and meta::TypeTuple for parameters
+ *  - PY_MODULE_FUNCTION_QUALIFIED_NAME_0() through PY_MODULE_FUNCTION_QUALIFIED_NAME_15(): Automatic dispatcher with custom name, no documentation, for 0-15 parameters
+ *  - PY_MODULE_FUNCTION_QUALIFIED_DOC(): Automatic dispatcher with documentation, and meta::TypeTuple for parameters
+ *  - PY_MODULE_FUNCTION_QUALIFIED_DOC_0() through PY_MODULE_FUNCTION_QUALIFIED_DOC_15(): Automatic dispatcher with documentation, for 0-15 parameters
+ *  - PY_MODULE_FUNCTION_QUALIFIED(): Automatic dispatcher, no documentation, and meta::TypeTuple for parameters
+ *  - PY_MODULE_FUNCTION_QUALIFIED_0() through PY_MODULE_FUNCTION_QUALIFIED_15(): Automatic dispatcher, no documentation, for 0-15 parameters
  *
+ *  @{
+ */
+
+
+/** @ingroup ModuleDefinition
+ *  Export a C++ free function to Python with explicit type qualification to resolve ambiguities.
+ *
+ *  Use this macro instead of PY_MODULE_FUNCTION_EX when there are overloaded C++ functions
+ *  that would create ambiguity. By explicitly specifying return type and parameter types,
+ *  you can disambiguate which overload to export.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param f_cppFunction C++ function to export (can be overloaded)
+ *  @param t_return Return type of the function (for disambiguation)
+ *  @param t_params Parameter types as lass::meta::TypeTuple (for disambiguation)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
+ *  @param s_doc Function documentation string (const char* string with static storage duration, or nullptr)
+ *  @param i_dispatcher Unique name for the generated dispatcher function (must be unscoped identifier for token concatenation)
+ *
+ *  This macro helps resolve function overload ambiguities by explicitly specifying
+ *  the function signature to export.
+ *
+ *  @par Example:
  *  @code
- *	void bar(int a);
+ *  void bar(int a);
  *  void bar(const std::string& b);
  *
- *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, meta::TypeTuple<int>, "bar", 0, foo_bar_a)
- *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, meta::TypeTuple<const std::string&>, "bar", 0, foo_bar_b)
+ *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, meta::TypeTuple<int>, "bar", nullptr, foo_bar_a)
+ *  PY_MODULE_FUNCTION_QUALIFIED_EX(foo_module, bar, void, meta::TypeTuple<const std::string&>, "bar", nullptr, foo_bar_b)
  *  @endcode
  */
 
@@ -531,15 +735,32 @@ $[
 		);\
 	)
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_EX for 0 arguments
+/** @ingroup ModuleDefinition
+ *  Export a C++ function with type qualification for 0-parameter functions with full control.
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_QUALIFIED_EX() for functions with 0 parameters.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_cppFunction C++ function to export (0 parameters, can be overloaded)
+ *  @param t_return Return type of the function (for disambiguation)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
+ *  @param s_doc Function documentation string (const char* string with static storage duration)
+ *  @param i_dispatcher Unique identifier for the function dispatcher
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_EX_0( i_module, f_cppFunction, t_return, s_functionName, s_doc, i_dispatcher )\
 	PY_MODULE_FUNCTION_QUALIFIED_EX(\
 		i_module, f_cppFunction, t_return, ::lass::meta::TypeTuple<>, s_functionName, s_doc, i_dispatcher )
 $[
-/** @ingroup Python
- *  convenience macro, wraps PY_CLASS_METHOD_QUALIFIED_EX for $x arguments
+/** @ingroup ModuleDefinition
+ *  Export a C++ function with type qualification for $x-parameter functions with full control.
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_QUALIFIED_EX() for functions with exactly $x parameters.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_cppFunction C++ function to export ($x parameters, can be overloaded)
+ *  @param t_return Return type of the function (for disambiguation)
+ *  @param $(t_P$x)$ Parameter types for the function (for disambiguation)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
+ *  @param s_doc Function documentation string (const char* string with static storage duration)
+ *  @param i_dispatcher Unique identifier for the function dispatcher
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_EX_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, s_doc, i_dispatcher )\
 	typedef ::lass::meta::TypeTuple< $(t_P$x)$ > \
@@ -550,9 +771,16 @@ $[
 		s_functionName, s_doc, i_dispatcher )
 ]$
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_EX with
- *  @a i_dispatcher = lassPyImpl_function_ ## @a i_module ## __LINE__.
+/** @ingroup ModuleDefinition
+ *  Export a C++ function with type qualification and custom name with documentation.
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_QUALIFIED_EX() with automatically generated dispatcher name.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_cppFunction C++ function to export (can be overloaded)
+ *  @param t_return Return type of the function (for disambiguation)
+ *  @param t_params Parameter types as lass::meta::TypeTuple (for disambiguation)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
+ *  @param s_doc Function documentation string (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC( i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc )\
 	PY_MODULE_FUNCTION_QUALIFIED_EX(\
@@ -560,18 +788,32 @@ $[
 		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_function_, i_module)))
 
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_EX_0 with
- *  @a i_dispatcher = lassPyImpl_function_ ## @a i_module ## __LINE__.
+/** @ingroup ModuleDefinition
+ *  Export a C++ function with type qualification for 0-parameter functions with custom name and documentation.
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_QUALIFIED_EX_0() with automatically generated dispatcher name.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_cppFunction C++ function to export (0 parameters, can be overloaded)
+ *  @param t_return Return type of the function (for disambiguation)
+ *  @param t_params Parameter types as lass::meta::TypeTuple (for disambiguation - should be empty TypeTuple<>)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
+ *  @param s_doc Function documentation string (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0( i_module, f_cppFunction, t_return, t_params, s_functionName, s_doc )\
 	PY_MODULE_FUNCTION_QUALIFIED_EX_0(\
 		i_module, f_cppFunction, t_return, s_functionName, s_doc,\
 		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_function_, i_module)))
 $[
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_EX_$x with
- *  @a i_dispatcher = lassPyImpl_function_ ## @a i_module ## __LINE__.
+/** @ingroup ModuleDefinition
+ *  Export a C++ function with type qualification for $x-parameter functions with custom name and documentation.
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_QUALIFIED_EX_$x() with automatically generated dispatcher name.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_cppFunction C++ function to export ($x parameters, can be overloaded)
+ *  @param t_return Return type of the function (for disambiguation)
+ *  @param $(t_P$x)$ Parameter types for the function (for disambiguation)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
+ *  @param s_doc Function documentation string (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, s_doc )\
 	PY_MODULE_FUNCTION_QUALIFIED_EX_$x(\
@@ -579,75 +821,122 @@ $[
 		LASS_UNIQUENAME(LASS_CONCATENATE(lassPyImpl_function_, i_module)))
 ]$
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC with @a s_doc = 0.
+/** @ingroup ModuleDefinition
+ *  Export a C++ function with type qualification and custom name (no documentation).
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC() with s_doc = nullptr.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param f_cppFunction C++ function to export (can be overloaded)
+ *  @param t_return Return type of the function (for disambiguation)
+ *  @param t_params Parameter types as lass::meta::TypeTuple (for disambiguation)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_NAME( i_module, f_cppFunction, t_return, t_params, s_functionName )\
 		PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC(\
 			i_module, f_cppFunction, t_return, t_params, s_functionName, 0 )
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0 with @a s_doc = 0.
+/** @ingroup ModuleDefinition
+ *  Export a C++ function with type qualification for 0-parameter functions and custom name (no documentation).
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0() with s_doc = nullptr.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param f_cppFunction C++ function to export (0 parameters, can be overloaded)
+ *  @param t_return Return type of the function (for disambiguation)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_NAME_0( i_module, f_cppFunction, t_return, s_functionName )\
 	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0(\
 		i_module, f_cppFunction, t_return, s_functionName, 0 )
 $[
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x with @a s_doc = 0.
+/** @ingroup ModuleDefinition
+ *  Export a C++ function with type qualification for $x-parameter functions with custom name (no documentation).
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x() with s_doc = nullptr.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_cppFunction C++ function to export ($x parameters, can be overloaded)
+ *  @param t_return Return type of the function (for disambiguation)
+ *  @param $(t_P$x)$ Parameter types for the function (for disambiguation)
+ *  @param s_functionName Python function name (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_NAME_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName )\
 	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x(\
 		i_module, f_cppFunction, t_return, $(t_P$x)$, s_functionName, 0 )
 ]$
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC
- *  with @a s_functionName = # @a f_cppFunction.
+/** @ingroup ModuleDefinition
+ *  Export a C++ function with type qualification using the C++ function name with documentation.
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC() with s_functionName derived from f_cppFunction.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param f_cppFunction C++ function to export (can be overloaded, name will be used as Python name)
+ *  @param t_return Return type of the function (for disambiguation)
+ *  @param t_params Parameter types as lass::meta::TypeTuple (for disambiguation)
+ *  @param s_doc Function documentation string (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_DOC( i_module, f_cppFunction, t_return, t_params, s_doc )\
 	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC( \
 		i_module, f_cppFunction, t_return, t_params, LASS_STRINGIFY(f_cppFunction), s_doc)
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0
- *  with @a s_functionName = # @a f_cppFunction.
+/** @ingroup ModuleDefinition
+ *  Export a C++ function with type qualification for 0-parameter functions using the C++ function name with documentation.
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0() with s_functionName derived from f_cppFunction.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param f_cppFunction C++ function to export (0 parameters, name will be used as Python name)
+ *  @param t_return Return type of the function (for disambiguation)
+ *  @param s_doc Function documentation string (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_DOC_0( i_module, f_cppFunction, t_return, s_doc )\
 	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0( \
 		i_module, f_cppFunction, t_return, LASS_STRINGIFY(f_cppFunction), s_doc)
 $[
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x
- *  with @a s_functionName = # @a f_cppFunction.
+/** @ingroup ModuleDefinition
+ *  Export a C++ function with type qualification for $x-parameter functions using the C++ function name with documentation.
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x() with s_functionName derived from f_cppFunction.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*()
+ *  @param f_cppFunction C++ function to export ($x parameters, name will be used as Python name)
+ *  @param t_return Return type of the function (for disambiguation)
+ *  @param $(t_P$x)$ Parameter types for the function (for disambiguation)
+ *  @param s_doc Function documentation string (const char* string with static storage duration)
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_DOC_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, s_doc )\
 	PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x( \
 		i_module, f_cppFunction, t_return, $(t_P$x)$, LASS_STRINGIFY(f_cppFunction), s_doc)
 ]$
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC
- *  with @a s_functionName = # @a f_cppFunction and @a s_doc = 0.
+/** @ingroup ModuleDefinition
+ *  Export a C++ function with type qualification using the C++ function name (no documentation).
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC() with defaults.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param f_cppFunction C++ function to export (can be overloaded, name will be used as Python name)
+ *  @param t_return Return type of the function (for disambiguation)
+ *  @param t_params Parameter types as lass::meta::TypeTuple (for disambiguation)
  */
 #define PY_MODULE_FUNCTION_QUALIFIED( i_module, f_cppFunction, t_return, t_params )\
 	PY_MODULE_FUNCTION_QUALIFIED_DOC( i_module, f_cppFunction, t_return, t_params, 0 )
 
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_0
- *  with @a s_functionName = # @a f_cppFunction and @a s_doc = 0.
+/** @ingroup ModuleDefinition
+ *  Export a C++ function with type qualification for 0-parameter functions using the C++ function name (no documentation).
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_QUALIFIED_DOC_0() with s_doc = nullptr.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_*
+ *  @param f_cppFunction C++ function to export (0 parameters, name will be used as Python name)
+ *  @param t_return Return type of the function (for disambiguation)
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_0( i_module, f_cppFunction, t_return )\
 	PY_MODULE_FUNCTION_QUALIFIED_DOC_0( i_module, f_cppFunction, t_return, 0 )
 $[
-/** @ingroup Python
- *  convenience macro, wraps PY_MODULE_FUNCTION_QUALIFIED_NAME_DOC_$x
- *  with @a s_functionName = # @a f_cppFunction and @a s_doc = 0.
+/** @ingroup ModuleDefinition
+ *  Export a C++ function with type qualification for $x-parameter functions using the C++ function name (no documentation).
+ *  Convenience macro that wraps PY_MODULE_FUNCTION_QUALIFIED_DOC_$x() with s_doc = nullptr.
  */
 #define PY_MODULE_FUNCTION_QUALIFIED_$x( i_module, f_cppFunction, t_return, $(t_P$x)$ )\
 	PY_MODULE_FUNCTION_QUALIFIED_DOC_$x( i_module, f_cppFunction, t_return, $(t_P$x)$, 0 )
 ]$
 
+/** @} */
 
 
 
@@ -721,13 +1010,15 @@ $[
 	t_cppClass::_lassPyClassDef.setDocIfNotNull(s_doc);\
 	i_module.injectClass(t_cppClass::_lassPyClassDef); 
 
-/** @ingroup Python
- *  add a class to a module, new style
+/** @ingroup ModuleDefinition
+ *  Add a C++ class to a Python module.
  *
- *  @param t_cppClass
- *		the type of the class to be injected
- *	@param i_module
- *		the identifier of the module object to inject the class in.
+ *  Registers the class definition to be included in the module when it is created.
+ *  The class must have been declared with PY_DECLARE_CLASS_* macros.
+ *  This is executed before main(), so the class is available when the module is created.
+ *
+ *  @param i_module Module identifier declared by PY_DECLARE_MODULE_* (must be unscoped identifier for token concatenation)
+ *  @param t_cppClass C++ class type that has been declared with PY_DECLARE_CLASS_* macros
  */
 #define PY_MODULE_CLASS( i_module, t_cppClass ) \
 	LASS_EXECUTE_BEFORE_MAIN_EX\
