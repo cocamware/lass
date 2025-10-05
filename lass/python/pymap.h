@@ -40,10 +40,6 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-/** @defgroup Python
- *  @brief interface library to Python
- */
-
 #ifndef LASS_GUARDIAN_OF_INCLUSION_UTIL_PYMAP_H
 #define LASS_GUARDIAN_OF_INCLUSION_UTIL_PYMAP_H
 
