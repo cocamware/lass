@@ -75,6 +75,11 @@ print(sys.version)
 POINTER_SIZE = struct.calcsize("P")  # size of a pointer in bytes
 
 
+class TestModuleFunctions(unittest.TestCase):
+    def testStdFunctions(self) -> None:
+        self.assertEqual(embedding.adderStdFunction(2, 3), 5)
+
+
 class TestInternalLassModule(unittest.TestCase):
     def testInternalLassModule(self) -> None:
         self.assertEqual(_lass.__name__, "_lass")

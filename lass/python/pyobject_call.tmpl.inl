@@ -255,6 +255,50 @@ PyObject* callFunction( PyObject* args, std::function<R($(P$x)$)> function )
 }
 ]$
 
+/** calls std::function pointer
+ * 
+ *  Some macros take the address of the function pointer, so we need this overload as well.
+ */
+template <typename R, typename... Args>
+PyObject* callFunction( PyObject* args, std::function<R(Args...)> *function )
+{
+	if (!function)
+	{
+		PyErr_BadInternalCall();
+		return nullptr;
+	}
+	return callFunction(args, *function);
+}
+
+/** call callable pointer
+ * 
+ *  Some macros take the address of the function pointer, so we need this overload as well.
+ */
+template <typename FunctionType>
+PyObject* callFunction( PyObject* args, FunctionType function )
+{
+	if (!function)
+	{
+		PyErr_BadInternalCall();
+		return nullptr;
+	}
+	return callFunction(args, std::function { function });
+}
+
+/** call std::function pointer
+ * 
+ *  Some macros take the address of the function pointer, so we need this overload as well.
+ */
+template <typename FunctionType>
+PyObject* callFunction( PyObject* args, FunctionType *function )
+{
+	if (!function)
+	{
+		PyErr_BadInternalCall();
+		return nullptr;
+	}
+	return callFunction(args, std::function { *function });
+}
 
 
 // --- methods -------------------------------------------------------------------------------------
@@ -414,6 +458,14 @@ $[
 		return establishMagicalBackLinks(result, object);
 	}
 ]$
+
+	/** call std::function as "free method" without arguments, passing object as first argument
+	 */
+	template <typename FunctionType>
+	static PyObject* callFree( PyObject* args, PyObject* object, FunctionType freeMethod )
+	{
+		return CallMethod<ShadowTraits>::callFree(args, object, std::function { freeMethod });
+	}
 
 	// member getters and setters
 

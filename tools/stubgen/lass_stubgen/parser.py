@@ -1271,11 +1271,25 @@ reference to a class defined in another file.
             cpp_return_type = func_type.result
             assert cpp_return_type, f"{func_type=} must have a result"
             cpp_params = [ParamInfo("", arg) for arg in func_type.args or []]
+        elif func.kind == CursorKind.VAR_DECL:
+            func = ensure_only_child(func, CursorKind.LAMBDA_EXPR)
+            cpp_return_type = TypeInfo("Any")
+            cpp_params = [
+                ParamInfo(arg.spelling, type_info(arg))
+                for arg in iter_children(func, CursorKind.PARM_DECL)
+            ]
         else:
             cpp_return_type = type_info(func.type.get_result())
             cpp_params = [
                 ParamInfo(arg.spelling, type_info(arg)) for arg in func.get_arguments()
             ]
+
+        if "lambda at python_embedding.cpp" in cpp_signature:
+            print(f"{func_type=}")
+            print(f"{cpp_return_type=}")
+            print(f"{cpp_params=}")
+            cls._debug(func)
+            assert False
 
         is_free_method = call_expr.spelling in ("callFree", "callFreeMethod")
 
