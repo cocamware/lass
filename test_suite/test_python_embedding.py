@@ -92,6 +92,11 @@ if TYPE_CHECKING:
         from typing import Self, assert_type
 
 
+class TestModuleFunctions(unittest.TestCase):
+    def testStdFunctions(self) -> None:
+        self.assertEqual(embedding.adderStdFunction(2, 3), 5)
+
+
 class TestInternalLassModule(unittest.TestCase):
     def testInternalLassModule(self) -> None:
         self.assertEqual(_lass.__name__, "_lass")
