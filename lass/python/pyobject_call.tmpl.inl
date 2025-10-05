@@ -255,6 +255,19 @@ PyObject* callFunction( PyObject* args, std::function<R($(P$x)$)> function )
 }
 ]$
 
+/** call callable thing (lambda, or util::Callback)
+ */
+template <typename FunctionType>
+PyObject* callFunction( PyObject* args, FunctionType function )
+{
+	if (!function)
+	{
+		PyErr_BadInternalCall();
+		return nullptr;
+	}
+	return callFunction(args, std::function { function });
+}
+
 
 
 // --- methods -------------------------------------------------------------------------------------
@@ -414,6 +427,14 @@ $[
 		return establishMagicalBackLinks(result, object);
 	}
 ]$
+
+	/** call std::function as "free method" without arguments, passing object as first argument
+	 */
+	template <typename FunctionType>
+	static PyObject* callFree( PyObject* args, PyObject* object, FunctionType freeMethod )
+	{
+		return CallMethod<ShadowTraits>::callFree(args, object, std::function { freeMethod });
+	}
 
 	// member getters and setters
 

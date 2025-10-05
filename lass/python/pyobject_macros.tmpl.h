@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -435,7 +435,7 @@
 			PyErr_Clear();\
 			Py_XDECREF(result);\
 		}\
-		return ::lass::python::impl::callFunction( iArgs, &f_cppFunction );\
+		return ::lass::python::impl::callFunction( iArgs, f_cppFunction );\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyModuleFunction_, i_module, i_dispatcher ), \

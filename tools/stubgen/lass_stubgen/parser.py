@@ -19,7 +19,7 @@
 # The Original Developer is the Initial Developer.
 #
 # All portions of the code written by the Initial Developer are:
-# Copyright (C) 2025 the Initial Developer.
+# Copyright (C) 2025-2026 the Initial Developer.
 # All Rights Reserved.
 #
 # Contributor(s):
@@ -1255,9 +1255,9 @@ reference to a class defined in another file.
         assert call_args, f"{call_expr.spelling} ({canonical_type(call_expr).spelling})"
 
         func_arg = call_args[-1]
-        while func_arg.kind in [CursorKind.UNEXPOSED_EXPR, CursorKind.UNARY_OPERATOR]:
+        while func_arg.kind in [CursorKind.UNEXPOSED_EXPR, CursorKind.UNARY_OPERATOR, CursorKind.PAREN_EXPR]:
             func_arg = ensure_only_child(func_arg)
-        if func_arg.kind == CursorKind.CALL_EXPR:
+        if func_arg.kind in (CursorKind.CALL_EXPR, CursorKind.LAMBDA_EXPR):
             func = func_arg
         else:
             func = deref_decl_ref_expr(func_arg)
@@ -1266,11 +1266,22 @@ reference to a class defined in another file.
 
         func_type = type_info(func)
         if func_type.name in ("std::function", "std::__ndk1::function"):
+            assert func.kind != CursorKind.VAR_DECL, func.kind
             assert func_type.args and len(func_type.args) == 1, f"{func_type.args=}"
             func_type = func_type.args[0]
             cpp_return_type = func_type.result
             assert cpp_return_type, f"{func_type=} must have a result"
             cpp_params = [ParamInfo("", arg) for arg in func_type.args or []]
+        elif call_operator := _find_call_operator(func):
+            # func is a callable object: a lambda expression, a variable holding
+            # one, or its implicit copy-construction when passed by value. Its
+            # call operator has the deduced return type and parameter names.
+            cpp_signature = canonical_type(call_operator).spelling
+            cpp_return_type = type_info(canonical_type(call_operator).get_result())
+            cpp_params = [
+                ParamInfo(arg.spelling, type_info(arg))
+                for arg in call_operator.get_arguments()
+            ]
         else:
             cpp_return_type = type_info(func.type.get_result())
             cpp_params = [
@@ -1478,7 +1489,7 @@ def string_literal(node: Cursor) -> str:
 
 def deref_decl_ref_expr(node: Cursor) -> Cursor:
     while node.kind != CursorKind.DECL_REF_EXPR:
-        assert node.kind in [CursorKind.UNEXPOSED_EXPR, CursorKind.UNARY_OPERATOR]
+        assert node.kind in [CursorKind.UNEXPOSED_EXPR, CursorKind.UNARY_OPERATOR], node.kind
         node = ensure_only_child(node)
     return node.referenced
 
@@ -1518,6 +1529,17 @@ def _find_first_child(node: Cursor, kind: CursorKind) -> Cursor | None:
     for child in node.get_children():
         if child.kind == kind:
             return child
+    return None
+
+
+def _find_call_operator(node: Cursor) -> Cursor | None:
+    """Return the operator() if node is of a callable class type (like a lambda)."""
+    decl = canonical_type(node).get_declaration()
+    if decl.kind not in (CursorKind.CLASS_DECL, CursorKind.STRUCT_DECL):
+        return None
+    for method in iter_children(decl, CursorKind.CXX_METHOD):
+        if method.spelling == "operator()":
+            return method
     return None
 
 
