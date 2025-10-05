@@ -71,10 +71,22 @@ namespace python
 namespace impl
 {
 
-// --- exception handlers -------------------------------------------------------------------------
+/** @internal
+ *  True if std::function's deduction guide applies to T: a function pointer, or a class with
+ *  exactly one non-template, non-overloaded operator().
+ */
+template <typename T, typename Enable = void> 
+struct IsStdFunctionWrappable: public std::false_type {};
+
+template <typename T>
+struct IsStdFunctionWrappable<T, std::void_t<decltype(std::function{ std::declval<const T&>() })>>: public std::true_type {};
 
 
+template <typename T>
+struct StdFunctionArity;
 
+template <typename R, typename... P>
+struct StdFunctionArity< std::function<R(P...)> >: public std::integral_constant<size_t, sizeof...(P)> {};
 
 
 // --- actual callers ------------------------------------------------------------------------------
@@ -255,6 +267,18 @@ PyObject* callFunction( PyObject* args, std::function<R($(P$x)$)> function )
 }
 ]$
 
+/** calls lambda expression
+ */
+template <typename FunctionType>
+PyObject* callFunction( PyObject* args, const FunctionType& function )
+{
+	static_assert(IsStdFunctionWrappable<FunctionType>::value, "not a callable std::function can wrap");
+	using TFunction = decltype(std::function{ function });
+	constexpr size_t maxArity = $x;
+	static_assert(StdFunctionArity<TFunction>::value <= maxArity, "callable has too many parameters");
+	return callFunction(args, TFunction { function });
+}
+
 
 
 // --- methods -------------------------------------------------------------------------------------
@@ -414,6 +438,20 @@ $[
 		return establishMagicalBackLinks(result, object);
 	}
 ]$
+
+	/** calls lambda expression as free method
+	 * 
+	 *  @a object is passed as first argument `self` to @a freeMethod.
+	 */
+	template <typename FunctionType>
+	static PyObject* callFree( PyObject* args, PyObject* object, const FunctionType& freeMethod )
+	{
+		static_assert(IsStdFunctionWrappable<FunctionType>::value, "not a callable std::function can wrap");
+		using TFunction = decltype(std::function{ freeMethod });
+		constexpr size_t maxArity = $x + 1;
+		static_assert(StdFunctionArity<TFunction>::value <= maxArity, "callable has too many parameters");
+		return CallMethod<ShadowTraits>::callFree(args, object, TFunction { freeMethod });
+	}
 
 	// member getters and setters
 

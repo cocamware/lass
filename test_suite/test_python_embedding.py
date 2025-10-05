@@ -79,6 +79,10 @@ class TestModuleFunctions(unittest.TestCase):
     def testStdFunctions(self) -> None:
         self.assertEqual(embedding.adderStdFunction(2, 3), 5)
 
+    def testLambdaFunctions(self) -> None:
+        self.assertEqual(embedding.adderLambda(2, 3), 5)
+        self.assertEqual(embedding.multiplierLambda(2, 3), 6)
+
 
 class TestInternalLassModule(unittest.TestCase):
     def testInternalLassModule(self) -> None:
@@ -598,6 +602,11 @@ transformation: ((1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12), (13, 14, 15, 16))
         bar = embedding.Bar(12, "bar")
         self.assertEqual(bar.stdFunctionAdder(4), 16)
 
+    def testLambda(self) -> None:
+        bar = embedding.Bar(12, "bar")
+        self.assertEqual(bar.lambdaMultiplier(3), 36)
+        self.assertEqual(bar.lambdaDivider(2), 6)
+
 
 class TestClassName(unittest.TestCase):
     def testClassName(self) -> None:
@@ -791,6 +800,11 @@ class TestStaticMembers(unittest.TestCase):
         self.assertEqual(embedding.Bar.stdFunctionStatic(4), 40)
         bar = embedding.Bar()
         self.assertEqual(bar.stdFunctionStatic(3), 30)
+
+    def testStaticLambda(self) -> None:
+        self.assertEqual(embedding.Bar.lambdaStatic(4, 2), 42)
+        bar = embedding.Bar()
+        self.assertEqual(bar.lambdaStatic(3, 1), 31)
 
 
 class TestOverloading(unittest.TestCase):

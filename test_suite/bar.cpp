@@ -122,9 +122,13 @@ namespace lass
 
 		std::function<int(const Bar&, int)> stdFunctionAdder = [](const Bar& self, int x) { return self.getInt() + x; };
 		PY_CLASS_FREE_METHOD(Bar, stdFunctionAdder)
+		auto lambdaMultiplier = [](const Bar& self, int x) { return self.getInt() * x; };
+		PY_CLASS_FREE_METHOD(Bar, lambdaMultiplier)
+		PY_CLASS_FREE_METHOD_NAME(Bar, ([](const Bar& self, int x) { return self.getInt() / x; }), "lambdaDivider")
 
 		std::function<int(int)> stdFunctionStatic = [](int x) { return 10 * x; };
 		PY_CLASS_STATIC_METHOD_EX(Bar, stdFunctionStatic, "stdFunctionStatic", nullptr, bar_std_function_static)
+		PY_CLASS_STATIC_METHOD_EX(Bar, ([](int a, int b) { return 10 * a + b; }), "lambdaStatic", nullptr, bar_lambda_static)
 
 		// innerclass of Bar
 		typedef Bar::InnerClass TBarInnerClass;

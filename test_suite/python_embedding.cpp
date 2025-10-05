@@ -1072,7 +1072,11 @@ PY_MODULE_FUNCTION(embedding, testCallbackFromCpp)
 
 
 std::function<int(int, int)> adderStdFunction = [](int a, int b) { return a + b; };
+auto adderLambda = [](int a, int b) { return a + b; };
+
 PY_MODULE_FUNCTION(embedding, adderStdFunction)
+PY_MODULE_FUNCTION(embedding, adderLambda)
+PY_MODULE_FUNCTION_NAME(embedding, ([](int a, int b) { return a * b; }), "multiplierLambda")
 
 
 // Test old way of injecting class into module
