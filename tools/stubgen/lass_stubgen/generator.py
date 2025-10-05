@@ -133,7 +133,13 @@ class StubGenerator:
         with_signature: bool,
     ) -> None:
         for enum_type in module_def.enums:
-            enum_def = self.stubdata.enums[enum_type]
+            try:
+                enum_def = self.stubdata.enums[enum_type]
+            except KeyError:
+                raise StubGeneratorError(
+                    f"No enum definition for {enum_type} found in stubdata. "
+                    "Has it been parsed?"
+                ) from None
             self.write_enum(
                 enum_def,
                 file=file,
@@ -152,6 +158,13 @@ class StubGenerator:
     ) -> None:
         for class_name in module_def.classes:
             class_def = self.stubdata.shadow_classes[class_name]
+            try:
+                class_def = self.stubdata.shadow_classes[class_name]
+            except KeyError:
+                raise StubGeneratorError(
+                    f"No class definition for {class_name} found in stubdata. "
+                    "Has it been parsed?"
+                ) from None
             self.write_class(
                 class_def,
                 file=file,
@@ -301,15 +314,21 @@ class StubGenerator:
         indent: int,
         with_signature: bool,
     ) -> None:
-        parent = self.stubdata.shadow_classes.get(class_def.parent_type)
-        if parent:
+        if class_def.parent_type.name in ["lass::python::PyObjectPlus"]:
+            bases = ""
+        else:
+            try:
+                parent = self.stubdata.shadow_classes[class_def.parent_type]
+            except KeyError:
+                raise StubGeneratorError(
+                    f"No class definition for parent {class_def.parent_type} found in "
+                    "stubdata. Has it been parsed?"
+                ) from None
             assert parent.fully_qualified_name
             base = self._strip_scope(
                 parent.fully_qualified_name, scope=scope, preamble=preamble
             )
             bases = f"({base})"
-        else:
-            bases = ""
 
         if with_signature:
             cpp_class = str(class_def.cpp_type)
@@ -375,9 +394,16 @@ class StubGenerator:
         indent: int,
         with_signature: bool,
     ) -> None:
-        for inner_enum in class_def.inner_enums:
+        for enum_type in class_def.inner_enums:
+            try:
+                enum_def = self.stubdata.enums[enum_type]
+            except KeyError:
+                raise StubGeneratorError(
+                    f"No enum definition for {enum_type} found in stubdata. "
+                    "Has it been parsed?"
+                ) from None
             self.write_enum(
-                self.stubdata.enums[inner_enum],
+                enum_def,
                 file=file,
                 preamble=preamble,
                 indent=indent,
@@ -394,9 +420,16 @@ class StubGenerator:
         indent: int,
         with_signature: bool,
     ) -> None:
-        for inner_class in class_def.inner_classes:
+        for class_name in class_def.inner_classes:
+            try:
+                innder_def = self.stubdata.shadow_classes[class_name]
+            except KeyError:
+                raise StubGeneratorError(
+                    f"No class definition for {class_name} found in stubdata. "
+                    "Has it been parsed?"
+                ) from None
             self.write_class(
-                self.stubdata.shadow_classes[inner_class],
+                innder_def,
                 file=file,
                 scope=scope,
                 preamble=preamble,
