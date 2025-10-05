@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -60,52 +60,62 @@ public:
 namespace impl
 {
 
-template <typename Out, typename In, bool signedOut, bool signedIn>
-struct NumCaster
+template <typename Out, typename In, bool signedOut, bool signedIn> struct NumCaster;
+
+template <typename Out, typename In>
+struct NumCaster<Out, In, true, true>
 {
+	// Out is signed, In is signed
+
 	static Out cast(In in)
 	{
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_INTEL
-		volatile Out min = num::NumTraits<Out>::min;
-		volatile Out max = num::NumTraits<Out>::max;
-#else
-		const Out min = num::NumTraits<Out>::min;
-		const Out max = num::NumTraits<Out>::max;
-#endif
-		if (in < min)
+		static_assert(num::NumTraits<In>::isSigned == true);
+		static_assert(num::NumTraits<Out>::isSigned == true);
+
+		using TCommon = std::common_type_t<In, Out, int>;
+		static_assert(num::NumTraits<TCommon>::isSigned == true);
+
+		constexpr TCommon min = num::NumTraits<Out>::min;
+		constexpr TCommon max = num::NumTraits<Out>::max;
+		if (static_cast<TCommon>(in) < min)
 		{
 			LASS_THROW_EX(BadNumCast, "not a " << num::NumTraits<Out>::name() 
-				<< ": underflow: " << in << " < " << min);
+				<< ": underflow: " << static_cast<TCommon>(in) << " < " << min);
 		}
-		if (in > max)
+		if (static_cast<TCommon>(in) > max)
 		{
 			LASS_THROW_EX(BadNumCast, "not a " << num::NumTraits<Out>::name() 
-				<< ": overflow: " << in << " > " << max);
+				<< ": overflow: " << static_cast<TCommon>(in) << " > " << max);
 		}
 		return static_cast<Out>(in);
 	}
 };
 
-template <typename Out, typename In, bool signedIn>
-struct NumCaster<Out, In, false, signedIn>
+template <typename Out, typename In>
+struct NumCaster<Out, In, false, true>
 {
+	// Out is unsigned, In is signed
+
 	static Out cast(In in)
 	{
-		typedef typename num::NumTraits<In>::unsignedType TUnsignedIn;
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_INTEL
-		volatile Out max = num::NumTraits<Out>::max;
-#else
-		const Out max = num::NumTraits<Out>::max;
-#endif
+		static_assert(num::NumTraits<In>::isSigned == true);
+		static_assert(num::NumTraits<Out>::isSigned == false);
+		using TUnsignedIn = typename num::NumTraits<In>::unsignedType;
+
+		using TCommon = std::common_type_t<TUnsignedIn, Out, unsigned>;
+		static_assert(num::NumTraits<TCommon>::isSigned == false);
+
+		constexpr TCommon max = num::NumTraits<Out>::max;
 		if (in < 0)
 		{
+			using TSigned = std::common_type_t<In, int>;
 			LASS_THROW_EX(BadNumCast, "not a " << num::NumTraits<Out>::name() 
-				<< ": negative: " << in);
+				<< ": negative: " << static_cast<TSigned>(in));
 		}
-		if (static_cast<TUnsignedIn>(in) > max)
+		if (static_cast<TCommon>(in) > max)
 		{
 			LASS_THROW_EX(BadNumCast, "not a " << num::NumTraits<Out>::name() 
-				<< ": overflow: " << in << " > " << max);
+				<< ": overflow: " << static_cast<TCommon>(in) << " > " << max);
 		}
 		return static_cast<Out>(in);
 	}
@@ -114,44 +124,28 @@ struct NumCaster<Out, In, false, signedIn>
 template <typename Out, typename In, bool signedOut>
 struct NumCaster<Out, In, signedOut, false>
 {
+	// In is unsigned, Out is signed or unsigned
+
 	static Out cast(In in)
 	{
-		typedef typename num::NumTraits<Out>::unsignedType TUnsignedOut;
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_INTEL
-		volatile TUnsignedOut max = static_cast<TUnsignedOut>(num::NumTraits<Out>::max);
-#else
-		const TUnsignedOut max = static_cast<TUnsignedOut>(num::NumTraits<Out>::max);
-#endif
-		if (in > max)
+		static_assert(num::NumTraits<In>::isSigned == false);
+		using TUnsignedOut = typename num::NumTraits<Out>::unsignedType;
+
+		using TCommon = std::common_type_t<In, TUnsignedOut, unsigned>;
+		static_assert(num::NumTraits<TCommon>::isSigned == false);
+
+		constexpr TCommon max = num::NumTraits<Out>::max;
+		if (static_cast<TCommon>(in) > max)
 		{
 			LASS_THROW_EX(BadNumCast, "not a " << num::NumTraits<Out>::name() 
-				<< ": overflow: " << in << " > " << max);
+				<< ": overflow: " << static_cast<TCommon>(in) << " > " << max);
 		}
 		return static_cast<Out>(in);
 	}
 };
 
-template <typename Out, typename In>
-struct NumCaster<Out, In, false, false>
-{
-	static Out cast(In in)
-	{
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_INTEL
-		volatile Out max = num::NumTraits<Out>::max;
-#else
-		const Out max = num::NumTraits<Out>::max;
-#endif
-		if (in > max)
-		{
-			LASS_THROW_EX(BadNumCast, "not a " << num::NumTraits<Out>::name() 
-				<< ": overflow: " << in << " > " << max);
-		}
-		return static_cast<Out>(in);
-	}
-};
-
-template <typename Out, bool signedOut>
-struct NumCaster<Out, Out, signedOut, signedOut>
+template <typename Out>
+struct NumCaster<Out, Out, true, true>
 {
 	static Out cast(Out in) { return in; }
 };
