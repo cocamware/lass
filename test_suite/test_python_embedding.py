@@ -1741,6 +1741,37 @@ class TestFunction(unittest.TestCase):
         # when we come back to Python, so we'll get a different object
         self.assertIsNot(embedding.testFunctionFromPythonPasstrough(func1), func1)
 
+    def testCallbackFromPython(self) -> None:
+        def func1(a: int, b: int) -> int:
+            return a + b
+
+        def func2(a: int, b: int) -> int:
+            return a * b
+
+        def func3(a: int, b: int) -> int:
+            raise RuntimeError("blah")
+
+        self.assertEqual(embedding.testCallbackFromPython(func1), 7)
+        self.assertEqual(embedding.testCallbackFromPython(func2), 12)
+        with self.assertRaises(RuntimeError) as cm:
+            embedding.testCallbackFromPython(func3)
+        self.assertEqual(str(cm.exception), "blah")
+
+    def testCallbackFromPythonPasstrough(self) -> None:
+        def func1(a: int, b: int) -> int:
+            return a + b
+
+        self.assertIs(embedding.testCallbackFromPythonPasstrough(func1), func1)
+
+    def testCallbackFromCpp(self) -> None:
+        func1 = embedding.testCallbackFromCpp(2)
+        self.assertIsInstance(func1, Callable)  # type: ignore[arg-type]
+        self.assertEqual(func1(3, 4), 14)
+        self.assertEqual(embedding.testCallbackFromPython(func1), 14)
+        # when passing a callable originating from C++ through C++, it Python
+        # wrapper around it will be deconstructed, and a new one will be made
+        # when we come back to Python, so we'll get a different object
+        self.assertIsNot(embedding.testCallbackFromPythonPasstrough(func1), func1)
 
 class TestException(unittest.TestCase):
     def testExceptionFromCpp(self) -> None:

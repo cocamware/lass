@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -60,6 +60,18 @@ public:
 	~EmptyCallback() noexcept {}
 };
 
+
+
+namespace impl
+{
+
+template <typename T, typename = void>
+struct IsEqualityComparable: public meta::False {};
+
+template <typename T>
+struct IsEqualityComparable<T, std::void_t<decltype(std::declval<const T&>() == std::declval<const T&>())>>: public meta::True {};
+
+}
 
 #if !LASS_HAVE_LAMBDA_OPERATOR_NOT
 

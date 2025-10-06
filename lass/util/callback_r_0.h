@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -211,6 +211,11 @@ public:
 			return true;
 		}
 		return dispatcher_ && dispatcher_->isEquivalent(iOther.dispatcher_.get());
+	}
+
+	const TDispatcherPtr& dispatcher() const
+	{
+		return dispatcher_;
 	}
 
 private:

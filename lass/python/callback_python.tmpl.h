@@ -72,6 +72,10 @@ namespace impl
 		{
 			return !callable_;
 		}
+		const TPyObjPtr& callable() const
+		{
+			return callable_;
+		}
 	protected:
 		void call(const TPyObjPtr& args) const
 		{
@@ -104,6 +108,10 @@ namespace impl
 		{
 			return !callable_;
 		}
+		const TPyObjPtr& callable() const
+		{
+			return callable_;
+		}
 	protected:
 		R call(const TPyObjPtr& args) const
 		{
@@ -125,15 +133,59 @@ namespace impl
 	private:
 		TPyObjPtr callable_;
 	};
+
+	class PyCallbackImplBase
+	{
+	public:
+		virtual ~PyCallbackImplBase() = default;
+		virtual PyObject* call(PyObject* args) const = 0;
+	};
+
+	class LASS_PYTHON_DLL PyCallback: public PyObjectPlus
+	{
+		PY_HEADER(PyObjectPlus)
+	public:
+		using TPimpl = std::unique_ptr<PyCallbackImplBase>;
+
+		PyCallback(TPimpl impl);
+
+		template <typename PyCallbackImplType>
+		bool get(typename PyCallbackImplType::TCallback& v) const
+		{
+			PyCallbackImplBase* p = pimpl_.get();
+			if (p && typeid(*p) == typeid(PyCallbackImplType))
+			{
+				v = static_cast<PyCallbackImplType*>(p)->callable();
+				return true;
+			}
+			return false;
+		}
+
+		static PyObject* _tp_call(PyObject* self, PyObject* args, PyObject* kwargs);
+	private:
+		TPimpl pimpl_;
+	};
 }
 
 /** @internal
  */
-template <typename CallbackType, typename FunctorType, typename ExportTraits>
+template <typename CallbackType, typename PyCallbackImplType, typename ExportTraits>
 struct PyExportTraitsCallback
 {
 	static int get(PyObject* value, CallbackType& callback)
 	{
+		if (value == Py_None)
+		{
+			callback.reset();
+			return 0;
+		}
+		if (PyType_IsSubtype(Py_TYPE(value), impl::PyCallback::_lassPyClassDef.type()))
+		{
+			if (static_cast<impl::PyCallback*>(value)->get<PyCallbackImplType>(callback))
+			{
+				return 0;
+			}
+		}
 		TPyObjPtr callable;
 		if (pyGetSimpleObject(value, callable) != 0)
 		{
@@ -152,18 +204,27 @@ struct PyExportTraitsCallback
 			PyErr_SetString(PyExc_TypeError, buffer.str().c_str());
 			return 1;
 		}
-		callback = FunctorType(callable);
+		using TFunctor = typename PyCallbackImplType::TFunctor;
+		callback = TFunctor(callable);
 		return 0;
 	}
-	static PyObject* build(const CallbackType& callback) 
+	static PyObject* build(const CallbackType& callback)
 	{
 		if (!callback)
 		{
 			Py_RETURN_NONE;
 		}
-// TODO: implement real callback objects
-// https://sourceforge.net/tracker2/?func=detail&aid=2462422&group_id=118315&atid=680768
-		Py_RETURN_TRUE;
+
+		using TDispatcher = typename PyCallbackImplType::TDispatcher;
+		auto dispatcher = callback.dispatcher().get();
+		if (dispatcher && typeid(*dispatcher) == typeid(TDispatcher))
+		{
+			// already a FunctorType, return the original callable
+			return fromSharedPtrToNakedCast(static_cast<TDispatcher*>(dispatcher)->function().callable());
+		}
+		// wrap in a PyCallback object
+		impl::PyCallback::TPimpl pimpl(new PyCallbackImplType(callback));
+		return new impl::PyCallback(std::move(pimpl));
 	}
 };
 
@@ -194,6 +255,28 @@ namespace impl
 			this->call(python::TPyObjPtr());
 		}
 	};
+
+	class PyCallback0Impl: public PyCallbackImplBase
+	{
+	public:
+		using TCallback = util::Callback0;
+		using TFunctor = Functor0Python;
+		using TDispatcher = util::impl::Dispatcher0Function<TFunctor>;
+
+		PyCallback0Impl(TCallback callback): callback_(std::move(callback)) {}
+		const TCallback& callable() const { return callback_; }
+		
+		PyObject* call(PyObject* args) const override
+		{
+			if ( decodeTuple(args) != 0 )
+			{
+				return nullptr;
+			}
+			return Caller<void>::callFunction<const TCallback&>(callback_);
+		}
+	private:
+		TCallback callback_;
+	};
 }
 
 /** @internal
@@ -201,9 +284,9 @@ namespace impl
 template <>
 struct PyExportTraits< util::Callback0 >:
 	public PyExportTraitsCallback<
-		util::Callback0, 
-		impl::Functor0Python, 
-		PyExportTraits< util::Callback0 > 
+		util::Callback0,
+		impl::PyCallback0Impl,
+		PyExportTraits< util::Callback0 >
 	>
 {
 	static constexpr const char* py_typing = "Callable[[], None]";
@@ -240,6 +323,31 @@ namespace impl
 			this->call(makeTuple($(p$x)$));
 		}
 	};
+
+	template <$(typename P$x)$>
+	class PyCallback$xImpl: public PyCallbackImplBase
+	{
+	public:
+		using TCallback = util::Callback$x<$(P$x)$>;
+		using TFunctor = Functor$xPython<$(P$x)$>;
+		using TDispatcher = util::impl::Dispatcher$xFunction<$(P$x)$, TFunctor>;
+
+		PyCallback$xImpl(TCallback callback): callback_(std::move(callback)) {}
+		const TCallback& callable() const { return callback_; }
+		
+		PyObject* call(PyObject* args) const override
+		{
+			$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x = S$x();
+			)$
+			if ( decodeTuple<$(S$x)$>(args, $(p$x)$) != 0 )
+			{
+				return nullptr;
+			}
+			return Caller<void>::template callFunction<const TCallback&>(callback_, $(TArg$x::arg(p$x))$);
+		}
+	private:
+		TCallback callback_;
+	};
 }
 
 /** @internal
@@ -247,9 +355,9 @@ namespace impl
 template <$(typename P$x)$>
 struct PyExportTraits< util::Callback$x<$(P$x)$> >:
 	public PyExportTraitsCallback<
-		util::Callback$x<$(P$x)$>, 
-		impl::Functor$xPython<$(P$x)$>, 
-		PyExportTraits< util::Callback$x<$(P$x)$> > 
+		util::Callback$x<$(P$x)$>,
+		impl::PyCallback$xImpl<$(P$x)$>,
+		PyExportTraits< util::Callback$x<$(P$x)$> >
 	>
 {
 	static constexpr const char* py_typing = "Callable[[$(P$x!)$], None]";
@@ -290,6 +398,29 @@ namespace impl
 			return this->call(TPyObjPtr());
 		}
 	};
+
+	template <typename R>
+	class PyCallbackR0Impl: public PyCallbackImplBase
+	{
+	public:
+		using TCallback = util::CallbackR0<R>;
+		using TFunctor = FunctorPythonR0<R>;
+		using TDispatcher = util::impl::DispatcherR0Function<R, TFunctor>;
+
+		PyCallbackR0Impl(TCallback callback): callback_(std::move(callback)) {}
+		const TCallback& callable() const { return callback_; }
+		
+		PyObject* call(PyObject* args) const override
+		{
+			if ( decodeTuple(args) != 0 )
+			{
+				return nullptr;
+			}
+			return Caller<R>::template callFunction<const TCallback&>(callback_);
+		}
+	private:
+		TCallback callback_;
+	};
 }
 
 /** @internal
@@ -297,9 +428,9 @@ namespace impl
 template <typename R>
 struct PyExportTraits< util::CallbackR0<R> >:
 	public PyExportTraitsCallback<
-		util::CallbackR0<R>, 
-		impl::FunctorPythonR0<R>, 
-		PyExportTraits< util::CallbackR0<R> > 
+		util::CallbackR0<R>,
+		impl::PyCallbackR0Impl<R>,
+		PyExportTraits< util::CallbackR0<R> >
 	>
 {
 	static constexpr const char* py_typing = "Callable[[], R!]";
@@ -336,6 +467,32 @@ namespace impl
 			return this->call(makeTuple($(p$x)$));
 		}
 	};
+
+	template <typename R, $(typename P$x)$>
+	class PyCallbackR$xImpl: public PyCallbackImplBase
+	{
+	public:
+		using TCallback = util::CallbackR$x<R, $(P$x)$>;
+		using TFunctor = FunctorPythonR$x<R, $(P$x)$>;
+		using TDispatcher = util::impl::DispatcherR$xFunction<R, $(P$x)$, TFunctor>;
+
+		PyCallbackR$xImpl(TCallback callback): callback_(std::move(callback)) {}
+		const TCallback& callable() const { return callback_; }
+		
+		PyObject* call(PyObject* args) const override
+		{
+			$(typedef ArgumentTraits<P$x> TArg$x; typedef typename TArg$x::TStorage S$x; S$x p$x = S$x();
+			)$
+			if ( decodeTuple<$(S$x)$>(args, $(p$x)$) != 0 )
+			{
+				return nullptr;
+			}
+			return Caller<R>::template callFunction<const TCallback&>(callback_, $(TArg$x::arg(p$x))$);
+		}
+	private:
+		TCallback callback_;
+	};
+
 }
 
 /** @internal
@@ -343,9 +500,9 @@ namespace impl
 template <typename R, $(typename P$x)$>
 struct PyExportTraits< util::CallbackR$x<R, $(P$x)$> >:
 	public PyExportTraitsCallback<
-		util::CallbackR$x<R, $(P$x)$>, 
-		impl::FunctorPythonR$x<R, $(P$x)$>, 
-		PyExportTraits< util::CallbackR$x<R, $(P$x)$> > 
+		util::CallbackR$x<R, $(P$x)$>,
+		impl::PyCallbackR$xImpl<R, $(P$x)$>,
+		PyExportTraits< util::CallbackR$x<R, $(P$x)$> >
 	>
 {
 	static constexpr const char* py_typing = "Callable[[$(P$x!)$], R!]";

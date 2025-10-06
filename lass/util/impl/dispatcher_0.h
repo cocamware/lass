@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2020 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -111,6 +111,11 @@ public:
 	{
 	}
 
+	const TFunction& function() const
+	{
+		return function_;
+	}
+
 private:
 
 	void doCall() const override
@@ -121,10 +126,17 @@ private:
 		}
 		function_();
 	}
-	bool doIsEquivalent(const Dispatcher0* iOther) const override
+	bool doIsEquivalent(const Dispatcher0* other) const override
 	{
-		const TSelf* other = dynamic_cast<const TSelf*>(iOther);
-		return other && function_ == other->function_;
+		if constexpr (impl::IsEqualityComparable<TFunction>::value)
+		{
+			return other && typeid( *other ) == typeid( TSelf )
+				&& static_cast<const TSelf*>(other)->function_ == function_;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	TFunction function_;
@@ -157,6 +169,11 @@ public:
 	Dispatcher0Function(typename CallTraits<TFunction>::TParam iFunction):
 		function_(iFunction)
 	{
+	}
+
+	const TFunction& function() const
+	{
+		return function_;
 	}
 
 private:

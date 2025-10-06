@@ -981,6 +981,26 @@ PY_MODULE_FUNCTION(embedding, testFunctionFromPythonPasstrough)
 PY_MODULE_FUNCTION(embedding, testFunctionFromCpp)
 
 
+int testCallbackFromPython(lass::util::CallbackR2<int, int, int> func)
+{
+	return func(3, 4);
+}
+
+lass::util::CallbackR2<int, int, int> testCallbackFromPythonPasstrough(lass::util::CallbackR2<int, int, int> func)
+{
+	return func;
+}
+
+lass::util::CallbackR2<int, int, int> testCallbackFromCpp(int factor)
+{
+	auto func = [factor](int a, int b) { return factor * (a + b); };
+	return std::function{ func };
+}
+
+PY_MODULE_FUNCTION(embedding, testCallbackFromPython)
+PY_MODULE_FUNCTION(embedding, testCallbackFromPythonPasstrough)
+PY_MODULE_FUNCTION(embedding, testCallbackFromCpp)
+
 // Test old way of injecting class into module
 //
 class InjectedClass : public lass::python::PyObjectPlus
