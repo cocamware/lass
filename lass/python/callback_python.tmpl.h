@@ -49,6 +49,7 @@
 #include "py_tuple.h"
 #include "pyobject_call.inl"
 #include "exception.h"
+#include "_lass_module.h"
 
 namespace lass
 {
@@ -187,6 +188,7 @@ struct PyExportTraitsCallback
 			callback.reset();
 			return 0;
 		}
+		impl::initLassModule(); // ensure the module is initialized
 		if (PyType_IsSubtype(Py_TYPE(value), impl::PyCallback::_lassPyClassDef.type()))
 		{
 			if (static_cast<impl::PyCallback*>(value)->get<PyCallbackImplType>(callback))

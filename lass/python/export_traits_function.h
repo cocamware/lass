@@ -46,6 +46,7 @@
 #include "pyobject_plus.h"
 #include "export_traits.h"
 #include "pyobject_call.inl"
+#include "_lass_module.h"
 
 namespace lass::python
 {
@@ -183,6 +184,7 @@ struct PyExportTraits< std::function<R(Args...)> >
 	}
 	static int get(PyObject* obj, std::function<R(Args...)>& v)
 	{
+		impl::initLassModule(); // ensure the module is initialized
 		if (PyType_IsSubtype(obj->ob_type, impl::Function::_lassPyClassDef.type()))
 		{
 			if (static_cast<impl::Function*>(obj)->get(v))
