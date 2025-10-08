@@ -18,6 +18,12 @@ Lass is dual licensed under CPAL-1.0 and GPL-2.0-or-later, see
 [COPYING](./COPYING) file.
 
 
+Documentation
+-------------
+
+-   [Reference documentation (doxygen)](https://lass.cocamware.com/docs/doxygen/html/index.html)
+
+
 Requirements
 ------------
 
