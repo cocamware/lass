@@ -12,7 +12,11 @@ repos:
         args: [--fix=no]
 #      - id: trailing-whitespace
   - repo: https://github.com/bdegreve/bramz-pre-commit-hooks.git
-    rev: 5901e6066d996d2ef70f592dafcffc97e8f152df
+    rev: c11cabded9def97f3352c671d760297874d7db8a
     hooks:
       - id: bramz-fix-copyright
-        args: [--author=the Initial Developer]
+        args:
+          [
+            "--author=the Initial Developer",
+            "--license-file=lass/lass_common.h",
+          ]
