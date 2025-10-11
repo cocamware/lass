@@ -61,11 +61,14 @@ class _Options(Protocol):
     python_executable: _PackageOption
     python_version: _PackageOption
     python_debug: _PackageOption
+    python_free_threaded: _PackageOption
+
+    def rm_safe(self, name: str) -> None: ...
 
 
 class SysPython(ConanFile):  # type: ignore[misc]
     name = "syspython"
-    version = "1.0.5"
+    version = "1.0.6"
     user = "cocamware"
     channel = "stable"
     description = "Discovers your system's Python and allow to use it as a requirement"
@@ -79,12 +82,14 @@ class SysPython(ConanFile):  # type: ignore[misc]
         "python_executable": [None, "ANY"],
         "python_version": [None, "ANY"],
         "python_debug": [None, True, False],
+        "python_free_threaded": [None, True, False],
     }
     default_options = {
         "shared": None,
         "python_executable": None,
         "python_version": None,
         "python_debug": None,
+        "python_free_threaded": None,
     }
 
     exports_sources = "*.tmpl.cmake"
@@ -118,6 +123,8 @@ class SysPython(ConanFile):  # type: ignore[misc]
             self.options.python_version = self._python_version_short
         if self.options.python_debug.value in [None, "None"]:
             self.options.python_debug = self._python_debug
+        if self.options.python_free_threaded.value in [None, "None"]:
+            self.options.python_free_threaded = self._python_gil_disabled
         if self.options.shared.value in [None, "None"]:
             self.options.shared = self._python_has_shared
 
@@ -135,6 +142,17 @@ class SysPython(ConanFile):  # type: ignore[misc]
             raise ConanInvalidConfiguration(
                 "python_debug option not compatible with python_executable."
             )
+        if self._python_version_short_int < (3, 13):
+            if self.options.python_free_threaded:
+                raise ConanInvalidConfiguration(
+                    "python_free_threaded requires python_version >= 3.13."
+                )
+            self.options.rm_safe("python_free_threaded")
+        else:
+            if self.options.python_free_threaded != self._python_gil_disabled:
+                raise ConanInvalidConfiguration(
+                    "python_free_threaded option not compatible with python_executable."
+                )
         if self.options.shared != self._python_shared:
             raise ConanInvalidConfiguration(
                 f"shared={self.options.shared} option not compatible with "
@@ -185,6 +203,7 @@ class SysPython(ConanFile):  # type: ignore[misc]
             "sabi_runtime_library_dirs": self._python_sabi_runtime_library_dirs,
             "sabi_found": bool(self._python_sabi_library),
             "include_dirs": self._python_include_dirs,
+            "definitions": self._python_definitions,
             "link_libraries": self._python_link_libraries,
             "version": self._python_version,
             "major": major,
@@ -276,7 +295,7 @@ class SysPython(ConanFile):  # type: ignore[misc]
         """Full path to python library you should link to"""
         if self.settings.os == "Windows":
             base = self._python_get_config_var("installed_platbase")
-            version = self._python_get_config_var("py_version_nodot")
+            version = self._python_version_nodot_plat
             return os.path.join(
                 base, "libs", f"python{version}{self._python_postfix}.lib"
             )
@@ -311,7 +330,7 @@ class SysPython(ConanFile):  # type: ignore[misc]
     def _python_runtime_library(self) -> Optional[str]:
         if self.settings.os == "Windows":
             base = self._python_get_config_var("installed_platbase")
-            version = self._python_get_config_var("py_version_nodot")
+            version = self._python_version_nodot_plat
             return os.path.join(base, f"python{version}{self._python_postfix}.dll")
         return None
 
@@ -374,6 +393,26 @@ class SysPython(ConanFile):  # type: ignore[misc]
             self._python_get_config_var("INCLUDEPY"),
         ]
         return unique(includedirs)
+
+    @property
+    def _python_definitions(self) -> list[str]:
+        definitions = []
+        if self._python_gil_disabled:
+            definitions.append("Py_GIL_DISABLED=1")
+        return definitions
+
+    @property
+    def _python_gil_disabled(self) -> bool:
+        """True if python library is built with Py_GIL_DISABLED"""
+        output = self._python_get_config_var("Py_GIL_DISABLED") or "0"
+        return bool(int(output))
+
+    @property
+    def _python_version_nodot_plat(self) -> str:
+        version = self._python_get_config_var("py_version_nodot_plat")
+        if not version:
+            version = self._python_get_config_var("py_version_nodot")
+        return version
 
     @property
     def _python_soabi(self) -> str:

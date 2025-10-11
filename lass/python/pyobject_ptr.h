@@ -194,11 +194,18 @@ protected:
 		if (Py_IsInitialized())
 		{
 			LockGIL LASS_UNUSED(lock);
-			r = pointee->ob_refcnt <=1;
+#ifdef Py_GIL_DISABLED
+			r = PyUnstable_Object_IsUniquelyReferenced(pointee);
+#else
+			r = Py_REFCNT(pointee) <=1;
+#endif
 			Py_DECREF(pointee);
 		}
-		else 
+		else
 		{
+#ifdef Py_GIL_DISABLED
+			// there's nothing we can do here anymore, we'll have to leak the object ...
+#else
 			r = pointee->ob_refcnt <=1;
 			if (--pointee->ob_refcnt == 0)
 			{
@@ -214,6 +221,7 @@ protected:
 					(*dealloc)(pointee);
 				}
 			}
+#endif
 		}
 		return r;
 	}
@@ -224,7 +232,7 @@ protected:
 	template <typename T> TCount count(T* pointee) const
 	{
 		LASS_ASSERT(pointee);
-		return pointee->ob_refcnt;
+		return Py_REFCNT(pointee);
 	}
 	void swap(PyObjectCounter& /*other*/) {}
 };

@@ -5,6 +5,7 @@ set(Python_VERSION @{version})
 
 set(Python_EXECUTABLE @{executable})
 set(Python_INCLUDE_DIRS @{include_dirs})
+set(Python_DEFINITIONS @{definitions})
 set(Python_LIBRARY @{library})
 set(Python_LIBRARIES "${Python_LIBRARY}")
 set(Python_LIBRARY_DIRS @{library_dirs})
@@ -76,6 +77,12 @@ if(NOT TARGET Python::Python)
             IMPORTED_LINK_INTERFACE_LANGUAGES "C"
             INTERFACE_INCLUDE_DIRECTORIES "${Python_INCLUDE_DIRS}"
     )
+    if (Python_DEFINITIONS)
+        set_target_properties(Python::Python
+            PROPERTIES
+                INTERFACE_COMPILE_DEFINITIONS "${Python_DEFINITIONS}"
+        )
+    endif()
     if(_Python_RUNTIME_LIBRARY)
         set_target_properties(Python::Python
             PROPERTIES
@@ -131,6 +138,12 @@ if(NOT TARGET Python::Module)
                 INTERFACE_INCLUDE_DIRECTORIES "${Python_INCLUDE_DIRS}"
         )
     endif()
+    if (Python_DEFINITIONS)
+        set_target_properties(Python::Module
+            PROPERTIES
+                INTERFACE_COMPILE_DEFINITIONS "${Python_DEFINITIONS}"
+        )
+    endif()
 endif()
 
 
@@ -166,6 +179,12 @@ if(Python_Development.SABIModule_FOUND AND NOT TARGET Python::SABIModule)
         set_target_properties(Python::SABIModule
             PROPERTIES
                 INTERFACE_INCLUDE_DIRECTORIES "${Python_INCLUDE_DIRS}"
+        )
+    endif()
+    if (Python_DEFINITIONS)
+        set_target_properties(Python::SABIModule
+            PROPERTIES
+                INTERFACE_COMPILE_DEFINITIONS "${Python_DEFINITIONS}"
         )
     endif()
 endif()

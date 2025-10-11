@@ -76,16 +76,11 @@ PyObjectPlus::PyObjectPlus()
 
 PyObjectPlus::~PyObjectPlus()
 {
-	if (this->ob_refcnt>0)
+	LASS_ASSERT(Py_REFCNT(this) <= 1);
+	if (Py_REFCNT(this) > 1)
 	{
-		if (this->ob_refcnt>1)
-		{
-			std::cerr << "[LASS RUN MSG] DANGLING REFERENCE to lass::python::PyObjectPlus" 
-				<< std::endl;
-		}
-		--this->ob_refcnt;
+		std::cerr << "[LASS RUN MSG] DANGLING REFERENCE to lass::python::PyObjectPlus" << std::endl;
 	}
-	LASS_ASSERT(this->ob_refcnt==0);
 };
 
 PyObjectPlus::PyObjectPlus(const PyObjectPlus& other)
