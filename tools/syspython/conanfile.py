@@ -68,7 +68,7 @@ class _Options(Protocol):
 
 class SysPython(ConanFile):  # type: ignore[misc]
     name = "syspython"
-    version = "1.0.7"
+    version = "1.0.8"
     user = "cocamware"
     channel = "stable"
     description = "Discovers your system's Python and allow to use it as a requirement"
@@ -399,6 +399,8 @@ class SysPython(ConanFile):  # type: ignore[misc]
         definitions = []
         if self._python_gil_disabled:
             definitions.append("Py_GIL_DISABLED=1")
+        if self.settings.os == "Windows":
+            definitions.append("Py_NO_LINK_LIB")
         return definitions
 
     @property
