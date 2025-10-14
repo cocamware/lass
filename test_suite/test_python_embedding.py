@@ -93,6 +93,32 @@ class TestInternalLassModule(unittest.TestCase):
         self.assertTrue(issubclass(_lass.Function, Callable))  # type: ignore[arg-type]
 
 
+class TestReimport(unittest.TestCase):
+    """
+    Tests what happens if a module truely gets reimported
+    """
+    def testReimport1(self) -> None:
+        # isort: off
+        import embedding as embedding2
+
+        self.assertIs(embedding2, embedding)
+        del embedding2
+        import embedding as embedding2
+
+        self.assertIs(embedding2, embedding)
+
+    def testReimport2(self) -> None:
+        # isort: off
+        import embedding as embedding2
+
+        self.assertIs(embedding2, embedding)
+        del embedding2
+        del sys.modules["embedding"]
+        import embedding as embedding2
+
+        self.assertIs(embedding2, embedding)
+
+
 class TestDerived(unittest.TestCase):
     def testDerived(self) -> None:
         e = embedding.Bar()
