@@ -376,6 +376,7 @@ PyObject* ClassDefinition::freezeDefinition(PyObject* module, const char* scopeN
 		if (!parent_->type_)
 		{
 			PyErr_Format(PyExc_AssertionError, "Parent class %s of %s is not frozen yet", parent_->className_, className_);
+			return nullptr;
 		}
 		parent_->subClasses_.push_back(this);
 	}
