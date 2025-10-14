@@ -67,6 +67,9 @@ namespace test
 		emAnEnum = 0x7
 	};
 
+	class Bar;
+	typedef lass::python::PyObjectPtr<Bar>::Type TBarPtr;
+
 	class Bar : public lass::python::PyObjectPlus
 	{
 		PY_HEADER( lass::python::PyObjectPlus )
@@ -79,6 +82,8 @@ namespace test
 
 		typedef std::map<std::string, std::string> TMap;
 		TMap map_;
+
+		static TBarPtr defaultBar_;
 
 	public:
 		enum class Shape: short
@@ -168,6 +173,11 @@ namespace test
 		lass::python::PyIteratorRange* iter();
 
 		static std::unique_ptr<Bar> makeUniquePtr();
+
+		static python::NoNone<TBarPtr> defaultBar();
+		static void setDefaultBar(const python::NoNone<TBarPtr>& bar);
+
+		static void _lassPyClassRegisterHook();
 	};
 
 	bool operator!=(const Bar& a, const Bar& b);
@@ -185,7 +195,12 @@ namespace test
 		float aMoreComplexFunction( float iA, float iB ) override;
 	};
 
-	typedef lass::python::PyObjectPtr<Bar>::Type TBarPtr;
+	class DerivedInnerClass : public Bar
+	{
+		PY_HEADER( Bar )
+	public:
+		DerivedInnerClass(int a) : Bar(a, "blah") {}
+	};
 
 	inline TBarPtr testPolymorphism()
 	{
