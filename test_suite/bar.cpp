@@ -115,6 +115,8 @@ namespace lass
 		PY_CLASS_METHOD_NAME(Bar, size, python::methods::map_len_);
 		PY_CLASS_METHOD_NAME(Bar, iter, lass::python::methods::_iter_);
 		PY_CLASS_STATIC_METHOD( Bar, makeUniquePtr )
+		PY_CLASS_STATIC_METHOD( Bar, defaultBar )
+		PY_CLASS_STATIC_METHOD( Bar, setDefaultBar )
 
 		// innerclass of Bar
 		typedef Bar::InnerClass TBarInnerClass;
@@ -125,6 +127,10 @@ namespace lass
 
 		PY_DECLARE_CLASS( DerivedBar )
 		PY_CLASS_CONSTRUCTOR( DerivedBar , meta::NullType );
+
+		PY_DECLARE_CLASS(DerivedInnerClass)
+		PY_CLASS_CONSTRUCTOR_1(DerivedInnerClass, int);
+		PY_CLASS_INNER_CLASS(Bar, DerivedInnerClass);
 
 		void listInfo( const python::TPyObjPtr& iObject )
 		{
@@ -447,6 +453,22 @@ namespace lass
 		{
 			std::unique_ptr<Bar> ptr(new Bar);
 			return ptr;
+		}
+
+		python::NoNone<TBarPtr> Bar::defaultBar()
+		{
+			return defaultBar_;
+		}
+		void Bar::setDefaultBar(const python::NoNone<TBarPtr>& bar)
+		{
+			defaultBar_ = bar;
+		}
+		TBarPtr Bar::defaultBar_;
+
+		void Bar::_lassPyClassRegisterHook()
+		{
+			_lassPyParentType::_lassPyClassRegisterHook();
+			defaultBar_.reset(new Bar());
 		}
 
 		// --- shadow classes ---

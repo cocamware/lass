@@ -143,7 +143,7 @@ ClassDefinition::~ClassDefinition()
 
 const PyTypeObject* ClassDefinition::type() const
 {
-	LASS_ENFORCE(isFrozen_)(name())(" is not frozen yet");
+	LASS_ENFORCE(type_)(name())(" is not frozen yet");
 	return reinterpret_cast<PyTypeObject*>(type_.get());
 }
 
@@ -151,7 +151,7 @@ const PyTypeObject* ClassDefinition::type() const
 
 PyTypeObject* ClassDefinition::type()
 {
-	LASS_ENFORCE(isFrozen_)(name())(" is not frozen yet");
+	LASS_ENFORCE(type_)(name())(" is not frozen yet");
 	return reinterpret_cast<PyTypeObject*>(type_.get());
 }
 
@@ -373,7 +373,7 @@ PyObject* ClassDefinition::freezeDefinition(PyObject* module, const char* scopeN
 				return nullptr;
 			}
 		}
-		if (!parent_->isFrozen_)
+		if (!parent_->type_)
 		{
 			PyErr_Format(PyExc_AssertionError, "Parent class %s of %s is not frozen yet", parent_->className_, className_);
 		}
