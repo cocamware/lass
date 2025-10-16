@@ -603,7 +603,7 @@ class StubGenerator:
             ret_type = "bool"
         else:
             params = self.python_params(
-                "cls" if method.is_static else "self",
+                None if method.is_static else "self",
                 method.cpp_params,
                 scope=scope,
                 preamble=preamble,
@@ -613,7 +613,7 @@ class StubGenerator:
             )
         signature = f"  # {method.cpp_signature}" if with_signature else ""
         if method.is_static:
-            file.write(f"{' ' * indent}@classmethod\n")
+            file.write(f"{' ' * indent}@staticmethod\n")
         file.write(
             f"{' ' * indent}def {name}({', '.join(params)}) -> {ret_type}:{signature}\n"
         )
