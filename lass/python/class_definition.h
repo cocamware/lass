@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -399,6 +399,7 @@ namespace lass
 				typedef std::vector<PyType_Slot> TSlots;
 
 				PyObject* freezeDefinition(PyObject* module, const char* scopeName);
+				int freezeType();
 
 				PyType_Spec spec_;
 				TPyObjPtr type_;

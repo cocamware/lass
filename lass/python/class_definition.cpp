@@ -472,11 +472,53 @@ PyObject* ClassDefinition::freezeDefinition(PyObject* module, const char* scopeN
 		classRegisterHook_();
 	}
 
-	reinterpret_cast<PyTypeObject*>(type)->tp_flags |= Py_TPFLAGS_IMMUTABLETYPE;
+	if (freezeType() != 0)
+	{
+		return nullptr;
+	}
 
 	isFrozen_ = true;
 	return type;
 }
+
+
+
+int ClassDefinition::freezeType()
+{
+	PyTypeObject* type = reinterpret_cast<PyTypeObject*>(type_.get());
+#if PY_VERSION_HEX >= 0x030e0000 // >= 3.14
+	if (!PyType_HasFeature(type, Py_TPFLAGS_IMMUTABLETYPE))
+	{
+		if (parent_ && !PyType_HasFeature(parent_->type(), Py_TPFLAGS_IMMUTABLETYPE))
+		{
+			// can't freeze type yet when parent's type isn't frozen. Parent will need to take care of us!
+			LASS_ASSERT(std::find(parent_->subClasses_.begin(), parent_->subClasses_.end(), this) != parent_->subClasses_.end());
+			return 0;
+		}
+		if (PyType_Freeze(type) != 0)
+		{
+			return -1;
+		}
+	}
+
+	// freeze types of all subclasses that we've skipped
+	for (auto *subClass : subClasses_)
+	{
+		// their definition should already be frozen if they're in this list
+		LASS_ASSERT(subClass->isFrozen_);
+		if (subClass->freezeType() != 0)
+		{
+			return -1;
+		}
+		LASS_ASSERT(PyType_HasFeature(subClass->type(), Py_TPFLAGS_IMMUTABLETYPE));
+	}
+#else
+	type->tp_flags |= Py_TPFLAGS_IMMUTABLETYPE;
+#endif
+	return 0;
+}
+
+
 
 PyObject* ClassDefinition::callRichCompare(PyObject* self, PyObject* other, int op)
 {
