@@ -96,14 +96,6 @@ void dealloc(PyObject* obj)
 
 
 
-int traverse(PyObject* self, visitproc visit, void* arg)
-{
-	Py_VISIT(Py_TYPE(self));
-	return 0;
-}
-
-
-
 ClassDefinition::ClassDefinition(
 		const char* name, const char* doc, Py_ssize_t typeSize, 
 		richcmpfunc richcmp, ClassDefinition* parent, TClassRegisterHook registerHook):
@@ -119,12 +111,11 @@ ClassDefinition::ClassDefinition(
 		nullptr, /* name */
 		static_cast<int>(typeSize), /* basicsize */
 		0, /* itemsize */
-		Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /* flags */
+		Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* flags */
 		nullptr, /* slots */
 	};
 	spec_ = spec;
 	setSlot(Py_tp_dealloc, &dealloc);
-	setSlot(Py_tp_traverse, &traverse);
 	if (richcmp)
 	{
 		setSlot(Py_tp_richcompare, richcmp);
