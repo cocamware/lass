@@ -58,7 +58,7 @@ void testPythonExportTraitsPath()
 
 	initPythonEmbedding();
 
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 
 	TPyObjPtr pathlib{ PyImport_ImportModule("pathlib") };
 	TPyObjPtr pathType{ PyObject_GetAttrString(pathlib.get(), "Path") };

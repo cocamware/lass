@@ -149,7 +149,7 @@ inline const TPyObjPtr makeTuple()
 template <typename... P>
 const TPyObjPtr makeTuple(const P&... p)
 {
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 	TPyObjPtr tuple(PyTuple_New(sizeof...(P)));
 	return impl::tupleSetItems(tuple.get(), 0, p...)
 		? tuple
@@ -171,7 +171,7 @@ inline int decodeTuple(PyObject* obj)
 template <typename... P>
 int decodeTuple(PyObject* obj, P&... p)
 {
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 	const TPyObjPtr tuple = impl::checkedFastSequence(obj, sizeof...(P));
 	if (!tuple)
 	{
@@ -207,7 +207,7 @@ inline int decodeTuple(const TPyObjPtr& obj, P&... p)
 template <typename... P>
 int decodeTupleMinimum(PyObject* obj, Py_ssize_t minumumLength, P&... p)
 {
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 	const TPyObjPtr tuple = impl::checkedFastSequence(obj, minumumLength, sizeof...(P));
 	if (!tuple)
 	{

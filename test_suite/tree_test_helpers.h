@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -378,7 +378,7 @@ public:
 		const typename Tree::Neighbour treeNearest = tree.nearestNeighbour(point_);
 		if (treeNearest.object() != bruteNearest_)
 		{
-			typename Tree::Neighbour LASS_UNUSED(temp) = tree.nearestNeighbour(point_);
+			[[maybe_unused]] typename Tree::Neighbour temp = tree.nearestNeighbour(point_);
 		}
 		LASS_TEST_CHECK_EQUAL(treeNearest.object(), bruteNearest_);
 		if (bruteSqrDist_ == Point::TNumTraits::infinity)

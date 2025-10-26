@@ -68,7 +68,7 @@ int initLassModule()
 	{
 		return 0;
 	}
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 	TPyObjPtr mod(lassMod.inject());
 	if (!mod)
 	{

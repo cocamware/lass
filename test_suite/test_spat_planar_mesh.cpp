@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -302,8 +302,8 @@ struct SplitConnectTest
 			LASS_TEST_CHECK(TPlanarMesh::org(iEdge->sym())==TPlanarMesh::dest(e->sym()));
 			LASS_TEST_CHECK(iEdge->lNext()==e);
 			LASS_TEST_CHECK(e->lPrev()==iEdge);
-			TPlanarMesh::TPoint2D LASS_UNUSED(conPoint) = TPlanarMesh::org(oppEdge);
-			TPlanarMesh::TPoint2D LASS_UNUSED(splPoint) = TPlanarMesh::dest(iEdge);
+			[[maybe_unused]] TPlanarMesh::TPoint2D conPoint = TPlanarMesh::org(oppEdge);
+			[[maybe_unused]] TPlanarMesh::TPoint2D splPoint = TPlanarMesh::dest(iEdge);
 			mesh->connect(iEdge,oppEdge);
 			return false;
 		}

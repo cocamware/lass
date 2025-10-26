@@ -94,7 +94,7 @@ PyObject* timezoneUTC()
 
 TPyObjPtr astimezoneUTC(const TPyObjPtr& obj)
 {
-	python::LockGIL LASS_UNUSED(lock);
+	python::LockGIL lock;
 
 	if (!PyDateTimeAPI)
 	{
@@ -132,7 +132,7 @@ void testPythonExportTraitsChronoDuration()
 	using microfortnights = std::chrono::duration<double, std::ratio<14 * 86400, 1'000'000>>;
 
 	initPythonEmbedding();
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 
 	if (!PyDateTimeAPI)
 	{
@@ -206,7 +206,7 @@ void testPythonExportTraitsChronoSystemClock()
 	using microseconds = std::chrono::microseconds;
 
 	initPythonEmbedding();
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 
 	if (!PyDateTimeAPI)
 	{

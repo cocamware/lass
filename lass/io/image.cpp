@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -1377,7 +1377,7 @@ BinaryOStream& Image::saveTarga(BinaryOStream& stream) const
 
 		// run-length encode buffer
 		//
-		size_t LASS_UNUSED(totalLength) = 0;
+		[[maybe_unused]] size_t totalLength = 0;
 		num::Tuint8 numDiff = 0;
 		x = 0;
 		while (x < cols_)

@@ -93,7 +93,7 @@ namespace impl
 		}
 		PyObject* subscript(PyObject* key) const override
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			typename TKeyArgTraits::TStorage k;
 			if (pyGetSimpleObject(key, k) != 0)
 			{
@@ -110,7 +110,7 @@ namespace impl
 		}
 		int assSubscript(PyObject* key, PyObject* value) override
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			if (!this->checkWritable())
 			{
 				return -1;

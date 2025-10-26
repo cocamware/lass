@@ -74,7 +74,7 @@ namespace lass
 		template<typename T>
 		PyObject* pyBuildSimpleObject(T& iV)
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			return PyExportTraits<T>::build(iV);
 		}
 
@@ -83,7 +83,7 @@ namespace lass
 		template<typename T>
 		PyObject* pyBuildSimpleObject(const T& iV)
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			return PyExportTraits<T>::build(iV);
 		}
 
@@ -92,7 +92,7 @@ namespace lass
 		template<typename T, typename Deleter>
 		PyObject* pyBuildSimpleObject(std::unique_ptr<T, Deleter>&& iV)
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			return PyExportTraits< std::unique_ptr<T, Deleter> >::build(std::move(iV));
 		}
 
@@ -101,7 +101,7 @@ namespace lass
 		template<typename T>
 		int pyGetSimpleObject(PyObject* iV, T& oV)
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			return PyExportTraits<T>::get(iV,oV);
 		}
 

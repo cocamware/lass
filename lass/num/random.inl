@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -120,7 +120,7 @@ OutputIterator RandomParkMiller::getState(OutputIterator first) const
 
 
 template <typename InputIterator>
-void RandomParkMiller::setState(InputIterator first, InputIterator LASS_UNUSED(last))
+void RandomParkMiller::setState(InputIterator first, [[maybe_unused]] InputIterator last)
 {
 	LASS_ASSERT(first != last);
 	buffer_ = *first++;

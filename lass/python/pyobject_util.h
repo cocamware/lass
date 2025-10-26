@@ -63,7 +63,7 @@ namespace lass
 			template<typename ForwardIterator>
 			TPyObjPtr pyBuildTuple(ForwardIterator iB, ForwardIterator iE )
 			{
-				LockGIL LASS_UNUSED(lock);
+				LockGIL lock;
 				const Py_ssize_t size = static_cast<Py_ssize_t>(std::distance(iB, iE));
 				LASS_ASSERT(size >= 0);
 				TPyObjPtr r(PyTuple_New(size));
@@ -85,7 +85,7 @@ namespace lass
 			template<typename ForwardIterator>
 			TPyObjPtr pyBuildList(ForwardIterator iB, ForwardIterator iE )
 			{
-				LockGIL LASS_UNUSED(lock);
+				LockGIL lock;
 				const Py_ssize_t size = static_cast<Py_ssize_t>(std::distance(iB, iE));
 				LASS_ASSERT(size >= 0);
 				TPyObjPtr r(PyList_New(size));
@@ -107,7 +107,7 @@ namespace lass
 			template<typename InputIterator>
 			TPyObjPtr pyBuildMap(InputIterator iB, InputIterator iE )
 			{
-				LockGIL LASS_UNUSED(lock);
+				LockGIL lock;
 				TPyObjPtr r(PyDict_New());
 				if (r)
 				{

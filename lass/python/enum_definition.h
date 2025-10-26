@@ -374,7 +374,7 @@ namespace lass
 			 */
 			PyObject* build(TEnum value) const
 			{
-				LockGIL LASS_UNUSED(lock);
+				LockGIL lock;
 				TPyObjPtr args = makeTuple(static_cast<TBase>(value));
 				return PyObject_Call(type(), args.get(), nullptr);
 			}
@@ -384,7 +384,7 @@ namespace lass
 			 */
 			int get(PyObject* obj, TEnum& value) const
 			{
-				LockGIL LASS_UNUSED(lock);
+				LockGIL lock;
 				const TPyObjPtr o = valueObject(obj);
 				if (!o)
 				{
@@ -643,7 +643,7 @@ namespace lass
 			 */
 			PyObject* build(TEnum value) const
 			{
-				LockGIL LASS_UNUSED(lock);
+				LockGIL lock;
 				auto val = this->getValue(value);
 				if (!val)
 				{
@@ -660,7 +660,7 @@ namespace lass
 			 */
 			int get(PyObject* obj, TEnum& value) const
 			{
-				LockGIL LASS_UNUSED(lock);
+				LockGIL lock;
 				const TPyObjPtr o = valueObject(obj);
 				if (!o)
 				{

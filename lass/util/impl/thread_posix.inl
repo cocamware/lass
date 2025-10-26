@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -375,7 +375,7 @@ private:
 /** @internal
  *  @ingroup Threading
  */
-void bindThread(pthread_t LASS_UNUSED(handle), pid_t LASS_UNUSED(tid), size_t LASS_UNUSED(processor))
+void bindThread([[maybe_unused]] pthread_t handle, [[maybe_unused]] pid_t tid, [[maybe_unused]] size_t processor)
 {
 #if LASS_HAVE_CPU_SET_T
 	cpu_set_t mask;

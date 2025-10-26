@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -190,10 +190,14 @@
  *  @code
  *  int LASS_UNUSED(foobar) = 0;
  *  @endcode
+ * 
+ *  @deprecated Use [[maybe_unused]] instead (C++14 and up).
  */
+
 #if (LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC) || (LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_CLANG)
-#	define LASS_UNUSED(x) x __attribute__((__unused__))
+#	define LASS_UNUSED(x) _Pragma ("GCC warning \"'LASS_UNUSED' macro is deprecated\"") x __attribute__((__unused__))
 #else
+#	pragma deprecated(LASS_UNUSED)
 #	define LASS_UNUSED(x) x
 #endif
 
@@ -217,7 +221,7 @@
 			x \
 			return true; \
 		} \
-		const bool LASS_UNUSED(LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),var )) = \
+		const bool LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),var ) = \
 			LASS_CONCATENATE( LASS_UNIQUENAME(iPrefix),func ) (); \
 	}
 

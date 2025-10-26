@@ -120,7 +120,7 @@ public:
 
 	R operator()(typename util::CallTraits<Args>::TParam... args) const
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		LASS_ASSERT(callable_);
 		const TPyObjPtr oArgs = makeTuple(args...);
 		const TPyObjPtr result(PyObject_CallObject(callable_.get(), oArgs.get()));

@@ -87,7 +87,7 @@ namespace impl
 
 	void Sequence::init(TPimpl&& pimpl)
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		initLassModule();
 		impl::fixObjectType(this);
 		pimpl_ = std::move(pimpl);
@@ -95,13 +95,13 @@ namespace impl
 
 	const TSequencePtr Sequence::copy() const
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		Sequence::TPimpl pimpl = pimpl_->copy();
 		return TSequencePtr(new Sequence(std::move(pimpl)));
 	}
 	void Sequence::clear()
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		if (!pimpl_->clear())
 		{
 			impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
@@ -109,7 +109,7 @@ namespace impl
 	}
 	void Sequence::reserve(Py_ssize_t n)
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		if (!pimpl_->reserve(n))
 		{
 			impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
@@ -117,7 +117,7 @@ namespace impl
 	}
 	void Sequence::append(const TPyObjPtr& obj)
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		if (!pimpl_->append(obj))
 		{
 			impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
@@ -125,7 +125,7 @@ namespace impl
 	}
 	const TPyObjPtr Sequence::pop(Py_ssize_t i)
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		TPyObjPtr popped(pimpl_->item(i));
 		if (!pimpl_->pop(i))
 		{
@@ -135,7 +135,7 @@ namespace impl
 	}
 	const TPyObjPtr Sequence::pop_back()
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		return pop(pimpl_->length() - 1);
 	}
 
@@ -150,18 +150,18 @@ namespace impl
 
 	std::string Sequence::repr() const
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		return pimpl_->repr();
 	}
 
 	const TPyObjPtr Sequence::asList() const
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		return pimpl_->asNative();
 	}
 	const TPyObjPtr Sequence::iter() const
 	{ 
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		return fromNakedToSharedPtrCast<PyObject>(pimpl_->items()); 
 	}
 

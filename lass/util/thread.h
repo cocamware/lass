@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -617,12 +617,12 @@ typedef Locker<Semaphore> SemaphoreLocker;
  *      be the reason ...
  */
 #define LASS_LOCK(iLock)\
-	if (const ::lass::util::LockerBase& LASS_UNUSED(lassUtilImplLocker) = ::lass::util::makeLocker(iLock))
+	if (const ::lass::util::LockerBase& lassUtilImplLocker = ::lass::util::makeLocker(iLock))
 
 #define LASS_TRY_LOCK(iLock)\
-	if (const ::lass::util::LockerBase& LASS_UNUSED(lassUtilImplLocker) = ::lass::util::makeTryLocker(iLock))
+	if (const ::lass::util::LockerBase& lassUtilImplLocker = ::lass::util::makeTryLocker(iLock))
 
 #define LASS_LOCK_INTEGRAL(iSlots)\
-	if (const ::lass::util::LockerBase& LASS_UNUSED(lassUtilImplLocker) = ::lass::util::makeIntegralLocker(iSlots))
+	if (const ::lass::util::LockerBase& lassUtilImplLocker = ::lass::util::makeIntegralLocker(iSlots))
 
 #endif

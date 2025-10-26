@@ -386,7 +386,7 @@ namespace lass
 			const TMap::const_iterator i = map_.find(key);
 			if (i == map_.end())
 			{
-				python::LockGIL LASS_UNUSED(lock);
+				python::LockGIL lock;
 				throw python::PythonException(PyExc_KeyError, key);
 			}
 			return i->second;
@@ -403,7 +403,7 @@ namespace lass
 		{
 			if (!map_.erase(key))
 			{
-				python::LockGIL LASS_UNUSED(lock);
+				python::LockGIL lock;
 				throw python::PythonException(PyExc_KeyError, key);
 			}
 		}

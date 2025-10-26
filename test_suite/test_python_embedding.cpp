@@ -95,7 +95,7 @@ void testPythonEmbedding()
 	LASS_TEST_CHECK(pyTestFile);
 
 	{
-		python::LockGIL LASS_UNUSED(lock);
+		python::LockGIL lock;
 		FILE* fp = _Py_fopen_obj(pyTestFile.get(), "rb");
 		LASS_TEST_CHECK_EQUAL(PyRun_SimpleFileEx(fp, testFile.c_str(), 1), 0);
 	}

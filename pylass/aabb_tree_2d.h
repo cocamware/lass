@@ -47,7 +47,7 @@ struct ObjectTraits:
 
 	static const TAabb objectAabb(TObjectIterator object) 
 	{
-		python::LockGIL LASS_UNUSED(lock);
+		python::LockGIL lock;
 		TObject method(python::pyBuildSimpleObject("aabb"));
 		TObject result(PyObject_CallMethodObjArgs(object->get(), method.get(), 0));
 		if (!result)
@@ -65,7 +65,7 @@ struct ObjectTraits:
 	
 	static bool objectContains(TObjectIterator object, const TPoint& point, const TInfo*) 
 	{ 
-		python::LockGIL LASS_UNUSED(lock);
+		python::LockGIL lock;
 		TObject method(python::pyBuildSimpleObject("contains"));
 		TObject p(python::pyBuildSimpleObject(point));
 		TObject result(PyObject_CallMethodObjArgs(object->get(), method.get(), p.get(), 0));
@@ -84,7 +84,7 @@ struct ObjectTraits:
 
 	static bool objectIntersect(TObjectIterator object, const TRay& ray, TReference t, TParam tMin, const TInfo*)
 	{
-		python::LockGIL LASS_UNUSED(lock);
+		python::LockGIL lock;
 		TObject method(python::pyBuildSimpleObject("intersect"));
 		TObject support(python::pyBuildSimpleObject(ray.support()));
 		TObject direction(python::pyBuildSimpleObject(ray.direction()));
@@ -112,7 +112,7 @@ struct ObjectTraits:
 	 */
 	static bool objectIntersects(TObjectIterator object, const TRay& ray, TParam tMin, TParam tMax, const TInfo*)
 	{
-		python::LockGIL LASS_UNUSED(lock);
+		python::LockGIL lock;
 		TObject method(python::pyBuildSimpleObject("intersects"));
 		TObject support(python::pyBuildSimpleObject(ray.support()));
 		TObject direction(python::pyBuildSimpleObject(ray.direction()));

@@ -205,7 +205,7 @@ protected:
 	{
 		if (readOnly_)
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			PyErr_SetString(PyExc_TypeError, "Container is read-only");
 			return false;
 		}

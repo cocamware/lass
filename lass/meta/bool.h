@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -59,15 +59,12 @@
 
 #include "meta_common.h"
 
-// experimental,
 // Clang's -Wunused-private-field will warn that dummy_ and biggerThanTrue_ are not used.
-// Simply using LASS_UNUSED won't work since GCC will then again warn that __attribute__((unused)) is ignored.
-// Sigh, so, only do LASS_UNUSED if we're Clang.
-// If this properly works, and we have more insight in this situation, we might move this to some more permanent location ...
-#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_CLANG
-#   define LASS_EXPERIMENTAL_UNUSED_PRIVATE(x) LASS_UNUSED(x)
+// But GCC <= 11 will then warn that [[maybe_unused]] attribute is ignored.
+#if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC && __GNUC__ <= 11
+#   define LASS_META_BOOL_MAYBE_UNUSED
 #else
-#   define LASS_EXPERIMENTAL_UNUSED_PRIVATE(x) x
+#   define LASS_META_BOOL_MAYBE_UNUSED [[maybe_unused]]
 #endif
 
 namespace lass
@@ -84,7 +81,7 @@ public:
 	typedef True Type;
 	enum { value = true };
 private:
-	char LASS_EXPERIMENTAL_UNUSED_PRIVATE(dummy_);
+	LASS_META_BOOL_MAYBE_UNUSED char dummy_;
 };
 
 /** meta false
@@ -96,7 +93,7 @@ public:
 	typedef False Type;
 	enum { value = false };
 private:
-	True LASS_EXPERIMENTAL_UNUSED_PRIVATE(biggerThanTrue_[2]);
+	LASS_META_BOOL_MAYBE_UNUSED True biggerThanTrue_[2];
 };
 
 

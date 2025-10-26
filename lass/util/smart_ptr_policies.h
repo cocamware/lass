@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -479,7 +479,7 @@ protected:
 		(pointee->*referenceCounter) = 1;
 	}
 
-	template <typename TStorage> void dispose(TStorage& LASS_UNUSED(pointee))
+	template <typename TStorage> void dispose([[maybe_unused]] TStorage& pointee)
 	{
 		LASS_ASSERT(pointee && (pointee->*referenceCounter) == 0);
 	}

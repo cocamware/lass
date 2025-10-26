@@ -122,7 +122,7 @@ namespace impl
 
 void addMessageHeader(const char* header)
 {
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 	if (!PyErr_Occurred() || !PyErr_ExceptionMatches(PyExc_TypeError))
 	{
 		return;
@@ -150,7 +150,7 @@ void addMessageHeader(const char* header)
 
 void fetchAndThrowPythonException(std::string loc)
 {
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 	if (!PyErr_Occurred())
 	{
 		LASS_THROW("internal error: fetchAndThrowPythonException called while Python exception is not set");
@@ -170,7 +170,7 @@ void fetchAndThrowPythonException(std::string loc)
 
 void handleException(std::exception_ptr ptr)
 {
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 	try
 	{
 		std::rethrow_exception(ptr);
@@ -269,7 +269,7 @@ PythonException::PythonException(PyObject* type, const std::string& msg):
 
 const std::string PythonException::extractMessage(PyObject* type, PyObject* value)
 {
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 	std::string message;
 	const TPyObjPtr typeStr(PyObject_Str(type));
 	if (!typeStr || pyGetSimpleObject(typeStr.get(), message) != 0)
@@ -306,7 +306,7 @@ PyObject* chainErrFormat(PyObject* exception, const char* format, ...)
 
 PyObject* chainErrFormatV(PyObject* exception, const char* format, va_list vargs)
 {
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 	if (!PyErr_Occurred())
 	{
 		return PyErr_FormatV(exception, format, vargs);

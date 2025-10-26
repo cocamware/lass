@@ -56,7 +56,7 @@ void testPythonExportTraitsOptional()
 
 	initPythonEmbedding();
 
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 
 	{
 		// build empty optional

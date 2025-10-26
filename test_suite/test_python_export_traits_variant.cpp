@@ -57,7 +57,7 @@ void testPythonExportTraitsVariant()
 	using namespace lass::python;
 
 	initPythonEmbedding();
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 
 	using string_list = std::vector<std::string>;
 	using string_list_list = std::vector<string_list>;

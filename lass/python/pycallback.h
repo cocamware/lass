@@ -112,7 +112,7 @@ namespace impl
 		{
 			// the "thing" we add must be convertible to a callback
 			// [TODO] use a decodeTuple
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			Callback tempCallback;
 			if (args.get() && PyTuple_Check(args.get()) && PyTuple_Size(args.get())==1)
 			{
@@ -216,7 +216,7 @@ namespace impl
 	template <typename C>
 	void MultiCallbackImpl<C>::call(const python::TPyObjPtr& args, PyObject* self)
 	{
-		LockGIL LASS_UNUSED(lock); // as we're going to release it again ...
+		LockGIL lock; // as we're going to release it again ...
 		impl::CallMethod< CallIntermediateShadowTraits<C> >::call(args.get(), self, &C::call ); 
 	}
 }

@@ -80,7 +80,7 @@ namespace impl
 	protected:
 		void call(const TPyObjPtr& args) const
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			LASS_ASSERT(callable_);
 			const TPyObjPtr result(PyObject_CallObject(callable_.get(), args.get()));
 			if (!result)
@@ -116,7 +116,7 @@ namespace impl
 	protected:
 		R call(const TPyObjPtr& args) const
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			LASS_ASSERT(callable_);
 			const TPyObjPtr result(PyObject_CallObject(callable_.get(), args.get()));
 			if (!result)
@@ -259,7 +259,7 @@ namespace impl
 		Functor0Python(const python::TPyObjPtr& callable): FunctorPythonBase(callable) {}
 		void operator()() const
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			this->call(python::TPyObjPtr());
 		}
 	};
@@ -346,7 +346,7 @@ namespace impl
 		Functor$xPython(const TPyObjPtr& callable): FunctorPythonBase(callable) {}
 		void operator()($(typename util::CallTraits<P$x>::TParam p$x)$) const
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			this->call(makeTuple($(p$x)$));
 		}
 	};
@@ -440,7 +440,7 @@ namespace impl
 		FunctorPythonR0(const TPyObjPtr& callable): FunctorPythonRBase<R>(callable) {}
 		R operator()() const
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			return this->call(TPyObjPtr());
 		}
 	};
@@ -528,7 +528,7 @@ namespace impl
 		FunctorPythonR$x(const TPyObjPtr& callable): FunctorPythonRBase<R>(callable) {}
 		R operator()($(typename util::CallTraits<P$x>::TParam p$x)$) const
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			return this->call(makeTuple($(p$x)$));
 		}
 	};

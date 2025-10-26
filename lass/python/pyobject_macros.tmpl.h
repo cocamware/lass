@@ -3631,8 +3631,8 @@ $[
 		{\
 			return result;\
 		}\
-		typedef ::lass::python::impl::ShadowTraits< t_cppClass > LASS_UNUSED(TShadowTraits);\
-		typedef TShadowTraits::TCppClass LASS_UNUSED(TCppClass);\
+		[[maybe_unused]] typedef ::lass::python::impl::ShadowTraits< t_cppClass > TShadowTraits;\
+		[[maybe_unused]] typedef TShadowTraits::TCppClass TCppClass;\
 		LASS_ASSERT(result == 0);\
 		return i_caller(iArgs, iSelf, i_cppMethod);\
 	}\

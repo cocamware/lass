@@ -72,7 +72,7 @@ namespace impl
 	{
 		if (object && object->ob_type != LASS_ENFORCE_POINTER(type))
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			Py_XINCREF(type);
 			std::swap(object->ob_type, type);
 			Py_XDECREF(type);
@@ -175,7 +175,7 @@ protected:
 	{
 		if (Py_IsInitialized())
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 			Py_INCREF(pointee);
 		}
 		else
@@ -193,7 +193,7 @@ protected:
 		bool r = false;
 		if (Py_IsInitialized())
 		{
-			LockGIL LASS_UNUSED(lock);
+			LockGIL lock;
 #ifdef Py_GIL_DISABLED
 			r = PyUnstable_Object_IsUniquelyReferenced(pointee);
 #else
@@ -270,7 +270,7 @@ template<class T>
 lass::util::SharedPtr<T, PyObjectStorage, PyObjectCounter>
 fromNakedToSharedPtrCast(PyObject* object)
 {
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 	Py_XINCREF(object);
 	return util::SharedPtr<T,PyObjectStorage,PyObjectCounter>(static_cast<T*>(object));
 }
@@ -287,7 +287,7 @@ template<class T>
 PyObject*
 fromSharedPtrToNakedCast(const util::SharedPtr<T,PyObjectStorage,PyObjectCounter>& object)
 {
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 	PyObject* const obj = object.get();
 	Py_XINCREF(obj);
 	return obj;
@@ -302,7 +302,7 @@ template <typename Out, typename In> inline
 Out	staticPyCast(const In& in)
 {
 	typedef typename Out::TPointer TPtr;
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 	TPtr ptr = static_cast<TPtr>(in.get());
 	Py_XINCREF(ptr);
 	return Out(ptr);
@@ -317,7 +317,7 @@ template <typename Out, typename In> inline
 Out	dynamicPyCast(const In& in)
 {
 	typedef typename Out::TPointer TPtr;
-	LockGIL LASS_UNUSED(lock);
+	LockGIL lock;
 	TPtr ptr = dynamic_cast<TPtr>(in.get());
 	Py_XINCREF(ptr);
 	return Out(ptr);

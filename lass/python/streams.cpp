@@ -99,7 +99,7 @@ int SysStreamBuf::sync()
 	bool ok = false;
 	if (Py_IsInitialized())
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		PyObject* obj = PySys_GetObject(const_cast<char*>(name_));
 		if (obj)
 		{

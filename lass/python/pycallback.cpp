@@ -83,7 +83,7 @@ const std::string MultiCallbackImplBase::repr() const
 	// automatically wrapping everything up
 	PyObject * MultiCallback::_tp_call(PyObject * self, PyObject *args, PyObject* kwargs)
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		if (!PyType_IsSubtype(self->ob_type , MultiCallback::_lassPyClassDef.type() ))
 		{
 			PyErr_SetString(PyExc_TypeError,"not castable to MultiCallback");
@@ -124,12 +124,12 @@ const std::string MultiCallbackImplBase::repr() const
 
 	void MultiCallback::call(const python::TPyObjPtr& args)
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		pimpl_->call(args,this);
 	}
 	PyObject* MultiCallback::callVar(PyObject* args) 
 	{ 
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		call(python::TPyObjPtr(args)); 
 		Py_RETURN_NONE;
 	}
@@ -148,12 +148,12 @@ const std::string MultiCallbackImplBase::repr() const
 	}
 	void MultiCallback::add(const python::TPyObjPtr& args)
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		pimpl_->add(args);
 	}
 	PyObject* MultiCallback::addVar(PyObject* args)
 	{
-		LockGIL LASS_UNUSED(lock);
+		LockGIL lock;
 		add(python::TPyObjPtr(args)); 
 		Py_RETURN_NONE;
 	}

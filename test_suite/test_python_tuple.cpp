@@ -56,7 +56,7 @@ void testPythonTuple()
     using namespace lass::python;
 
 	initPythonEmbedding();
-    LockGIL LASS_UNUSED(lock);
+    LockGIL lock;
 
     {
         TPyObjPtr obj = makeTuple();

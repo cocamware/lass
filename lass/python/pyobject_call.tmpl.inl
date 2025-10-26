@@ -91,7 +91,7 @@ struct Caller
 	{
 		try
 		{
-			UnblockThreads LASS_UNUSED(unlock);
+			UnblockThreads unlock;
 			return pyBuildSimpleObject( function() );
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -102,7 +102,7 @@ struct Caller
 	{
 		try
 		{
-			UnblockThreads LASS_UNUSED(unlock);
+			UnblockThreads unlock;
 			return pyBuildSimpleObject(function(std::forward<P>(p)...));
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -115,7 +115,7 @@ struct Caller
 	{
 		try
 		{
-			UnblockThreads LASS_UNUSED(unlock);
+			UnblockThreads unlock;
 			return pyBuildSimpleObject( (object.*method)() );
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -126,7 +126,7 @@ struct Caller
 	{
 		try
 		{
-			UnblockThreads LASS_UNUSED(unlock);
+			UnblockThreads unlock;
 			return pyBuildSimpleObject((object.*method)(std::forward<P>(p)...));
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -145,7 +145,7 @@ struct Caller<void>
 	{
 		try
 		{
-			UnblockThreads LASS_UNUSED(unlock);
+			UnblockThreads unlock;
 			function();
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -157,7 +157,7 @@ struct Caller<void>
 	{
 		try
 		{
-			UnblockThreads LASS_UNUSED(unlock);
+			UnblockThreads unlock;
 			function(std::forward<P>(p)...);
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -171,7 +171,7 @@ struct Caller<void>
 	{
 		try
 		{
-			UnblockThreads LASS_UNUSED(unlock);
+			UnblockThreads unlock;
 			(object.*method)();
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -183,7 +183,7 @@ struct Caller<void>
 	{
 		try
 		{
-			UnblockThreads LASS_UNUSED(unlock);
+			UnblockThreads unlock;
 			(object.*method)(std::forward<P>(p)...);
 		}
 		LASS_PYTHON_CATCH_AND_RETURN
@@ -588,7 +588,7 @@ PyObject* construct( PyTypeObject* subType, PyObject* args )
 	{
 		TCppClassPtr cppObject;
 		{
-			UnblockThreads LASS_UNUSED(unlock);
+			UnblockThreads unlock;
 			cppObject = TCppClassPtr(new TCppClass( $(TArg$x::arg(p$x))$ ));
 		}
 		const TPyClassPtr result = ShadowTraits::buildObject(cppObject);

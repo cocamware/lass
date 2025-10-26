@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -64,7 +64,7 @@ struct AtomicOperations
 	template <typename T>
 	static bool compareAndSwap(volatile T& dest, T expectedValue, T newValue)
 	{
-		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
+		PoorMansGlobalAtomicLock lock;
 		const T old = dest;
 		if (old != expectedValue)
 		{
@@ -78,7 +78,7 @@ struct AtomicOperations
 	static bool LASS_CALL compareAndSwap(
 			volatile T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 	{
-		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
+		PoorMansGlobalAtomicLock lock;
 		volatile T2& dest2 = *reinterpret_cast<volatile T2*>((&dest1) + 1);
 		if (dest1 != expected1 || dest2 != expected2)
 		{
@@ -92,14 +92,14 @@ struct AtomicOperations
 	template <typename T> inline
 	static void LASS_CALL increment(volatile T& value)
 	{
-		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
+		PoorMansGlobalAtomicLock lock;
 		++value;
 	}
 
 	template <typename T> inline
 	static void LASS_CALL decrement(volatile T& value)
 	{
-		PoorMansGlobalAtomicLock LASS_UNUSED(lock);
+		PoorMansGlobalAtomicLock lock;
 		--value;
 	}
 };
