@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -110,7 +110,7 @@ std::string wcharToUtf8(const wchar_t* wide, size_t length)
 
 #	if LASS_HAVE_MULTIBYTETOWIDECHAR
 
-LASS_META_ASSERT( sizeof(wchar_t) == sizeof(WCHAR), wchar_t_should_be_of_same_size_as_WCHAR ); 
+static_assert(sizeof(wchar_t) == sizeof(WCHAR), "wchar_t must be of same size as WCHAR"); 
 
 void utf8ToWchar(const char* utf8, size_t length, std::wstring &wide)
 {
@@ -142,7 +142,7 @@ void wcharToUtf8(const wchar_t* wide, size_t length, std::string &utf8)
 
 namespace
 {
-	LASS_META_ASSERT(sizeof(wchar_t) == 2 || sizeof(wchar_t) == 4, expects_wchar_t_to_be_16_or_32_bit);
+	static_assert(sizeof(wchar_t) == 2 || sizeof(wchar_t) == 4, "expects wchar_t to be 16 or 32 bit");
 
 	class Converter
 	{

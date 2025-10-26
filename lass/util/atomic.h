@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -116,7 +116,7 @@ template <typename T1, typename T2>
 [[deprecated("Use std::atomic")]]
 bool atomicCompareAndSwap(volatile T1& dest1, T1 expected1, T2 expected2, T1 new1, T2 new2)
 {
-	LASS_META_ASSERT(sizeof(T1) == sizeof(T2), T1_and_T2_must_be_of_same_size);
+	static_assert(sizeof(T1) == sizeof(T2), "T1 and T2 must be of same size");
 	return impl::AtomicOperations< sizeof(T1) >::compareAndSwap(
 		dest1, expected1, expected2, new1, new2);
 }
@@ -304,24 +304,27 @@ void atomicUnlock(std::atomic<T>& semaphore)
 template <typename T>
 class LASS_TAGGED_PTR_ALIGN TaggedPtr
 {
+public:
+	typedef T TValue;
+	typedef T* TPointer;
+
 #if LASS_TAGGED_PTR_64_PACKED
 
-public:
 	typedef num::Tuint16 TTag;
 	TaggedPtr() = default;
 	TaggedPtr(T * ptr, TTag tag): bits_((reinterpret_cast<num::Tint64>(ptr) << 16) | (tag & 0xffff)) {}
-	T* get() const
+	TPointer get() const
 	{
 #	if defined(LASS_HAVE_INLINE_ASSEMBLY_GCC) && defined(LASS_PROCESSOR_ARCHITECTURE_x86)
-		T* ptr;
+		TPointer ptr;
 		__asm__ ("sarq $16, %0;" : "=q"(ptr) : "0"(bits_) : "cc");
 		return ptr;
 #	elif LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
-		return reinterpret_cast<T*>(__ll_rshift(bits_, 16));
+		return reinterpret_cast<TPointer>(__ll_rshift(bits_, 16));
 #	else
 		return ((bits_ & 0xa000000000000000) == 0) ?
-			reinterpret_cast<T*>(bits_ >> 16) :
-			reinterpret_cast<T*>((bits_ >> 16) | 0xffff000000000000);
+			reinterpret_cast<TPointer>(bits_ >> 16) :
+			reinterpret_cast<TPointer>((bits_ >> 16) | 0xffff000000000000);
 #	endif
 	}
 	TTag tag() const { return static_cast<TTag>(bits_ & 0xffff); }
@@ -332,22 +335,21 @@ private:
 
 #else
 
-public:
 	typedef num::TuintPtr TTag;
 	TaggedPtr() = default;
-	TaggedPtr(T* ptr, TTag tag) : ptr_(ptr), tag_(tag) {}
-	T* get() const { return ptr_; }
+	TaggedPtr(TPointer ptr, TTag tag) : ptr_(ptr), tag_(tag) {}
+	TPointer get() const { return ptr_; }
 	TTag tag() const { return tag_; }
 	TTag nextTag() const { return tag_ + 1; }
 	bool operator==(const TaggedPtr& other) const { return ptr_ == other.ptr_ && tag_ == other.tag_; }
 private:
-	T* ptr_ = nullptr;
+	TPointer ptr_ = nullptr;
 	TTag tag_ = 0;
 
 #endif
 
 public:
-	T* operator->() const { LASS_ASSERT(get()); return get(); }
+	TPointer operator->() const { LASS_ASSERT(get()); return get(); }
 	bool operator!() const { return get() == nullptr; }
 	explicit operator bool() const { return get() != nullptr; }
 	bool operator!=(const TaggedPtr& other) const { return !(*this == other); }

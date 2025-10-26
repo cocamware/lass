@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -78,6 +78,8 @@
  *  that both that copyright notice and this permission notice appear in supporting documentation.\n
  *  The author or Addison-Wesley Longman make no representations about the suitability of this
  *  software (Loki) for any purpose. It is provided "as is" without express or implied warranty.</i>
+ * 
+ *  @deprecated use static_assert instead
  */
 
 #ifndef LASS_GUARDIAN_OF_INCLUSION_META_META_ASSERT_H
@@ -92,20 +94,34 @@ namespace meta
 namespace impl
 {
 
-template<bool x> struct MetaAssertor;
-template<> struct MetaAssertor<false> {};
+#if (LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC)
+#	pragma GCC diagnostic push
+#	pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
-template<size_t x> struct MetaAssertTest {};
+template<bool x> struct [[deprecated]] MetaAssertor;
+template<> struct [[deprecated]] MetaAssertor<false> {};
+
+template<size_t x> struct [[deprecated]] MetaAssertTest {};
+
+#if (LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC)
+#	pragma GCC diagnostic pop
+#endif
 
 }
 }
 }
 
+#if (LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_GCC) || (LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_CLANG)
+#	define LASS_META_ASSERT(expression, message) \
+		_Pragma ("GCC warning \"'LASS_META_ASSERT' macro is deprecated\"") \
+		static_assert(expression, LASS_STRINGIFY(message))
+#else
+#	pragma deprecated(LASS_META_ASSERT)
+#	define LASS_META_ASSERT(expression, message) \
+		static_assert(expression, LASS_STRINGIFY(message))
+#endif
 
-#define LASS_META_ASSERT(expression, message)\
-	typedef lass::meta::impl::MetaAssertTest<\
-		sizeof(lass::meta::impl::MetaAssertor<((expression) == 0)>)>\
-	LASS_UNUSED( LASS_META_ASSERT_##message )
 
 #endif
 

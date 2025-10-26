@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -180,8 +180,8 @@ public:
 
 private:
 
-	LASS_META_ASSERT(sizeof(result_type) * lass::bitsPerByte == 32,
-		MersenneTwister_is_designed_to_be_a_32_bits_random_number_generator);
+	static_assert(sizeof(result_type) * lass::bitsPerByte == 32,
+		"MersenneTwister is designed to be a 32 bits random number generator");
 
 	enum
 	{

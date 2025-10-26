@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -52,9 +52,9 @@ namespace impl
 template <typename UintSingle, typename UintDouble, typename T1, typename T2>
 UintDouble packPair(T1 a, T2 b)
 {
-	LASS_META_ASSERT(sizeof(UintDouble) == 2 * sizeof(UintSingle), UintDouble_must_be_twice_as_wide_as_UintSingle);
-	LASS_META_ASSERT(sizeof(T1) == sizeof(UintSingle), T1_must_have_same_wide_as_UintSingle);
-	LASS_META_ASSERT(sizeof(T2) == sizeof(UintSingle), T2_must_have_same_wide_as_UintSingle);
+	static_assert(sizeof(UintDouble) == 2 * sizeof(UintSingle), "UintDouble must be twice as wide as UintSingle");
+	static_assert(sizeof(T1) == sizeof(UintSingle), "T1 must have same width as UintSingle");
+	static_assert(sizeof(T2) == sizeof(UintSingle), "T2 must have same width as UintSingle");
 	enum { shift = bitsPerByte * sizeof(UintSingle) };
 	const UintDouble r1 = *reinterpret_cast<UintSingle*>(&a);
 	const UintDouble r2 = *reinterpret_cast<UintSingle*>(&b);

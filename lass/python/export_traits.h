@@ -786,7 +786,7 @@ struct PyExportTraitsSigned
 {
 	constexpr static const char* py_typing = "int";
 
-	LASS_META_ASSERT(sizeof(Integer) <= sizeof(long), integer_should_fit_in_long);
+	static_assert(sizeof(Integer) <= sizeof(long), "integer must fit in long");
 	static PyObject* build(Integer v)
 	{
 		return PyLong_FromLong(v);
@@ -893,7 +893,7 @@ struct PyExportTraitsUnsigned
 {
 	constexpr static const char* py_typing = "int";
 
-	LASS_META_ASSERT(sizeof(Integer) <= sizeof(unsigned long), integer_should_fit_in_unsigned_long);
+	static_assert(sizeof(Integer) <= sizeof(unsigned long), "integer must fit in unsigned long");
 	static PyObject* build(Integer v)
 	{
 		return PyLong_FromUnsignedLong(v);

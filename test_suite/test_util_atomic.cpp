@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -130,7 +130,7 @@ void testUtilAtomicAdjacentCas()
 #else
 	volatile T a[2] = { old1, old2 };
 #endif
-	LASS_META_ASSERT(sizeof(a) == 2 * sizeof(T), expect_close_packing);
+	static_assert(sizeof(a) == 2 * sizeof(T), "expect close packing");
 
 	LASS_TEST_CHECK(!util::atomicCompareAndSwap(a[0], wrong1, wrong2, new1, new2));
 	LASS_TEST_CHECK_EQUAL(hex(a[0]), hex(old1));

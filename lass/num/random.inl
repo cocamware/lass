@@ -154,7 +154,7 @@ RandomMT19937::RandomMT19937(ForwardIterator first, ForwardIterator last)
 template <typename ForwardIterator>
 void RandomMT19937::seed(ForwardIterator first, ForwardIterator last)
 {
-	LASS_META_ASSERT(sizeof(TValue) * lass::bitsPerByte == 32, if_TValue_is_32_bits_then_the_wordMasks_are_not_necessary);
+	static_assert(sizeof(TValue) * lass::bitsPerByte == 32, "if TValue is 32 bits then the wordMasks are not necessary");
 
 	seed(19650218);
 

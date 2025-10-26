@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -126,24 +126,19 @@ template <typename T> struct DoublePrecision< std::complex<T> > { typedef std::c
 
 // --- meta assertions -----------------------------------------------------------------------------
 
-namespace impl
-{
-
-LASS_META_ASSERT(lass::bitsPerByte == 8, one_byte_is_not_8_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tint8) * lass::bitsPerByte == 8, Tint8_must_be_8_bits_);
-LASS_META_ASSERT(sizeof(lass::num::Tuint8) * lass::bitsPerByte == 8, Tuint8_must_be_8_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tint16) * lass::bitsPerByte == 16, Tint16_must_be_16_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tuint16) * lass::bitsPerByte == 16, Tuint16_must_be_16_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tint32) * lass::bitsPerByte == 32, Tint32_must_be_32_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tuint32) * lass::bitsPerByte == 32, Tuint32_must_be_32_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tint64) * lass::bitsPerByte == 64, Tint64_must_be_64_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tuint64) * lass::bitsPerByte == 64, Tuint64_must_be_64_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tfloat32) * lass::bitsPerByte == 32, Tfloat32_must_be_32_bits);
-LASS_META_ASSERT(sizeof(lass::num::Tfloat64) * lass::bitsPerByte == 64, Tfloat64_must_be_64_bits);
-LASS_META_ASSERT(sizeof(lass::num::TintPtr) == sizeof(void*), TintPtr_must_be_size_of_pointer);
-LASS_META_ASSERT(sizeof(lass::num::TuintPtr) == sizeof(void*), TuintPtr_must_be_size_of_pointer);
-
-}
+static_assert(lass::bitsPerByte == 8, "one byte must be 8 bits");
+static_assert(sizeof(lass::num::Tint8) * lass::bitsPerByte == 8, "Tint8 must be 8 bits");
+static_assert(sizeof(lass::num::Tuint8) * lass::bitsPerByte == 8, "Tuint8 must be 8 bits");
+static_assert(sizeof(lass::num::Tint16) * lass::bitsPerByte == 16, "Tint16 must be 16 bits");
+static_assert(sizeof(lass::num::Tuint16) * lass::bitsPerByte == 16, "Tuint16 must be 16 bits");
+static_assert(sizeof(lass::num::Tint32) * lass::bitsPerByte == 32, "Tint32 must be 32 bits");
+static_assert(sizeof(lass::num::Tuint32) * lass::bitsPerByte == 32, "Tuint32 must be 32 bits");
+static_assert(sizeof(lass::num::Tint64) * lass::bitsPerByte == 64, "Tint64 must be 64 bits");
+static_assert(sizeof(lass::num::Tuint64) * lass::bitsPerByte == 64, "Tuint64 must be 64 bits");
+static_assert(sizeof(lass::num::Tfloat32) * lass::bitsPerByte == 32, "Tfloat32 must be 32 bits");
+static_assert(sizeof(lass::num::Tfloat64) * lass::bitsPerByte == 64, "Tfloat64 must be 64 bits");
+static_assert(sizeof(lass::num::TintPtr) == sizeof(void*), "TintPtr must be size of pointer");
+static_assert(sizeof(lass::num::TuintPtr) == sizeof(void*), "TuintPtr must be size of pointer");
 
 }
 

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -133,7 +133,7 @@ template <typename T2, typename S2>
 Matrix<T, S>::Matrix(const Matrix<T2, S2>& other):
 	storage_(other.rows(), other.columns())
 {
-	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	static_assert(TStorage::lvalue, "this must be an lvalue");
 
 	const S2& b = other.storage();
 	const TSize m = rows();
@@ -163,7 +163,7 @@ template <typename T, typename S>
 template <typename T2, typename S2>
 Matrix<T, S>& Matrix<T, S>::operator=(const Matrix<T2, S2>& other)
 {
-	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	static_assert(TStorage::lvalue, "this must be an lvalue");
 
 	const S2& b = other.storage();
 	const TSize m = other.rows();
@@ -245,7 +245,7 @@ template <typename T, typename S> inline
 typename Matrix<T, S>::TReference
 Matrix<T, S>::operator()(TSize iRow, TSize iColumn)
 {
-	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	static_assert(TStorage::lvalue, "this must be an lvalue");
 	LASS_ASSERT(iRow < rows() && iColumn < columns());
 	return storage_(iRow, iColumn);
 }
@@ -275,7 +275,7 @@ template <typename T, typename S> inline
 typename Matrix<T, S>::TReference
 Matrix<T, S>::at(TSigned row, TSigned column)
 {
-	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	static_assert(TStorage::lvalue, "this must be an lvalue");
 	return storage_(mod(row, rows()), mod(column, columns()));
 }
 
@@ -387,7 +387,7 @@ template <typename T, typename S>
 template <typename S2>
 Matrix<T, S>& Matrix<T, S>::operator+=(const Matrix<T, S2>& other)
 {
-	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	static_assert(TStorage::lvalue, "this must be an lvalue");
 	LASS_NUM_MATRIX_ENFORCE_EQUAL_DIMENSION(*this, other);
 	const S2& b = other.storage();
 	const TSize m = rows();
@@ -420,7 +420,7 @@ template <typename T, typename S>
 template <typename S2>
 Matrix<T, S>& Matrix<T, S>::operator-=(const Matrix<T, S2>& other)
 {
-	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	static_assert(TStorage::lvalue, "this must be an lvalue");
 	LASS_NUM_MATRIX_ENFORCE_EQUAL_DIMENSION(*this, other);
 	const S2& b = other.storage();
 	const TSize m = rows();
@@ -447,7 +447,7 @@ Matrix<T, S>& Matrix<T, S>::operator-=(const Matrix<T, S2>& other)
 template <typename T, typename S>
 Matrix<T, S>& Matrix<T, S>::operator*=(TParam scalar)
 {
-	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	static_assert(TStorage::lvalue, "this must be an lvalue");
 	const TSize m = rows();
 	const TSize n = columns();
 	for (TSize i = 0; i < m; ++i)
@@ -469,7 +469,7 @@ Matrix<T, S>& Matrix<T, S>::operator*=(TParam scalar)
 template <typename T, typename S>
 Matrix<T, S>& Matrix<T, S>::operator /=(TParam scalar)
 {
-	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	static_assert(TStorage::lvalue, "this must be an lvalue");
 	const TSize m = rows();
 	const TSize n = columns();
 	for (TSize i = 0; i < m; ++i)
@@ -495,7 +495,7 @@ Matrix<T, S>& Matrix<T, S>::operator /=(TParam scalar)
 template <typename T, typename S>
 void Matrix<T, S>::setZero(TSize rows, TSize columns)
 {
-	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	static_assert(TStorage::lvalue, "this must be an lvalue");
 	storage_.resize(rows, columns);
 	for (TSize i = 0; i < rows; ++i)
 	{
@@ -519,7 +519,7 @@ void Matrix<T, S>::setZero(TSize rows, TSize columns)
 template <typename T, typename S>
 void Matrix<T, S>::setIdentity(TSize iSize)
 {
-	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	static_assert(TStorage::lvalue, "this must be an lvalue");
 	storage_.resize(iSize, iSize);
 	for (TSize i = 0; i < iSize; ++i)
 	{
@@ -695,7 +695,7 @@ Matrix<T, S>::transposed() const
 template <typename T, typename S>
 void Matrix<T, S>::invert()
 {
-	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	static_assert(TStorage::lvalue, "this must be an lvalue");
 	LASS_ENFORCE(isSquare());
 
 	const TSize size = rows();
@@ -749,7 +749,7 @@ Matrix<T, S>::storage()
 template <typename T, typename S> inline
 void Matrix<T, S>::swap(Matrix<T, S>& other)
 {
-	LASS_META_ASSERT(TStorage::lvalue, this_is_not_an_lvalue);
+	static_assert(TStorage::lvalue, "this must be an lvalue");
 	storage_.swap(other.storage_);
 }
 
@@ -1005,7 +1005,7 @@ operator/(const Matrix<T, S>& a, typename Matrix<T, S>::TParam b)
 template <typename T, typename S, typename S2>
 void solve(const Matrix<T, S>& a, Matrix<T, S2>& bx, bool improve)
 {
-	LASS_META_ASSERT(S2::lvalue, bx_isnt_an_lvalue);
+	static_assert(S2::lvalue, "bx must be an lvalue");
 	LASS_ENFORCE(a.isSquare());
 	LASS_NUM_MATRIX_ENFORCE_ADJACENT_DIMENSION(a, bx);
 

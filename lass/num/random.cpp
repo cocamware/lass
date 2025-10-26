@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2025 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -121,7 +121,7 @@ RandomMT19937::RandomMT19937(result_type seed)
  */
 void RandomMT19937::seed(result_type seed)
 {
-	LASS_META_ASSERT(sizeof(result_type) * lass::bitsPerByte == 32, if_TValue_is_32_bits_then_the_wordMasks_are_not_necessary);
+	static_assert(sizeof(result_type) * lass::bitsPerByte == 32, "if TValue is 32 bits then the wordMasks are not necessary");
 
 	state_[0] = seed; // & wordMask_;
 	for (TValue i = 1; i < stateSize_; ++i)

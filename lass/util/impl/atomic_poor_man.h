@@ -59,7 +59,7 @@ public:
 template <size_t byteSize>
 struct AtomicOperations
 {
-	LASS_META_ASSERT(byteSize == 1 || byteSize == 2 || byteSize == 4 || byteSize == 8, bytesize_should_be_1_2_4_or_8);
+	static_assert(byteSize == 1 || byteSize == 2 || byteSize == 4 || byteSize == 8, "bytesize must be 1 2 4 or 8");
 	
 	template <typename T>
 	static bool compareAndSwap(volatile T& dest, T expectedValue, T newValue)

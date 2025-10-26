@@ -23,7 +23,7 @@
  *      The Original Developer is the Initial Developer.
  *      
  *      All portions of the code written by the Initial Developer are:
- *      Copyright (C) 2004-2023 the Initial Developer.
+ *      Copyright (C) 2004-2025 the Initial Developer.
  *      All Rights Reserved.
  *      
  *      Contributor(s):
@@ -126,7 +126,7 @@ const std::string lass_strerror(int errnum)
 
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 
-LASS_META_ASSERT(sizeof(DWORD) <= sizeof(unsigned), unsigned_should_be_big_enough_for_a_DWORD);
+static_assert(sizeof(DWORD) <= sizeof(unsigned), "unsigned must be wide enough for a DWORD");
 
 /** returns GetLastError()
  *  @ingroup LassErrno
