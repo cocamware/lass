@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="lass::prim::Transformation3D&lt;*&gt;">
+    <Expand>
+      <Item Name="pimpl_">pimpl_</Item>
+      <Item Name="isInversed_">isInversed_</Item>
+      <ArrayItems>
+        <Direction>Forward</Direction>
+        <Rank>2</Rank>
+        <Size>4</Size>
+        <ValuePointer>isInversed_ ? pimpl_.storage_-&gt;inverse : pimpl_.storage_-&gt;forward</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="lass::stde::static_vector&lt;*&gt;">
+    <DisplayString>{{ size={size_}/{size_t(max_size_)} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]">size_</Item>
+      <Item Name="[capacity]">size_t(max_size_)</Item>
+      <ArrayItems>
+        <Size>size_</Size>
+        <ValuePointer>reinterpret_cast&lt;pointer&gt;(data_)</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="lass::util::TaggedPtr&lt;*&gt;">
+    <!-- packed 64-bit layout: pointer+tag packed into a signed bits_ -->
+    <DisplayString Optional="true">{((bits_ &amp; 0xa000000000000000) == 0)
+        ? reinterpret_cast&lt;TPointer&gt;(bits_ &gt;&gt; 16)
+        : reinterpret_cast&lt;TPointer&gt;((bits_ &gt;&gt; 16) | 0xffff000000000000)
+        } (tag={static_cast&lt;TTag&gt;(bits_ &amp; 0xffff)})</DisplayString>
+    <!-- unpacked layout: separate ptr_ / tag_ -->
+    <DisplayString Optional="true">{ptr_} (tag={tag_})</DisplayString>
+    <Expand>
+      <!-- packed -->
+      <Item Name="[ptr]" Optional="true">
+        ((bits_ &amp; 0xa000000000000000) == 0)
+        ? reinterpret_cast&lt;TPointer&gt;(bits_ &gt;&gt; 16)
+        : reinterpret_cast&lt;TPointer&gt;((bits_ &gt;&gt; 16) | 0xffff000000000000)
+      </Item>
+      <Item Name="[tag]" Optional="true">static_cast&lt;TTag&gt;(bits_ &amp; 0xffff)</Item>
+      <!-- unpacked -->
+      <Item Name="[ptr]" Optional="true">ptr_</Item>
+      <Item Name="[tag]" Optional="true">tag_</Item>
+    </Expand>
+  </Type>
+
+<Type Name="lass::util::TaggedPtr&lt;*&gt;">
+  <!-- packed 64-bit layout: pointer+tag packed into a signed bits_ -->
+  <DisplayString Optional="true">{($T1*)(bits_ &gt;&gt; 16)} (tag={bits_ &amp; 0xffff})</DisplayString>
+  <!-- unpacked layout: separate ptr_ / tag_ -->
+  <DisplayString Optional="true">{ptr_} (tag={tag_})</DisplayString>
+  <Expand>
+    <!-- packed -->
+    <Item Name="[ptr]" Optional="true">($T1*)(bits_ &gt;&gt; 16)</Item>
+    <Item Name="[tag]" Optional="true">bits_ &amp; 0xffff</Item>
+    <!-- unpacked -->
+    <Item Name="[ptr]" Optional="true">ptr_</Item>
+    <Item Name="[tag]" Optional="true">tag_</Item>
+  </Expand>
+</Type>
+</AutoVisualizer>

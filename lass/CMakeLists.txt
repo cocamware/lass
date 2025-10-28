@@ -126,6 +126,11 @@ if(MSVC)
 			PUBLIC "/D_HAS_ITERATOR_DEBUGGING=0"
 		)
 	endif()
+
+	# Add natvis file for Visual Studio debugger
+	set(lass_natvis "${CMAKE_CURRENT_LIST_DIR}/lass.natvis")
+	target_sources(lass PRIVATE "${lass_natvis}")
+	target_link_options(lass PRIVATE "/NATVIS:${lass_natvis}")
 elseif(SUNPRO)
 	# pass
 else()
