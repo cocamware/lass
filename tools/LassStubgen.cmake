@@ -215,7 +215,7 @@ function(Lass_generate_stubs target)
 		)
 		message(STATUS "Updating venv for Lass stubgen: ${LASS_STUBGEN_VENV}...")
 		_Lass_checked_process(
-			"${_venv_python}" -m pip install 
+			"${_venv_python}" -m pip --disable-pip-version-check install 
 			"clang~=${_libclang_major_minor}.0"
 			--requirement "${_Lass_stubgen_requirement}")
 		file(WRITE "${_stamp_file}" "${libclang_version}")
