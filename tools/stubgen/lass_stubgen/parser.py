@@ -1265,7 +1265,7 @@ reference to a class defined in another file.
         cpp_signature = canonical_type(func).spelling
 
         func_type = type_info(func)
-        if func_type.name == "std::function":
+        if func_type.name in ("std::function", "std::__ndk1::function"):
             assert func_type.args and len(func_type.args) == 1, f"{func_type.args=}"
             func_type = func_type.args[0]
             cpp_return_type = func_type.result
