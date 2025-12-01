@@ -541,25 +541,29 @@ protected:
 	template <typename TStorage> void init(TStorage& pointee)
 	{
 		LASS_ASSERT(pointee);
-		(pointee->*referenceCounter).store(1, std::memory_order_relaxed);
+		std::atomic<CounterType>& refCount = pointee->*referenceCounter;
+		refCount.store(1, std::memory_order_relaxed);
 	}
 
-	template <typename TStorage> void dispose([[maybe_unused]] TStorage& pointee)
+	template <typename TStorage> void dispose(TStorage& pointee)
 	{
-		LASS_ASSERT(pointee && (pointee->*referenceCounter).load(std::memory_order_relaxed) == 0);
+		[[maybe_unused]] std::atomic<CounterType>& refCount = pointee->*referenceCounter;
+		LASS_ASSERT(pointee && refCount.load(std::memory_order_relaxed) == 0);
 	}
 
 	template <typename TStorage> void increment(TStorage& pointee)
 	{
 		LASS_ASSERT(pointee);
-		[[maybe_unused]] const TCount oldCount = (pointee->*referenceCounter).fetch_add(1, std::memory_order_relaxed);
+		std::atomic<CounterType>& refCount = pointee->*referenceCounter;
+		[[maybe_unused]] const TCount oldCount = refCount.fetch_add(1, std::memory_order_relaxed);
 		LASS_ASSERT(oldCount >= 1); // otherwise the object would not exist
 	}
 
 	template <typename TStorage> bool decrement(TStorage& pointee)
 	{
 		LASS_ASSERT(pointee);
-		const TCount oldCount = (pointee->*referenceCounter).fetch_sub(1, std::memory_order_release);
+		std::atomic<CounterType>& refCount = pointee->*referenceCounter;
+		const TCount oldCount = refCount.fetch_sub(1, std::memory_order_release);
 		LASS_ASSERT(oldCount > 0); // otherwise the object would have been dead already
 		if (oldCount == 1)
 		{
@@ -573,7 +577,8 @@ protected:
 	template <typename TStorage> TCount count(TStorage& pointee) const
 	{
 		LASS_ASSERT(pointee );
-		const TCount count = (pointee->*referenceCounter).load(std::memory_order_relaxed);
+		std::atomic<CounterType>& refCount = pointee->*referenceCounter;
+		const TCount count = refCount.load(std::memory_order_relaxed);
 		LASS_ASSERT(count > 0);
 		return count;
 	}
