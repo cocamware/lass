@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2022-2024 the Initial Developer.
+ *	Copyright (C) 2022-2026 the Initial Developer.
  *	All Rights Reserved.
  *
  *	Contributor(s):
@@ -234,12 +234,7 @@ void testPythonExportTraitsChronoSystemClock()
 		LASS_TEST_CHECK_EQUAL(static_cast<int>(PyDateTime_DATE_GET_MINUTE(obj.get())), local.tm_min);
 		LASS_TEST_CHECK_EQUAL(static_cast<int>(PyDateTime_DATE_GET_SECOND(obj.get())), local.tm_sec);
 		LASS_TEST_CHECK_EQUAL(static_cast<int>(PyDateTime_DATE_GET_MICROSECOND(obj.get())), 0);
-#if PY_VERSION_HEX >= 0x030a0000 // >= 3.10
 		LASS_TEST_CHECK_EQUAL(PyDateTime_DATE_GET_TZINFO(obj.get()), Py_None);
-#else
-		TPyObjPtr tz(PyObject_GetAttrString(obj.get(), "tzinfo"));
-		LASS_TEST_CHECK_EQUAL(tz.get(), Py_None);
-#endif
 
 		time_point t2;
 		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(obj.get(), t2), 0);

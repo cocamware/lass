@@ -23,7 +23,7 @@
 *	The Original Developer is the Initial Developer.
 *
 *	All portions of the code written by the Initial Developer are:
-*	Copyright (C) 2022-2024 the Initial Developer.
+*	Copyright (C) 2022-2026 the Initial Developer.
 *	All Rights Reserved.
 *
 *	Contributor(s):
@@ -164,16 +164,7 @@ int PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::get(PyOb
 		time.tm_sec = PyDateTime_DATE_GET_SECOND(obj);
 		uSec = std::chrono::microseconds(PyDateTime_DATE_GET_MICROSECOND(obj));
 
-#if PY_VERSION_HEX >= 0x030a0000 // >= 3.10
 		tz = PyDateTime_DATE_GET_TZINFO(obj);
-#else
-		TPyObjPtr tz_(PyObject_GetAttrString(obj, "tzinfo"));
-		if (!tz_)
-		{
-			return 1;
-		}
-		tz = tz_.get();
-#endif
 	}
 
 	if (tz == Py_None)

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -411,13 +411,11 @@ PyObject* ClassDefinition::freezeDefinition(PyObject* module, const char* scopeN
 		LASS_ASSERT(slots_.back().slot == 0);
 		spec_.slots = &slots_[0];
 
-#if PY_VERSION_HEX >= 0x030a0000 // >= 3.10
 		if (getSlot(Py_tp_new) == nullptr)
 		{
 			// We don't have a constructor, so we disallow instantiation.
 			spec_.flags |= Py_TPFLAGS_DISALLOW_INSTANTIATION;
 		}
-#endif
 
 		type_.reset(PyType_FromModuleAndSpec(module, &spec_, nullptr));
 		if (!type_)
@@ -474,9 +472,7 @@ PyObject* ClassDefinition::freezeDefinition(PyObject* module, const char* scopeN
 		classRegisterHook_();
 	}
 
-#if PY_VERSION_HEX >= 0x030a0000 // >= 3.10
 	reinterpret_cast<PyTypeObject*>(type)->tp_flags |= Py_TPFLAGS_IMMUTABLETYPE;
-#endif
 
 	isFrozen_ = true;
 	return type;

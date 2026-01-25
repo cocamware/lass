@@ -19,7 +19,7 @@
 # The Original Developer is the Initial Developer.
 #
 # All portions of the code written by the Initial Developer are:
-# Copyright (C) 2022-2025 the Initial Developer.
+# Copyright (C) 2022-2026 the Initial Developer.
 # All Rights Reserved.
 #
 # Contributor(s):
@@ -59,6 +59,12 @@ from collections.abc import (
 from contextlib import redirect_stdout
 from typing import TYPE_CHECKING, Any, Optional, Protocol
 
+if TYPE_CHECKING:
+    if sys.version_info < (3, 11):
+        from typing_extensions import Self, assert_type
+    else:
+        from typing import Self, assert_type
+
 import embedding
 
 import _lass  # type: ignore[import-not-found] # isort: skip
@@ -67,29 +73,6 @@ print(sys.version)
 
 
 POINTER_SIZE = struct.calcsize("P")  # size of a pointer in bytes
-
-if sys.version_info < (3, 9):
-    SequenceFloat = Sequence
-    MappingStrStr = Mapping
-    MutableSequenceFloat = MutableSequence
-    MutableMappingStrStr = MutableMapping
-    CallableAnyAny = Callable
-    SequenceSpam = Sequence
-    IteratorSpam = Iterator
-else:
-    SequenceFloat = Sequence[float]
-    MappingStrStr = Mapping[str, str]
-    MutableSequenceFloat = MutableSequence[float]
-    MutableMappingStrStr = MutableMapping[str, str]
-    CallableAnyAny = Callable[[Any], Any]
-    SequenceSpam = Sequence[embedding.Spam]
-    IteratorSpam = Iterator[embedding.Spam]
-
-if TYPE_CHECKING:
-    if sys.version_info < (3, 11):
-        from typing_extensions import Self, assert_type
-    else:
-        from typing import Self, assert_type
 
 
 class TestInternalLassModule(unittest.TestCase):
@@ -134,7 +117,7 @@ class TestPyCObject(unittest.TestCase):
 
 
 class TestConstMap(unittest.TestCase):
-    def _testConstMap(self, mapping: MappingStrStr) -> None:
+    def _testConstMap(self, mapping: Mapping[str, str]) -> None:
         self.assertIsInstance(mapping, _lass.Map)
         self.assertEqual(len(mapping), 1)
         self.assertIn("spam", mapping)
@@ -165,7 +148,7 @@ class TestConstMap(unittest.TestCase):
 
 class TestMap(unittest.TestCase):
     def _testMap(
-        self, mapping: MutableMappingStrStr, refmap: MutableMappingStrStr
+        self, mapping: MutableMapping[str, str], refmap: MutableMapping[str, str]
     ) -> None:
         self.assertIsInstance(mapping, _lass.Map)
         mapping["test"] = "ok"
@@ -216,7 +199,7 @@ class TestMap(unittest.TestCase):
 
 
 class TestConstSequence(unittest.TestCase):
-    def _testConstSequence(self, seq: SequenceFloat) -> None:
+    def _testConstSequence(self, seq: Sequence[float]) -> None:
         self.assertIsInstance(seq, _lass.Sequence)
         # Test that none of these operations are allowed on a const sequence
         with self.assertRaises(TypeError):
@@ -247,11 +230,11 @@ class TestConstSequence(unittest.TestCase):
 
 
 class TestWriteableSequence(unittest.TestCase):
-    def _testClear(self, seq: MutableSequenceFloat, refseq: SequenceFloat) -> None:
+    def _testClear(self, seq: MutableSequence[float], refseq: Sequence[float]) -> None:
         seq.clear()
         self.assertEqual(len(refseq), 0)
 
-    def _testReserve(self, seq: MutableSequenceFloat) -> None:
+    def _testReserve(self, seq: MutableSequence[float]) -> None:
         with self.assertRaises(TypeError):
             seq.reserve("123")  # type: ignore[attr-defined]
         try:
@@ -259,7 +242,7 @@ class TestWriteableSequence(unittest.TestCase):
         except Exception as err:
             self.fail("seq.reserve raised exception: {!s}".format(err))
 
-    def _testAppend(self, seq: MutableSequenceFloat, refseq: SequenceFloat) -> None:
+    def _testAppend(self, seq: MutableSequence[float], refseq: Sequence[float]) -> None:
         for i in range(10):
             seq.append(i)
         self.assertEqual(len(refseq), 10)
@@ -268,12 +251,12 @@ class TestWriteableSequence(unittest.TestCase):
         with self.assertRaises(TypeError):
             seq.append("123")  # type: ignore[arg-type]
 
-    def _testRepr(self, seq: MutableSequenceFloat) -> None:
+    def _testRepr(self, seq: MutableSequence[float]) -> None:
         self.assertEqual(
             repr(seq), "[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]"
         )
 
-    def _testPop(self, seq: MutableSequenceFloat, refseq: SequenceFloat) -> None:
+    def _testPop(self, seq: MutableSequence[float], refseq: Sequence[float]) -> None:
         self.assertEqual(seq.pop(), 9)
         self.assertEqual(len(refseq), 9)
         for i in range(5):
@@ -284,12 +267,14 @@ class TestWriteableSequence(unittest.TestCase):
         for a, b in zip(refseq, [0, 1, 2, 8]):
             self.assertEqual(a, b)
 
-    def _testContains(self, seq: MutableSequenceFloat) -> None:
+    def _testContains(self, seq: MutableSequence[float]) -> None:
         self.assertIn(8, seq)
         self.assertNotIn(-123456, seq)
         self.assertNotIn("123", seq)
 
-    def _testGetItem(self, seq: MutableSequenceFloat, refseq: SequenceFloat) -> None:
+    def _testGetItem(
+        self, seq: MutableSequence[float], refseq: Sequence[float]
+    ) -> None:
         with self.assertRaises(IndexError):
             seq[len(seq)]  # Index beyond end of sequence
         with self.assertRaises(IndexError):
@@ -297,7 +282,9 @@ class TestWriteableSequence(unittest.TestCase):
         self.assertEqual(seq[-1], refseq[-1])  # Last element
         self.assertEqual(seq[0], refseq[0])  # First element
 
-    def _testSetItem(self, seq: MutableSequenceFloat, refseq: SequenceFloat) -> None:
+    def _testSetItem(
+        self, seq: MutableSequence[float], refseq: Sequence[float]
+    ) -> None:
         seq[3] = 5
         self.assertEqual(refseq[3], 5)
         with self.assertRaises(TypeError):
@@ -307,7 +294,7 @@ class TestWriteableSequence(unittest.TestCase):
         seq.append(2)
         del seq[-1]
 
-    def _testGetSlice(self, seq: MutableSequenceFloat) -> None:
+    def _testGetSlice(self, seq: MutableSequence[float]) -> None:
         self.assertSequenceEqual(seq[:], [0, 1, 2, 5])
         self.assertSequenceEqual(seq[:], [0, 1, 2, 5])
         self.assertSequenceEqual(seq[:2], [0, 1])
@@ -318,7 +305,9 @@ class TestWriteableSequence(unittest.TestCase):
         self.assertSequenceEqual(seq[2:1], [])
         self.assertSequenceEqual(seq[1::2], [1, 5])
 
-    def _testSetSlice(self, seq: MutableSequenceFloat, refseq: SequenceFloat) -> None:
+    def _testSetSlice(
+        self, seq: MutableSequence[float], refseq: Sequence[float]
+    ) -> None:
         seq[1:3] = [10, 11, 12]
         self.assertSequenceEqual(refseq[:], [0, 10, 11, 12, 5])
         seq[:] = []
@@ -339,27 +328,29 @@ class TestWriteableSequence(unittest.TestCase):
         del seq[-2:]
         self.assertSequenceEqual(refseq[:], [0, 1, 20, 40, 60, 8, 9])
 
-    def _testRepeat(self, seq: MutableSequenceFloat, refseq: SequenceFloat) -> None:
+    def _testRepeat(self, seq: MutableSequence[float], refseq: Sequence[float]) -> None:
         n = len(seq)
         seq *= 2  # type: ignore[operator,assignment]
         self.assertEqual(len(refseq), 2 * n)
-        b: MutableSequenceFloat = seq * 2  # type: ignore[operator,assignment]
+        b: MutableSequence[float] = seq * 2  # type: ignore[operator,assignment]
         self.assertEqual(len(refseq), 2 * n)
         for i in range(n):
             self.assertEqual(seq[i], seq[n + i])
         self.assertEqual(len(b), 4 * n)
 
-    def _testConcat(self, seq: MutableSequenceFloat, refseq: SequenceFloat) -> None:
+    def _testConcat(self, seq: MutableSequence[float], refseq: Sequence[float]) -> None:
         n = len(seq)
         seq += refseq
         self.assertEqual(len(refseq), 2 * n)
-        b: MutableSequenceFloat = seq + refseq  # type: ignore[operator]
+        b: MutableSequence[float] = seq + refseq  # type: ignore[operator]
         self.assertEqual(len(refseq), 2 * n)
         for i in range(n):
             self.assertEqual(seq[i], seq[n + i])
         self.assertEqual(len(b), 4 * n)
 
-    def _testSequence(self, seq: MutableSequenceFloat, refseq: SequenceFloat) -> None:
+    def _testSequence(
+        self, seq: MutableSequence[float], refseq: Sequence[float]
+    ) -> None:
         self.assertIsInstance(seq, _lass.Sequence)
         self._testClear(seq, refseq)
         self._testReserve(seq)
@@ -601,7 +592,7 @@ class TestOperators(unittest.TestCase):
         self.assertEqual(g.period, 10)
 
 
-def expectedFailureIf(condition: bool) -> CallableAnyAny:
+def expectedFailureIf(condition: bool) -> Callable[[Any], Any]:
     """Decorator to mark a test as expected failure if the condition is True."""
     if condition:
         return unittest.expectedFailure
@@ -662,8 +653,8 @@ class TestSpecialFunctionsAndOperators(unittest.TestCase):
 class TestTuples(unittest.TestCase):
     def assertSequenceAlmostEqual(
         self,
-        first: SequenceFloat,
-        second: SequenceFloat,
+        first: Sequence[float],
+        second: Sequence[float],
         places: int = 7,
         msg: Optional[str] = None,
     ) -> None:
@@ -1810,6 +1801,7 @@ class TestFunction(unittest.TestCase):
         # when we come back to Python, so we'll get a different object
         self.assertIsNot(embedding.testCallbackFromPythonPasstrough(func1), func1)
 
+
 class TestException(unittest.TestCase):
     def testExceptionFromCpp(self) -> None:
         RaisedExceptionType = embedding.RaisedExceptionType
@@ -1852,12 +1844,12 @@ class TestException(unittest.TestCase):
 
 class SpamContainer(Protocol):
     @classmethod
-    def make(cls, items: SequenceSpam) -> Self: ...
+    def make(cls, items: Sequence[embedding.Spam]) -> Self: ...
 
     @classmethod
-    def makeConst(cls, items: SequenceSpam) -> Self: ...
+    def makeConst(cls, items: Sequence[embedding.Spam]) -> Self: ...
 
-    def __iter__(self) -> IteratorSpam: ...
+    def __iter__(self) -> Iterator[embedding.Spam]: ...
 
 
 class TestIteratorRanges(unittest.TestCase):

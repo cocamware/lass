@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -811,21 +811,6 @@ struct PyExportTraitsSigned
 		PyErr_SetString(PyExc_TypeError, "not an integer");
 		return 1;
 #else
-#	if PY_VERSION_HEX < 0x030a0000 // < 3.10
-		// PyLong_AsLongLong also accept __int__, so floats are ints too :-(
-		// From 3.10 onwards, __int__ is no longer accepted, only __index__.
-		// Let's do the same for Python < 3.10.
-		if (!PyLong_Check(obj))
-		{
-			TPyObjPtr o(PyNumber_Index(obj));
-			if (!o)
-			{
-				// PyErr_SetString(PyExc_TypeError, "not an integer");
-				return 1;
-			}
-			return PyExportTraits<Integer>::get(o.get(), v);
-		}
-#	endif
 #	if HAVE_LONG_LONG
 			const PY_LONG_LONG x = PyLong_AsLongLong(obj);
 #	else

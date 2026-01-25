@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -44,26 +44,6 @@
 #include "module_definition.h"
 #include "enum_definition.h"
 
-
-#if PY_VERSION_HEX < 0x030a0000 // < 3.10
-
-namespace
-{
-
-int PyModule_AddObjectRef(PyObject* module, const char* name, PyObject* value)
-{
-	Py_XINCREF(value);
-	if (PyModule_AddObject(module, name, value) != 0)
-	{
-		Py_XDECREF(value);
-		return -1;
-	}
-	return 0;
-}
-
-}
-
-#endif
 
 namespace lass
 {
