@@ -80,14 +80,14 @@ Lass is build and tested on following combinations of platforms and tools.
 Where possible, we rely on stock versions of the tools as provided by the
 platform's package manager. Windows being the exception.
  
-| OS               | Arch                       | CMake  | Python                                   | Compiler                               |
-|------------------|----------------------------|--------|------------------------------------------|----------------------------------------|
-| Debian Bookworm  | x64, armv7l[1], aarch64[2] | 3.25.1 | 3.11.2                                   | gcc 12.2.0, clang 14.0.6               |
-| Debian Trixie    | x64                        | 3.31.6 | 3.13.5                                   | gcc 14.2.0, clang 19.1.7               |
-| Ubuntu Yammy     | x64                        | 3.22.1 | 3.10.4                                   | gcc 11.2.0, clang 14.0.0               |
-| Ubuntu Noble     | x64                        | 3.28.3 | 3.12.3                                   | gcc 13.2.0, clang 18.1.3               |
-| Ubuntu Plucky    | x64                        | 3.31.6 | 3.13.3                                   | gcc 14.2.0, clang 20.1.2               |
-| Windows 10       | x86, x64                   | 3.31.7 | 3.10.11, 3.11.9, 3.12.10, 3.13.5, 3.14.0 | vs 2022 (v17.14.11)                    |
+| OS               | Arch                       | CMake  | Python                                    | Compiler                               |
+|------------------|----------------------------|--------|-------------------------------------------|----------------------------------------|
+| Debian Bookworm  | x64, armv7l[1], aarch64[2] | 3.25.1 | 3.11.2                                    | gcc 12.2.0, clang 14.0.6               |
+| Debian Trixie    | x64                        | 3.31.6 | 3.13.5                                    | gcc 14.2.0, clang 19.1.7               |
+| Ubuntu Yammy     | x64                        | 3.22.1 | 3.10.4                                    | gcc 11.2.0, clang 14.0.0               |
+| Ubuntu Noble     | x64                        | 3.28.3 | 3.12.3                                    | gcc 13.2.0, clang 18.1.3               |
+| Ubuntu Plucky    | x64                        | 3.31.6 | 3.13.3                                    | gcc 14.2.0, clang 20.1.2               |
+| Windows LTSC2025 | x86, x64                   | 3.31.7 | 3.10.11, 3.11.9, 3.12.10, 3.13.10, 3.14.2 | vs 2022 (v17.14.25), vs 2026 (v18.2.1) |
 
 [1] armv7l support tested on BeagleBoneBlack (ARM Cortex-A8, Debian Bookworm,
 CXXFLAGS=-mcpu=cortex-a8 -mfpu=neon).
