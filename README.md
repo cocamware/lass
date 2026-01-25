@@ -87,7 +87,7 @@ platform's package manager. Windows being the exception.
 | Ubuntu Yammy     | x64                        | 3.22.1 | 3.10.4                                   | gcc 11.2.0, clang 14.0.0               |
 | Ubuntu Noble     | x64                        | 3.28.3 | 3.12.3                                   | gcc 13.2.0, clang 18.1.3               |
 | Ubuntu Plucky    | x64                        | 3.31.6 | 3.13.3                                   | gcc 14.2.0, clang 20.1.2               |
-| Windows 10       | x86, x64                   | 3.31.7 | 3.10.11, 3.11.9, 3.12.10, 3.13.5, 3.14.0 | vs 2019 (v16.11.49), vs 2022 (v17.14.11) |
+| Windows 10       | x86, x64                   | 3.31.7 | 3.10.11, 3.11.9, 3.12.10, 3.13.5, 3.14.0 | vs 2022 (v17.14.11)                    |
 
 [1] armv7l support tested on BeagleBoneBlack (ARM Cortex-A8, Debian Bookworm,
 CXXFLAGS=-mcpu=cortex-a8 -mfpu=neon).

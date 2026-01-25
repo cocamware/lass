@@ -390,7 +390,6 @@ if(LASS_HAVE_FUNC_STRERROR_R)
 endif()
 CHECK_SYMBOL_EXISTS("aligned_alloc" "stdlib.h" LASS_HAVE_ALIGNED_ALLOC)
 
-_try_compile_checking(LASS_HAVE_LAMBDA_OPERATOR_NOT "check_lambda_operator_not.cpp" "C++11 lambda has operator!")
 _try_compile_checking(LASS_HAVE_DURATION_OPERATOR_OSTREAM "check_duration_operator_ostream.cpp" "std::chrono::duration has operator<<")
 _try_compile_checking(LASS_HAVE_STD_FILESYSTEM "check_std_filesystem.cpp" "std::filesystem is supported")
 if(NOT LASS_HAVE_STD_FILESYSTEM)

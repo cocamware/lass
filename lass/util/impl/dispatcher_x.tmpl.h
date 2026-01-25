@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -147,61 +147,6 @@ private:
 
 	TFunction function_;
 };
-
-
-
-#if !LASS_HAVE_LAMBDA_OPERATOR_NOT
-
-/** Dispatcher for lass::util::Callback$x to a callable that does not support operator!
- *  @internal
- *  @sa Callback0
- *  @author Bram de Greve [Bramz]
- * 
- *  With C++11, lambdas can also be used as callables. But the MSVC compiler did not support
- *  the unary ! operator. This was fixed in VS 2019 version 16.2.
- *  https://twitter.com/lunasorcery/status/1092870113374687232
- */
-template
-<
-	$(typename P$x)$,
-	typename FunctionType
->
-class Dispatcher$xFunction
-	<
-		$(P$x)$,
-		FunctionType,
-		typename meta::EnableIf<!HasOperatorNot<FunctionType>::value>::Type
-	>
-	: public Dispatcher$x<$(P$x)$>
-{
-public:
-
-	Dispatcher$xFunction(typename CallTraits<FunctionType>::TParam iFunction):
-		function_(iFunction)
-	{
-	}
-
-	const TFunction& function() const
-	{
-		return function_;
-	}
-
-private:
-
-	void doCall($(typename util::CallTraits<P$x>::TParam iP$x)$) const override
-	{
-		function_($(iP$x)$);
-	}
-
-	bool doIsEquivalent(const Dispatcher$x<$(P$x)$>* /*iOther*/) const override
-	{
-		return false;
-	}
-
-	FunctionType function_;
-};
-
-#endif
 
 
 

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -72,28 +72,6 @@ template <typename T>
 struct IsEqualityComparable<T, std::void_t<decltype(std::declval<const T&>() == std::declval<const T&>())>>: public meta::True {};
 
 }
-
-#if !LASS_HAVE_LAMBDA_OPERATOR_NOT
-
-// With C++11, lambdas can also be used as callables. But the MSVC compiler did not support
-// the unary !operator. This was fixed in VS 2019 version 16.2.
-// https://twitter.com/lunasorcery/status/1092870113374687232
-// https ://developercommunity.visualstudio.com/t/msvc-rejects-valid-lambda-auto-assignment-which-gc/447025
-
-namespace impl
-{
-
-template <typename T>
-class HasOperatorNot {
-	template <typename C> static meta::True test(char[!C()]);
-	template <typename C> static meta::False test(...);
-public:
-	enum { value = sizeof(test<T>(0)) == sizeof(meta::True) };
-};
-
-}
-
-#endif
 
 }
 }
