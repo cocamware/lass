@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -56,12 +56,7 @@ lock_free_queue<T, A>::lock_free_queue():
 	head_ = tail;
 	tail_ = tail;
 
-#if defined(__cpp_lib_atomic_is_always_lock_free)
 	static_assert(std::atomic<pointer_t>::is_always_lock_free);
-#else
-	LASS_ENFORCE(head_.is_lock_free());
-	LASS_ENFORCE(tail_.is_lock_free());
-#endif
 }
 
 

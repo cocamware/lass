@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -877,11 +877,7 @@ public:
 		FixedAllocator(size + alignment),
 		top_()
 	{
-#if defined(__cpp_lib_atomic_is_always_lock_free)
 		static_assert(std::atomic<TTaggedPtr>::is_always_lock_free);
-#else
-		LASS_ENFORCE(top_.is_lock_free());
-#endif
 	}
 	~AllocatorConcurrentFreeList()
 	{
