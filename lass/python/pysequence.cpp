@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -160,9 +160,9 @@ namespace impl
 		return pimpl_->asNative();
 	}
 	const TPyObjPtr Sequence::iter() const
-	{ 
+	{
 		LockGIL lock;
-		return fromNakedToSharedPtrCast<PyObject>(pimpl_->items()); 
+		return TPyObjPtr(pimpl_->items());
 	}
 
 	Py_ssize_t Sequence::length(PyObject* self)
