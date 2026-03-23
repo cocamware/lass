@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -94,21 +94,21 @@ namespace impl
 	}
 	
 	const TPyObjPtr Map::keys() const
-	{ 
+	{
 		LockGIL lock;
-		return fromNakedToSharedPtrCast<PyObject>(pimpl_->keys()); 
+		return TPyObjPtr(pimpl_->keys());
 	}
-		
+
 	const TPyObjPtr Map::values() const
-	{ 
+	{
 		LockGIL lock;
-		return fromNakedToSharedPtrCast<PyObject>(pimpl_->values()); 
+		return TPyObjPtr(pimpl_->values());
 	}
-	
+
 	const TPyObjPtr Map::items() const
-	{ 
+	{
 		LockGIL lock;
-		return fromNakedToSharedPtrCast<PyObject>(pimpl_->items()); 
+		return TPyObjPtr(pimpl_->items());
 	}
 
 	const TPyObjPtr Map::get(const TPyObjPtr& key, const TPyObjPtr& defaultValue) const
