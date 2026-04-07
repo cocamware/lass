@@ -340,7 +340,7 @@ function(Lass_generate_stubs target)
 		set(depfile "${output_json}.d")
 		list(APPEND intermediate_stubdata "${output_json}")
 		set(args
-			"${src_file}"
+			"${abs_path}"
 			${includes}
 			${system_includes}
 			${defines}
