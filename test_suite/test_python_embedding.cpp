@@ -53,6 +53,10 @@
 #	pragma warning(disable: 4996) // 'fopen': This function or variable may be unsafe
 #endif
 
+#if PY_VERSION_HEX < 0x030e0000 // < 3.14
+#	define Py_fopen _Py_fopen_obj
+#endif
+
 namespace lass
 {
 namespace test
@@ -91,12 +95,11 @@ void testPythonEmbedding()
 	initPythonEmbedding();
 
 	const std::string testFile = io::fileJoinPath(test::inputDir(), "test_python_embedding.py");
-	python::TPyObjPtr pyTestFile(python::pyBuildSimpleObject(testFile));
-	LASS_TEST_CHECK(pyTestFile);
+	python::TPyObjPtr pyTestFile(PY_ENFORCE_POINTER(python::pyBuildSimpleObject(testFile)));
 
 	{
 		python::LockGIL lock;
-		FILE* fp = _Py_fopen_obj(pyTestFile.get(), "rb");
+		FILE* fp = PY_ENFORCE_POINTER(Py_fopen(pyTestFile.get(), "rb"));
 		LASS_TEST_CHECK_EQUAL(PyRun_SimpleFileEx(fp, testFile.c_str(), 1), 0);
 	}
 }
