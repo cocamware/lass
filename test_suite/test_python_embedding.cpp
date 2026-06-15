@@ -92,16 +92,16 @@ void testPythonUtils()
 
 void testPythonEmbedding()
 {
+	const std::string testFile = io::fileJoinPath(test::inputDir(), "test_python_embedding.py");
+
 	initPythonEmbedding();
 
-	const std::string testFile = io::fileJoinPath(test::inputDir(), "test_python_embedding.py");
-	python::TPyObjPtr pyTestFile(PY_ENFORCE_POINTER(python::pyBuildSimpleObject(testFile)));
+	python::LockGIL lock;
+	PushMainModule pushMainModule(testFile);
 
-	{
-		python::LockGIL lock;
-		FILE* fp = PY_ENFORCE_POINTER(Py_fopen(pyTestFile.get(), "rb"));
-		LASS_TEST_CHECK_EQUAL(PyRun_SimpleFileEx(fp, testFile.c_str(), 1), 0);
-	}
+	python::TPyObjPtr pyTestFile(PY_ENFORCE_POINTER(python::pyBuildSimpleObject(testFile)));
+	FILE* fp = PY_ENFORCE_POINTER(Py_fopen(pyTestFile.get(), "rb"));
+	LASS_TEST_CHECK_EQUAL(PyRun_SimpleFileEx(fp, testFile.c_str(), 1), 0);
 }
 
 TUnitTest test_python_embedding()

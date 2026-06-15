@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -45,12 +45,26 @@
 #ifndef LASS_GUARDIAN_OF_INCLUSION_TEST_PYTHON_EMBEDDING_H
 #define LASS_GUARDIAN_OF_INCLUSION_TEST_PYTHON_EMBEDDING_H
 
+#include "../lass/python/python_api.h"
+
 namespace lass
 {
 namespace test
 {
 
 void initPythonEmbedding();
+
+
+// helper that installs a new fresh __main__ module for testing purposes
+class PushMainModule: public lass::util::NonCopyable
+{
+public:
+	PushMainModule(const std::string& moduleFile);
+	~PushMainModule();
+private:
+	python::TPyObjPtr oldMainMod_;
+	python::TPyObjPtr mainMod_;
+};
 
 }
 }

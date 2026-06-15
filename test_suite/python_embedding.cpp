@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -1179,6 +1179,53 @@ namespace lass
 {
 namespace test
 {
+
+PushMainModule::PushMainModule(const std::string& moduleFile)
+{
+	using namespace lass::python;
+	LockGIL lock;
+
+	PyObject* sysModules = LASS_ENFORCE_POINTER(PySys_GetObject("modules")); // borrowed, doesn't set error
+
+	oldMainMod_ = fromNakedToSharedPtrCast<PyObject>(PyDict_GetItemString(sysModules, "__main__")); // borrowed or null
+
+	mainMod_.reset(PY_ENFORCE_POINTER(PyModule_New("__main__")));
+	PyObject* mainDict = PY_ENFORCE_POINTER(PyModule_GetDict(mainMod_.get())); // borrowed
+
+#if PY_VERSION_HEX < 0x030d0000 // < 3.13 
+	TPyObjPtr builtins = fromNakedToSharedPtrCast<PyObject>(LASS_ENFORCE_POINTER(PyEval_GetBuiltins())); // borrowed, doesn't set error
+#else
+	TPyObjPtr builtins(LASS_ENFORCE_POINTER(PyEval_GetFrameBuiltins())); // new reference, doesn't set error
+#endif
+	PY_ENFORCE_ZERO(PyDict_SetItemString(mainDict, "__builtins__", builtins.get()));
+	
+	TPyObjPtr nameObj(PY_ENFORCE_POINTER(pyBuildSimpleObject("__main__")));
+	PY_ENFORCE_ZERO(PyDict_SetItemString(mainDict, "__name__", nameObj.get()));
+	
+	TPyObjPtr fileObj(PY_ENFORCE_POINTER(pyBuildSimpleObject(moduleFile)));
+	PY_ENFORCE_ZERO(PyDict_SetItemString(mainDict, "__file__", fileObj.get()));
+
+	PY_ENFORCE_ZERO(PyDict_SetItemString(mainDict, "__package__", Py_None));
+	PY_ENFORCE_ZERO(PyDict_SetItemString(mainDict, "__spec__", Py_None));
+
+	PY_ENFORCE_ZERO(PyDict_SetItemString(sysModules, "__main__", mainMod_.get()));
+}
+
+
+PushMainModule::~PushMainModule()
+{
+	using namespace lass::python;
+	LockGIL lock;
+
+	PyObject* sysModules = PySys_GetObject("modules");
+	LASS_ASSERT(sysModules);
+	PyDict_DelItemString(sysModules, "__main__");
+	if (oldMainMod_)
+	{
+		PyDict_SetItemString(sysModules, "__main__", oldMainMod_.get());
+	}
+}
+
 
 void initPythonEmbedding()
 {
