@@ -20,7 +20,7 @@ The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
 The Original Developer is the Initial Developer.
 
 All portions of the code written by the Initial Developer are:
-Copyright (C) 2018-2025 the Initial Developer.
+Copyright (C) 2018-2026 the Initial Developer.
 All Rights Reserved.
 
 Contributor(s):
@@ -150,7 +150,7 @@ class LassConan(ConanFile):  # type: ignore[misc]
         "have_avx": True,
         "with_stubgen": "auto",
     }
-    requires = "syspython/1.0.6@cocamware/stable"
+    requires = "syspython/1.0.7@cocamware/stable"
 
     def export_sources(self) -> None:
         git = Git(self)

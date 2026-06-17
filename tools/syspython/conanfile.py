@@ -20,7 +20,7 @@ The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
 The Original Developer is the Initial Developer.
 
 All portions of the code written by the Initial Developer are:
-Copyright (C) 2023-2025 the Initial Developer.
+Copyright (C) 2023-2026 the Initial Developer.
 All Rights Reserved.
 
 Contributor(s):
@@ -68,7 +68,7 @@ class _Options(Protocol):
 
 class SysPython(ConanFile):  # type: ignore[misc]
     name = "syspython"
-    version = "1.0.6"
+    version = "1.0.7"
     user = "cocamware"
     channel = "stable"
     description = "Discovers your system's Python and allow to use it as a requirement"
@@ -134,9 +134,9 @@ class SysPython(ConanFile):  # type: ignore[misc]
                 "python_version option not compatible with python_executable:"
                 f"{self.options.python_version!s} != {self._python_version_short}"
             )
-        if self._python_version_short_int < (3, 9):
+        if self._python_version_short_int < (3, 10):
             raise ConanInvalidConfiguration(
-                "python_version < 3.9 is not supported."
+                "python_version < 3.10 is not supported."
             )
         if self.options.python_debug != self._python_debug:
             raise ConanInvalidConfiguration(

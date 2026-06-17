@@ -81,8 +81,8 @@ mark_as_advanced(CLEAR Python_EXECUTABLE)
 if(Python_Development_FOUND)
 	mark_as_advanced(CLEAR Python_LIBRARY_RELEASE Python_INCLUDE_DIR Python_LIBRARY_DEBUG)
 
-	if (Python_VERSION VERSION_LESS "3.9.0")
-		message(FATAL_ERROR "Python version ${Python_VERSION} is not supported, please use Python 3.9 or newer.")
+	if (Python_VERSION VERSION_LESS "3.10.0")
+		message(FATAL_ERROR "Python version ${Python_VERSION} is not supported, please use Python 3.10 or newer.")
 	endif()
 
 	if(Python_LIBRARY_DEBUG AND "${Python_LIBRARY_DEBUG}" MATCHES ".+_d\\.lib$")
