@@ -27,8 +27,10 @@ Documentation
 Requirements
 ------------
 
--   [Python](https://www.python.org/) >= 3.9
--   [CMake](https://cmake.org/) >= 3.18
+-   C++17 or newer
+-   [Python](https://www.python.org/) >= 3.10
+-   [CMake](https://cmake.org/) >= 3.22
+-   Optional: [Conan](https://conan.io/) >=2.12.0
 
 
 Building
@@ -84,10 +86,10 @@ platform's package manager. Windows being the exception.
 |------------------|----------------------------|--------|-------------------------------------------|----------------------------------------|
 | Debian Bookworm  | x64, armv7l[1], aarch64[2] | 3.25.1 | 3.11.2                                    | gcc 12.2.0, clang 14.0.6               |
 | Debian Trixie    | x64                        | 3.31.6 | 3.13.5                                    | gcc 14.2.0, clang 19.1.7               |
-| Ubuntu Yammy     | x64                        | 3.22.1 | 3.10.4                                    | gcc 11.2.0, clang 14.0.0               |
-| Ubuntu Noble     | x64                        | 3.28.3 | 3.12.3                                    | gcc 13.2.0, clang 18.1.3               |
+| Ubuntu Jammy     | x64                        | 3.22.1 | 3.10.12                                   | gcc 11.4.0, clang 14.0.0               |
+| Ubuntu Noble     | x64                        | 3.28.3 | 3.12.3                                    | gcc 13.3.0, clang 18.1.3               |
 | Ubuntu Resolute  | x64                        | 4.2.3  | 3.14.4                                    | gcc 15.2.0, clang 21.1.8               |
-| Windows LTSC2025 | x86, x64                   | 3.31.7 | 3.10.11, 3.11.9, 3.12.10, 3.13.10, 3.14.2 | vs 2022 (v17.14.25), vs 2026 (v18.2.1) |
+| Windows LTSC2025 | x86, x64                   | 4.2.2  | 3.10.11, 3.11.9, 3.12.10, 3.13.10, 3.14.2 | vs 2022 (v17.14.35), vs 2026 (v18.7.1) |
 
 [1] armv7l support tested on BeagleBoneBlack (ARM Cortex-A8, Debian Bookworm,
 CXXFLAGS=-mcpu=cortex-a8 -mfpu=neon).
