@@ -159,7 +159,7 @@ function(Lass_generate_stubs target)
 	if (NOT libclang_library)
 		message(FATAL_ERROR "Lass_generate_stubs requires a valid libclang library. Please set Lass_LIBCLANG_LIBRARY.")
 	endif()
-	if (libclang_version MATCHES "^([0-9]+\\.[0-9]+)\\.")
+	if (libclang_version MATCHES "^([0-9]+\\.[0-9]+)\\.[0-9]+\$")
 		set(_libclang_major_minor "${CMAKE_MATCH_1}")
 	else()
 		message(FATAL_ERROR "Lass_generate_stubs: libclang version '${libclang_version}' does not match expected format 'X.Y.Z'.")
@@ -214,9 +214,9 @@ function(Lass_generate_stubs target)
 		OR (NOT libclang_version STREQUAL _stamp_clang_version)
 		)
 		message(STATUS "Updating venv for Lass stubgen: ${LASS_STUBGEN_VENV}...")
+		_Lass_install_clang_bindings("${_venv_python}" "${libclang_version}")
 		_Lass_checked_process(
-			"${_venv_python}" -m pip --disable-pip-version-check install 
-			"clang~=${_libclang_major_minor}.0"
+			"${_venv_python}" -m pip --disable-pip-version-check install
 			--requirement "${_Lass_stubgen_requirement}")
 		file(WRITE "${_stamp_file}" "${libclang_version}")
 	endif()
@@ -422,6 +422,62 @@ function(Lass_generate_stubs target)
 	)
 
 	cmake_policy(POP)
+endfunction()
+
+
+function(_Lass_install_clang_bindings venv_python clang_version)
+	# The clang package on PyPI https://pypi.org/project/clang/ lags behind LLVM releases
+	# The most recent version is 21.1.7. For anything newer, we'll have to install directly
+	# from the LLVM source tarball downloaded from Github, until the situation is resolved
+	# See https://github.com/llvm/llvm-project/issues/168235
+	set(_asset "llvm-project-${clang_version}.src")
+	set(_subdir "clang/bindings/python")
+	set(_tarball "${_asset}.tar.xz")
+	set(_url "https://github.com/llvm/llvm-project/releases/download/llvmorg-${clang_version}/${_tarball}")
+	set(_path "${CMAKE_BINARY_DIR}/${_tarball}")
+	set(_dirname "${CMAKE_BINARY_DIR}/${_asset}/${_subdir}")
+
+	if (clang_version VERSION_LESS 22.1)
+		# Install it from PyPI, as the github source lacks pyproject.toml ...
+		_Lass_checked_process(
+			"${_venv_python}" -m pip --disable-pip-version-check install
+			"clang~=${_libclang_major_minor}.0"
+		)
+		return()
+	endif()
+
+	if(NOT EXISTS "${_dirname}/pyproject.toml")
+		if(NOT EXISTS "${_path}")
+			message(STATUS "Downloading ${_url} ...")
+			file(
+				DOWNLOAD "${_url}" "${_path}"
+				STATUS _status
+				SHOW_PROGRESS
+				TLS_VERIFY ON
+			)
+			list(GET _status 0 _code)
+			if(NOT _code EQUAL 0)
+				list(GET _status 1 _msg)
+				file(REMOVE "${_path}")
+				message(FATAL_ERROR "Failed to download ${_url}: ${_msg}")
+			endif()
+		endif()
+
+		message(STATUS "Extracting ${_subdir} from ${_url} ...")
+		file(
+			ARCHIVE_EXTRACT
+			INPUT "${_path}"
+			DESTINATION "${CMAKE_BINARY_DIR}"
+			PATTERNS "${_asset}/${_subdir}/*"
+		)
+	endif()
+
+	# Bypass setuptools_scm version detection (no git metadata in the tarball).
+	_Lass_checked_process(
+		"${CMAKE_COMMAND}" -E env "SETUPTOOLS_SCM_PRETEND_VERSION=${clang_version}"
+		"${venv_python}" -m pip --disable-pip-version-check install
+		"${_dirname}"
+	)
 endfunction()
 
 
