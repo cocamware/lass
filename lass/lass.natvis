@@ -44,19 +44,4 @@
       <Item Name="[tag]" Optional="true">tag_</Item>
     </Expand>
   </Type>
-
-<Type Name="lass::util::TaggedPtr&lt;*&gt;">
-  <!-- packed 64-bit layout: pointer+tag packed into a signed bits_ -->
-  <DisplayString Optional="true">{($T1*)(bits_ &gt;&gt; 16)} (tag={bits_ &amp; 0xffff})</DisplayString>
-  <!-- unpacked layout: separate ptr_ / tag_ -->
-  <DisplayString Optional="true">{ptr_} (tag={tag_})</DisplayString>
-  <Expand>
-    <!-- packed -->
-    <Item Name="[ptr]" Optional="true">($T1*)(bits_ &gt;&gt; 16)</Item>
-    <Item Name="[tag]" Optional="true">bits_ &amp; 0xffff</Item>
-    <!-- unpacked -->
-    <Item Name="[ptr]" Optional="true">ptr_</Item>
-    <Item Name="[tag]" Optional="true">tag_</Item>
-  </Expand>
-</Type>
 </AutoVisualizer>
