@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -354,6 +354,64 @@ void vector_map<K, T, C, A>::insert(InputIterator first, InputIterator last)
 	{
 		insert(*first++);
 	}
+}
+
+
+
+template <typename K, typename T, typename C, typename A>
+template <typename M>
+std::pair<typename vector_map<K, T, C, A>::iterator, bool>
+vector_map<K, T, C, A>::insert_or_assign(const key_type& key, M&& obj)
+{
+	iterator i = lower_bound(key);
+	if (i == end() || key_comp_(key, i->first))
+	{
+		i = data_.emplace(i, key, std::forward<M>(obj));
+		return std::make_pair(i, true);
+	}
+	i->second = std::forward<M>(obj);
+	return std::make_pair(i, false);
+}
+
+
+
+template <typename K, typename T, typename C, typename A>
+template <typename M>
+std::pair<typename vector_map<K, T, C, A>::iterator, bool>
+vector_map<K, T, C, A>::insert_or_assign(key_type&& key, M&& obj)
+{
+	iterator i = lower_bound(key);
+	if (i == end() || key_comp_(key, i->first))
+	{
+		i = data_.emplace(i, std::move(key), std::forward<M>(obj));
+		return std::make_pair(i, true);
+	}
+	i->second = std::forward<M>(obj);
+	return std::make_pair(i, false);
+}
+
+
+
+template <typename K, typename T, typename C, typename A>
+template <typename M>
+typename vector_map<K, T, C, A>::iterator
+vector_map<K, T, C, A>::insert_or_assign(const_iterator hint, const key_type& key, M&& obj)
+{
+	return is_insert_position(hint, key)
+		? data_.emplace(hint, key, std::forward<M>(obj))
+		: insert_or_assign(key, std::forward<M>(obj)).first;
+}
+
+
+
+template <typename K, typename T, typename C, typename A>
+template <typename M>
+typename vector_map<K, T, C, A>::iterator
+vector_map<K, T, C, A>::insert_or_assign(const_iterator hint, key_type&& key, M&& obj)
+{
+	return is_insert_position(hint, key)
+		? data_.emplace(hint, std::move(key), std::forward<M>(obj))
+		: insert_or_assign(std::move(key), std::forward<M>(obj)).first;
 }
 
 

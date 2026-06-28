@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2022 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *
  *	Contributor(s):
@@ -56,6 +56,14 @@ namespace
 		return p ? *p : DUMMY;
 	}
 
+	struct LessStrP
+	{
+		bool operator()(const std::unique_ptr<std::string>& a, const std::unique_ptr<std::string>& b) const
+		{
+			LASS_ASSERT(a && b);
+			return *a < *b;
+		}
+	};
 }
 
 namespace lass
@@ -290,6 +298,129 @@ void testStdeVectorMap()
 		LASS_TEST_CHECK_EQUAL(*it++, ham_HAM);
 		LASS_TEST_CHECK_EQUAL(*it++, spam_SPAM);
 		LASS_TEST_CHECK(it == map.end());
+	}
+
+	{
+		// insert_or_assign lvalue
+		TVectorMap map;
+		auto ret = map.insert_or_assign(foo, FOO);
+		LASS_TEST_CHECK_EQUAL(ret.first->first, foo);
+		LASS_TEST_CHECK_EQUAL(ret.first->second, FOO);
+		LASS_TEST_CHECK_EQUAL(ret.second, true);
+		LASS_TEST_CHECK(FOO != BAR);
+		ret = map.insert_or_assign(foo, BAR);
+		LASS_TEST_CHECK_EQUAL(ret.first->first, foo);
+		LASS_TEST_CHECK_EQUAL(ret.first->second, BAR);
+		LASS_TEST_CHECK_EQUAL(ret.second, false);
+		LASS_TEST_CHECK_EQUAL(map.size(), static_cast<size_type>(1));
+	}
+
+	{
+		// insert_or_assign rvalue
+		stde::vector_map<std::string, std::unique_ptr<std::string>> map;
+		auto ret = map.insert_or_assign(foo, make_str(FOO));
+		LASS_TEST_CHECK_EQUAL(ret.first->first, foo);
+		LASS_TEST_CHECK_EQUAL(*ret.first->second, FOO);
+		LASS_TEST_CHECK_EQUAL(ret.second, true);
+		ret = map.insert_or_assign(foo, make_str(BAR));
+		LASS_TEST_CHECK_EQUAL(ret.first->first, foo);
+		LASS_TEST_CHECK_EQUAL(*ret.first->second, BAR);
+		LASS_TEST_CHECK_EQUAL(ret.second, false);
+		LASS_TEST_CHECK_EQUAL(map.size(), static_cast<size_type>(1));
+	}
+
+	{
+		// insert_or_assign rvalue key
+		stde::vector_map<std::unique_ptr<std::string>, std::unique_ptr<std::string>, LessStrP> map;
+		auto ret = map.insert_or_assign(make_str(foo), make_str(FOO));
+		LASS_TEST_CHECK_EQUAL(*ret.first->first, foo);
+		LASS_TEST_CHECK_EQUAL(*ret.first->second, FOO);
+		LASS_TEST_CHECK_EQUAL(ret.second, true);
+		ret = map.insert_or_assign(make_str(foo), make_str(BAR));
+		LASS_TEST_CHECK_EQUAL(*ret.first->first, foo);
+		LASS_TEST_CHECK_EQUAL(*ret.first->second, BAR);
+		LASS_TEST_CHECK_EQUAL(ret.second, false);
+		LASS_TEST_CHECK_EQUAL(map.size(), static_cast<size_type>(1));
+	}
+
+	{
+		// insert_or_assign lvalue with hint
+		TVectorMap map{ { foo_FOO } };
+
+		// an insert with the right hint
+		auto it = map.insert_or_assign(map.begin(), bar, BAR);
+		LASS_TEST_CHECK_EQUAL(it->first, bar);
+		LASS_TEST_CHECK_EQUAL(it->second, BAR);
+		LASS_TEST_CHECK(it == map.begin()); // should be inserted in first place
+		LASS_TEST_CHECK_EQUAL(std::next(it)->first, foo);
+
+		// an insert with the wrong hint
+		it = map.insert_or_assign(map.begin(), baz, BAZ);
+		LASS_TEST_CHECK_EQUAL(it->first, baz);
+		LASS_TEST_CHECK_EQUAL(it->second, BAZ);
+		LASS_TEST_CHECK(it == map.begin() + 1);
+		LASS_TEST_CHECK_EQUAL(std::prev(it)->first, bar);
+		LASS_TEST_CHECK_EQUAL(std::next(it)->first, foo);
+
+		// an existing key is assigned regardless of the hint
+		it = map.insert_or_assign(map.end(), foo, BAR);
+		LASS_TEST_CHECK_EQUAL(it->first, foo);
+		LASS_TEST_CHECK_EQUAL(it->second, BAR);
+		LASS_TEST_CHECK_EQUAL(map.size(), static_cast<size_type>(3));
+	}
+
+	{
+		// insert_or_assign rvalue with hint
+		stde::vector_map<std::string, std::unique_ptr<std::string>> map;
+		map.emplace(foo, make_str(FOO));
+
+		// an insert with the right hint
+		auto it = map.insert_or_assign(map.begin(), bar, make_str(BAR));
+		LASS_TEST_CHECK_EQUAL(it->first, bar);
+		LASS_TEST_CHECK_EQUAL(deref(it->second), BAR);
+		LASS_TEST_CHECK(it == map.begin());
+		LASS_TEST_CHECK_EQUAL(std::next(it)->first, foo);
+
+		// an insert with the wrong hint
+		it = map.insert_or_assign(map.begin(), baz, make_str(BAZ));
+		LASS_TEST_CHECK_EQUAL(it->first, baz);
+		LASS_TEST_CHECK_EQUAL(deref(it->second), BAZ);
+		LASS_TEST_CHECK(it == map.begin() + 1);
+		LASS_TEST_CHECK_EQUAL(std::prev(it)->first, bar);
+		LASS_TEST_CHECK_EQUAL(std::next(it)->first, foo);
+
+		// an existing key is assigned regardless of the hint
+		it = map.insert_or_assign(map.end(), foo, make_str(BAR));
+		LASS_TEST_CHECK_EQUAL(it->first, foo);
+		LASS_TEST_CHECK_EQUAL(deref(it->second), BAR);
+		LASS_TEST_CHECK_EQUAL(map.size(), static_cast<size_type>(3));
+	}
+
+	{
+		// insert_or_assign rvalue key with hint
+		stde::vector_map<std::unique_ptr<std::string>, std::unique_ptr<std::string>, LessStrP> map;
+		map.emplace(make_str(foo), make_str(FOO));
+
+		// an insert with the right hint
+		auto it = map.insert_or_assign(map.begin(), make_str(bar), make_str(BAR));
+		LASS_TEST_CHECK_EQUAL(deref(it->first), bar);
+		LASS_TEST_CHECK_EQUAL(deref(it->second), BAR);
+		LASS_TEST_CHECK(it == map.begin());
+		LASS_TEST_CHECK_EQUAL(deref(std::next(it)->first), foo);
+
+		// an insert with the wrong hint
+		it = map.insert_or_assign(map.begin(), make_str(baz), make_str(BAZ));
+		LASS_TEST_CHECK_EQUAL(deref(it->first), baz);
+		LASS_TEST_CHECK_EQUAL(deref(it->second), BAZ);
+		LASS_TEST_CHECK(it == map.begin() + 1);
+		LASS_TEST_CHECK_EQUAL(deref(std::prev(it)->first), bar);
+		LASS_TEST_CHECK_EQUAL(deref(std::next(it)->first), foo);
+
+		// an existing key is assigned regardless of the hint
+		it = map.insert_or_assign(map.end(), make_str(foo), make_str(BAR));
+		LASS_TEST_CHECK_EQUAL(deref(it->first), foo);
+		LASS_TEST_CHECK_EQUAL(deref(it->second), BAR);
+		LASS_TEST_CHECK_EQUAL(map.size(), static_cast<size_type>(3));
 	}
 
 	{
