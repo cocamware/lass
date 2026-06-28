@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -147,6 +147,11 @@ public:
 	std::pair<iterator, bool> insert(value_type&& value);
 	iterator insert(const_iterator hint, const value_type& x);
 	template <typename InputIterator> void insert(InputIterator first, InputIterator last);
+
+	template<typename M> std::pair<iterator, bool> insert_or_assign(const key_type& key, M&& obj);
+	template<typename M> std::pair<iterator, bool> insert_or_assign(key_type&& key, M&& obj);
+	template<typename M> iterator insert_or_assign(const_iterator hint, const key_type& key, M&& obj);
+	template<typename M> iterator insert_or_assign(const_iterator hint, key_type&& key, M&& obj);
 
 	template<typename... Args> std::pair<iterator, bool> emplace(Args&&... args);
 	template<typename... Args> iterator emplace_hint(const_iterator hint, Args&&... args);
