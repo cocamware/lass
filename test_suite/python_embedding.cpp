@@ -318,6 +318,18 @@ public:
 		}
 		return i->second;
 	}
+	bool contains(const key_type& key) const { return map_.find(key) != map_.end(); }
+	bool containsValue(const mapped_type& value)
+	{ 
+		for (auto i = map_.begin(); i != map_.end(); ++i)
+		{
+			if (i->second == value)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 	const_iterator begin() const { return map_.begin(); }
 	const_iterator end() const { return map_.end(); }
 	size_type size() const { return map_.size(); }
@@ -521,6 +533,8 @@ PY_CLASS_METHOD_NAME( PyClassMap, setItem, lass::python::methods::map_setitem_);
 PY_CLASS_METHOD_NAME( PyClassMap, operator[], lass::python::methods::map_getitem_);
 PY_CLASS_METHOD_NAME( PyClassMap, size, lass::python::methods::map_len_);
 PY_CLASS_FREE_ITERFUNC( PyClassMap, lass::test::freeBegin, lass::test::freeEnd )
+PY_CLASS_METHOD_NAME( PyClassMap, contains, lass::python::methods::_contains_);
+PY_CLASS_METHOD_NAME( PyClassMap, containsValue, lass::python::methods::_contains_);
 
 //This won't be accepted due to A being an abstract class
 //PY_CLASS_METHOD_QUALIFIED_1( PyClassB, testConst, void, const lass::test::ClassA& )

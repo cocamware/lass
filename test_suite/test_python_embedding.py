@@ -619,6 +619,21 @@ class TestOperators(unittest.TestCase):
         self.assertEqual(g.value, 8)
         self.assertEqual(g.period, 10)
 
+    def testContainsOperator(self) -> None:
+        bar = embedding.Bar()
+        self.assertFalse("key" in bar)
+        bar["key"] = "lock"
+        self.assertTrue("key" in bar)
+        with self.assertRaises(TypeError):
+            2.0 in bar
+
+        overloaded = embedding.ClassMap()
+        self.assertFalse("key" in overloaded)
+        self.assertFalse(2.0 in overloaded)
+        overloaded["key"] = 2.0
+        self.assertTrue("key" in overloaded)
+        self.assertTrue(2.0 in overloaded)
+
 
 def expectedFailureIf(condition: bool) -> Callable[[Any], Any]:
     """Decorator to mark a test as expected failure if the condition is True."""

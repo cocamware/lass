@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -103,7 +103,7 @@ void OverloadLink::setSsizeSsizeObjArgProcfunc(ssizessizeobjargproc iOverload)
 }
 void OverloadLink::setObjObjProcfunc(objobjproc iOverload)
 {
-	signature_ = iOverload ? sObjObjArg : sNull;
+	signature_ = iOverload ? sObjObj : sNull;
 	objobjproc_ = iOverload;
 }
 void OverloadLink::setObjObjArgProcfunc(objobjargproc iOverload)
