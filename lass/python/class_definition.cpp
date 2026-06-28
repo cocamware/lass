@@ -48,6 +48,7 @@
 #include "overload_link.h"
 #include "pyobject_plus.h"
 #include "_lass_module.h"
+#include "../stde/extended_cstring.h"
 #include <iostream>
 #include <cstring>
 
@@ -385,9 +386,14 @@ PyObject* ClassDefinition::freezeDefinition(PyObject* module, const char* scopeN
 		{
 			const size_t n = std::strlen(moduleName) + std::strlen(className_) + 2; // one extra for dot, and one extra for null
 			char* buf = static_cast<char*>(std::malloc(n));
+			if (!buf)
+			{
+				PyErr_NoMemory();
+				return nullptr;
+			}
 			const int r = ::snprintf(buf, n, "%s.%s", moduleName, className_);
 			LASS_ENFORCE(r > 0 && static_cast<size_t>(r) < n);
-			spec_.name = buf;
+			spec_.name = buf; // leaked on purpose
 		}
 	}
 	else
@@ -427,13 +433,11 @@ PyObject* ClassDefinition::freezeDefinition(PyObject* module, const char* scopeN
 	PyObject* type = type_.get();
 
 	const char* qualname = className_;
+	std::string scopedQualname;
 	if (scopeName)
 	{
-		const size_t n = std::strlen(scopeName) + std::strlen(className_) + 2; // one extra for dot, and one extra for null
-		char* buf = static_cast<char*>(std::malloc(n));
-		const int r = ::snprintf(buf, n, "%s.%s", scopeName, className_);
-		LASS_ENFORCE(r > 0 && static_cast<size_t>(r) < n);
-		qualname = buf;
+		scopedQualname = stde::safe_format("%s.%s", scopeName, className_);
+		qualname = scopedQualname.data();
 		TPyObjPtr objQualname(pyBuildSimpleObject(qualname));
 		if (!objQualname || PyObject_SetAttrString(type, "__qualname__", objQualname.get()) != 0)
 		{
