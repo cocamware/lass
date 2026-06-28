@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -129,7 +129,7 @@ namespace impl
 					impl::addMessageHeader("value");
 					return -1;
 				}
-				this->container().emplace(TKeyArgTraits::arg(k), TMappedArgTraits::arg(v));
+				this->container().insert_or_assign(TKeyArgTraits::arg(k), TMappedArgTraits::arg(v));
 			}
 			else
 			{
@@ -269,7 +269,8 @@ namespace impl
 					impl::addMessageHeader("map");
 					return 1;
 				}
-				result->emplace(TKeyArgTraits::arg(key), TMappedArgTraits::arg(mapped));
+				[[maybe_unused]] auto r = result->emplace(TKeyArgTraits::arg(key), TMappedArgTraits::arg(mapped));
+				LASS_ASSERT(r.second); // should always insert!
 			}
 			value = std::move(result);
 			return 0;

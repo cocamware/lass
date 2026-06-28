@@ -175,6 +175,8 @@ class TestMap(unittest.TestCase):
             mapping[123] = "ok"  # type: ignore[index]
         self.assertEqual(refmap["test"], "ok")
         self.assertIn("test", refmap)
+        mapping["test"] = "replaced"
+        self.assertEqual(refmap["test"], "replaced")
         del mapping["test"]
         self.assertNotIn("test", refmap)
         with self.assertRaises(KeyError):
