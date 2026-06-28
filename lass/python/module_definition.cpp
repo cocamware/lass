@@ -244,7 +244,7 @@ PyObject* ModuleDefinition::doInject()
 	}
 	for (auto def: classes_)
 	{
-		if (!injectClass(*def) != 0)
+		if (!injectClass(*def))
 		{
 			return nullptr;
 		}
