@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -49,6 +49,7 @@
 #include "exception.h"
 #include "container.h"
 #include "argument_traits.h"
+#include "subscript.h"
 #include "../util/string_cast.h"
 #include "../stde/extended_algorithm.h"
 
@@ -71,9 +72,9 @@ namespace impl
 		virtual bool append(const TPyObjPtr& i) = 0;
 		virtual bool pop(Py_ssize_t i) = 0;
 		virtual PyObject* item(Py_ssize_t i) const = 0;
-		virtual PyObject* slice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step) const = 0;
+		virtual PyObject* slice(Slice slice) const = 0;
 		virtual int assItem(Py_ssize_t i, PyObject* obj) = 0;
-		virtual int assSlice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step, PyObject* obj) = 0;
+		virtual int assSlice(Slice slice, PyObject* obj) = 0;
 		virtual int contains(PyObject* obj) const = 0;
 		virtual bool inplaceConcat(PyObject* obj) = 0;
 		virtual bool inplaceRepeat(Py_ssize_t n) = 0;
@@ -153,23 +154,28 @@ namespace impl
 			}
 			return pyBuildSimpleObject(*this->next(this->begin(), i));
 		}
-		PyObject* slice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step) const override
+		PyObject* slice(Slice slice) const override
 		{
-			const Py_ssize_t size = this->length();
-			low = num::clamp(low, Py_ssize_t(0), size);
-			high = num::clamp(high, low, size);
-			step = std::max(step, Py_ssize_t(1));
-			const Py_ssize_t n = (high - low + step - 1) / step;
-			TPyObjPtr s(PyList_New(n));
-			TConstIterator first = this->next(this->begin(), low);
-			for (Py_ssize_t i = 0; i < n; ++i)
+			Py_ssize_t sliceLength = slice.adjustIndices(this->length());
+			TPyObjPtr s(PyList_New(sliceLength));
+			if (!s)
+			{
+				return nullptr;
+			}
+			TConstIterator first = this->next(this->begin(), slice.start);
+			for (Py_ssize_t i = 0; i < sliceLength; ++i)
 			{
 				if (i > 0)
 				{
 					// this odd place of advancing is to avoid stepping beyond end
-					std::advance(first, step);
+					first = this->next(first, slice.step);
 				}
-				PyList_SET_ITEM(s.get(), i, pyBuildSimpleObject(*first));
+				PyObject* item = pyBuildSimpleObject(*first);
+				if (!item)
+				{
+					return nullptr;
+				}
+				PyList_SET_ITEM(s.get(), i, item);
 			}
 			return fromSharedPtrToNakedCast(s);
 		}
@@ -179,9 +185,10 @@ namespace impl
 			{
 				return -1;
 			}
-			if (obj == 0)
+			if (!obj)
 			{
-				return assSlice(i, i + 1, 1, 0);
+				Slice slice { i, i + 1, 1 };
+				return assSlice(slice, nullptr);
 			}
 			if (pyGetSimpleObject(obj, *this->next(this->begin(), i)) != 0)
 			{
@@ -189,16 +196,13 @@ namespace impl
 			}
 			return 0;
 		}
-		int assSlice(Py_ssize_t low, Py_ssize_t high, Py_ssize_t step, PyObject* other) override
+		int assSlice(Slice slice, PyObject* other) override
 		{
 			if (!this->checkWritable())
 			{
 				return -1;
 			}
-			const Py_ssize_t size = this->length();
-			low = num::clamp(low, Py_ssize_t(0), size);
-			high = num::clamp(high, low, size);
-			step = std::max(step, Py_ssize_t(1));
+
 			TConstContainerPtr b;
 			if (other)
 			{
@@ -211,23 +215,26 @@ namespace impl
 					b = TContainerTraits::copy(*b);
 				}
 			}
-			if (step == 1)
+
+			Py_ssize_t sliceLength = slice.adjustIndices(this->length());
+			if (slice.step == 1)
 			{
-				const TIterator first = this->next(this->begin(), low);
-				const TIterator last = this->next(first, high - low);
+				LASS_ASSERT(slice.start + sliceLength <= this->length());
+				const TIterator first = this->next(this->begin(), slice.start);
+				const TIterator last = this->next(first, sliceLength);
 				TContainerTraits::erase(this->container(), first, last);
 				if (b)
 				{
+					const TIterator pos = this->next(this->begin(), slice.start);
 					const TConstIterator bFirst = TContainerTraits::begin(*b);
 					const TConstIterator bLast = this->next(bFirst, TContainerTraits::size(*b));
-					TContainerTraits::insert(this->container(), this->next(this->begin(), low), bFirst, bLast);
+					TContainerTraits::insert(this->container(), pos, bFirst, bLast);
 				}
 			}
 			else
 			{
 				if (b)
 				{
-					const Py_ssize_t sliceLength = (high - low + step - 1) / step;
 					const Py_ssize_t bLength = TContainerTraits::size(*b);
 					if (sliceLength != bLength)
 					{
@@ -236,25 +243,33 @@ namespace impl
 						PyErr_SetString(PyExc_ValueError, buffer.str().c_str());
 						return -1;
 					}
-					TIterator left = this->next(this->begin(), low);
+					TIterator left = this->next(this->begin(), slice.start);
 					TConstIterator right = TContainerTraits::begin(*b);
-					while (low < high)
+					for (Py_ssize_t i = 0; i < sliceLength; ++i)
 					{
-						*left = *right++;
-						low += step;
-						if (low < high) // make sure you don't step beyond end
+						if (i > 0)
 						{
-							left = this->next(left, step);
+							// this odd place of advancing is to avoid stepping beyond end
+							left = this->next(left, slice.step);
 						}
+						*left = *right++;
 					}
 				}
 				else
 				{
-					while (low < high)
+					Py_ssize_t index = slice.start;
+					Py_ssize_t step = slice.step;
+					if (step > 0 && sliceLength > 0)
 					{
-						TContainerTraits::erase(this->container(), this->next(this->begin(), low));
-						low += step - 1;
-						--high;
+						// always traverse back to front ...
+						index += (sliceLength - 1) * step;
+						step = -step;
+					}
+					for (Py_ssize_t i = 0; i < sliceLength; ++i, index += step)
+					{
+						// always recompute iterator, as erase on std::deque invalidates _all_ iterators.
+						// slow for std::list, but that's a rare case ...
+						TContainerTraits::erase(this->container(), this->next(this->begin(), index));
 					}
 				}
 			}

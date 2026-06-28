@@ -97,6 +97,7 @@ class TestReimport(unittest.TestCase):
     """
     Tests what happens if a module truely gets reimported
     """
+
     def testReimport1(self) -> None:
         # isort: off
         import embedding as embedding2
@@ -330,8 +331,18 @@ class TestWriteableSequence(unittest.TestCase):
         self.assertSequenceEqual(seq[50:], [])
         self.assertSequenceEqual(seq[-2:], [2, 5])
         self.assertSequenceEqual(seq[-100:42], [0, 1, 2, 5])
+        self.assertSequenceEqual(seq[42:-100], [])
         self.assertSequenceEqual(seq[2:1], [])
         self.assertSequenceEqual(seq[1::2], [1, 5])
+        self.assertSequenceEqual(seq[::2], [0, 2])
+        self.assertSequenceEqual(seq[::-1], [5, 2, 1, 0])
+        self.assertSequenceEqual(seq[::-2], [5, 1])
+        self.assertSequenceEqual(seq[1:2:-1], [])
+        self.assertSequenceEqual(seq[3:1:-1], [5, 2])
+        self.assertSequenceEqual(seq[-100:42:-1], [])
+        self.assertSequenceEqual(seq[42:-100:-1], [5, 2, 1, 0])
+        self.assertSequenceEqual(seq[50::-1], [5, 2, 1, 0])
+        self.assertSequenceEqual(seq[-2::-1], [2, 1, 0])
 
     def _testSetSlice(
         self, seq: MutableSequence[float], refseq: Sequence[float]
@@ -348,13 +359,93 @@ class TestWriteableSequence(unittest.TestCase):
         self.assertSequenceEqual(refseq[:], [0, 1, 20, 3, 40, 5, 60, 7, 8, 9])
         del seq[3:9:2]
         self.assertSequenceEqual(refseq[:], [0, 1, 20, 40, 60, 8, 9])
+
+        with self.assertRaises(TypeError):
+            seq[1:3] = 5  # type: ignore[call-overload]
         with self.assertRaises(TypeError):
             seq[2:8:2] = ["20", "40", "60"]  # type: ignore[list-item]
+
         seq[2:5] = seq
         self.assertSequenceEqual(refseq[:], [0, 1, 0, 1, 20, 40, 60, 8, 9, 8, 9])
         del seq[:2]
         del seq[-2:]
         self.assertSequenceEqual(refseq[:], [0, 1, 20, 40, 60, 8, 9])
+
+        seq[:] = range(5)
+        # Contiguous slice assignment that only inserts (low == high)
+        seq[2:2] = [97, 98]
+        self.assertSequenceEqual(refseq[:], [0, 1, 97, 98, 2, 3, 4])
+        # Contiguous slice past the end appends
+        seq[100:] = [99]
+        self.assertSequenceEqual(refseq[:], [0, 1, 97, 98, 2, 3, 4, 99])
+
+        seq[42:-100] = []
+        self.assertSequenceEqual(refseq[:], [0, 1, 97, 98, 2, 3, 4, 99])
+        seq[42:-100] = [100, 101]
+        self.assertSequenceEqual(refseq[:], [0, 1, 97, 98, 2, 3, 4, 99, 100, 101])
+        seq[42:43] = [102, 103]
+        self.assertSequenceEqual(
+            refseq[:], [0, 1, 97, 98, 2, 3, 4, 99, 100, 101, 102, 103]
+        )
+
+        # Extended slice assignment with a negative step
+        seq[:] = range(10)
+        seq[::-1] = range(10, 20)
+        self.assertSequenceEqual(refseq[:], [19, 18, 17, 16, 15, 14, 13, 12, 11, 10])
+        seq[:] = range(10)
+        seq[::-2] = [10, 20, 30, 40, 50]
+        self.assertSequenceEqual(refseq[:], [0, 50, 2, 40, 4, 30, 6, 20, 8, 10])
+        seq[:] = range(10)
+        seq[6:2:-1] = [60, 50, 40, 30]
+        self.assertSequenceEqual(refseq[:], [0, 1, 2, 30, 40, 50, 60, 7, 8, 9])
+        seq[6:6:-1] = []
+        self.assertSequenceEqual(refseq[:], [0, 1, 2, 30, 40, 50, 60, 7, 8, 9])
+        with self.assertRaises(ValueError):
+            seq[::-2] = [1, 2]  # Wrong length for extended slice assignment
+        seq[-100:42:-1] = []
+        self.assertSequenceEqual(refseq[:], [0, 1, 2, 30, 40, 50, 60, 7, 8, 9])
+        with self.assertRaises(ValueError):
+            seq[-100:42:-1] = [1, 2]  # Wrong length for extended slice assignment
+
+        # Self-assignment to a reversed slice must copy the source first
+        seq[:] = range(5)
+        seq[::-1] = seq
+        self.assertSequenceEqual(refseq[:], [4, 3, 2, 1, 0])
+
+        # Deletion with a negative step
+        seq[:] = range(10)
+        del seq[::-2]
+        self.assertSequenceEqual(refseq[:], [0, 2, 4, 6, 8])
+        seq[:] = range(10)
+        del seq[6:2:-1]
+        self.assertSequenceEqual(refseq[:], [0, 1, 2, 7, 8, 9])
+        del seq[-100:42:-1]
+        self.assertSequenceEqual(refseq[:], [0, 1, 2, 7, 8, 9])
+        del seq[::-1]
+        self.assertSequenceEqual(refseq[:], [])
+
+        # Single-element extended slices (the i > 0 advance is never taken)
+        seq[:] = range(10)
+        seq[1:2:2] = [99]
+        self.assertSequenceEqual(refseq[:], [0, 99, 2, 3, 4, 5, 6, 7, 8, 9])
+        seq[1:0:-1] = [88]
+        self.assertSequenceEqual(refseq[:], [0, 88, 2, 3, 4, 5, 6, 7, 8, 9])
+        del seq[1:2:2]
+        self.assertSequenceEqual(refseq[:], [0, 2, 3, 4, 5, 6, 7, 8, 9])
+
+        # Empty extended slices: a zero-length assignment is a no-op, but a
+        # non-empty source is still rejected, and deletion does nothing.
+        seq[:] = range(10)
+        seq[3:3:2] = []
+        self.assertSequenceEqual(refseq[:], list(range(10)))
+        del seq[3:3:2]
+        self.assertSequenceEqual(refseq[:], list(range(10)))
+        with self.assertRaises(ValueError):
+            seq[3:3:2] = [1]  # Non-empty source for an empty extended slice
+
+        # Leave the sequence in a known, non-empty state for later tests
+        seq[:] = range(10)
+        self.assertSequenceEqual(refseq[:], list(range(10)))
 
     def _testRepeat(self, seq: MutableSequence[float], refseq: Sequence[float]) -> None:
         n = len(seq)
@@ -976,6 +1067,7 @@ class TestMultiCallback(unittest.TestCase):
         y = 123456789
         cb.call(y)  # type: ignore[attr-defined]
         self.assertSequenceEqual(buf, [y])
+
 
 class TestStream(unittest.TestCase):
     def testSysStdout(self) -> None:

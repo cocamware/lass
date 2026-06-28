@@ -214,17 +214,17 @@ namespace impl
 		PySequenceImplBase& pimpl = *static_cast<Sequence*>(self)->pimpl_;
 		if (PySlice_Check(key))
 		{
-			Py_ssize_t start, stop, step, slicelength;
-			if (PySlice_GetIndicesEx(key, pimpl.length(), &start, &stop, &step, &slicelength) != 0)
+			Slice slice;
+			if (pyGetSimpleObject(key, slice) != 0)
 			{
-				return 0;
+				return nullptr;
 			}
-			return pimpl.slice(start, stop, step);
+			return pimpl.slice(slice);
 		}
 		Py_ssize_t i;
 		if (pyGetSimpleObject(key, i) != 0) 
 		{
-			return 0;
+			return nullptr;
 		}
 		if (i < 0)
 		{
@@ -232,17 +232,17 @@ namespace impl
 		}
 		return pimpl.item(i);		
 	}
-	int Sequence::assSubscript( PyObject* self, PyObject* key, PyObject* value)
+	int Sequence::assSubscript(PyObject* self, PyObject* key, PyObject* value)
 	{
 		PySequenceImplBase& pimpl = *static_cast<Sequence*>(self)->pimpl_;
 		if (PySlice_Check(key))
 		{
-			Py_ssize_t start, stop, step, slicelength;
-			if (PySlice_GetIndicesEx(key, pimpl.length(), &start, &stop, &step, &slicelength) != 0)
+			Slice slice;
+			if (pyGetSimpleObject(key, slice) != 0)
 			{
 				return -1;
 			}
-			return pimpl.assSlice(start, stop, step, value);
+			return pimpl.assSlice(slice, value);
 		}
 		Py_ssize_t i;
 		if (pyGetSimpleObject(key, i) != 0) 
