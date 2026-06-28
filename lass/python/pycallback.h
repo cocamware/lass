@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -111,21 +111,14 @@ namespace impl
 		void add(const python::TPyObjPtr& args) override
 		{
 			// the "thing" we add must be convertible to a callback
-			// [TODO] use a decodeTuple
 			LockGIL lock;
 			Callback tempCallback;
-			if (args.get() && PyTuple_Check(args.get()) && PyTuple_Size(args.get())==1)
+			if (decodeTuple(args, tempCallback) != 0)
 			{
-				Py_XINCREF(args.get());
-				Py_XINCREF(PyTuple_GetItem(args.get(),0));
-				int rv = pyGetSimpleObject(PyTuple_GetItem(args.get(),0),tempCallback);
-				if (rv)
-				{
-					impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
-				}
-				for (size_t i=0;i<tempCallback.size();++i)
-					callback_->add(tempCallback[i]);
+				impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
 			}
+			for (size_t i=0;i<tempCallback.size();++i)
+				callback_->add(tempCallback[i]);
 		}
 	protected:
 		TCallbackPtr callback_;

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -91,6 +91,7 @@ struct PyExportTraits<lass::util::MultiCallback$x< $(P$x)$ > >
 	static constexpr const char* py_typing = "Callable[[$(P$x)$], None]";
 
 	typedef lass::util::MultiCallback$x< $(P$x)$ > TCallback;
+	typedef lass::util::Callback$x< $(P$x)$ > TNonMultiCallback;
 	static PyObject* build(const TCallback& callback)
 	{
 		return new lass::python::MultiCallback(callback);
@@ -103,8 +104,16 @@ struct PyExportTraits<lass::util::MultiCallback$x< $(P$x)$ > >
 			callback = *almost->get();
 			return 0;
 		}
-		// add error handling code
-		return 1;
+		// see if we can convert from a callable object into a regular callback and add that
+		// to the multi-callback
+		
+		TNonMultiCallback tempCallback;
+		int rv = pyGetSimpleObject(obj, tempCallback);
+		if (rv)
+			return rv;
+		callback.reset();
+		callback.add(tempCallback);
+		return 0;
 	}
 };
 ]$

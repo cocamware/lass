@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -130,7 +130,11 @@ const std::string MultiCallbackImplBase::repr() const
 	PyObject* MultiCallback::callVar(PyObject* args) 
 	{ 
 		LockGIL lock;
-		call(python::TPyObjPtr(args)); 
+		try
+		{
+			call(python::fromNakedToSharedPtrCast<PyObject>(args));
+		}
+		LASS_PYTHON_CATCH_AND_RETURN_EX(nullptr)
 		Py_RETURN_NONE;
 	}
 	const std::type_info& MultiCallback::type() const
@@ -154,7 +158,11 @@ const std::string MultiCallbackImplBase::repr() const
 	PyObject* MultiCallback::addVar(PyObject* args)
 	{
 		LockGIL lock;
-		add(python::TPyObjPtr(args)); 
+		try
+		{
+			add(python::fromNakedToSharedPtrCast<PyObject>(args));
+		}
+		LASS_PYTHON_CATCH_AND_RETURN_EX(nullptr)
 		Py_RETURN_NONE;
 	}
 

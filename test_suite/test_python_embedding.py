@@ -963,6 +963,19 @@ class TestMultiCallback(unittest.TestCase):
         a.callback()
         self.assertEqual(dummyCounter, 34)
 
+    def testMultiCallback1(self) -> None:
+        buf: list[int] = []
+
+        def func(x: int) -> None:
+            buf.append(x)
+
+        a = embedding.TestCallback()
+        cb = a.callback1
+        cb.add(func)  # type: ignore[attr-defined]
+
+        y = 123456789
+        cb.call(y)  # type: ignore[attr-defined]
+        self.assertSequenceEqual(buf, [y])
 
 class TestStream(unittest.TestCase):
     def testSysStdout(self) -> None:
