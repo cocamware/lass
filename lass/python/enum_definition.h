@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2022-2025 the Initial Developer.
+ *	Copyright (C) 2022-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -712,6 +712,10 @@ namespace lass
 			{
 				const Py_ssize_t n = static_cast<Py_ssize_t>(enumerators_.size());
 				TPyObjPtr pyEnumerators(PyTuple_New(n));
+				if (!pyEnumerators)
+				{
+					return TPyObjPtr();
+				}
 				for (Py_ssize_t i = 0; i < n; ++i)
 				{
 					const Enumerator& enumerator = enumerators_[static_cast<size_t>(i)];
@@ -720,7 +724,10 @@ namespace lass
 					assert(!valueToEnum_.contains(enumerator.value));
 					valueToEnum_.emplace(enumerator.value, enumerator.enumerator);
 					TPyObjPtr pyEnumerator(makeTuple(enumerator.name, enumerator.value));
-					PyTuple_SetItem(pyEnumerators.get(), i, fromSharedPtrToNakedCast(pyEnumerator));
+					if (!pyEnumerator || PyTuple_SetItem(pyEnumerators.get(), i, fromSharedPtrToNakedCast(pyEnumerator)) != 0)
+					{
+						return TPyObjPtr();
+					}
 				}
 				return pyEnumerators;
 			}
