@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -81,9 +81,17 @@ void setOSErrorFromErrno(int errno_, const std::string& message, const TChar* pa
 	{
 		args = makeTuple(errno_, message);
 	}
+	if (!args)
+	{
+		return; // makeTuple failed, error set
+	}
 	// OSError_new will determine the correct subtype based on errno (or winerror)
 	// So we need to retrieve the exception type from the result.
 	TPyObjPtr value(PyObject_CallObject(PyExc_OSError, args.get()));
+	if (!value)
+	{
+		return; // constructor failed, error set
+	}
 	PyObject* v = value.get();
 	PyErr_SetObject((PyObject*) Py_TYPE(v), v);
 }
