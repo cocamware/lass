@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -60,12 +60,20 @@ struct PyExportTraitsVectorPoint
 {
 	static PyObject* build(const ObjectType& v)
 	{
-		PyObject* const tuple = PyTuple_New(dimension);
+		TPyObjPtr tuple(PyTuple_New(dimension));
+		if (!tuple)
+		{
+			return nullptr;
+		}
 		for (size_t i = 0; i < dimension; ++i)
 		{
-			PyTuple_SetItem(tuple, static_cast<Py_ssize_t>(i), pyBuildSimpleObject(v[i]));
+			PyObject* x = pyBuildSimpleObject(v[i]);
+			if (!x || PyTuple_SetItem(tuple.get(), static_cast<Py_ssize_t>(i), x) != 0)
+			{
+				return nullptr;
+			}
 		}
-		return tuple;
+		return fromSharedPtrToNakedCast(tuple);
 	}
 
 	static int get(PyObject* obj, ObjectType& v)
@@ -153,17 +161,32 @@ struct PyExportTraitsPrimTransformation
 	static PyObject* build(const TTransformation& transfo)
 	{
 		const TValue* const values = transfo.matrix();
-		PyObject* const matrix = PyTuple_New(size);
+		TPyObjPtr matrix(PyTuple_New(size));
+		if (!matrix)
+		{
+			return nullptr;
+		}
 		for (int i = 0; i < size; ++i)
 		{
-			PyObject* const row = PyTuple_New(size);
+			TPyObjPtr row(PyTuple_New(size));
+			if (!row)
+			{
+				return nullptr;
+			}
 			for (int j = 0; j < size; ++j)
 			{
-				PyTuple_SetItem(row, j, pyBuildSimpleObject(values[i * size + j]));
+				PyObject* x = pyBuildSimpleObject(values[i * size + j]);
+				if (!x || PyTuple_SetItem(row.get(), j, x) != 0)
+				{
+					return nullptr;
+				}
 			}
-			PyTuple_SetItem(matrix, i, row);
+			if (PyTuple_SetItem(matrix.get(), i, fromSharedPtrToNakedCast(row)) != 0)
+			{
+				return nullptr;
+			}
 		}
-		return matrix;
+		return fromSharedPtrToNakedCast(matrix);
 	}
 
 	static int get(PyObject* obj, TTransformation& transfo)
