@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -116,6 +116,7 @@ namespace impl
 	protected:
 		R call(const TPyObjPtr& args) const
 		{
+			static_assert(!std::is_reference_v<R> && !std::is_pointer_v<R>, "Python callbacks must return by value, not by reference or pointer");
 			LockGIL lock;
 			LASS_ASSERT(callable_);
 			const TPyObjPtr result(PyObject_CallObject(callable_.get(), args.get()));
