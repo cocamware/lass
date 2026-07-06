@@ -50,6 +50,7 @@
 #include "no_none.h"
 #include "maybe_none.h"
 #include "self.h"
+#include "subscript.h"
 #include "../num/num_cast.h"
 
 namespace lass
@@ -1221,6 +1222,24 @@ struct PyExportTraits< std::complex<T> >
 		return 0;
 #endif
 	}
+};
+
+
+
+// --- slices --------------------------------------------------------------------------------------
+
+/** Converts between Slice and Python slice objects
+ *
+ *  @ingroup PyExportTraits 
+ *  @sa Slice
+ */
+template <>
+struct PyExportTraits<Slice>
+{
+	static constexpr const char* py_typing = "slice";
+
+	LASS_PYTHON_DLL static PyObject* build(const Slice &slice);
+	LASS_PYTHON_DLL static int get(PyObject* obj, Slice& slice);
 };
 
 

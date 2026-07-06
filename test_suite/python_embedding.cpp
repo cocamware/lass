@@ -820,6 +820,12 @@ lass::python::TPyObjPtr testRawPyObject(PyObject* obj)
 	return lass::python::fromNakedToSharedPtrCast<PyObject>(obj);
 }
 
+std::pair<python::Slice, int> testSlice(python::Slice slice, int sequenceLength)
+{
+	int sliceLength = static_cast<int>(slice.adjustIndices(sequenceLength));
+	return std::make_pair(slice, sliceLength);
+}
+
 }
 }
 
@@ -919,6 +925,8 @@ PY_CLASS_MEMBER_R(PyRawType, address)
 PY_MODULE_CLASS(embedding, PyRawType)
 PY_MODULE_FUNCTION(embedding, rawPointer)
 PY_MODULE_FUNCTION(embedding, testNoNoneRaw)
+
+PY_MODULE_FUNCTION(embedding, testSlice)
 
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
 PY_MODULE_STRING_CONSTANT( embedding, "STRING_CONSTANT", "string constant")

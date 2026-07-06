@@ -328,6 +328,42 @@ int PyExportTraits<unsigned PY_LONG_LONG>::get(PyObject* obj, unsigned PY_LONG_L
 #endif
 
 
+PyObject* PyExportTraits<Slice>::build(const Slice &slice)
+{
+	TPyObjPtr start(PyExportTraits<Py_ssize_t>::build(slice.start));
+	if (!start)
+	{
+		return nullptr;
+	}
+	TPyObjPtr stop(PyExportTraits<Py_ssize_t>::build(slice.stop));
+	if (!stop)
+	{
+		return nullptr;
+	}
+	TPyObjPtr step(PyExportTraits<Py_ssize_t>::build(slice.step));
+	if (!step)
+	{
+		return nullptr;
+	}
+	return PySlice_New(start.get(), stop.get(), step.get());
+}
+
+
+int PyExportTraits<Slice>::get(PyObject* obj, Slice& slice)
+{
+	if (!PySlice_Check(obj))
+	{
+		PyErr_SetString(PyExc_TypeError, "not a slice object");
+		return 1;
+	}
+	if (PySlice_Unpack(obj, &slice.start, &slice.stop, &slice.step) != 0)
+	{
+		return 1;
+	}
+	return 0;
+}
+
+
 PyObject* PyExportTraits<const char*>::build(const char* v)
 {
 	if (!v)

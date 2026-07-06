@@ -1969,6 +1969,40 @@ class TestIteratorRanges(unittest.TestCase):
         self.assertEqual(items[2].number, 2)
 
 
+class TestSlice(unittest.TestCase):
+    def testSlice(self) -> None:
+        self.assertEqual(embedding.testSlice(slice(None), 10), (slice(0, 10, 1), 10))
+        self.assertEqual(embedding.testSlice(slice(2, 8, 2), 10), (slice(2, 8, 2), 3))
+        self.assertEqual(embedding.testSlice(slice(-3, None), 10), (slice(7, 10, 1), 3))
+        # stop is not clamped to start for empty slices
+        self.assertEqual(embedding.testSlice(slice(5, 2), 10), (slice(5, 2, 1), 0))
+        # in result, stop==-1 means "one before begin of sequence", not "last element"
+        self.assertEqual(
+            embedding.testSlice(slice(None, None, -1), 10), (slice(9, -1, -1), 10)
+        )
+        self.assertEqual(
+            embedding.testSlice(slice(None, None, -2), 10), (slice(9, -1, -2), 5)
+        )
+        self.assertEqual(embedding.testSlice(slice(3, 3, -1), 10), (slice(3, 3, -1), 0))
+        # start==-1 from PySlice_AdjustIndices is normalized to start = stop = 0
+        self.assertEqual(
+            embedding.testSlice(slice(-100, 42, -1), 10), (slice(0, 0, -1), 0)
+        )
+        self.assertEqual(
+            embedding.testSlice(slice(None, None, -1), 0), (slice(0, 0, -1), 0)
+        )
+        # indices beyond Py_ssize_t are clamped instead of raising OverflowError
+        self.assertEqual(
+            embedding.testSlice(slice(-(2**100), 2**100), 10), (slice(0, 10, 1), 10)
+        )
+        with self.assertRaises(ValueError):
+            embedding.testSlice(slice(None, None, 0), 10)  # step==0 is not allowed
+        with self.assertRaises(TypeError):
+            embedding.testSlice(slice(1.5, None), 10)
+        with self.assertRaises(TypeError):
+            embedding.testSlice((0, 10, 1), 10)  # type: ignore[arg-type]
+
+
 test = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
 testRunner = unittest.TextTestRunner(verbosity=2)
 result = testRunner.run(test)
