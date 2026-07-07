@@ -64,4 +64,36 @@ Py_ssize_t Slice::adjustIndices(Py_ssize_t sequenceLength)
 	return sliceLength;
 }
 
+
+
+bool adjustIndexEx(Py_ssize_t *index, Py_ssize_t sequenceLength)
+{
+	LASS_ASSERT(index);
+	LASS_ASSERT(sequenceLength >= 0);
+	Py_ssize_t i = *index;
+	if (i < 0)
+	{
+		i += sequenceLength;
+	}
+	if (i < 0 || i >= sequenceLength)
+	{
+		LockGIL lock;
+		PyErr_SetString(PyExc_IndexError, "index out of range");
+		return false;
+	}
+	*index = i;
+	return true;
+}
+
+
+
+Py_ssize_t adjustIndex(Py_ssize_t index, Py_ssize_t sequenceLength)
+{
+	if (!adjustIndexEx(&index, sequenceLength))
+	{
+		impl::fetchAndThrowPythonException(LASS_PRETTY_FUNCTION);
+	}
+	return index;
+}
+
 }

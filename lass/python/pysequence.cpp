@@ -226,9 +226,9 @@ namespace impl
 		{
 			return nullptr;
 		}
-		if (i < 0)
+		if (!adjustIndexEx(&i, pimpl.length()))
 		{
-			i += pimpl.length();
+			return nullptr;
 		}
 		return pimpl.item(i);		
 	}
@@ -249,9 +249,9 @@ namespace impl
 		{
 			return -1;
 		}
-		if (i < 0)
+		if (!adjustIndexEx(&i, pimpl.length()))
 		{
-			i += pimpl.length();
+			return -1;
 		}
 		return pimpl.assItem(i, value);
 	}
