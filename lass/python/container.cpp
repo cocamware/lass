@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -51,6 +51,13 @@ namespace python
 namespace impl
 {
 
+
+ContainerImplBase::ContainerImplBase(bool readOnly):
+	readOnly_(readOnly)
+{
+}
+
+
 const std::string ContainerImplBase::repr() const
 {
 	// convert container to python equivalent and ask repr of that.
@@ -64,6 +71,26 @@ const std::string ContainerImplBase::repr() const
 	}
 	return result;
 }
+
+
+bool ContainerImplBase::isReadOnly() const
+{
+	return readOnly_;
+}
+
+
+bool ContainerImplBase::checkWritable() const
+{
+	if (readOnly_)
+	{
+		LockGIL lock;
+		PyErr_SetString(PyExc_TypeError, "Container is read-only");
+		return false;
+	}
+	return true;
+}
+
+
 
 }
 }

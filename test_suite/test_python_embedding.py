@@ -236,6 +236,8 @@ class TestConstSequence(unittest.TestCase):
         with self.assertRaises(TypeError):
             seq[3] = 5  # type: ignore[index]
         with self.assertRaises(TypeError):
+            del seq[100]  # type: ignore[attr-defined]
+        with self.assertRaises(TypeError):
             seq.clear()  # type: ignore[attr-defined]
         with self.assertRaises(TypeError):
             seq.reserve(5)  # type: ignore[attr-defined]

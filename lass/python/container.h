@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -153,6 +153,14 @@ public:
 	virtual void* raw(bool writable) = 0;
 
 	const std::string repr() const;
+	bool isReadOnly() const;
+	bool checkWritable() const;
+
+protected:
+	ContainerImplBase(bool readOnly);
+
+private:
+	bool readOnly_;
 };
 
 
@@ -167,7 +175,7 @@ public:
 
 	bool clear() override
 	{
-		if (!checkWritable())
+		if (!this->checkWritable())
 		{
 			return false;
 		}
@@ -188,28 +196,18 @@ public:
 	}
 	void* raw(bool writable) override
 	{ 
-		if (writable && readOnly_)
+		if (writable && this->isReadOnly())
 		{
 			return 0;
 		}
 		return &container_; 
 	}
 protected:
-	ContainerImpl(const TContainerPtr& container, bool readOnly = false): 
-		container_(container), 
-		readOnly_(readOnly)
+	ContainerImpl(const TContainerPtr& container, bool readOnly = false):
+		Base(readOnly),
+		container_(container)
 	{
 		LASS_ASSERT(container_);
-	}
-	bool checkWritable() const
-	{
-		if (readOnly_)
-		{
-			LockGIL lock;
-			PyErr_SetString(PyExc_TypeError, "Container is read-only");
-			return false;
-		}
-		return true;
 	}
 	const TContainer& container() const
 	{
@@ -233,7 +231,6 @@ protected:
 	}
 private:
 	util::SharedPtr<Container> container_;
-	bool readOnly_;
 };
 
 

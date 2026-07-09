@@ -235,6 +235,10 @@ namespace impl
 	int Sequence::assSubscript(PyObject* self, PyObject* key, PyObject* value)
 	{
 		PySequenceImplBase& pimpl = *static_cast<Sequence*>(self)->pimpl_;
+		if (!pimpl.checkWritable())
+		{
+			return -1;
+		}
 		if (PySlice_Check(key))
 		{
 			Slice slice;
