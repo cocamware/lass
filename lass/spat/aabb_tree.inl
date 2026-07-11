@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -281,8 +281,8 @@ AabbTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const
 		{
 			// fall back to recursive implementation
 			TValue tb = 0;
-			TObjectIterator b = doIntersect(0, ray, invDir, tb, tMin, info);
-			if (best == *end_ || tb < tBest)
+			TObjectIterator b = doIntersect(visit.index, ray, invDir, tb, tMin, info);
+			if (b != *end_ && (best == *end_ || tb < tBest))
 			{
 				tBest = tb;
 				best = b;
