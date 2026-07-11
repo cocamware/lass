@@ -114,7 +114,7 @@ namespace impl
 	const TPyObjPtr Map::get(const TPyObjPtr& key, const TPyObjPtr& defaultValue) const
 	{
 		LockGIL lock;
-		TPyObjPtr result = fromNakedToSharedPtrCast<PyObject>(pimpl_->subscript(key.get()));
+		TPyObjPtr result(pimpl_->subscript(key.get()));
 		if (!result && PyErr_ExceptionMatches(PyExc_KeyError))
 		{
 			PyErr_Clear();
