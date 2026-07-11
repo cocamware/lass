@@ -416,11 +416,11 @@ struct PyExportTraits< util::SharedPtr<T, S, C> >
 
 /** A shared `PyObject` pointer is mapped to `Any` in Python.
  * 
- *  If it's a nullptr, it is mapped to `None`.
- *  Otherwise, it is mapped to the actual Python object, increasing the reference count.
+ *  It's mapped to the actual Python object, increasing the reference count,
+ *  and a nullptr is mapped to `None`.
  * 
- *  When getting a `PyObject` pointer from Python, `None` is mapped to a nullptr,
- *  so you can never get `Py_None` as a TPyObjPtr value.
+ *  @note When **getting** a `None` object from Python, you will get a TPyObjPtr holding
+ *        `Py_None`. So `v` will **never** be null!
  *
  *  @ingroup PyExportTraits
  */

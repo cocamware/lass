@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2022 the Initial Developer.
+ *	Copyright (C) 2022-2026 the Initial Developer.
  *	All Rights Reserved.
  *
  *	Contributor(s):
@@ -222,11 +222,47 @@ void testPythonExportTraitsString()
 
 
 
+void testPythonExportTraitsTPyObjPtr()
+{
+	using namespace lass::python;
+	
+	initPythonEmbedding();
+		
+	{
+		// Getting a None as TPyObjPtr gives Py_None, not nullptr
+		TPyObjPtr value;
+		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(Py_None, value), 0);
+		LASS_TEST_CHECK(value); // !!!!
+		LASS_TEST_CHECK_EQUAL(value.get(), Py_None); // !!!!
+	}
+	{
+		// But building a Python object from a nullptr gives None
+		TPyObjPtr value;
+		TPyObjPtr obj(pyBuildSimpleObject(value));
+		LASS_TEST_CHECK(obj);
+		LASS_TEST_CHECK_EQUAL(obj.get(), Py_None);
+	}
+	{
+		TPyObjPtr dict(PyDict_New());
+		LASS_TEST_CHECK(dict);
+		TPyObjPtr value;
+		LASS_TEST_CHECK_EQUAL(pyGetSimpleObject(dict.get(), value), 0);
+		LASS_TEST_CHECK(value);
+		LASS_TEST_CHECK_EQUAL(value.get(), dict.get());
+		TPyObjPtr obj(pyBuildSimpleObject(dict));
+		LASS_TEST_CHECK(obj);
+		LASS_TEST_CHECK_EQUAL(obj.get(), dict.get());
+	}
+}
+
+
+
 TUnitTest test_python_export_traits()
 {
 	return TUnitTest
 	{
 		LASS_TEST_CASE(testPythonExportTraitsString),
+		LASS_TEST_CASE(testPythonExportTraitsTPyObjPtr),
 	};
 }
 

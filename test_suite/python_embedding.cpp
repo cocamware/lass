@@ -820,6 +820,18 @@ lass::python::TPyObjPtr testRawPyObject(PyObject* obj)
 	return lass::python::fromNakedToSharedPtrCast<PyObject>(obj);
 }
 
+bool isNoneRaw(PyObject* obj)
+{
+	PY_ENFORCE_POINTER(obj)("PyObject* arguments should never be null");
+	return obj == Py_None;
+}
+
+bool isNoneShared(const lass::python::TPyObjPtr& obj)
+{
+	PY_ENFORCE_POINTER(obj)("TPyObjPtr arguments should never be null");
+	return obj.get() == Py_None;
+}
+
 std::pair<python::Slice, int> testSlice(python::Slice slice, int sequenceLength)
 {
 	int sliceLength = static_cast<int>(slice.adjustIndices(sequenceLength));
@@ -925,6 +937,8 @@ PY_CLASS_MEMBER_R(PyRawType, address)
 PY_MODULE_CLASS(embedding, PyRawType)
 PY_MODULE_FUNCTION(embedding, rawPointer)
 PY_MODULE_FUNCTION(embedding, testNoNoneRaw)
+PY_MODULE_FUNCTION(embedding, isNoneRaw)
+PY_MODULE_FUNCTION(embedding, isNoneShared)
 
 PY_MODULE_FUNCTION(embedding, testSlice)
 

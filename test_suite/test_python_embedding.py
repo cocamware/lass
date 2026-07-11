@@ -1884,6 +1884,14 @@ class TestRawPointer(unittest.TestCase):
         self.assertIs(y, x)
 
 
+
+class TestPyObjectPtr(unittest.TestCase):
+    def testPyObjectPtr(self) -> None:
+        # None should never give a nullptr when translated to PyObject*/TPyObjPtr
+        self.assertTrue(embedding.isNoneRaw(None))
+        self.assertTrue(embedding.isNoneShared(None))
+
+
 class TestFunction(unittest.TestCase):
     def testFunctionFromPython(self) -> None:
         def func1(a: int, b: int) -> int:
