@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -65,7 +65,8 @@ namespace impl
 	template <typename P>
 	inline bool tupleSetItems(PyObject* tuple, Py_ssize_t index, const P& p)
 	{
-		return PyTuple_SetItem(tuple, index, pyBuildSimpleObject(p)) == 0;
+		PyObject* value = pyBuildSimpleObject(p);
+		return value && (PyTuple_SetItem(tuple, index, value) == 0);
 	}
 
 	/** @ingroup Python
@@ -74,7 +75,8 @@ namespace impl
 	template <typename P, typename... Ptail>
 	inline bool tupleSetItems(PyObject* tuple, Py_ssize_t index, const P& p, Ptail&... tail)
 	{
-		return PyTuple_SetItem(tuple, index, pyBuildSimpleObject(p)) == 0
+		PyObject* value = pyBuildSimpleObject(p);
+		return value && (PyTuple_SetItem(tuple, index, value) == 0)
 			&& tupleSetItems(tuple, index + 1, tail...);
 	}
 
@@ -151,7 +153,7 @@ const TPyObjPtr makeTuple(const P&... p)
 {
 	LockGIL lock;
 	TPyObjPtr tuple(PyTuple_New(sizeof...(P)));
-	return impl::tupleSetItems(tuple.get(), 0, p...)
+	return tuple && impl::tupleSetItems(tuple.get(), 0, p...)
 		? tuple
 		: TPyObjPtr();
 }
