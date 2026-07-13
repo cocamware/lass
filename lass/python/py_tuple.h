@@ -143,6 +143,7 @@ namespace impl
  */
 inline const TPyObjPtr makeTuple()
 {
+	LockGIL lock;
 	return TPyObjPtr(PyTuple_New(0));
 }
 
