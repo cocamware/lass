@@ -439,10 +439,6 @@ struct PyExportTraits<TPyObjPtr>
 	}
 	static int get(PyObject* obj, TPyObjPtr& v)
 	{
-		if (obj == Py_None)
-		{
-			v = TPyObjPtr();
-		}
 		v = fromNakedToSharedPtrCast<PyObject>(obj);
 		return 0;
 	}
