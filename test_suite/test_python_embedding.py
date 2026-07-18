@@ -233,46 +233,7 @@ class TestMap(unittest.TestCase):
         self._testMap(bar.writeableVectorMap, bar.writeableVectorMap)  # type: ignore[arg-type]
 
 
-class TestConstSequence(unittest.TestCase):
-    def _testConstSequence(self, seq: Sequence[float]) -> None:
-        self.assertIsInstance(seq, _lass.Sequence)
-        # Test that none of these operations are allowed on a const sequence
-        with self.assertRaises(TypeError):
-            seq[0:-1] = range(10)  # type: ignore[index]
-        with self.assertRaises(TypeError):
-            seq[3] = 5  # type: ignore[index]
-        with self.assertRaises(TypeError):
-            del seq[100]  # type: ignore[attr-defined]
-        with self.assertRaises(TypeError):
-            seq.clear()  # type: ignore[attr-defined]
-        with self.assertRaises(TypeError):
-            seq.reserve(5)  # type: ignore[attr-defined]
-        with self.assertRaises(TypeError):
-            seq.append(5)  # type: ignore[attr-defined]
-        with self.assertRaises(TypeError):
-            seq.pop()  # type: ignore[attr-defined]
-        with self.assertRaises(TypeError):
-            seq += [123]  # type: ignore[operator]
-        with self.assertRaises(TypeError):
-            seq *= 2  # type: ignore[assignment, operator]
-
-    def testConstVector(self) -> None:
-        bar = embedding.Bar()
-        assert bar.constVector is not None
-        self._testConstSequence(bar.constVector)
-
-    def testConstList(self) -> None:
-        bar = embedding.Bar()
-        assert bar.constList is not None
-        self._testConstSequence(bar.constList)
-
-    def testConstDeque(self) -> None:
-        bar = embedding.Bar()
-        assert bar.constDeque is not None
-        self._testConstSequence(bar.constDeque)
-
-
-class TestWriteableSequence(unittest.TestCase):
+class TestSequence(unittest.TestCase):
     def _testClear(self, seq: MutableSequence[float], refseq: Sequence[float]) -> None:
         seq.clear()
         self.assertEqual(len(refseq), 0)
@@ -310,21 +271,6 @@ class TestWriteableSequence(unittest.TestCase):
         for a, b in zip(refseq, [0, 1, 2, 8]):
             self.assertEqual(a, b)
 
-    def _testContains(self, seq: MutableSequence[float]) -> None:
-        self.assertIn(8, seq)
-        self.assertNotIn(-123456, seq)
-        self.assertNotIn("123", seq)
-
-    def _testGetItem(
-        self, seq: MutableSequence[float], refseq: Sequence[float]
-    ) -> None:
-        with self.assertRaises(IndexError):
-            seq[len(seq)]  # Index beyond end of sequence
-        with self.assertRaises(IndexError):
-            seq[-len(seq) - 1]  # Index before start of sequence
-        self.assertEqual(seq[-1], refseq[-1])  # Last element
-        self.assertEqual(seq[0], refseq[0])  # First element
-
     def _testSetItem(
         self, seq: MutableSequence[float], refseq: Sequence[float]
     ) -> None:
@@ -337,7 +283,20 @@ class TestWriteableSequence(unittest.TestCase):
         seq.append(2)
         del seq[-1]
 
-    def _testGetSlice(self, seq: MutableSequence[float]) -> None:
+    def _testContains(self, seq: Sequence[float]) -> None:
+        self.assertIn(5, seq)
+        self.assertNotIn(-123456, seq)
+        self.assertNotIn("123", seq)
+
+    def _testGetItem(self, seq: Sequence[float]) -> None:
+        with self.assertRaises(IndexError):
+            seq[len(seq)]  # Index beyond end of sequence
+        with self.assertRaises(IndexError):
+            seq[-len(seq) - 1]  # Index before start of sequence
+        self.assertEqual(seq[-1], 5)  # Last element
+        self.assertEqual(seq[0], 0)  # First element
+
+    def _testGetSlice(self, seq: Sequence[float]) -> None:
         self.assertSequenceEqual(seq[:], [0, 1, 2, 5])
         self.assertSequenceEqual(seq[:], [0, 1, 2, 5])
         self.assertSequenceEqual(seq[:2], [0, 1])
@@ -490,13 +449,44 @@ class TestWriteableSequence(unittest.TestCase):
         self._testAppend(seq, refseq)
         self._testRepr(seq)
         self._testPop(seq, refseq)
-        self._testContains(seq)
-        self._testGetItem(seq, refseq)
         self._testSetItem(seq, refseq)
+        self._testContains(seq)
+        self._testGetItem(seq)
         self._testGetSlice(seq)
         self._testSetSlice(seq, refseq)
         self._testRepeat(seq, refseq)
         self._testConcat(seq, refseq)
+
+    def _testConstSequence(
+        self, seq: Sequence[float], mutseq: MutableSequence[float]
+    ) -> None:
+        self.assertIsInstance(seq, _lass.Sequence)
+
+        # Test that none of these operations are allowed on a const sequence
+        with self.assertRaises(TypeError):
+            seq[0:-1] = range(10)  # type: ignore[index]
+        with self.assertRaises(TypeError):
+            seq[3] = 5  # type: ignore[index]
+        with self.assertRaises(TypeError):
+            del seq[100]  # type: ignore[attr-defined]
+        with self.assertRaises(TypeError):
+            seq.clear()  # type: ignore[attr-defined]
+        with self.assertRaises(TypeError):
+            seq.reserve(5)  # type: ignore[attr-defined]
+        with self.assertRaises(TypeError):
+            seq.append(5)  # type: ignore[attr-defined]
+        with self.assertRaises(TypeError):
+            seq.pop()  # type: ignore[attr-defined]
+        with self.assertRaises(TypeError):
+            seq += [123]  # type: ignore[operator]
+        with self.assertRaises(TypeError):
+            seq *= 2  # type: ignore[assignment, operator]
+
+        # load some values through refmutseq
+        mutseq[:] = [0, 1, 2, 5]
+        self._testContains(seq)
+        self._testGetItem(seq)
+        self._testGetSlice(seq)
 
     def testWriteableVector(self) -> None:
         bar = embedding.Bar()
@@ -528,6 +518,24 @@ class TestWriteableSequence(unittest.TestCase):
         bar = embedding.Bar()
         assert bar.writeableStaticVector is not None
         self._testSequence(bar.writeableStaticVector, bar.writeableStaticVector)  # type: ignore[arg-type]
+
+    def testConstVector(self) -> None:
+        bar = embedding.Bar()
+        assert bar.constVector is not None
+        assert bar.writeableVector is not None
+        self._testConstSequence(bar.constVector, bar.writeableVector)  # type: ignore[arg-type]
+
+    def testConstList(self) -> None:
+        bar = embedding.Bar()
+        assert bar.constList is not None
+        assert bar.writeableList is not None
+        self._testConstSequence(bar.constList, bar.writeableList)  # type: ignore[arg-type]
+
+    def testConstDeque(self) -> None:
+        bar = embedding.Bar()
+        assert bar.constDeque is not None
+        assert bar.writeableDeque is not None
+        self._testConstSequence(bar.constDeque, bar.writeableDeque)  # type: ignore[arg-type]
 
 
 class TestDocstrings(unittest.TestCase):
