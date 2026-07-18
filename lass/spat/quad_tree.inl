@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -184,13 +184,8 @@ QuadTree<O, OT, SH>::~QuadTree()
 template <typename O, typename OT, typename SH>
 QuadTree<O, OT, SH>& QuadTree<O, OT, SH>::operator=(TSelf&& other) noexcept
 {
-	SH::operator=(std::forward<TSelf>(other));
-	aabb_ = other.aabb_;
-	root_ = other.root_;
-	other.root_ = nullptr;
-	end_ = other.end_;
-	nodesAllocator_ = std::move(other.nodesAllocator_);
-	numObjects_ = other.numObjects_;
+	TSelf temp(std::move(other));
+	swap(temp);
 	return *this;
 }
 
