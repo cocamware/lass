@@ -194,7 +194,7 @@ OutputIterator AabbTree<O, OT, SH>::find(const TRay& ray, TParam tMin, TParam tM
 	{
 		return result;
 	}
-	const TVector& dir = ray.direction();
+	const TVector& dir = TObjectTraits::rayDirection(ray);
 	const TVector invDir = TObjectTraits::vectorReciprocal(dir);
 #if LASS_SPAT_AABB_TREE_STACK_SIZE
 	TIndex stack[LASS_SPAT_AABB_TREE_STACK_SIZE];
@@ -246,7 +246,7 @@ template <typename O, typename OT, typename SH>
 typename AabbTree<O, OT, SH>::TObjectIterator inline
 AabbTree<O, OT, SH>::intersect(const TRay& ray, TReference t, TParam tMin, const TInfo* info) const
 {
-	const TVector& dir = ray.direction();
+	const TVector& dir = TObjectTraits::rayDirection(ray);
 	const TVector invDir = TObjectTraits::vectorReciprocal(dir);
 	TValue tRoot;
 	if (isEmpty() || !volumeIntersect(nodes_.front().aabb(), ray, invDir, tRoot, tMin))
@@ -358,7 +358,7 @@ bool inline AabbTree<O, OT, SH>::intersects(const TRay& ray, TParam tMin, TParam
 	{
 		return false;
 	}
-	const TVector& dir = ray.direction();
+	const TVector& dir = TObjectTraits::rayDirection(ray);
 	const TVector invDir = TObjectTraits::vectorReciprocal(dir);
 #if LASS_SPAT_AABB_TREE_STACK_SIZE
 	TIndex stack[LASS_SPAT_AABB_TREE_STACK_SIZE];
