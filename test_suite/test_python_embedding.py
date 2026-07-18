@@ -257,13 +257,19 @@ class TestConstSequence(unittest.TestCase):
             seq *= 2  # type: ignore[assignment, operator]
 
     def testConstVector(self) -> None:
-        self._testConstSequence(embedding.Bar().constVector)
+        bar = embedding.Bar()
+        assert bar.constVector is not None
+        self._testConstSequence(bar.constVector)
 
     def testConstList(self) -> None:
-        self._testConstSequence(embedding.Bar().constList)
+        bar = embedding.Bar()
+        assert bar.constList is not None
+        self._testConstSequence(bar.constList)
 
     def testConstDeque(self) -> None:
-        self._testConstSequence(embedding.Bar().constDeque)
+        bar = embedding.Bar()
+        assert bar.constDeque is not None
+        self._testConstSequence(bar.constDeque)
 
 
 class TestWriteableSequence(unittest.TestCase):
