@@ -86,9 +86,7 @@ void lass_putenv(const std::string& name, const std::string& value)
 #ifdef LASS_UTIL_IMPL_HAVE_ENV_S
 	LASS_ENFORCE_CLIB_RC(_putenv_s(name.c_str(), value.c_str()));
 #else
-	std::stringstream buffer;
-	buffer << name << "=" << value;
-	LASS_ENFORCE_CLIB_RC(putenv(const_cast<char*>(buffer.str().c_str())));
+	LASS_ENFORCE_CLIB(setenv(name.c_str(), value.c_str(), 1));
 #endif
 }
 
