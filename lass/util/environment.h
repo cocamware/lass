@@ -84,12 +84,26 @@ struct Environment<std::string>
 
 }
 
+/** Get environment variable and cast it to type T
+ *
+ *  @param name environment variable name to be retrieved
+ *
+ *  @throw KeyError if environment variable doesn't exist
+ *  @throw BadStringCast if the value can't be cast to type T
+ */
 template <typename T>
 const T getEnvironment(const std::string& name)
 {	
 	return impl::Environment<typename CallTraits<T>::TValue>::get(name);
 }
 
+/** Put value in environment variable
+ *
+ *  @param name environment variable name to be stored
+ *  @param value environment variable value to be stored, will be cast to a string
+ *
+ *  @throw BadStringCast if the value can't be cast to std::string
+ */
 template <typename T>
 void putEnvironment(const std::string& name, const T& value)
 {

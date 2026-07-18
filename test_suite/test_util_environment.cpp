@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2026 the Initial Developer.
+ *	Copyright (C) 2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -40,60 +40,35 @@
  *	*** END LICENSE INFORMATION ***
  */
 
-#include "lass_common.h"
-#include "environment.h"
+#include "test_common.h"
+#include "../lass/util/environment.h"
 
-#if HAVE_CONFIG_H
-#	include "lass_auto_config.h"
-#endif
-#include <stdlib.h>
-
-#if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
-#	define LASS_UTIL_IMPL_HAVE_ENV_S
-#endif
-
-namespace lass
-{
-namespace util
-{
-namespace impl
+namespace lass::test
 {
 
-const std::string lass_getenv(const std::string& name)
+void testUtilEnvironment()
 {
-#ifdef LASS_UTIL_IMPL_HAVE_ENV_S
-	size_t size;
-	LASS_ENFORCE_CLIB_RC(getenv_s(&size, 0, 0, name.c_str()));
-	if (size == 0)
+	using namespace lass::util;
+
+    LASS_TEST_CHECK_THROW(getEnvironment<std::string>("LASS_SOME_ENV_VAR"), KeyError);
+    putEnvironment<std::string>("LASS_SOME_ENV_VAR", "spam");
+    LASS_TEST_CHECK_EQUAL(getEnvironment<std::string>("LASS_SOME_ENV_VAR"), "spam");
+    LASS_TEST_CHECK_THROW(getEnvironment<float>("LASS_SOME_ENV_VAR"), util::BadStringCast);
+	putEnvironment("LASS_SOME_ENV_VAR", 1.23f);
+	LASS_TEST_CHECK_EQUAL(getEnvironment<std::string>("LASS_SOME_ENV_VAR"), "1.23");
+	LASS_TEST_CHECK_EQUAL(getEnvironment<float>("LASS_SOME_ENV_VAR"), 1.23f);
+	putEnvironment<std::string>("LASS_SOME_ENV_VAR", "spam");
+}
+
+
+TUnitTest test_util_environment()
+{
+	return TUnitTest
 	{
-		LASS_THROW_EX(KeyError, "Could not find environment variable '" << name << "'.");
-	}
-	std::vector<char> buffer(size);
-	LASS_ENFORCE_CLIB_RC(getenv_s(&size, &buffer[0], size, name.c_str()));
-	return std::string(&buffer[0]);
-#else
-	const char* result = getenv(name.c_str());
-	if (!result)
-	{
-		LASS_THROW_EX(KeyError, "Could not find environment variable '" << name << "'.");
-	}
-	return std::string(result);
-#endif
+		LASS_TEST_CASE(testUtilEnvironment),
+	};
 }
 
-void lass_putenv(const std::string& name, const std::string& value)
-{
-#ifdef LASS_UTIL_IMPL_HAVE_ENV_S
-	LASS_ENFORCE_CLIB_RC(_putenv_s(name.c_str(), value.c_str()));
-#else
-	std::stringstream buffer;
-	buffer << name << "=" << value;
-	LASS_ENFORCE_CLIB_RC(putenv(const_cast<char*>(buffer.str().c_str())));
-#endif
-}
-
-}
-}
 }
 
 // EOF
