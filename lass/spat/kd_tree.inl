@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -156,7 +156,7 @@ KdTree<O, OT>::nearestNeighbour(const TPoint& target, TParam maxRadius) const
 		LASS_THROW("can't locate nearest neighbour in empty KdTree");
 	}
 
-	Neighbour best(*end_, maxRadius);
+	Neighbour best(*end_, num::sqr(maxRadius));
 #if 1
 	struct Visit
 	{
