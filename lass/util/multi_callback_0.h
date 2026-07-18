@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -129,7 +129,8 @@ struct MultiCallback0
 	 */
 	void remove( const TCallback& iCallback )
 	{
-		static_cast<void>(std::remove( callbacks_.begin(), callbacks_.end(), iCallback ));
+		auto end = std::remove( callbacks_.begin(), callbacks_.end(), iCallback );
+		callbacks_.erase( end, callbacks_.end() );
 	}
 
 	/** pop a callback from the list of callbacks 
