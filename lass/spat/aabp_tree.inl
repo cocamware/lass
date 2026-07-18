@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -104,6 +104,7 @@ AabpTree<O, OT, SH>::AabpTree(TObjectIterator first, TObjectIterator last, const
 template <typename O, typename OT, typename SH>
 AabpTree<O, OT, SH>::AabpTree(TSelf&& other) noexcept:
 	SH(std::forward< TSplitHeuristics>(other)),
+	aabb_(std::move(other.aabb_)),
 	objects_(std::move(other.objects_)),
 	nodes_(std::move(other.nodes_)),
 	end_(std::move(other.end_))
@@ -115,6 +116,7 @@ template <typename O, typename OT, typename SH>
 AabpTree<O, OT, SH>& AabpTree<O, OT, SH>::operator=(TSelf&& other) noexcept
 {
 	TSplitHeuristics::operator=(std::forward<TSplitHeuristics>(other));
+	aabb_ = std::move(other.aabb_);
 	objects_ = std::move(other.objects_);
 	nodes_ = std::move(other.nodes_);
 	end_ = std::move(other.end_);
