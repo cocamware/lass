@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -69,6 +69,20 @@ void testUtilException()
 	LASS_TEST_CHECK_THROW(LASS_THROW("this is a lass exception"), util::Exception);
 	LASS_TEST_CHECK_THROW(LASS_THROW("this is a lass exception"), std::exception);
 
+	LASS_TEST_CHECK_NO_THROW(
+		try
+		{
+			LASS_THROW_EX(util::KeyError, "this is a lass exception");
+		}
+		catch (util::Exception& lassException)
+		{
+			LASS_TEST_CHECK_EQUAL(lassException.message(), lassException.what());
+		}
+	);
+
+	LASS_TEST_CHECK_THROW(LASS_THROW_EX(util::KeyError, "this is a lass exception"), util::KeyError);
+	LASS_TEST_CHECK_THROW(LASS_THROW_EX(util::KeyError, "this is a lass exception"), util::Exception);
+	LASS_TEST_CHECK_THROW(LASS_THROW_EX(util::KeyError, "this is a lass exception"), std::exception);
 }
 
 
