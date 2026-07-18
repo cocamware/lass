@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -140,10 +140,10 @@ namespace test
 		util::SharedPtr< std::deque< double > > writeableDeque;
 		util::SharedPtr< stde::static_vector< double, 128 > > writeableStaticVector;
 
-		const std::map<std::string, std::string> constMap;
-		const std::vector< double > constVector;
-		const std::list< double > constList;
-		const std::deque< double > constDeque;
+		util::SharedPtr< const std::map<std::string, std::string> > constMap() const;
+		util::SharedPtr< const std::vector< double > > constVector() const;
+		util::SharedPtr< const std::list< double > > constList() const;
+		util::SharedPtr< const std::deque< double > > constDeque() const;
 
 		std::map<std::string, std::string> testConstMap(const std::map<std::string, std::string>&);
 

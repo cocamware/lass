@@ -169,6 +169,12 @@ class TestConstMap(unittest.TestCase):
 
     def testConstMap(self) -> None:
         bar = embedding.Bar()
+
+        # constMap is a const view of writableMap, load some data first
+        bar.writeableMap.clear()  # type: ignore[union-attr]
+        bar.writeableMap["spam"] = "spam spam spam"  # type: ignore[index]
+
+        assert bar.constMap is not None
         self._testConstMap(bar.constMap)
         bar.testConstMap(bar.constMap)
 

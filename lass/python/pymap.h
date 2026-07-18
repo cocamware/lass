@@ -184,7 +184,7 @@ namespace impl
 		template<typename Container> Map( const util::SharedPtr<const Container>& container ) 
 		{
 			TPimpl pimpl(new PyMapImpl<Container>(
-				LASS_ENFORCE_POINTER(container).template constCast<Container>(), true));
+				(LASS_ENFORCE_POINTER(container)).template constCast<Container>(), true));
 			init(std::move(pimpl));
 		}
 		template<typename Container> Map( const Container& container )

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -94,10 +94,10 @@ namespace lass
 		PY_CLASS_PUBLIC_MEMBER( Bar, writeableList );
 		PY_CLASS_PUBLIC_MEMBER( Bar, writeableDeque );
 		PY_CLASS_PUBLIC_MEMBER( Bar, writeableStaticVector );
-		PY_CLASS_PUBLIC_MEMBER_R( Bar, constMap );
-		PY_CLASS_PUBLIC_MEMBER_R( Bar, constVector );
-		PY_CLASS_PUBLIC_MEMBER_R( Bar, constList );
-		PY_CLASS_PUBLIC_MEMBER_R( Bar, constDeque );
+		PY_CLASS_MEMBER_R( Bar, constMap );
+		PY_CLASS_MEMBER_R( Bar, constVector );
+		PY_CLASS_MEMBER_R( Bar, constList );
+		PY_CLASS_MEMBER_R( Bar, constDeque );
 		PY_CLASS_METHOD( Bar, testConstMap );
 		PY_CLASS_STATIC_CONST( Bar, "CONST", 5 ); // a const value as class member
 		PY_CLASS_METHOD_NAME( Bar, operator==, python::methods::_eq_ );
@@ -164,18 +164,7 @@ namespace lass
 			return static_cast<int>(ia);
 		}
 
-		namespace impl
-		{
-			std::map<std::string, std::string> makeMap()
-			{
-				std::map<std::string, std::string> map;
-				map["spam"] = "spam spam spam";
-				return map;
-			}
-		}
-
-		Bar::Bar():
-			constMap(impl::makeMap())
+		Bar::Bar()
 		{
 			privateInt_ = 0;
 			privateString_ = "uninitialized string";
@@ -323,6 +312,23 @@ namespace lass
 		float& Bar::coolMember()
 		{
 			return coolMember_;
+		}
+
+		util::SharedPtr< const std::map<std::string, std::string> > Bar::constMap() const
+		{
+			return writeableMap;
+		}
+		util::SharedPtr< const std::vector< double > > Bar::constVector() const
+		{
+			return writeableVector;
+		}
+		util::SharedPtr< const std::list< double > > Bar::constList() const
+		{
+			return writeableList;
+		}
+		util::SharedPtr< const std::deque< double > > Bar::constDeque() const
+		{
+			return writeableDeque;
 		}
 
 		std::map<std::string, std::string> Bar::testConstMap(const std::map<std::string, std::string>& map)

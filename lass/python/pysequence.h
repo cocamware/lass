@@ -359,7 +359,7 @@ namespace impl
 		template<typename Container> Sequence( const util::SharedPtr<const Container>& container ) 
 		{
 			TPimpl pimpl(new PySequenceContainer<Container>(
-				LASS_ENFORCE_POINTER(container).template constCast<Container>(), true));
+				(LASS_ENFORCE_POINTER(container)).template constCast<Container>(), true));
 			init(std::move(pimpl));
 		}
 		template<typename Container> Sequence( const Container& container )
