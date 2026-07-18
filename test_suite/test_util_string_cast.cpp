@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -61,6 +61,8 @@ void testUtilStringCast()
 	LASS_TEST_CHECK_EQUAL(util::stringCast<int>(five), 5);
 	LASS_TEST_CHECK_EQUAL(util::stringCast<double>(five), 5.0);
 	LASS_TEST_CHECK_EQUAL(util::stringCast<std::string>(five), "5");
+
+	LASS_TEST_CHECK_THROW(util::stringCast<int>("spam"), util::BadStringCast);
 
 	void* p = reinterpret_cast<void*>(0x1a2b3c4d);
 	std::stringstream reference;

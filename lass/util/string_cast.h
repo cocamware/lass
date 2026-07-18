@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2023 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -107,6 +107,10 @@ private:
 
 }
 
+/** Cast value by converting it to and from a string.
+ *
+ *  @throw BadStringCast if value cannot be cast to or from string.
+ */
 template <typename Out, typename In>
 Out stringCast(const In& in)
 {
@@ -114,7 +118,7 @@ Out stringCast(const In& in)
 	Out out;
 	if (!caster.read(out))
 	{
-		LASS_THROW("Failed to cast");
+		LASS_THROW_EX(BadStringCast, "Failed to cast");
 	}
 	return out;
 }
