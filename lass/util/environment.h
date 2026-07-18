@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -53,47 +53,47 @@ namespace util
 namespace impl
 {
 
-LASS_DLL const std::string LASS_CALL lass_getenv(const std::string& iName);
-LASS_DLL void LASS_CALL lass_putenv(const std::string& iName, const std::string& iValue);
+LASS_DLL const std::string LASS_CALL lass_getenv(const std::string& name);
+LASS_DLL void LASS_CALL lass_putenv(const std::string& name, const std::string& value);
 
 template <typename T>
 struct Environment
 {
-	static const T get(const std::string& iName)
+	static const T get(const std::string& name)
 	{
-		return stringCast<T>(lass_getenv(iName));
+		return stringCast<T>(lass_getenv(name));
 	}
-	static void put(const std::string& iName, typename CallTraits<T>::TParam iValue)
+	static void put(const std::string& name, typename CallTraits<T>::TParam value)
 	{
-		lass_putenv(iName, stringCast<std::string>(iValue));
+		lass_putenv(name, stringCast<std::string>(value));
 	}
 };
 
 template <>
 struct Environment<std::string>
 {
-	static const std::string get(const std::string& iName)
+	static const std::string get(const std::string& name)
 	{
-		return lass_getenv(iName);
+		return lass_getenv(name);
 	}
-	static void put(const std::string& iName, const std::string& iValue)
+	static void put(const std::string& name, const std::string& value)
 	{
-		lass_putenv(iName, iValue);
+		lass_putenv(name, value);
 	}
 };
 
 }
 
 template <typename T>
-const T getEnvironment(const std::string& iName)
+const T getEnvironment(const std::string& name)
 {	
-	return impl::Environment<typename CallTraits<T>::TValue>::get(iName);
+	return impl::Environment<typename CallTraits<T>::TValue>::get(name);
 }
 
 template <typename T>
-void putEnvironment(const std::string& iName, const T& iValue)
+void putEnvironment(const std::string& name, const T& value)
 {
-	impl::Environment<typename CallTraits<T>::TValue>::put(iName, iValue);
+	impl::Environment<typename CallTraits<T>::TValue>::put(name, value);
 }
 
 }

@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2024 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -59,35 +59,35 @@ namespace util
 namespace impl
 {
 
-const std::string lass_getenv(const std::string& iName)
+const std::string lass_getenv(const std::string& name)
 {
 #ifdef LASS_UTIL_IMPL_HAVE_ENV_S
 	size_t size;
-	LASS_ENFORCE_CLIB_RC(getenv_s(&size, 0, 0, iName.c_str()));
+	LASS_ENFORCE_CLIB_RC(getenv_s(&size, 0, 0, name.c_str()));
 	if (size == 0)
 	{
-		LASS_THROW("Could not find environment variable '" << iName << "'.");
+		LASS_THROW("Could not find environment variable '" << name << "'.");
 	}
 	std::vector<char> buffer(size);
-	LASS_ENFORCE_CLIB_RC(getenv_s(&size, &buffer[0], size, iName.c_str()));
+	LASS_ENFORCE_CLIB_RC(getenv_s(&size, &buffer[0], size, name.c_str()));
 	return std::string(&buffer[0]);
 #else
-	const char* result = getenv(iName.c_str());
+	const char* result = getenv(name.c_str());
 	if (!result)
 	{
-		LASS_THROW("Could not find environment variable '" << iName << "'.");
+		LASS_THROW("Could not find environment variable '" << name << "'.");
 	}
 	return std::string(result);
 #endif
 }
 
-void lass_putenv(const std::string& iName, const std::string& iValue)
+void lass_putenv(const std::string& name, const std::string& value)
 {
 #ifdef LASS_UTIL_IMPL_HAVE_ENV_S
-	LASS_ENFORCE_CLIB_RC(_putenv_s(iName.c_str(), iValue.c_str()));
+	LASS_ENFORCE_CLIB_RC(_putenv_s(name.c_str(), value.c_str()));
 #else
 	std::stringstream buffer;
-	buffer << iName << "=" << iValue;
+	buffer << name << "=" << value;
 	LASS_ENFORCE_CLIB_RC(putenv(const_cast<char*>(buffer.str().c_str())));
 #endif
 }
