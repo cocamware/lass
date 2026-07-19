@@ -234,60 +234,6 @@ private:
 };
 
 
-template 
-<
-	typename ShadowType,
-	typename ConcreteTraits
->
-struct ShadowTraitsContainer
-{
-	typedef typename PyObjectPtr<ShadowType>::Type TPyClassPtr;
-	typedef ShadowType TCppClass;
-	typedef TPyClassPtr TCppClassPtr;
-	typedef typename PyObjectPtr<const ShadowType>::Type TConstCppClassPtr;
-
-	template <typename Container> static int getObject(PyObject* obj, util::SharedPtr<Container>& container)
-	{
-		typedef typename meta::TypeTraits<Container>::TNonConst TNonConstContainer;
-		util::SharedPtr<TNonConstContainer> temp;
-		if (ConcreteTraits::getObjectImpl(obj, temp, false) != 0)
-		{
-			return 1;
-		}
-		container = temp.template constCast<Container>();
-		return 0;
-	}
-	template <typename Container> static int getObject(PyObject* obj, Container& container)
-	{
-		util::SharedPtr<Container> temp;
-		if (ConcreteTraits::getObjectImpl(obj, temp, false) != 0)
-		{
-			return 1;
-		}
-		container = *temp;
-		return 0;
-	}
-	static int getObject(PyObject* obj, TPyClassPtr& shadow)
-	{
-		shadow = fromNakedToSharedPtrCast<ShadowType>(obj);
-		return 0;
-	}
-	static int getObject(PyObject* obj, TConstCppClassPtr& shadow)
-	{
-		shadow = fromNakedToSharedPtrCast<const ShadowType>(obj);
-		return 0;
-	}
-
-	template <typename T> static TPyClassPtr buildObject(const T& value)
-	{
-		return TPyClassPtr(new ShadowType(value));
-	}
-	static TPyClassPtr buildObject(const TPyClassPtr& shadow)
-	{
-		return shadow;
-	}
-};
-
 }
 }
 }
