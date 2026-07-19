@@ -401,85 +401,187 @@ namespace impl
 
 		TPimpl pimpl_;
 	};
-
-	template <>
-	struct ShadowTraits<Sequence>: public ShadowTraitsContainer< Sequence, ShadowTraits<Sequence> >
-	{
-		template <typename Container> static int getObjectImpl(PyObject* obj, util::SharedPtr<Container>& value, bool writable)
-		{
-			if (!PySequence_Check(obj))
-			{
-				PyErr_SetString(PyExc_TypeError, "not a sequence");
-				return 1;
-			}
-
-			// check if we have our own Sequence object, then take a shortcut
-			if (obj->ob_type == Sequence::_lassPyClassDef.type())
-			{
-				const Sequence* const sequence = static_cast<Sequence*>(obj);
-				void* const raw = sequence->raw(writable);
-				if (raw && typeid(value) == sequence->type())
-				{
-					value = *static_cast< util::SharedPtr<Container>* >(raw);
-					return 0;
-				}
-			}
-
-			const util::SharedPtr<Container> result(new Container);
-			const Py_ssize_t size = PySequence_Length(obj);
-			ContainerTraits<Container>::reserve(*result, size);
-			typedef ArgumentTraits<typename Container::value_type> TArgTraits;
-			for (Py_ssize_t i = 0; i < size; ++i)
-			{
-				typename TArgTraits::TStorage temp;
-				TPyObjPtr item( PySequence_ITEM(obj, i) );
-				if (pyGetSimpleObject( item.get() , temp ) != 0)
-				{
-					std::ostringstream buffer;
-					buffer << "sequence element " << i;
-					impl::addMessageHeader(buffer.str().c_str());
-					return 1;
-				}
-				result->emplace_back(TArgTraits::arg(temp));
-			}
-			value = std::move(result);
-			return 0;
-		}
-	};
 }
 
-template <typename ContainerType>
-struct ShadoweeTraitsSequence: meta::True
+template <typename Container>
+struct PyExportTraitsSequence
 {
-	typedef impl::Sequence TShadow;
-	typedef impl::ShadowTraits<impl::Sequence> TShadowTraits;
-	typedef SharedPointerTraits<ContainerType> TPointerTraits;
+	static constexpr const char* py_typing = "list[T]";
+	static constexpr const char* py_typing_param = "Sequence[T]";
+
+	static PyObject* build(const Container& value)
+	{
+		const Py_ssize_t size = value.size();
+		if (size < 0)
+		{
+			PyErr_SetString(PyExc_ValueError, "too long");
+			return nullptr;
+		}
+		TPyObjPtr obj(PyList_New(size));
+		Py_ssize_t i = 0;
+		for (const auto& v: value)
+		{
+			PyObject* o = pyBuildSimpleObject(v);
+			if (!o)
+			{
+				return nullptr;
+			}
+			PyList_SET_ITEM(obj.get(), i++, o);
+		}
+		return fromSharedPtrToNakedCast(obj);
+	}
+	static int get(PyObject* obj, Container& value)
+	{
+		if (!PySequence_Check(obj))
+		{
+			PyErr_SetString(PyExc_TypeError, "not a sequence");
+			return 1;
+		}
+		const Py_ssize_t size = PySequence_Length(obj);
+		if (size < 0)
+		{
+			return 1;
+		}
+		Container val;
+		using TContainerTraits = impl::ContainerTraits<Container>;
+		TContainerTraits::reserve(val, size);
+		using TArgTraits = ArgumentTraits<typename Container::value_type>;
+		typename TArgTraits::TStorage v;
+		for (Py_ssize_t i = 0; i < size; ++i)
+		{
+			TPyObjPtr o( PySequence_GetItem(obj, i) );
+			if (pyGetSimpleObject( o.get() , v ) != 0)
+			{
+				std::ostringstream buffer;
+				buffer << "sequence element " << i;
+				impl::addMessageHeader(buffer.str().c_str());
+				return 1;
+			}
+			val.push_back(TArgTraits::arg(v));
+		}
+		value = std::move(val);
+		return 0;
+	}
 };
 
-/**	@ingroup Python
- *	@internal
+template <typename Container>
+struct PyExportTraitsSharedSequence
+{
+	static constexpr const char* py_typing = "Sequence[T]";
+
+	static PyObject* build(const util::SharedPtr<Container>& value)
+	{
+		return new impl::Sequence(value);
+	}
+	static int get(PyObject* obj, util::SharedPtr<Container>& value)
+	{
+		using TMutableContainer = std::remove_cv_t<Container>;
+		using TMutablePtr = util::SharedPtr<TMutableContainer>;
+
+		// check if we have our own Sequence object, then take a shortcut
+		if (obj->ob_type == impl::Sequence::_lassPyClassDef.type())
+		{
+			const impl::Sequence* const sequence = static_cast<impl::Sequence*>(obj);
+			void* const raw = sequence->raw(false);
+			if (raw && typeid(TMutablePtr) == sequence->type())
+			{
+				value = *static_cast<TMutablePtr*>(raw);
+				return 0;
+			}
+		}
+
+		TMutablePtr result(new TMutableContainer);
+		if (PyExportTraitsSequence<TMutableContainer>::get(obj, *result) != 0)
+		{
+			return 1;
+		}
+		value = std::move(result);
+		return 0;
+	}
+};
+
+
+
+// --- std::vector -------------------------------------------------------------
+
+/** Maps a std::vector to a Python list by copy
+ * 
+ *  Any Python Sequence with convertible elements can be copied to an std::vector
+ * 
+ *  @ingroup PyExportTraits
  */
-template< typename C, typename A>
-struct ShadoweeTraits< std::vector< C, A > >:
-	public ShadoweeTraitsSequence< std::vector< C, A > >
+template <typename T, typename A>
+struct PyExportTraits<std::vector<T, A>>:
+	public PyExportTraitsSequence<std::vector<T, A>>
 {
 };
 
-/**	@ingroup Python
- *	@internal
+/** Wraps a shared std::vector in an impl::Sequence object with shared ownership
+ * 
+ *  The vector can be modified in-place from Python and C++
+ * 
+ *  @ingroup PyExportTraits
  */
-template< typename C, typename A>
-struct ShadoweeTraits< std::list< C, A > >:
-	public ShadoweeTraitsSequence< std::list< C, A > >
+template <typename T, typename A>
+struct PyExportTraits<util::SharedPtr<std::vector<T, A>>>:
+	public PyExportTraitsSharedSequence<std::vector<T, A>>
 {
 };
 
-/**	@ingroup Python
- *	@internal
+/** Wraps a shared read-only std::vector in an impl::Sequence object with shared ownership
+ * 
+ *  The vector cannot be modified from Python
+ * 
+ *  @ingroup PyExportTraits
  */
-template< typename C, typename A>
-struct ShadoweeTraits< std::deque< C, A > >:
-	public ShadoweeTraitsSequence< std::deque< C, A > >
+template <typename T, typename A>
+struct PyExportTraits<util::SharedPtr<const std::vector<T, A>>>:
+	public PyExportTraitsSharedSequence<const std::vector<T, A>>
+{
+};
+
+
+
+// --- std::list ---------------------------------------------------------------
+
+template <typename T, typename A>
+struct PyExportTraits<std::list<T, A>> :
+	public PyExportTraitsSequence<std::list<T, A>>
+{
+};
+
+template <typename T, typename A>
+struct PyExportTraits<util::SharedPtr<std::list<T, A>>> :
+	public PyExportTraitsSharedSequence<std::list<T, A>>
+{
+};
+
+template <typename T, typename A>
+struct PyExportTraits<util::SharedPtr<const std::list<T, A>>> :
+	public PyExportTraitsSharedSequence<const std::list<T, A>>
+{
+};
+
+
+
+
+// --- std::deque --------------------------------------------------------------
+
+template <typename T, typename A>
+struct PyExportTraits<std::deque<T, A>> :
+	public PyExportTraitsSequence<std::deque<T, A>>
+{
+};
+
+template <typename T, typename A>
+struct PyExportTraits<util::SharedPtr<std::deque<T, A>>> :
+	public PyExportTraitsSharedSequence<std::deque<T, A>>
+{
+};
+
+template <typename T, typename A>
+struct PyExportTraits<util::SharedPtr<const std::deque<T, A>>> :
+	public PyExportTraitsSharedSequence<const std::deque<T, A>>
 {
 };
 
@@ -488,20 +590,33 @@ struct ShadoweeTraits< std::deque< C, A > >:
 
 #endif
 
+// --- stde::static_vector -----------------------------------------------------
+
 #ifdef LASS_GUARDIAN_OF_INCLUSION_STDE_STATIC_VECTOR_H
 
 namespace lass
 {
 namespace python
 {
-/**	@ingroup Python
- *	@internal
- */
-template< typename C, size_t maxsize>
-struct ShadoweeTraits< stde::static_vector< C, maxsize > >:
-	public ShadoweeTraitsSequence< stde::static_vector< C, maxsize > >
+
+template <typename T, size_t maxsize>
+struct PyExportTraits<stde::static_vector<T, maxsize >> :
+	public PyExportTraitsSequence<stde::static_vector<T, maxsize >>
 {
 };
+
+template <typename T, size_t maxsize>
+struct PyExportTraits<util::SharedPtr<stde::static_vector<T, maxsize >>> :
+	public PyExportTraitsSharedSequence<stde::static_vector<T, maxsize >>
+{
+};
+
+template <typename T, size_t maxsize>
+struct PyExportTraits<util::SharedPtr<const stde::static_vector<T, maxsize >>> :
+	public PyExportTraitsSharedSequence<const stde::static_vector<T, maxsize >>
+{
+};
+
 }
 }
 

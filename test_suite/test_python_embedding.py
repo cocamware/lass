@@ -1564,19 +1564,20 @@ class TestTypes(unittest.TestCase):
 
     def _testSequence(
         self,
-        testContainer: Callable[[Sequence[str]], Sequence[str]],
+        testContainer: Callable[[Sequence[str]], list[str]],
         testSharedContainer: Callable[[Sequence[str]], Sequence[str]],
         testSharedConstContainer: Callable[[Sequence[str]], Sequence[str]],
     ) -> None:
-        # the result of testContainer is a read-only _lass.Sequence
+        # the result of testContainer is a regular list
         s = testContainer(["abc", "def"])
-        self.assertIsInstance(s, _lass.Sequence)
-        self.assertSequenceEqual(list(testContainer(s)), ["abc", "def"])
-        with self.assertRaises(TypeError):
-            s.append("ghi")  # type: ignore[attr-defined]
-        self.assertListEqual(list(testContainer(["abc", "def"])), ["abc", "def"])
-        self.assertListEqual(list(testContainer(("abc", "def"))), ["abc", "def"])
-        self.assertListEqual(list(testContainer([])), [])
+        self.assertIsInstance(s, list)
+        self.assertSequenceEqual(s, ["abc", "def"])
+        self.assertSequenceEqual(testContainer(s), ["abc", "def"])
+        s.append("ghi")
+        self.assertSequenceEqual(s, ["abc", "def", "ghi"])
+        self.assertListEqual(testContainer(["abc", "def"]), ["abc", "def"])
+        self.assertListEqual(testContainer(("abc", "def")), ["abc", "def"])
+        self.assertListEqual(testContainer([]), [])
         with self.assertRaises(TypeError):
             testContainer([1, 2])  # type: ignore[list-item]
 
@@ -1593,6 +1594,7 @@ class TestTypes(unittest.TestCase):
         self.assertListEqual(list(rw2), ["abc", "def", "ghi", "jkl"])
         # you get a copy
         s2 = testContainer(rw)
+        self.assertIsInstance(s2, list)
         rw.append("mno")  # type: ignore[attr-defined]
         self.assertListEqual(list(s2), ["abc", "def", "ghi", "jkl"])
 
@@ -1648,19 +1650,17 @@ class TestTypes(unittest.TestCase):
 
     def _testMap(
         self,
-        testContainer: Callable[[Mapping[str, int]], Mapping[str, int]],
+        testContainer: Callable[[Mapping[str, int]], dict[str, int]],
         testSharedContainer: Callable[[Mapping[str, int]], Mapping[str, int]],
         testSharedConstContainer: Callable[[Mapping[str, int]], Mapping[str, int]],
     ) -> None:
-        # the result of testContainer is a read-only _lass.Map
+        # the result of testContainer is a regular dict
         s = testContainer({"abc": 1, "def": 2})
-        self.assertIsInstance(s, _lass.Map)
-        self.assertDictEqual(dict(testContainer(s)), {"abc": 1, "def": 2})
-        with self.assertRaises(TypeError):
-            s["ghi"] = 3  # type: ignore[index]
-        self.assertDictEqual(
-            dict(testContainer({"abc": 1, "def": 2})), {"abc": 1, "def": 2}
-        )
+        self.assertIsInstance(s, dict)
+        self.assertDictEqual(s, {"abc": 1, "def": 2})
+        self.assertDictEqual(testContainer(s), {"abc": 1, "def": 2})
+        s["ghi"] = 3
+        self.assertDictEqual(s, {"abc": 1, "def": 2, "ghi": 3})
         self.assertDictEqual(dict(testContainer({})), {})
         with self.assertRaises(TypeError):
             testContainer({1: "abc", 2: "def"})  # type: ignore[dict-item]
@@ -1678,8 +1678,9 @@ class TestTypes(unittest.TestCase):
         self.assertDictEqual(dict(rw2), {"abc": 1, "def": 2, "ghi": 3, "jkl": 4})
         # you get a copy
         s2 = testContainer(rw)
+        self.assertIsInstance(s2, dict)
         rw["mno"] = 5  # type: ignore[index]
-        self.assertDictEqual(dict(s2), {"abc": 1, "def": 2, "ghi": 3, "jkl": 4})
+        self.assertDictEqual(s2, {"abc": 1, "def": 2, "ghi": 3, "jkl": 4})
 
         # return read-only _lass.Map
         rw = testSharedContainer({"abc": 1, "def": 2})
