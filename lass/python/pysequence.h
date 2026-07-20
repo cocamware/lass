@@ -522,6 +522,22 @@ struct PyExportTraitsSharedSequence
 
 
 
+
+template <typename Container>
+struct PyExportTraitsUniqueSequence
+{
+	static constexpr const char* py_typing = "Sequence[T]";
+
+	using TSharedPtr = util::SharedPtr<Container>;
+
+	static PyObject* build(std::unique_ptr<Container>&& value)
+	{
+		return new impl::Sequence(TSharedPtr(std::move(value)));
+	}
+};
+
+
+
 // --- std::vector -------------------------------------------------------------
 
 /** Maps a std::vector to a Python list by copy
@@ -557,6 +573,18 @@ struct PyExportTraits<util::SharedPtr<std::vector<T, A>>>:
 template <typename T, typename A>
 struct PyExportTraits<util::SharedPtr<const std::vector<T, A>>>:
 	public PyExportTraitsSharedSequence<const std::vector<T, A>>
+{
+};
+
+template <typename T, typename A>
+struct PyExportTraits<std::unique_ptr<std::vector<T, A>>>:
+	public PyExportTraitsUniqueSequence<std::vector<T, A>>
+{
+};
+
+template <typename T, typename A>
+struct PyExportTraits<std::unique_ptr<const std::vector<T, A>>>:
+	public PyExportTraitsUniqueSequence<const std::vector<T, A>>
 {
 };
 
