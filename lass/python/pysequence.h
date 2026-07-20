@@ -482,10 +482,16 @@ struct PyExportTraitsSharedSequence
 		if (obj->ob_type == impl::Sequence::_lassPyClassDef.type())
 		{
 			const impl::Sequence* const sequence = static_cast<impl::Sequence*>(obj);
-			void* const raw = sequence->raw(false);
-			if (raw && typeid(TMutablePtr) == sequence->type())
+			constexpr bool writable = !std::is_const_v<Container>;
+			void* const raw = sequence->raw(writable);
+			if (!raw)
 			{
-				value = *static_cast<TMutablePtr*>(raw);
+				PyErr_SetString(PyExc_TypeError, "Container is read-only");
+				return 1;
+			}
+			if (typeid(TMutablePtr) == sequence->type())
+			{
+				value = *static_cast< TMutablePtr* >(raw);
 				return 0;
 			}
 		}

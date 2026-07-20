@@ -313,10 +313,16 @@ struct PyExportTraitsSharedMap
 		if (obj->ob_type == impl::Map::_lassPyClassDef.type())
 		{
 			const impl::Map* const map = static_cast<impl::Map*>(obj);
-			void* const raw = map->raw(false);
-			if (raw && typeid(TMutablePtr) == map->type())
+			constexpr bool writable = !std::is_const_v<Container>;
+			void* const raw = map->raw(writable);
+			if (!raw)
 			{
-				value = *static_cast<TMutablePtr*>(raw);
+				PyErr_SetString(PyExc_TypeError, "Container is read-only");
+				return 1;
+			}
+			if (typeid(TMutablePtr) == map->type())
+			{
+				value = *static_cast< TMutablePtr* >(raw);
 				return 0;
 			}
 		}

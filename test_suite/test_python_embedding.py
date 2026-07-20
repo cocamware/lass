@@ -1611,11 +1611,9 @@ class TestTypes(unittest.TestCase):
         self.assertListEqual(list(ro), ["abc", "def", "ghi"])
         self.assertListEqual(list(ro2), ["abc", "def", "ghi"])
 
-        # hmmm, this should not be possible ...
-        rw3 = testSharedContainer(ro)
-        rw3.append("jkl")  # type: ignore[attr-defined]
-        self.assertListEqual(list(rw3), ["abc", "def", "ghi", "jkl"])
-        self.assertListEqual(list(ro), ["abc", "def", "ghi", "jkl"])
+        with self.assertRaises(TypeError):
+            # can't make read write alias from a read-only one
+            testSharedContainer(ro)
 
         # hmmm, should this be possible?
         self.assertListEqual(list(testContainer("abc")), ["a", "b", "c"])
@@ -1695,11 +1693,9 @@ class TestTypes(unittest.TestCase):
         self.assertDictEqual(dict(ro), {"abc": 1, "def": 2, "ghi": 3})
         self.assertDictEqual(dict(ro2), {"abc": 1, "def": 2, "ghi": 3})
 
-        # hmmm, this should not be possible ...
-        rw3 = testSharedContainer(ro)
-        rw3["jkl"] = 4  # type: ignore[index]
-        self.assertDictEqual(dict(rw3), {"abc": 1, "def": 2, "ghi": 3, "jkl": 4})
-        self.assertDictEqual(dict(ro), {"abc": 1, "def": 2, "ghi": 3, "jkl": 4})
+        with self.assertRaises(TypeError):
+            # can't make read write alias from a read-only one
+            testSharedContainer(ro)
 
     def testStdMap(self) -> None:
         self._testMap(
