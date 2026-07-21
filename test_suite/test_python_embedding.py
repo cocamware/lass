@@ -171,7 +171,8 @@ class TestConstMap(unittest.TestCase):
         bar = embedding.Bar()
 
         # constMap is a const view of writableMap, load some data first
-        bar.writeableMap.clear()  # type: ignore[union-attr]
+        assert bar.writeableMap is not None
+        bar.writeableMap.clear()  # type: ignore[attr-defined]
         bar.writeableMap["spam"] = "spam spam spam"  # type: ignore[index]
 
         assert bar.constMap is not None
@@ -1561,6 +1562,158 @@ class TestTypes(unittest.TestCase):
         with self.assertRaises(TypeError):
             embedding.testVariant(3.14)  # type: ignore[arg-type]
 
+    def _testSequence(
+        self,
+        testContainer: Callable[[Sequence[str]], Sequence[str]],
+        testSharedContainer: Callable[[Sequence[str]], Sequence[str]],
+        testSharedConstContainer: Callable[[Sequence[str]], Sequence[str]],
+    ) -> None:
+        # the result of testContainer is a read-only _lass.Sequence
+        s = testContainer(["abc", "def"])
+        self.assertIsInstance(s, _lass.Sequence)
+        self.assertSequenceEqual(list(testContainer(s)), ["abc", "def"])
+        with self.assertRaises(TypeError):
+            s.append("ghi")  # type: ignore[attr-defined]
+        self.assertListEqual(list(testContainer(["abc", "def"])), ["abc", "def"])
+        self.assertListEqual(list(testContainer(("abc", "def"))), ["abc", "def"])
+        self.assertListEqual(list(testContainer([])), [])
+        with self.assertRaises(TypeError):
+            testContainer([1, 2])  # type: ignore[list-item]
+
+        # return read-write _lass.Sequence
+        rw = testSharedContainer(["abc", "def"])
+        self.assertIsInstance(rw, _lass.Sequence)
+        self.assertListEqual(list(rw), ["abc", "def"])
+        rw2 = testSharedContainer(rw)
+        self.assertListEqual(list(rw2), ["abc", "def"])
+        # both share the same list, so we must be able to update from either side.
+        rw.append("ghi")  # type: ignore[attr-defined]
+        rw2.append("jkl")  # type: ignore[attr-defined]
+        self.assertListEqual(list(rw), ["abc", "def", "ghi", "jkl"])
+        self.assertListEqual(list(rw2), ["abc", "def", "ghi", "jkl"])
+        # you get a copy
+        s2 = testContainer(rw)
+        rw.append("mno")  # type: ignore[attr-defined]
+        self.assertListEqual(list(s2), ["abc", "def", "ghi", "jkl"])
+
+        # return read-only _lass.Sequence
+        rw[:] = ["abc", "def"]  # type: ignore[index]
+        ro = testSharedConstContainer(rw)
+        self.assertIsInstance(ro, _lass.Sequence)
+        self.assertListEqual(list(ro), ["abc", "def"])
+        with self.assertRaises(TypeError):
+            ro.append("ghi")  # type: ignore[attr-defined]
+        ro2 = testSharedConstContainer(ro)
+        # but the vector is shared with the original
+        rw.append("ghi")  # type: ignore[attr-defined]
+        self.assertListEqual(list(ro), ["abc", "def", "ghi"])
+        self.assertListEqual(list(ro2), ["abc", "def", "ghi"])
+
+        # hmmm, this should not be possible ...
+        rw3 = testSharedContainer(ro)
+        rw3.append("jkl")  # type: ignore[attr-defined]
+        self.assertListEqual(list(rw3), ["abc", "def", "ghi", "jkl"])
+        self.assertListEqual(list(ro), ["abc", "def", "ghi", "jkl"])
+
+        # hmmm, should this be possible?
+        self.assertListEqual(list(testContainer("abc")), ["a", "b", "c"])
+
+    def testStdVector(self) -> None:
+        self._testSequence(
+            embedding.testStdVector,
+            embedding.testSharedStdVector,
+            embedding.testSharedConstStdVector,
+        )
+
+    def testStdList(self) -> None:
+        self._testSequence(
+            embedding.testStdList,
+            embedding.testSharedStdList,
+            embedding.testSharedConstStdList,
+        )
+
+    def testStdDeque(self) -> None:
+        self._testSequence(
+            embedding.testStdDeque,
+            embedding.testSharedStdDeque,
+            embedding.testSharedConstStdDeque,
+        )
+
+    def testStaticVector(self) -> None:
+        self._testSequence(
+            embedding.testStaticVector,
+            embedding.testSharedStaticVector,
+            embedding.testSharedConstStaticVector,
+        )
+
+    def _testMap(
+        self,
+        testContainer: Callable[[Mapping[str, int]], Mapping[str, int]],
+        testSharedContainer: Callable[[Mapping[str, int]], Mapping[str, int]],
+        testSharedConstContainer: Callable[[Mapping[str, int]], Mapping[str, int]],
+    ) -> None:
+        # the result of testContainer is a read-only _lass.Map
+        s = testContainer({"abc": 1, "def": 2})
+        self.assertIsInstance(s, _lass.Map)
+        self.assertDictEqual(dict(testContainer(s)), {"abc": 1, "def": 2})
+        with self.assertRaises(TypeError):
+            s["ghi"] = 3  # type: ignore[index]
+        self.assertDictEqual(
+            dict(testContainer({"abc": 1, "def": 2})), {"abc": 1, "def": 2}
+        )
+        self.assertDictEqual(dict(testContainer({})), {})
+        with self.assertRaises(TypeError):
+            testContainer({1: "abc", 2: "def"})  # type: ignore[dict-item]
+
+        # return read-write _lass.Map
+        rw = testSharedContainer({"abc": 1, "def": 2})
+        self.assertIsInstance(rw, _lass.Map)
+        self.assertDictEqual(dict(rw), {"abc": 1, "def": 2})
+        rw2 = testSharedContainer(rw)
+        self.assertDictEqual(dict(rw2), {"abc": 1, "def": 2})
+        # both share the same dict, so we must be able to update from either side.
+        rw["ghi"] = 3  # type: ignore[index]
+        rw2["jkl"] = 4  # type: ignore[index]
+        self.assertDictEqual(dict(rw), {"abc": 1, "def": 2, "ghi": 3, "jkl": 4})
+        self.assertDictEqual(dict(rw2), {"abc": 1, "def": 2, "ghi": 3, "jkl": 4})
+        # you get a copy
+        s2 = testContainer(rw)
+        rw["mno"] = 5  # type: ignore[index]
+        self.assertDictEqual(dict(s2), {"abc": 1, "def": 2, "ghi": 3, "jkl": 4})
+
+        # return read-only _lass.Map
+        rw = testSharedContainer({"abc": 1, "def": 2})
+        ro = testSharedConstContainer(rw)
+        self.assertIsInstance(ro, _lass.Map)
+        self.assertDictEqual(dict(ro), {"abc": 1, "def": 2})
+        with self.assertRaises(TypeError):
+            ro["ghi"] = 3  # type: ignore[index]
+        ro2 = testSharedConstContainer(ro)
+        # but the vector is shared with the original
+        rw["ghi"] = 3  # type: ignore[index]
+        self.assertDictEqual(dict(ro), {"abc": 1, "def": 2, "ghi": 3})
+        self.assertDictEqual(dict(ro2), {"abc": 1, "def": 2, "ghi": 3})
+
+        # hmmm, this should not be possible ...
+        rw3 = testSharedContainer(ro)
+        rw3["jkl"] = 4  # type: ignore[index]
+        self.assertDictEqual(dict(rw3), {"abc": 1, "def": 2, "ghi": 3, "jkl": 4})
+        self.assertDictEqual(dict(ro), {"abc": 1, "def": 2, "ghi": 3, "jkl": 4})
+
+    def testStdMap(self) -> None:
+        self._testMap(
+            embedding.testStdMap,
+            embedding.testSharedStdMap,
+            embedding.testSharedConstStdMap,
+        )
+
+    def testVectorMap(self) -> None:
+        self._testMap(
+            embedding.testVectorMap,
+            embedding.testSharedVectorMap,
+            embedding.testSharedConstVectorMap,
+        )
+
 
 class TestBar(unittest.TestCase):
     def testMapProtocol(self) -> None:
@@ -1902,7 +2055,6 @@ class TestRawPointer(unittest.TestCase):
         x = [1, 2, 3]
         y = embedding.testRawPyObject(x)
         self.assertIs(y, x)
-
 
 
 class TestPyObjectPtr(unittest.TestCase):
