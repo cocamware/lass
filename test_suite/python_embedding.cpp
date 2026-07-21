@@ -838,6 +838,86 @@ std::pair<python::Slice, int> testSlice(python::Slice slice, int sequenceLength)
 	return std::make_pair(slice, sliceLength);
 }
 
+
+std::vector<std::string> testStdVector(const std::vector<std::string>& v)
+{
+	return v;
+}
+python::NoNone<util::SharedPtr<std::vector<std::string>>> testSharedStdVector(const python::NoNone<util::SharedPtr<std::vector<std::string>>>& v)
+{
+	return v;
+}
+python::NoNone<util::SharedPtr<const std::vector<std::string>>> testSharedConstStdVector(const python::NoNone<util::SharedPtr<const std::vector<std::string>>>& v)
+{
+	return v;
+}
+
+std::list<std::string> testStdList(const std::list<std::string>& v)
+{
+	return v;
+}
+python::NoNone<util::SharedPtr<std::list<std::string>>> testSharedStdList(const python::NoNone<util::SharedPtr<std::list<std::string>>>& v)
+{
+	return v;
+}
+python::NoNone<util::SharedPtr<const std::list<std::string>>> testSharedConstStdList(const python::NoNone<util::SharedPtr<const std::list<std::string>>>& v)
+{
+	return v;
+}
+
+std::deque<std::string> testStdDeque(const std::deque<std::string>& v)
+{
+	return v;
+}
+python::NoNone<util::SharedPtr<std::deque<std::string>>> testSharedStdDeque(const python::NoNone<util::SharedPtr<std::deque<std::string>>>& v)
+{
+	return v;
+}
+python::NoNone<util::SharedPtr<const std::deque<std::string>>> testSharedConstStdDeque(const python::NoNone<util::SharedPtr<const std::deque<std::string>>>& v)
+{
+	return v;
+}
+
+stde::static_vector<std::string, 32> testStaticVector(const stde::static_vector<std::string, 32>& v)
+{
+	return v;
+}
+python::NoNone<util::SharedPtr<stde::static_vector<std::string, 32>>> testSharedStaticVector(const python::NoNone<util::SharedPtr<stde::static_vector<std::string, 32>>>& v)
+{
+	return v;
+}
+python::NoNone<util::SharedPtr<const stde::static_vector<std::string, 32>>> testSharedConstStaticVector(const python::NoNone<util::SharedPtr<const stde::static_vector<std::string, 32>>>& v)
+{
+	return v;
+}
+
+std::map<std::string, int> testStdMap(const std::map<std::string, int>& v)
+{
+	return v;
+}
+python::NoNone<util::SharedPtr<std::map<std::string, int>>> testSharedStdMap(const python::NoNone<util::SharedPtr<std::map<std::string, int>>>& v)
+{
+	return v;
+}
+python::NoNone<util::SharedPtr<const std::map<std::string, int>>> testSharedConstStdMap(const python::NoNone<util::SharedPtr<const std::map<std::string, int>>>& v)
+{
+	return v;
+}
+
+stde::vector_map<std::string, int> testVectorMap(const stde::vector_map<std::string, int>& v)
+{
+	return v;
+}
+python::NoNone<util::SharedPtr<stde::vector_map<std::string, int>>> testSharedVectorMap(const python::NoNone<util::SharedPtr<stde::vector_map<std::string, int>>>& v)
+{
+	return v;
+}
+python::NoNone<util::SharedPtr<const stde::vector_map<std::string, int>>> testSharedConstVectorMap(const python::NoNone<util::SharedPtr<const stde::vector_map<std::string, int>>>& v)
+{
+	return v;
+}
+
+
 }
 }
 
@@ -941,6 +1021,25 @@ PY_MODULE_FUNCTION(embedding, isNoneRaw)
 PY_MODULE_FUNCTION(embedding, isNoneShared)
 
 PY_MODULE_FUNCTION(embedding, testSlice)
+
+PY_MODULE_FUNCTION(embedding, testStdVector)
+PY_MODULE_FUNCTION(embedding, testSharedStdVector)
+PY_MODULE_FUNCTION(embedding, testSharedConstStdVector)
+PY_MODULE_FUNCTION(embedding, testStdList)
+PY_MODULE_FUNCTION(embedding, testSharedStdList)
+PY_MODULE_FUNCTION(embedding, testSharedConstStdList)
+PY_MODULE_FUNCTION(embedding, testStdDeque)
+PY_MODULE_FUNCTION(embedding, testSharedStdDeque)
+PY_MODULE_FUNCTION(embedding, testSharedConstStdDeque)
+PY_MODULE_FUNCTION(embedding, testStaticVector)
+PY_MODULE_FUNCTION(embedding, testSharedStaticVector)
+PY_MODULE_FUNCTION(embedding, testSharedConstStaticVector)
+PY_MODULE_FUNCTION(embedding, testStdMap)
+PY_MODULE_FUNCTION(embedding, testSharedStdMap)
+PY_MODULE_FUNCTION(embedding, testSharedConstStdMap)
+PY_MODULE_FUNCTION(embedding, testVectorMap)
+PY_MODULE_FUNCTION(embedding, testSharedVectorMap)
+PY_MODULE_FUNCTION(embedding, testSharedConstVectorMap)
 
 PY_MODULE_INTEGER_CONSTANTS( embedding, emIsThis, emAnEnum )
 PY_MODULE_STRING_CONSTANT( embedding, "STRING_CONSTANT", "string constant")
