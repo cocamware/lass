@@ -1247,7 +1247,6 @@ class TestTypes(unittest.TestCase):
         self.assertEqual(embedding.testConstChar32Ptr(None), None)
 
     def testFloatSingle(self) -> None:
-        useOldExportTraits = getattr(embedding, "LASS_USE_OLD_EXPORTRAITS_FLOAT", False)
         # float to single conversion is not always exact
         inf = float("inf")
         self.assertEqual(embedding.testFloatSingle(0.0), 0.0)
@@ -1257,20 +1256,10 @@ class TestTypes(unittest.TestCase):
         self.assertEqual(embedding.testFloatSingle(1e-10), 1.000000013351432e-10)
         self.assertEqual(embedding.testFloatSingle(1e10), 1e10)
         self.assertEqual(embedding.testFloatSingle(1.0000000001), 1.0)
-        if useOldExportTraits:
-            with self.assertRaises(TypeError):
-                embedding.testFloatSingle(inf)
-            with self.assertRaises(TypeError):
-                embedding.testFloatSingle(-inf)
-            with self.assertRaises(TypeError):
-                embedding.testFloatSingle(1e40)
-            with self.assertRaises(TypeError):
-                embedding.testFloatSingle(1e400)
-        else:
-            self.assertEqual(embedding.testFloatSingle(inf), inf)
-            self.assertEqual(embedding.testFloatSingle(-inf), -inf)
-            self.assertEqual(embedding.testFloatSingle(1e40), inf)
-            self.assertEqual(embedding.testFloatSingle(1e400), inf)
+        self.assertEqual(embedding.testFloatSingle(inf), inf)
+        self.assertEqual(embedding.testFloatSingle(-inf), -inf)
+        self.assertEqual(embedding.testFloatSingle(1e40), inf)
+        self.assertEqual(embedding.testFloatSingle(1e400), inf)
         self.assertEqual(embedding.testFloatSingle(1e-50), 0.0)
         self.assertEqual(embedding.testFloatSingle(1e-500), 0.0)
         self.assertTrue(math.isnan(embedding.testFloatSingle(float("nan"))))
@@ -1286,26 +1275,18 @@ class TestTypes(unittest.TestCase):
         )  # !!!
         with self.assertRaises(OverflowError):
             float(2**1024)
-        if useOldExportTraits:
-            with self.assertRaises(TypeError):
-                embedding.testFloatSingle(2**1024)  # so not inf...
-        else:
-            with self.assertRaises(OverflowError):
-                embedding.testFloatSingle(2**1024)  # so not inf...
-        if useOldExportTraits:
-            with self.assertRaises(TypeError):
-                embedding.testFloatSingle(MyFloat(1.5))
-        else:
-            # Custom objects should be converted to float first
-            self.assertEqual(embedding.testFloatSingle(MyFloat(1.5)), 1.5)
-            self.assertEqual(embedding.testFloatSingle(MyFloat("inf")), inf)
-            self.assertEqual(embedding.testFloatSingle(MyFloat(1e40)), inf)
-            self.assertTrue(math.isnan(embedding.testFloatSingle(MyFloat("nan"))))
-            with self.assertRaises(OverflowError):
-                float(MyFloat(2**1024))
+        with self.assertRaises(OverflowError):
+            embedding.testFloatSingle(2**1024)  # so not inf...
+
+        # Custom objects should be converted to float first
+        self.assertEqual(embedding.testFloatSingle(MyFloat(1.5)), 1.5)
+        self.assertEqual(embedding.testFloatSingle(MyFloat("inf")), inf)
+        self.assertEqual(embedding.testFloatSingle(MyFloat(1e40)), inf)
+        self.assertTrue(math.isnan(embedding.testFloatSingle(MyFloat("nan"))))
+        with self.assertRaises(OverflowError):
+            float(MyFloat(2**1024))
 
     def testFloatDouble(self) -> None:
-        useOldExportTraits = getattr(embedding, "LASS_USE_OLD_EXPORTRAITS_FLOAT", False)
         # float to double conversion should be exact
         inf = float("inf")
         self.assertEqual(embedding.testFloatDouble(0.0), 0.0)
@@ -1333,34 +1314,19 @@ class TestTypes(unittest.TestCase):
             embedding.testFloatDouble(12345678901234567890), 1.2345678901234567e19
         )
         self.assertRaises(OverflowError, float, 2**1024)
-        if useOldExportTraits:
-            self.assertRaises(
-                TypeError, embedding.testFloatDouble, 2**1024
-            )  # so not inf...
-        else:
-            self.assertRaises(
-                OverflowError, embedding.testFloatDouble, 2**1024
-            )  # so not inf...
+        self.assertRaises(
+            OverflowError, embedding.testFloatDouble, 2**1024
+        )  # so not inf...
 
-        if useOldExportTraits:
-            with self.assertRaises(TypeError):
-                embedding.testFloatDouble(MyFloat(1.5))
-        else:
-            # Custom objects should be converted to float first
-            self.assertEqual(embedding.testFloatDouble(MyFloat(1.5)), 1.5)
-            self.assertEqual(embedding.testFloatDouble(MyFloat("inf")), inf)
-            self.assertEqual(embedding.testFloatDouble(MyFloat(1e400)), inf)
-            self.assertTrue(math.isnan(embedding.testFloatDouble(MyFloat("nan"))))
-            with self.assertRaises(OverflowError):
-                float(MyFloat(2**1024))
+        # Custom objects should be converted to float first
+        self.assertEqual(embedding.testFloatDouble(MyFloat(1.5)), 1.5)
+        self.assertEqual(embedding.testFloatDouble(MyFloat("inf")), inf)
+        self.assertEqual(embedding.testFloatDouble(MyFloat(1e400)), inf)
+        self.assertTrue(math.isnan(embedding.testFloatDouble(MyFloat("nan"))))
+        with self.assertRaises(OverflowError):
+            float(MyFloat(2**1024))
 
     def testComplexFloatSingle(self) -> None:
-        useOldExportTraitsComplex = getattr(
-            embedding, "LASS_USE_OLD_EXPORTRAITS_COMPLEX", False
-        )
-        useOldExportTraitsFloat = getattr(
-            embedding, "LASS_USE_OLD_EXPORTRAITS_FLOAT", False
-        )
         inf = float("inf")
         self.assertEqual(embedding.testComplexFloatSingle(0j), 0j)
         self.assertEqual(embedding.testComplexFloatSingle(1 + 2j), 1 + 2j)
@@ -1374,119 +1340,70 @@ class TestTypes(unittest.TestCase):
         self.assertEqual(embedding.testComplexFloatSingle(1.5), 1.5 + 0j)
         with self.assertRaises(TypeError):
             embedding.testComplexFloatSingle("1+2j")  # type: ignore[arg-type]
-        if useOldExportTraitsComplex:
-            with self.assertRaises(TypeError):
-                embedding.testComplexFloatSingle(complex(inf, -inf))
-            with self.assertRaises(TypeError):
-                embedding.testComplexFloatSingle(complex(1e40, -1e40))
-        else:
-            self.assertEqual(
-                embedding.testComplexFloatSingle(complex(+inf, -inf)),
-                complex(inf, -inf),
-            )
-            self.assertEqual(
-                embedding.testComplexFloatSingle(complex(1e40, -1e40)),
-                complex(inf, -inf),
-            )
-        if useOldExportTraitsFloat:
-            with self.assertRaises(TypeError):
-                embedding.testComplexFloatSingle(inf)
-            with self.assertRaises(TypeError):
-                embedding.testComplexFloatSingle(1e40)
-        else:
-            self.assertIsInstance(embedding.testComplexFloatSingle(inf), complex)
-            self.assertEqual(embedding.testComplexFloatSingle(inf), complex(inf, 0))
-            self.assertIsInstance(embedding.testComplexFloatSingle(1e40), complex)
-            self.assertEqual(embedding.testComplexFloatSingle(1e40), complex(inf, 0))
+        self.assertEqual(
+            embedding.testComplexFloatSingle(complex(+inf, -inf)),
+            complex(inf, -inf),
+        )
+        self.assertEqual(
+            embedding.testComplexFloatSingle(complex(1e40, -1e40)),
+            complex(inf, -inf),
+        )
+        self.assertIsInstance(embedding.testComplexFloatSingle(inf), complex)
+        self.assertEqual(embedding.testComplexFloatSingle(inf), complex(inf, 0))
+        self.assertIsInstance(embedding.testComplexFloatSingle(1e40), complex)
+        self.assertEqual(embedding.testComplexFloatSingle(1e40), complex(inf, 0))
         with self.assertRaises(OverflowError):
             complex(2**1024)
-        if useOldExportTraitsComplex:
-            with self.assertRaises(TypeError):
-                embedding.testComplexFloatSingle(2**1024)  # so not inf...
-        else:
-            with self.assertRaises(OverflowError):
-                embedding.testComplexFloatSingle(2**1024)  # so not inf...
-        if useOldExportTraitsComplex:
-            with self.assertRaises(TypeError):
-                embedding.testComplexFloatSingle(MyComplex(1.5 + 2.5j))
-        else:
-            self.assertIsInstance(
-                embedding.testComplexFloatSingle(MyComplex(1.5 + 2.5j)), complex
-            )
-            self.assertEqual(
-                embedding.testComplexFloatSingle(MyComplex(1.5 + 2.5j)), 1.5 + 2.5j
-            )
+        with self.assertRaises(OverflowError):
+            embedding.testComplexFloatSingle(2**1024)  # so not inf...
+        self.assertIsInstance(
+            embedding.testComplexFloatSingle(MyComplex(1.5 + 2.5j)), complex
+        )
+        self.assertEqual(
+            embedding.testComplexFloatSingle(MyComplex(1.5 + 2.5j)), 1.5 + 2.5j
+        )
         cmath.isnan(embedding.testComplexFloatSingle(complex(0, float("nan"))))
 
     def testIntShort(self) -> None:
-        useOldExportTraits = getattr(embedding, "LASS_USE_OLD_EXPORTRAITS_INT", False)
         self.assertEqual(embedding.testIntShort(0), 0)
         self.assertEqual(embedding.testIntShort(12345), 12345)
         self.assertEqual(embedding.testIntShort(-12345), -12345)
         self.assertEqual(embedding.testIntShort(2**15 - 1), 2**15 - 1)
         self.assertEqual(embedding.testIntShort(-(2**15)), -(2**15))
-        if useOldExportTraits:
-            with self.assertRaises(TypeError):
-                embedding.testIntShort(2**15)
-            with self.assertRaises(TypeError):
-                embedding.testIntShort(-(2**15) - 1)
-            with self.assertRaises(SystemError):
-                embedding.testIntLongLong(2**63)
-            with self.assertRaises(SystemError):
-                embedding.testIntLongLong(-(2**63) - 1)
-        else:
-            with self.assertRaises(OverflowError):
-                embedding.testIntShort(2**15)
-            with self.assertRaises(OverflowError):
-                embedding.testIntShort(-(2**15) - 1)
-            with self.assertRaises(OverflowError):
-                embedding.testIntLongLong(2**63)
-            with self.assertRaises(OverflowError):
-                embedding.testIntLongLong(-(2**63) - 1)
+        with self.assertRaises(OverflowError):
+            embedding.testIntShort(2**15)
+        with self.assertRaises(OverflowError):
+            embedding.testIntShort(-(2**15) - 1)
+        with self.assertRaises(OverflowError):
+            embedding.testIntLongLong(2**63)
+        with self.assertRaises(OverflowError):
+            embedding.testIntLongLong(-(2**63) - 1)
         with self.assertRaises(TypeError):
             embedding.testIntShort(1e10)  # type: ignore[arg-type]
         with self.assertRaises(TypeError):
             embedding.testIntShort("123")  # type: ignore[arg-type]
         myint = MyInt(12345)
-        if useOldExportTraits:
-            with self.assertRaises(TypeError):
-                embedding.testIntShort(myint)  # type: ignore[arg-type]
-        else:
-            self.assertEqual(embedding.testIntShort(myint), 12345)  # type: ignore[arg-type]
+        self.assertEqual(embedding.testIntShort(myint), 12345)  # type: ignore[arg-type]
 
     def testUIntShort(self) -> None:
-        useOldExportTraits = getattr(embedding, "LASS_USE_OLD_EXPORTRAITS_INT", False)
         self.assertEqual(embedding.testUIntShort(0), 0)
         self.assertEqual(embedding.testUIntShort(12345), 12345)
         self.assertEqual(embedding.testUIntShort(2**16 - 1), 2**16 - 1)
-        if useOldExportTraits:
-            with self.assertRaises(TypeError):
-                embedding.testUIntShort(-1)
-            with self.assertRaises(TypeError):
-                embedding.testUIntShort(2**16)
-            with self.assertRaises(TypeError):
-                embedding.testUIntShort(2**64)
-        else:
-            with self.assertRaises(OverflowError):
-                embedding.testUIntShort(-1)
-            with self.assertRaises(OverflowError):
-                embedding.testUIntShort(2**16)
-            with self.assertRaises(OverflowError):
-                embedding.testUIntShort(2**64)
+        with self.assertRaises(OverflowError):
+            embedding.testUIntShort(-1)
+        with self.assertRaises(OverflowError):
+            embedding.testUIntShort(2**16)
+        with self.assertRaises(OverflowError):
+            embedding.testUIntShort(2**64)
         with self.assertRaises(TypeError):
             embedding.testUIntShort(1e10)  # type: ignore[arg-type]
         with self.assertRaises(TypeError):
             embedding.testUIntShort("123")  # type: ignore[arg-type]
         myint = MyInt(12345)
-        if useOldExportTraits:
-            with self.assertRaises(TypeError):
-                embedding.testUIntShort(myint)  # type: ignore[arg-type]
-        else:
-            self.assertEqual(embedding.testUIntShort(myint), 12345)  # type: ignore[arg-type]
+        self.assertEqual(embedding.testUIntShort(myint), 12345)  # type: ignore[arg-type]
 
     @skipIfNoLongLong
     def testIntLongLong(self) -> None:
-        useOldExportTraits = getattr(embedding, "LASS_USE_OLD_EXPORTRAITS_INT", False)
         self.assertEqual(embedding.testIntLongLong(0), 0)
         self.assertEqual(
             embedding.testIntLongLong(1234567890123456789), 1234567890123456789
@@ -1496,55 +1413,34 @@ class TestTypes(unittest.TestCase):
         )
         self.assertEqual(embedding.testIntLongLong(2**63 - 1), 2**63 - 1)
         self.assertEqual(embedding.testIntLongLong(-(2**63)), -(2**63))
-        if useOldExportTraits:
-            with self.assertRaises(SystemError):
-                embedding.testIntLongLong(2**63)
-            with self.assertRaises(SystemError):
-                embedding.testIntLongLong(-(2**63) - 1)
-        else:
-            with self.assertRaises(OverflowError):
-                embedding.testIntLongLong(2**63)
-            with self.assertRaises(OverflowError):
-                embedding.testIntLongLong(-(2**63) - 1)
+        with self.assertRaises(OverflowError):
+            embedding.testIntLongLong(2**63)
+        with self.assertRaises(OverflowError):
+            embedding.testIntLongLong(-(2**63) - 1)
         with self.assertRaises(TypeError):
             embedding.testIntLongLong(1e20)  # type: ignore[arg-type]
         with self.assertRaises(TypeError):
             embedding.testIntLongLong("123")  # type: ignore[arg-type]
         myint = MyInt(12345)
-        if useOldExportTraits:
-            with self.assertRaises(TypeError):
-                embedding.testIntLongLong(myint)  # type: ignore[arg-type]
-        else:
-            self.assertEqual(embedding.testIntLongLong(myint), 12345)  # type: ignore[arg-type]
+        self.assertEqual(embedding.testIntLongLong(myint), 12345)  # type: ignore[arg-type]
 
     @skipIfNoLongLong
     def testUIntLongLong(self) -> None:
-        useOldExportTraits = getattr(embedding, "LASS_USE_OLD_EXPORTRAITS_INT", False)
         self.assertEqual(embedding.testUIntLongLong(0), 0)
         self.assertEqual(
             embedding.testUIntLongLong(12345678901234567890), 12345678901234567890
         )
         self.assertEqual(embedding.testUIntLongLong(2**64 - 1), 2**64 - 1)
-        if useOldExportTraits:
-            with self.assertRaises(SystemError):
-                embedding.testUIntLongLong(-1)
-            with self.assertRaises(SystemError):
-                embedding.testUIntLongLong(2**64)
-        else:
-            with self.assertRaises(OverflowError):
-                embedding.testUIntLongLong(-1)
-            with self.assertRaises(OverflowError):
-                embedding.testUIntLongLong(2**64)
+        with self.assertRaises(OverflowError):
+            embedding.testUIntLongLong(-1)
+        with self.assertRaises(OverflowError):
+            embedding.testUIntLongLong(2**64)
         with self.assertRaises(TypeError):
             embedding.testUIntLongLong(1e20)  # type: ignore[arg-type]
         with self.assertRaises(TypeError):
             embedding.testUIntLongLong("123")  # type: ignore[arg-type]
         myint = MyInt(12345)
-        if useOldExportTraits:
-            with self.assertRaises(TypeError):
-                embedding.testUIntLongLong(myint)  # type: ignore[arg-type]
-        else:
-            self.assertEqual(embedding.testUIntLongLong(myint), 12345)  # type: ignore[arg-type]
+        self.assertEqual(embedding.testUIntLongLong(myint), 12345)  # type: ignore[arg-type]
 
     def testStdTuple(self) -> None:
         x = (True, "Hello")
@@ -1902,7 +1798,6 @@ class TestRawPointer(unittest.TestCase):
         x = [1, 2, 3]
         y = embedding.testRawPyObject(x)
         self.assertIs(y, x)
-
 
 
 class TestPyObjectPtr(unittest.TestCase):

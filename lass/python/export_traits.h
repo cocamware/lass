@@ -790,29 +790,11 @@ struct PyExportTraitsSigned
 	}
 	static int get(PyObject* obj, Integer& v)
 	{
-#if LASS_USE_OLD_EXPORTRAITS_INT
-		if (PyLong_Check(obj))
-		{
-#	if HAVE_LONG_LONG
-			const PY_LONG_LONG x = PyLong_AsLongLong(obj);
-#	else
-			const long x = PyLong_AsLong(obj);
-#	endif
-			if (PyErr_Occurred())
-			{
-				PyErr_Format(PyExc_TypeError, "not a %s: overflow", num::NumTraits<Integer>::name().c_str());
-				return 1;
-			}
-			return impl::pyNumCast(x, v);
-		}
-		PyErr_SetString(PyExc_TypeError, "not an integer");
-		return 1;
+#if HAVE_LONG_LONG
+		const PY_LONG_LONG x = PyLong_AsLongLong(obj);
 #else
-#	if HAVE_LONG_LONG
-			const PY_LONG_LONG x = PyLong_AsLongLong(obj);
-#	else
-			const long x = PyLong_AsLong(obj);
-#	endif
+		const long x = PyLong_AsLong(obj);
+#endif
 		if (x == -1 && PyErr_Occurred())
 		{
 			return 1;
@@ -827,7 +809,6 @@ struct PyExportTraitsSigned
 			return 1;
 		}
 		return 0;
-#endif
 	}
 };
 
@@ -897,24 +878,6 @@ struct PyExportTraitsUnsigned
 	}
 	static int get(PyObject* obj, Integer& v)
 	{
-#if LASS_USE_OLD_EXPORTRAITS_INT
-		if (PyLong_Check(obj))
-		{
-#	if HAVE_LONG_LONG
-			const unsigned PY_LONG_LONG x = PyLong_AsUnsignedLongLong(obj);
-#	else
-			const unsigned long x = PyLong_AsUnsignedLong(obj);
-#	endif
-			if (PyErr_Occurred())
-			{
-				PyErr_Format(PyExc_TypeError, "not a %s: overflow", num::NumTraits<Integer>::name().c_str());
-				return 1;
-			}
-			return impl::pyNumCast(x, v);
-		}
-		PyErr_SetString(PyExc_TypeError, "not an integer");
-		return 1;
-#else
 	if (!PyLong_Check(obj))
 	{
 		// PyLong_AsUnsignedLongLong and PyLong_AsUnsignedLong only accepts PyLong objects.
@@ -927,19 +890,19 @@ struct PyExportTraitsUnsigned
 		}
 		return PyExportTraits<Integer>::get(o.get(), v);
 	}
-#	if HAVE_LONG_LONG
+#if HAVE_LONG_LONG
 		const unsigned PY_LONG_LONG x = PyLong_AsUnsignedLongLong(obj);
 		if (x == ((unsigned PY_LONG_LONG) - 1) && PyErr_Occurred())
 		{
 			return 1;
 		}
-#	else
+#else
 		const unsigned long x = PyLong_AsUnsignedLong(obj);
 		if (x == ((unsigned long) - 1) && PyErr_Occurred())
 		{
 			return 1;
 		}
-#	endif
+#endif
 		try
 		{
 			v = num::numCast<Integer>(x);
@@ -950,7 +913,6 @@ struct PyExportTraitsUnsigned
 			return 1;
 		}
 		return 0;
-#endif
 	}
 };
 
@@ -1056,24 +1018,6 @@ struct PyExportTraitsFloat
 	}
 	static int get(PyObject* obj, Float& v)
 	{
-#if LASS_USE_OLD_EXPORTRAITS_FLOAT
-		if (PyFloat_Check(obj))
-		{
-			return impl::pyNumCast(PyFloat_AS_DOUBLE(obj), v);
-		}
-		if (PyLong_Check(obj))
-		{
-			const double x = PyLong_AsDouble(obj);
-			if (PyErr_Occurred())
-			{
-				PyErr_Format(PyExc_TypeError, "not a %s: overflow", num::NumTraits<Float>::name().c_str());
-				return 1;
-			}
-			return impl::pyNumCast(x, v);
-		}
-		PyErr_SetString(PyExc_TypeError, "not a float or integer");
-		return 1;
-#else
 		double x;
 		if (PyFloat_CheckExact(obj))
 		{
@@ -1097,7 +1041,6 @@ struct PyExportTraitsFloat
 		}
 		v = static_cast<Float>(x);
 		return 0;
-#endif
 	}
 };
 
@@ -1185,30 +1128,6 @@ struct PyExportTraits< std::complex<T> >
 	}
 	static int get(PyObject* obj, std::complex<T>& v)
 	{
-#if LASS_USE_OLD_EXPORTRAITS_COMPLEX
-		T re, im;
-		if (PyExportTraits<T>::get(obj, re) == 0)
-		{
-			v = std::complex<T>(re, 0);
-			return 0;
-		}
-		PyErr_Clear();
-		if (!PyComplex_Check(obj))
-		{
-			PyErr_SetString(PyExc_TypeError, "not a complex number");
-			return 1;
-		}
-		if (impl::pyNumCast(PyComplex_RealAsDouble(obj), re) != 0)
-		{
-			return 1;
-		}
-		if (impl::pyNumCast(PyComplex_ImagAsDouble(obj), im) != 0)
-		{
-			return 1;
-		}
-		v = std::complex<T>(re, im);
-		return 0;
-#else
 		Py_complex c = PyComplex_AsCComplex(obj);
 		if (c.real == -1.0 && PyErr_Occurred())
 		{
@@ -1216,7 +1135,6 @@ struct PyExportTraits< std::complex<T> >
 		}
 		v = std::complex<T>(static_cast<T>(c.real), static_cast<T>(c.imag));
 		return 0;
-#endif
 	}
 };
 
