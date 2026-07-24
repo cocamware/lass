@@ -3,27 +3,27 @@ import os
 from io import StringIO
 
 from conan import ConanFile
-from conan.tools.cmake import CMake, cmake_layout
 from conan.tools.build import can_run
+from conan.tools.cmake import CMake, cmake_layout
 from conan.tools.env import Environment
 
 
-class LassTestConan(ConanFile):
+class LassTestConan(ConanFile):  # type: ignore[misc]
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps", "CMakeToolchain"
 
-    def requirements(self):
+    def requirements(self) -> None:
         self.requires(self.tested_reference_str)
 
-    def build(self):
+    def build(self) -> None:
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
-    def layout(self):
+    def layout(self) -> None:
         cmake_layout(self)
 
-    def test(self):
+    def test(self) -> None:
         # Check test_module has the expected extension according to Limited API
         test_module = [
             path
