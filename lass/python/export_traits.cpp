@@ -268,22 +268,12 @@ PyObject* PyExportTraits<signed PY_LONG_LONG>::build(signed PY_LONG_LONG v)
 
 int PyExportTraits<signed PY_LONG_LONG>::get(PyObject* obj, signed PY_LONG_LONG& v)
 {
-#if LASS_USE_OLD_EXPORTRAITS_INT
-	if (PyLong_Check(obj))
-	{
-		v = PyLong_AsLongLong(obj);
-		return 0;
-	}
-	PyErr_SetString(PyExc_TypeError, "not an integer");
-	return 1;
-#else
 	v = PyLong_AsLongLong(obj);
 	if (v == -1 && PyErr_Occurred())
 	{
 		return 1;
 	}
 	return 0;
-#endif
 }
 
 
@@ -295,15 +285,6 @@ PyObject* PyExportTraits<unsigned PY_LONG_LONG>::build(unsigned PY_LONG_LONG v)
 
 int PyExportTraits<unsigned PY_LONG_LONG>::get(PyObject* obj, unsigned PY_LONG_LONG& v)
 {
-#if LASS_USE_OLD_EXPORTRAITS_INT
-	if (PyLong_Check(obj))
-	{
-		v = PyLong_AsUnsignedLongLong(obj);
-		return 0;
-	}
-	PyErr_SetString(PyExc_TypeError, "not an integer");
-	return 1;
-#else
 	if (!PyLong_Check(obj))
 	{
 		// PyLong_AsUnsignedLongLong only accepts PyLong objects.
@@ -322,7 +303,6 @@ int PyExportTraits<unsigned PY_LONG_LONG>::get(PyObject* obj, unsigned PY_LONG_L
 		return 1;
 	}
 	return 0;
-#endif
 }
 
 #endif
