@@ -19,7 +19,7 @@
 # The Original Developer is the Initial Developer.
 #
 # All portions of the code written by the Initial Developer are:
-# Copyright (C) 2025 the Initial Developer.
+# Copyright (C) 2025-2026 the Initial Developer.
 # All Rights Reserved.
 #
 # Contributor(s):
@@ -34,6 +34,8 @@
 # a recipient may use your version of this file under either the CPAL or the GPL.
 #
 # *** END LICENSE INFORMATION ***
+
+# ruff: file-ignore[SIM102, SIM114]
 
 from __future__ import annotations
 
@@ -688,7 +690,7 @@ class Parser:
             )
             t_params_type = type_info(t_params_ref)
 
-            t_params_args = t_params_type.args or tuple()
+            t_params_args = t_params_type.args or ()
             cpp_params = [ParamInfo("", arg) for arg in t_params_args]
             cpp_signature = f"void ({', '.join(map(str, t_params_args))})"
 
@@ -1303,6 +1305,7 @@ class DispatcherSignature(NamedTuple):
 
 
 class NodeVisitor:
+    # ruff: ignore[RUF023]
     __slots__ = (
         "parser",
         "error",
@@ -1366,7 +1369,7 @@ class NodeVisitor:
             if self.error:
                 return 0
             return 1
-        except BaseException as err:
+        except BaseException as err:  # ruff: ignore[BLE001]
             if isinstance(err, AssertionError):
                 self.parser._debug(node)
             if node.location:

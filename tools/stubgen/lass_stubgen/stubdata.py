@@ -19,7 +19,7 @@
 # The Original Developer is the Initial Developer.
 #
 # All portions of the code written by the Initial Developer are:
-# Copyright (C) 2025 the Initial Developer.
+# Copyright (C) 2025-2026 the Initial Developer.
 # All Rights Reserved.
 #
 # Contributor(s):
@@ -1108,8 +1108,6 @@ class StubDataError(Exception):
     """
     Base class for all exceptions related to stub data.
     """
-
-    pass
 
 
 class DuplicateError(StubDataError):

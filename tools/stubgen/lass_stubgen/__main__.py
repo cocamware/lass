@@ -19,7 +19,7 @@
 # The Original Developer is the Initial Developer.
 #
 # All portions of the code written by the Initial Developer are:
-# Copyright (C) 2025 the Initial Developer.
+# Copyright (C) 2025-2026 the Initial Developer.
 # All Rights Reserved.
 #
 # Contributor(s):
@@ -48,7 +48,7 @@ if not __package__:
     if __spec__:
         __spec__.name = f"{__package__}.__main__"
 
-from .main import main  # noqa: E402
+from .main import main
 
 try:
     sys.exit(main(sys.argv[1:]))

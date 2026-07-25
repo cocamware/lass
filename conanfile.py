@@ -45,7 +45,7 @@ import subprocess
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from types import ModuleType
-from typing import Any, List, Optional, Protocol
+from typing import Any, ClassVar, Protocol
 
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
@@ -66,7 +66,7 @@ class _Settings(Protocol):
     build_type: _SettingsItem
     arch: _SettingsItem
 
-    def get_safe(self, name: str, default: Any = None) -> Optional[_SettingsItem]: ...
+    def get_safe(self, name: str, default: Any = None) -> _SettingsItem | None: ...
 
 
 class _Options(Protocol):
@@ -77,11 +77,11 @@ class _Options(Protocol):
     have_avx: _PackageOption
     with_stubgen: _PackageOption
 
-    def get_safe(self, name: str, default: Any = None) -> Optional[_PackageOption]: ...
+    def get_safe(self, name: str, default: Any = None) -> _PackageOption | None: ...
     def rm_safe(self, name: str) -> None: ...
 
 
-def _get_version(conanfile: ConanFile) -> Optional[str]:
+def _get_version(conanfile: ConanFile) -> str | None:
     try:
         content = (Path(conanfile.recipe_folder) / "CMakeLists.txt").read_text()
     except FileNotFoundError:
@@ -111,13 +111,13 @@ def _get_version(conanfile: ConanFile) -> Optional[str]:
     except ConanException:
         return None  # Assume conan metadata already knows
     match = re.match(r"lass-(\d+\.\d+\.\d+)-(\d+)-(g\w+(-dirty)?)$", describe)
-    assert match, "unexpected describe format: {!r}".format(describe)
+    assert match, f"unexpected describe format: {describe!r}"
     prev_version, pre_release, rev = match.group(1), match.group(2), match.group(3)
     assert _int_version(prev_version) < _int_version(version)
     return f"{version}-{pre_release}+{rev}"
 
 
-def _int_version(str_version: str) -> List[int]:
+def _int_version(str_version: str) -> list[int]:
     return [int(x) for x in str_version.split(".")]
 
 
@@ -126,7 +126,7 @@ class LassConan(ConanFile):  # type: ignore[misc]
     package_type = "library"
 
     def set_version(self) -> None:
-        self.version: Optional[str] = self.version or _get_version(self)
+        self.version: str | None = self.version or _get_version(self)
 
     license = "CPAL-1.0", "GPL-2.0-or-later"
     author = "Cocamware <info@cocamware.com>"
@@ -134,7 +134,7 @@ class LassConan(ConanFile):  # type: ignore[misc]
     description = "Library of Assembled Shared Source."
     topics = "C++", "Python"
     settings: _Settings = "os", "compiler", "build_type", "arch"  # type: ignore[assignment]
-    options: _Options = {  # type: ignore[assignment]
+    options: ClassVar[_Options] = {  # type: ignore[assignment]
         "shared": [True, False],
         "fPIC": [True, False],
         "simd_aligned": [True, False],
@@ -142,7 +142,7 @@ class LassConan(ConanFile):  # type: ignore[misc]
         "have_avx": [True, False],
         "with_stubgen": [True, False, "auto"],
     }
-    default_options = {
+    default_options: ClassVar[dict[str, Any]] = {
         "shared": True,
         "fPIC": True,
         "simd_aligned": False,
@@ -339,13 +339,13 @@ class LassConan(ConanFile):  # type: ignore[misc]
 
 class VSCodeCCppProperties:
     name: str
-    include_path: List[str]
-    defines: List[str]
-    compiler_args: List[str]
+    include_path: list[str]
+    defines: list[str]
+    compiler_args: list[str]
     cpp_standard: str
     intellisense_mode: str
-    configuration_provider: Optional[str]
-    compile_commands: Optional[str]
+    configuration_provider: str | None
+    compile_commands: str | None
 
     def __init__(self, conanfile: ConanFile, *, cmake: bool = True):
         self._conanfile = conanfile

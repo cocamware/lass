@@ -40,9 +40,10 @@ a recipient may use your version of this file under either the CPAL or the GPL.
 import os
 import re
 import subprocess
+from collections.abc import Iterable
 from functools import cache, cached_property
 from string import Template
-from typing import Any, Iterable, Optional, Protocol
+from typing import Any, ClassVar, Protocol
 
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
@@ -77,14 +78,14 @@ class SysPython(ConanFile):  # type: ignore[misc]
     build_policy = "missing"
     upload_policy = "skip"
 
-    options: _Options = {  # type: ignore[assignment]
+    options: ClassVar[_Options] = {  # type: ignore[assignment]
         "shared": [None, True, False],
         "python_executable": [None, "ANY"],
         "python_version": [None, "ANY"],
         "python_debug": [None, True, False],
         "python_free_threaded": [None, True, False],
     }
-    default_options = {
+    default_options: ClassVar[dict[str, None]] = {
         "shared": None,
         "python_executable": None,
         "python_version": None,
@@ -325,7 +326,7 @@ class SysPython(ConanFile):  # type: ignore[misc]
         return [os.path.dirname(self._python_library)]
 
     @property
-    def _python_runtime_library(self) -> Optional[str]:
+    def _python_runtime_library(self) -> str | None:
         if self.settings.os == "Windows":
             base = self._python_get_config_var("installed_platbase")
             version = self._python_version_nodot_plat
@@ -349,7 +350,7 @@ class SysPython(ConanFile):  # type: ignore[misc]
         return unique(bin_dirs)
 
     @property
-    def _python_sabi_library(self) -> Optional[str]:
+    def _python_sabi_library(self) -> str | None:
         if self.settings.os == "Windows":
             base = self._python_get_config_var("installed_platbase")
             major, _minor = self._python_get_config_var("py_version_short").split(".")
@@ -363,7 +364,7 @@ class SysPython(ConanFile):  # type: ignore[misc]
         return [os.path.dirname(self._python_sabi_library)]
 
     @property
-    def _python_sabi_runtime_library(self) -> Optional[str]:
+    def _python_sabi_runtime_library(self) -> str | None:
         if self.settings.os == "Windows":
             base = self._python_get_config_var("installed_platbase")
             major, _minor = self._python_get_config_var("py_version_short").split(".")
@@ -458,7 +459,7 @@ class SysPython(ConanFile):  # type: ignore[misc]
             f"import sysconfig; print(sysconfig.get_config_var({key!r}) or '')"
         )
 
-    @cache
+    @cache  # ruff: ignore[B019]
     def _python_query(self, script: str) -> str:
         return subprocess.check_output(
             [self._python_executable, "-c", script], text=True

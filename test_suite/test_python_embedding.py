@@ -57,7 +57,7 @@ from collections.abc import (
     Sequence,
 )
 from contextlib import redirect_stdout
-from typing import TYPE_CHECKING, Any, Optional, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 if TYPE_CHECKING:
     if sys.version_info < (3, 11):
@@ -243,8 +243,8 @@ class TestSequence(unittest.TestCase):
             seq.reserve("123")  # type: ignore[attr-defined]
         try:
             seq.reserve(5)  # type: ignore[attr-defined]
-        except Exception as err:
-            self.fail("seq.reserve raised exception: {!s}".format(err))
+        except Exception as err:  # ruff: ignore[BLE001]
+            self.fail(f"seq.reserve raised exception: {err!s}")
 
     def _testAppend(self, seq: MutableSequence[float], refseq: Sequence[float]) -> None:
         for i in range(10):
@@ -738,7 +738,7 @@ class TestOperators(unittest.TestCase):
         bar["key"] = "lock"
         self.assertTrue("key" in bar)
         with self.assertRaises(TypeError):
-            2.0 in bar
+            _ = 2.0 in bar
 
         overloaded = embedding.ClassMap()
         self.assertFalse("key" in overloaded)
@@ -810,9 +810,9 @@ class TestTuples(unittest.TestCase):
         first: Sequence[float],
         second: Sequence[float],
         places: int = 7,
-        msg: Optional[str] = None,
+        msg: str | None = None,
     ) -> None:
-        msg = msg or "%r != %r within %r places" % (first, second, places)
+        msg = msg or f"{first!r} != {second!r} within {places!r} places"
         self.assertEqual(len(first), len(second), msg)
         for a, b in zip(first, second):
             self.assertAlmostEqual(a, b, places=places, msg=msg)
@@ -935,7 +935,7 @@ class TestShadowConvertors(unittest.TestCase):
 class TestCallbacks(unittest.TestCase):
     def setUp(self) -> None:
         self.isCalled = False
-        self.arg: Optional[str] = None
+        self.arg: str | None = None
 
     def testCallback0(self) -> None:
         def callback() -> None:
@@ -992,7 +992,7 @@ class TestRichCompare(unittest.TestCase):
         a, b, c = self.a, self.b, self.c
         self.assertTrue(a == b)
         self.assertFalse(a == c)
-        self.assertFalse(a == None)  # noqa: E711, none-comparison
+        self.assertFalse(a == None)
 
     def testLess(self) -> None:
         a, b, c = self.a, self.b, self.c
@@ -1005,7 +1005,7 @@ class TestRichCompare(unittest.TestCase):
         a, b, c = self.a, self.b, self.c
         self.assertFalse(a != b)
         self.assertTrue(a != c)
-        self.assertTrue(a != None)  # noqa: E711, none-comparison
+        self.assertTrue(a != None)
 
     def testGreater(self) -> None:
         a, b, c = self.a, self.b, self.c
@@ -1044,7 +1044,7 @@ def dummyCallback1(adder: int) -> None:
 
 class TestMultiCallback(unittest.TestCase):
     def testConstruction(self) -> None:
-        global dummyCounter
+        global dummyCounter  # ruff: ignore[PLW0602]
         a = embedding.TestCallback()
         # can we grab the object
         cb = a.callback
@@ -1831,7 +1831,7 @@ class TestEnum(unittest.TestCase):
 
 class TestDatetime(unittest.TestCase):
     def testSystemClock(self) -> None:
-        dt = datetime.datetime.fromtimestamp(0)
+        dt = datetime.datetime.fromtimestamp(0)  # ruff: ignore[DTZ006]
         self.assertEqual(embedding.testSystemClock(dt), dt)
         dt2 = datetime.datetime.fromtimestamp(0, tz=datetime.timezone.utc)
         self.assertEqual(embedding.testSystemClock(dt2), dt)
@@ -1840,7 +1840,7 @@ class TestDatetime(unittest.TestCase):
         self.assertNotEqual(dt3.hour, dt2.hour)
         self.assertEqual(embedding.testSystemClock(dt3), dt)
 
-        dt4 = datetime.datetime.now()
+        dt4 = datetime.datetime.now()  # ruff: ignore[DTZ005]
         self.assertEqual(embedding.testSystemClock(dt4), dt4)
         dt5 = dt4.astimezone(datetime.timezone.utc)
         self.assertEqual(embedding.testSystemClock(dt5), dt4)
@@ -1848,7 +1848,7 @@ class TestDatetime(unittest.TestCase):
         self.assertNotEqual(dt6.hour, dt5.hour)
         self.assertEqual(embedding.testSystemClock(dt6), dt4)
 
-        dt7 = datetime.datetime(2022, 10, 17)
+        dt7 = datetime.datetime(2022, 10, 17)  # ruff: ignore[DTZ001]
         self.assertEqual(embedding.testSystemClock(dt7.date()), dt7)  # type: ignore[arg-type]
 
 
@@ -2001,10 +2001,8 @@ class TestException(unittest.TestCase):
         with self.assertRaises(FileNotFoundError) as cm:
             embedding.throwException(RaisedExceptionType.FileNotFound)
         self.assertEqual(cm.exception.errno, errno.ENOENT)
-        if os.name == "nt":
-            self.assertEqual(
-                getattr(cm.exception, "winerror"), 3
-            )  # ERROR_PATH_NOT_FOUND
+        if sys.platform == "win32":
+            self.assertEqual(cm.exception.winerror, 3)  # ERROR_PATH_NOT_FOUND
         self.assertEqual(cm.exception.filename, "/none1/a")
         self.assertEqual(cm.exception.filename2, "/none2/b")
         with self.assertRaises(OSError) as cm2:

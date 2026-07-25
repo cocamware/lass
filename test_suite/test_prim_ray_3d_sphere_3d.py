@@ -81,7 +81,7 @@ def intersect_ray_sphere(center, radius, origin, direction):
     print(f"radius = {radius}")
     print(f"support = {support}")
     print(f"direction = {direction}")
-    print("")
+    print()
 
     # As for solving the quadratic equation, we can use the following formula:
     #
@@ -137,7 +137,7 @@ def intersect_ray_sphere(center, radius, origin, direction):
     t1_ = c / q
     t2_ = q / a
 
-    print("")
+    print()
     print(f"t1 = {t1}")
     print(f"t1_ = {t1_}")
     print(f"t2 = {t2}")
@@ -168,7 +168,7 @@ direction = (
 
 t1, t2 = intersect_ray_sphere(center, radius, support, direction)
 
-print("")
+print()
 print(f"float(t1) = {float(t1)} = {float(t1).hex()}")
 print(f"float(t2) = {float(t2)} = {float(t2).hex()}")
 
@@ -197,6 +197,6 @@ direction = (
 
 t1, t2 = intersect_ray_sphere(center, radius, support, direction)
 
-print("")
+print()
 print(f"float(t1) = {float(t1)} = {float(t1).hex()}")
 print(f"float(t2) = {float(t2)} = {float(t2).hex()}")

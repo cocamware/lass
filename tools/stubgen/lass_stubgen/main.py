@@ -19,7 +19,7 @@
 # The Original Developer is the Initial Developer.
 #
 # All portions of the code written by the Initial Developer are:
-# Copyright (C) 2025 the Initial Developer.
+# Copyright (C) 2025-2026 the Initial Developer.
 # All Rights Reserved.
 #
 # Contributor(s):
@@ -216,7 +216,7 @@ If not provided, the number of threads will be set to the number of CPU cores.""
     args = parser.parse_args(argv)
 
     if args.debug_connect:
-        import debugpy  # type: ignore # noqa: I001
+        import debugpy  # type: ignore  # ruff: ignore[T100]
 
         debugpy.connect(args.debug_connect)
 
@@ -251,7 +251,7 @@ If not provided, the number of threads will be set to the number of CPU cores.""
         print(f"{len(err.errors)} parse errors found, aborting", file=sys.stderr)
         return 1
     except StubDataError as err:
-        print(f"Error: {str(err)}", file=sys.stderr)
+        print(f"Error: {err!s}", file=sys.stderr)
         for note in getattr(err, "__notes__", []):
             print(note, file=sys.stderr)
         return 1
@@ -266,7 +266,7 @@ If not provided, the number of threads will be set to the number of CPU cores.""
                 generator_type=generator_type,
             )
         except StubGeneratorError as err:
-            print(f"Error: {str(err)}", file=sys.stderr)
+            print(f"Error: {err!s}", file=sys.stderr)
             for note in err.__notes__:
                 print(note, file=sys.stderr)
             return 1
@@ -382,7 +382,7 @@ def _parse_file(
         return stubdata
     except Exception as err:
         err.add_note(f"While parsing file {source_path}")
-        raise err
+        raise
 
 
 def _name(path: StrPath) -> str:

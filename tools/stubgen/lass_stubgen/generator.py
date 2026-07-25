@@ -19,7 +19,7 @@
 # The Original Developer is the Initial Developer.
 #
 # All portions of the code written by the Initial Developer are:
-# Copyright (C) 2025 the Initial Developer.
+# Copyright (C) 2025-2026 the Initial Developer.
 # All Rights Reserved.
 #
 # Contributor(s):
@@ -35,6 +35,8 @@
 #
 # *** END LICENSE INFORMATION ***
 
+# ruff: file-ignore[SIM102]
+
 from __future__ import annotations
 
 import dataclasses
@@ -42,9 +44,10 @@ import functools
 import re
 import sys
 import textwrap
-from collections.abc import Sequence
+from collections.abc import Callable, Mapping, Sequence
 from io import StringIO
-from typing import Callable, NamedTuple, ParamSpec, TextIO, TypeAlias, TypeVar, overload
+from types import MappingProxyType
+from typing import NamedTuple, ParamSpec, TextIO, TypeAlias, TypeVar, overload
 
 from .stubdata import (
     ClassDefinition,
@@ -222,9 +225,7 @@ class StubGenerator:
         type_vars: set[str] = set()
         type_aliases: dict[str, None] = {}  # preserve insertion order
         for line in preamble:
-            if line.startswith("import "):
-                imports.add(line)
-            elif line.startswith("from "):
+            if line.startswith(("import ", "from ")):
                 imports.add(line)
             elif line.startswith("type "):
                 if sys.version_info >= (3, 12):
@@ -693,7 +694,7 @@ class StubGenerator:
         preamble += preamble_
         return py_type
 
-    @functools.cache
+    @functools.cache  # ruff: ignore[B019]
     def _python_type(
         self, cpp_type: TypeInfo, *, scope: str | None, as_param: bool
     ) -> tuple[str, list[str]]:
@@ -946,11 +947,13 @@ class StubGenerator:
                 uniques[sig_nodoc] = func
         return list(uniques.values())
 
-    _ENUM_ALT_PARAM_TYPES = {
-        "enum.IntEnum": "int",
-        "enum.StrEnum": "str",
-        "enum.IntFlag": "int",
-    }
+    _ENUM_ALT_PARAM_TYPES: Mapping[str, str] = MappingProxyType(
+        {
+            "enum.IntEnum": "int",
+            "enum.StrEnum": "str",
+            "enum.IntFlag": "int",
+        }
+    )
 
 
 MatchedParams: TypeAlias = dict[str, TypeInfo | tuple[TypeInfo, ...] | None]
