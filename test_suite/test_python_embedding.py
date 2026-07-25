@@ -75,6 +75,11 @@ print(sys.version)
 POINTER_SIZE = struct.calcsize("P")  # size of a pointer in bytes
 
 
+class TestModuleFunctions(unittest.TestCase):
+    def testStdFunctions(self) -> None:
+        self.assertEqual(embedding.adderStdFunction(2, 3), 5)
+
+
 class TestInternalLassModule(unittest.TestCase):
     def testInternalLassModule(self) -> None:
         self.assertEqual(_lass.__name__, "_lass")
@@ -589,6 +594,10 @@ transformation: ((1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12), (13, 14, 15, 16))
             f"freeMethodB(Bar*, const std::string&): {str_address} done that",
         )
 
+    def testStdFunction(self) -> None:
+        bar = embedding.Bar(12, "bar")
+        self.assertEqual(bar.stdFunctionAdder(4), 16)
+
 
 class TestClassName(unittest.TestCase):
     def testClassName(self) -> None:
@@ -777,6 +786,11 @@ class TestStaticMembers(unittest.TestCase):
         self.assertEqual(embedding.Bar.aStaticMethod(3.14), 3)
         bar = embedding.Bar()
         self.assertEqual(bar.aStaticMethod(5.1), 5)
+
+    def testStaticStdFunction(self) -> None:
+        self.assertEqual(embedding.Bar.stdFunctionStatic(4), 40)
+        bar = embedding.Bar()
+        self.assertEqual(bar.stdFunctionStatic(3), 30)
 
 
 class TestOverloading(unittest.TestCase):

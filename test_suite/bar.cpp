@@ -118,6 +118,12 @@ namespace lass
 		PY_CLASS_STATIC_METHOD( Bar, defaultBar )
 		PY_CLASS_STATIC_METHOD( Bar, setDefaultBar )
 
+		std::function<int(const Bar&, int)> stdFunctionAdder = [](const Bar& self, int x) { return self.getInt() + x; };
+		PY_CLASS_FREE_METHOD(Bar, stdFunctionAdder)
+
+		std::function<int(int)> stdFunctionStatic = [](int x) { return 10 * x; };
+		PY_CLASS_STATIC_METHOD_EX(Bar, stdFunctionStatic, "stdFunctionStatic", nullptr, bar_std_function_static)
+
 		// innerclass of Bar
 		typedef Bar::InnerClass TBarInnerClass;
 		PY_DECLARE_CLASS_NAME( TBarInnerClass, "InnerClass" )

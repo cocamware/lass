@@ -1070,6 +1070,11 @@ PY_MODULE_FUNCTION(embedding, testCallbackFromPython)
 PY_MODULE_FUNCTION(embedding, testCallbackFromPythonPasstrough)
 PY_MODULE_FUNCTION(embedding, testCallbackFromCpp)
 
+
+std::function<int(int, int)> adderStdFunction = [](int a, int b) { return a + b; };
+PY_MODULE_FUNCTION(embedding, adderStdFunction)
+
+
 // Test old way of injecting class into module
 //
 class InjectedClass : public lass::python::PyObjectPlus

@@ -725,7 +725,7 @@
 			PyErr_Clear();\
 			Py_XDECREF(result);\
 		}\
-		return ::lass::python::impl::callFunction( iArgs, &f_cppFunction );\
+		return ::lass::python::impl::callFunction( iArgs, f_cppFunction );\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyModuleFunction_, i_module, i_dispatcher ), \
@@ -1069,7 +1069,7 @@ $[
 			t_return,\
 			t_params\
 		>\
-		::callFunction(iArgs, &f_cppFunction);\
+		::callFunction(iArgs, f_cppFunction);\
 	}\
 	LASS_EXECUTE_BEFORE_MAIN_EX\
 	( LASS_CONCATENATE_3( lassExecutePyModuleFunction_, i_module, i_dispatcher ),\
