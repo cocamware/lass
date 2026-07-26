@@ -55,28 +55,34 @@ a recipient may use your version of this file under either the CPAL or the GPL.
 *** END LICENSE INFORMATION ***
 """
 
-from mpmath import mp, mpf
+from typing import TypeAlias
+
+from mpmath import mp, mpf  # type: ignore[import-not-found]
 
 mp.prec = 512
+
+_FloatN: TypeAlias = tuple[float, ...]
 
 
 def fromhex(s: str) -> mpf:
     return mpf(float.fromhex(s))
 
 
-def subtract(A, B):
+def subtract(A: _FloatN, B: _FloatN) -> _FloatN:
     return tuple(a - b for a, b in zip(A, B))
 
 
-def dot(A, B):
+def dot(A: _FloatN, B: _FloatN) -> float:
     return sum(a * b for a, b in zip(A, B))
 
 
-def scale(A, s):
+def scale(A: _FloatN, s: float) -> _FloatN:
     return tuple(a * s for a in A)
 
 
-def intersect_ray_sphere(center, radius, origin, direction):
+def intersect_ray_sphere(
+    center: _FloatN, radius: float, origin: _FloatN, direction: _FloatN
+) -> tuple[float, float]:
     print(f"center = {center}")
     print(f"radius = {radius}")
     print(f"support = {support}")

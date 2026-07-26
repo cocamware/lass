@@ -45,6 +45,7 @@ from functools import cache, cached_property
 from string import Template
 from typing import Any, ClassVar, Protocol
 
+# pyright: reportMissingImports=false
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.internal.model.options import _PackageOption

@@ -47,6 +47,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any, ClassVar, Protocol
 
+# pyright: reportMissingImports=false
 from conan import ConanFile
 from conan.errors import ConanException, ConanInvalidConfiguration
 from conan.internal.model.options import _PackageOption
