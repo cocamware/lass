@@ -223,6 +223,7 @@ class TestMap(unittest.TestCase):
             bar.writeableMap = {1: 2, 3: 4}  # type: ignore[dict-item]
         with self.assertRaises(TypeError):
             bar.writeableMap = ["123"]  # type: ignore[assignment]
+        assert bar.writeableMap is not None
         bar.testConstMap(bar.writeableMap)
 
     def testVectorMap(self) -> None:
