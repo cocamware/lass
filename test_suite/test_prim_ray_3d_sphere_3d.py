@@ -81,7 +81,7 @@ def scale(A: _FloatN, s: float) -> _FloatN:
 
 
 def intersect_ray_sphere(
-    center: _FloatN, radius: float, origin: _FloatN, direction: _FloatN
+    center: _FloatN, radius: float, support: _FloatN, direction: _FloatN
 ) -> tuple[float, float]:
     print(f"center = {center}")
     print(f"radius = {radius}")
@@ -117,7 +117,7 @@ def intersect_ray_sphere(
     print(f"discriminant  = {discriminant}")
 
     # "Precision Improvements for Ray/Sphere Intersection." shows an alternative
-    # way to calculate the discriminant. Indeed, the result is the same:
+    # way to calculate the discriminant. Indeed, the result is "almost" the same:
     #
     # l = cs - direction * (cs · direction) / a
     # discriminant2 = 4 * a * (radius² - l²)
@@ -127,7 +127,7 @@ def intersect_ray_sphere(
     print(f"discriminant2 = {discriminant2}")
 
     assert discriminant > 0, "We're only handling the case of 2 intersection points"
-    # assert mp.almosteq(discriminant, discriminant2)
+    assert mp.almosteq(discriminant, discriminant2, rel_eps=1e-150)
 
     # Finally:
     # t1 = (-b - sqrt(D)) / (2 * a)
