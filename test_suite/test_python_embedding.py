@@ -1904,7 +1904,6 @@ class TestRawPointer(unittest.TestCase):
         self.assertIs(y, x)
 
 
-
 class TestPyObjectPtr(unittest.TestCase):
     def testPyObjectPtr(self) -> None:
         # None should never give a nullptr when translated to PyObject*/TPyObjPtr

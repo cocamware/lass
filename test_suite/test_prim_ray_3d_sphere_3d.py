@@ -4,7 +4,7 @@
 # ]
 # ///
 
-""""
+"""
 This script is used to calculate t1Expected and t2Expected for a ray-sphere intersection test case
 
 It uses the mpmath library to perform high-precision floating-point arithmetic
@@ -13,10 +13,10 @@ The alternative calculation of the discriminant is based on the following paper:
 
   Haines, E., Günther, J., Akenine-Möller, T. (2019).
   Precision Improvements for Ray/Sphere Intersection.
-  In: Haines, E., Akenine-Möller, T. (eds) Ray Tracing Gems. Apress, Berkeley, CA. 
+  In: Haines, E., Akenine-Möller, T. (eds) Ray Tracing Gems. Apress, Berkeley, CA.
   https://doi.org/10.1007/978-1-4842-4427-2_7
 
-  
+
 *** BEGIN LICENSE INFORMATION ***
 
 The contents of this file are subject to the Common Public Attribution License
@@ -38,7 +38,7 @@ The Initial Developer of the Original Code is Bram de Greve and Tom De Muer.
 The Original Developer is the Initial Developer.
 
 All portions of the code written by the Initial Developer are:
-Copyright (C) 2025 the Initial Developer.
+Copyright (C) 2025-2026 the Initial Developer.
 All Rights Reserved.
 
 Contributor(s):
@@ -59,27 +59,32 @@ from mpmath import mp, mpf
 
 mp.prec = 512
 
+
 def fromhex(s: str) -> mpf:
     return mpf(float.fromhex(s))
+
 
 def subtract(A, B):
     return tuple(a - b for a, b in zip(A, B))
 
+
 def dot(A, B):
     return sum(a * b for a, b in zip(A, B))
+
 
 def scale(A, s):
     return tuple(a * s for a in A)
 
+
 def intersect_ray_sphere(center, radius, origin, direction):
-    print (f"center = {center}")
-    print (f"radius = {radius}")
-    print (f"support = {support}")
-    print (f"direction = {direction}")
-    print ("")
+    print(f"center = {center}")
+    print(f"radius = {radius}")
+    print(f"support = {support}")
+    print(f"direction = {direction}")
+    print("")
 
     # As for solving the quadratic equation, we can use the following formula:
-    # 
+    #
     # ray: p(t) = center + t * direction
     # sphere: ||p - support||² = radius
     # cs = support - center
@@ -97,14 +102,13 @@ def intersect_ray_sphere(center, radius, origin, direction):
     #
     # D = b² - 4 * a * c
 
-
     cs = subtract(support, center)
     a = dot(direction, direction)
     print(f"a = {a}")
     b = 2 * dot(cs, direction)
     c = dot(cs, cs) - radius**2
     discriminant = b**2 - 4 * a * c
-    print (f"discriminant  = {discriminant}")
+    print(f"discriminant  = {discriminant}")
 
     # "Precision Improvements for Ray/Sphere Intersection." shows an alternative
     # way to calculate the discriminant. Indeed, the result is the same:
@@ -113,11 +117,11 @@ def intersect_ray_sphere(center, radius, origin, direction):
     # discriminant2 = 4 * a * (radius² - l²)
 
     l = subtract(cs, scale(direction, dot(cs, direction) / a))
-    discriminant2 = 4 * a * (radius **2 - dot(l, l))
-    print (f"discriminant2 = {discriminant2}")
+    discriminant2 = 4 * a * (radius**2 - dot(l, l))
+    print(f"discriminant2 = {discriminant2}")
 
     assert discriminant > 0, "We're only handling the case of 2 intersection points"
-    #assert mp.almosteq(discriminant, discriminant2)
+    # assert mp.almosteq(discriminant, discriminant2)
 
     # Finally:
     # t1 = (-b - sqrt(D)) / (2 * a)
@@ -133,11 +137,11 @@ def intersect_ray_sphere(center, radius, origin, direction):
     t1_ = c / q
     t2_ = q / a
 
-    print ("")
-    print (f"t1 = {t1}")
-    print (f"t1_ = {t1_}")
-    print (f"t2 = {t2}")
-    print (f"t2_ = {t2_}")
+    print("")
+    print(f"t1 = {t1}")
+    print(f"t1_ = {t1_}")
+    print(f"t2 = {t2}")
+    print(f"t2_ = {t2_}")
 
     return t1, t2
 
@@ -145,30 +149,54 @@ def intersect_ray_sphere(center, radius, origin, direction):
 # The inputs are taken from a failing test case in test_spat_object_trees.cpp
 # These are hexadecimally encoded floating point numbers for perfect reproduction
 
-center = fromhex("-0x1.de5af80000000p+9"), fromhex("-0x1.ca3b200000000p+8"), fromhex("0x1.5389140000000p+9")
+center = (
+    fromhex("-0x1.de5af80000000p+9"),
+    fromhex("-0x1.ca3b200000000p+8"),
+    fromhex("0x1.5389140000000p+9"),
+)
 radius = fromhex("0x1.e8b8280000000p+1")
-support = fromhex("0x1.fbc3500000000p+9"), fromhex("0x1.edfdc00000000p+9"), fromhex("0x1.828c600000000p+6")
-direction = fromhex("-0x1.91530c0000000p-1"), fromhex("-0x1.26e4840000000p-1"), fromhex("0x1.db54220000000p-3")
+support = (
+    fromhex("0x1.fbc3500000000p+9"),
+    fromhex("0x1.edfdc00000000p+9"),
+    fromhex("0x1.828c600000000p+6"),
+)
+direction = (
+    fromhex("-0x1.91530c0000000p-1"),
+    fromhex("-0x1.26e4840000000p-1"),
+    fromhex("0x1.db54220000000p-3"),
+)
 
 t1, t2 = intersect_ray_sphere(center, radius, support, direction)
 
-print ("")
-print (f"float(t1) = {float(t1)} = {float(t1).hex()}")
-print (f"float(t2) = {float(t2)} = {float(t2).hex()}")
+print("")
+print(f"float(t1) = {float(t1)} = {float(t1).hex()}")
+print(f"float(t2) = {float(t2)} = {float(t2).hex()}")
 
 
-print ("------------------------------------")
+print("------------------------------------")
 
 # The paper also describes an improvement when the ray origin is very close to the
 # sphere's surface, with a large radius.
 
-center = fromhex("-0x1.de5af80000000p+9"), fromhex("-0x1.ca3b200000000p+8"), fromhex("0x1.5389140000000p+9")
+center = (
+    fromhex("-0x1.de5af80000000p+9"),
+    fromhex("-0x1.ca3b200000000p+8"),
+    fromhex("0x1.5389140000000p+9"),
+)
 radius = fromhex("0x1.38b8280000000p+11")
-support = fromhex("0x1.fbc3500000000p+9"), fromhex("0x1.edfdc00000000p+9"), fromhex("0x1.828c600000000p+6")
-direction = fromhex("-0x1.91530c0000000p-1"), fromhex("-0x1.26e4840000000p-1"), fromhex("0x1.db54220000000p-3")
+support = (
+    fromhex("0x1.fbc3500000000p+9"),
+    fromhex("0x1.edfdc00000000p+9"),
+    fromhex("0x1.828c600000000p+6"),
+)
+direction = (
+    fromhex("-0x1.91530c0000000p-1"),
+    fromhex("-0x1.26e4840000000p-1"),
+    fromhex("0x1.db54220000000p-3"),
+)
 
 t1, t2 = intersect_ray_sphere(center, radius, support, direction)
 
-print ("")
-print (f"float(t1) = {float(t1)} = {float(t1).hex()}")
-print (f"float(t2) = {float(t2)} = {float(t2).hex()}")
+print("")
+print(f"float(t1) = {float(t1)} = {float(t1).hex()}")
+print(f"float(t2) = {float(t2)} = {float(t2).hex()}")

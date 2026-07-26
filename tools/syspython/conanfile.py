@@ -135,9 +135,7 @@ class SysPython(ConanFile):  # type: ignore[misc]
                 f"{self.options.python_version!s} != {self._python_version_short}"
             )
         if self._python_version_short_int < (3, 10):
-            raise ConanInvalidConfiguration(
-                "python_version < 3.10 is not supported."
-            )
+            raise ConanInvalidConfiguration("python_version < 3.10 is not supported.")
         if self.options.python_debug != self._python_debug:
             raise ConanInvalidConfiguration(
                 "python_debug option not compatible with python_executable."
