@@ -83,6 +83,9 @@ class TestModuleFunctions(unittest.TestCase):
         self.assertEqual(embedding.adderLambda(2, 3), 5)
         self.assertEqual(embedding.multiplierLambda(2, 3), 6)
 
+    def testCallback(self) -> None:
+        self.assertEqual(embedding.adderCallback(2, 3), 5)
+
 
 class TestInternalLassModule(unittest.TestCase):
     def testInternalLassModule(self) -> None:
@@ -606,6 +609,10 @@ transformation: ((1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12), (13, 14, 15, 16))
         bar = embedding.Bar(12, "bar")
         self.assertEqual(bar.lambdaMultiplier(3), 36)
         self.assertEqual(bar.lambdaDivider(2), 6)
+
+    def testCallback(self) -> None:
+        bar = embedding.Bar(12, "bar")
+        self.assertEqual(bar.callbackAdder(4), 16)
 
 
 class TestClassName(unittest.TestCase):

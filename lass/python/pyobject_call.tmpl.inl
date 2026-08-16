@@ -267,7 +267,7 @@ PyObject* callFunction( PyObject* args, std::function<R($(P$x)$)> function )
 }
 ]$
 
-/** calls lambda expression
+/** calls arbitrary callables (lambda expressions, util::Callback*, ...)
  */
 template <typename FunctionType>
 PyObject* callFunction( PyObject* args, const FunctionType& function )
@@ -439,7 +439,7 @@ $[
 	}
 ]$
 
-	/** calls lambda expression as free method
+	/** calls arbitrary callables (lambda expressions, util::Callback*, ...) as free method
 	 * 
 	 *  @a object is passed as first argument `self` to @a freeMethod.
 	 */

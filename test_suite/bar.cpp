@@ -45,6 +45,7 @@
 #include "test_common.h"
 #include "bar.h"
 #include "../lass/stde/extended_string.h"
+#include "../lass/util/callback_r_2.h"
 
 PY_DECLARE_STR_ENUM_EX(lass::test::Bar::Shape)("Shape", "Shape of a Bar", {
 	{ "CIRCLE", lass::test::Bar::Shape::Circle, "circle"},
@@ -122,6 +123,8 @@ namespace lass
 
 		std::function<int(const Bar&, int)> stdFunctionAdder = [](const Bar& self, int x) { return self.getInt() + x; };
 		PY_CLASS_FREE_METHOD(Bar, stdFunctionAdder)
+		lass::util::CallbackR2<int, const Bar&, int> callbackAdder = [](const Bar& self, int x) { return self.getInt() + x; };
+		PY_CLASS_FREE_METHOD(Bar, callbackAdder)
 		auto lambdaMultiplier = [](const Bar& self, int x) { return self.getInt() * x; };
 		PY_CLASS_FREE_METHOD(Bar, lambdaMultiplier)
 		PY_CLASS_FREE_METHOD_NAME(Bar, ([](const Bar& self, int x) { return self.getInt() / x; }), "lambdaDivider")

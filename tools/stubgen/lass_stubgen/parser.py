@@ -1253,6 +1253,12 @@ reference to a class defined in another file.
             "callFreeMethod",
         ), call_expr.spelling
 
+        return cls._parse_dispatcher_call_expr(call_expr)
+
+    @classmethod
+    def _parse_dispatcher_call_expr(
+        cls, call_expr: Cursor, depth: int = 0
+    ) -> DispatcherSignature:
         call_args = list(call_expr.get_arguments())
         assert call_args, f"{call_expr.spelling} ({canonical_type(call_expr).spelling})"
 
@@ -1269,7 +1275,20 @@ reference to a class defined in another file.
             func = deref_decl_ref_expr(func_arg)
 
         cpp_signature = canonical_type(func).spelling
+        is_free_method = call_expr.spelling in ("callFree", "callFreeMethod")
 
+        if func.kind in (CursorKind.FUNCTION_DECL, CursorKind.CXX_METHOD):
+            # Regular functions and methods
+            assert func.type.get_result().kind != TypeKind.INVALID
+            cpp_return_type = type_info(func.type.get_result())
+            cpp_params = [
+                ParamInfo(arg.spelling, type_info(arg)) for arg in func.get_arguments()
+            ]
+            return DispatcherSignature(
+                cpp_signature, cpp_return_type, cpp_params, is_free_method
+            )
+
+        # Special treatment for std::function callable objects
         func_type = type_info(func)
         if func_type.name in ("std::function", "std::__ndk1::function"):
             assert func.kind != CursorKind.VAR_DECL, func.kind
@@ -1278,7 +1297,13 @@ reference to a class defined in another file.
             assert func_type.result, f"{func_type=} must have a result"
             cpp_return_type = func_type.result
             cpp_params = [ParamInfo("", arg) for arg in func_type.args or []]
-        elif call_operator := _find_call_operator(func):
+            return DispatcherSignature(
+                cpp_signature, cpp_return_type, cpp_params, is_free_method
+            )
+
+        # Special treatment for lambda expressions and other callable objects of a
+        # non-template type. So that we can get the function argument names
+        if call_operator := _find_call_operator(func):
             # func is a callable object: a lambda expression, a variable holding one, or
             # its implicit copy-construction when passed by value. Its call operator has
             # return type and parameter names we're looking for.
@@ -1288,17 +1313,35 @@ reference to a class defined in another file.
                 ParamInfo(arg.spelling, type_info(arg))
                 for arg in call_operator.get_arguments()
             ]
-        else:
-            cpp_return_type = type_info(func.type.get_result())
-            cpp_params = [
-                ParamInfo(arg.spelling, type_info(arg)) for arg in func.get_arguments()
-            ]
+            return DispatcherSignature(
+                cpp_signature, cpp_return_type, cpp_params, is_free_method
+            )
 
-        is_free_method = call_expr.spelling in ("callFree", "callFreeMethod")
+        # Special treatment for other callable objects of a template type like
+        # util::CallbackR2<...>, of which _find_call_operator can't see the operator():
+        # for an implicit template instantiation, libclang returns the specialization
+        # but visits none of its members as they don't exist in source. Instead, try to
+        # recurse into the callFunction call that wraps the callable in a std::function.
+        assert depth == 0, "prevent recursion in the generic wrapper"
+        func_decl = call_expr.referenced
+        assert func_decl and func_decl.is_definition()
+        compound = _find_first_child(func_decl, CursorKind.COMPOUND_STMT)
+        assert compound
+        # expect a body of some declarations and 1 return statement
+        children = list(compound.get_children())
+        assert all(node.kind == CursorKind.DECL_STMT for node in children[:-1])
+        assert children[-1].kind == CursorKind.RETURN_STMT
+        # Find the call expression in the return statement
+        node = children[-1]
+        while node.kind in (
+            CursorKind.RETURN_STMT,
+            CursorKind.UNEXPOSED_EXPR,
+        ):
+            node = ensure_only_child(node)
+        assert node.kind == CursorKind.CALL_EXPR
+        assert node.spelling == call_expr.spelling
 
-        return DispatcherSignature(
-            cpp_signature, cpp_return_type, cpp_params, is_free_method
-        )
+        return cls._parse_dispatcher_call_expr(node, depth + 1)
 
 
 class ParseError(Exception):

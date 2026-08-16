@@ -86,7 +86,8 @@
  *          - If this argument must name a class method, just name the method. The class will be
  *            prepended.
  *  - `f_`: The argument must be a function pointer, and may be qualified. In some cases, it may
- *          even be a std::function, a lambda expression, or a variable holding a lambda.
+ *          even be a std::function, a lambda expression, a variable holding a lambda, or any other
+ *          callable.
  *  - `s_`: A null-terminated string literal. `"spam"` is a string literal, `spam` is not.
  *          If `nullptr` is allowed, this will be documented.
  *  - `v_`: some value like an int, float, ...
@@ -637,7 +638,7 @@
  *
  *  with:
  *  - @a i_module : Module identifier declared by `PY_DECLARE_MODULE_*`
- *  - @a f_cppFunction : C++ function, `std::function` or lambda to export
+ *  - @a f_cppFunction : C++ function, `std::function`, lambda, or other callable to export
  *
  *  @par Example
  *
@@ -689,10 +690,10 @@
  *  PY_MODULE_FUNCTION_NAME(foo, barB, "bar") // foo.bar("123")
  *  ```
  *
- *  @par `std::function` and Lambda Expressions
+ *  @par `std::function`, Lambda Expressions, and Other Callables
  *
- *  Besides normal functions, you can also export `std::function` objects or even lambda expressions
- *  as Python functions. Overloading is fully supported.
+ *  Besides normal functions, you can also export `std::function` objects, lambda expressions, and
+ *  other callables as Python functions. Overloading is fully supported.
  *
  *  @note `std::function` objects do not have parameter names, so you will end up with generic names
  *        like `_1`, `_2` as parameter names in the generated Python stubs. Lambda expressions do
@@ -701,8 +702,8 @@
  *  @note Inline lambda expressions that contain commas must be wrapped in (parentheses), and you
  *        must explicitly provide a function name with one of the `_NAME` export macros.
  *
- *  @note Generic lambdas like `[](auto a, auto b) { return a + b; }` are not supported, as they
- *        have template `operator()`.
+ *  @note Callables with overloaded `operator()` are not supported, and neither are callables with
+ *        template `operator()` such as generic lambdas like `[](auto a, auto b) { return a + b; }`.
  *
  *  @par Example
  *
@@ -726,7 +727,7 @@
  *  automatically fill in some of the parameters.
  *
  *  @param i_module Module identifier declared by `PY_DECLARE_MODULE_*`
- *  @param f_cppFunction C++ function, `std::function` or lambda to export
+ *  @param f_cppFunction C++ function, `std::function`, lambda, or other callable to export
  *  @param s_functionName Python function name (const char* string with static storage duration)
  *  @param s_doc Function docstring (const char* string with static storage duration), or nullptr
  *  @param i_dispatcher Unique name for the generated dispatcher (unscoped, it is concatenated)
@@ -767,7 +768,7 @@
  *  Wraps PY_MODULE_FUNCTION_EX() with auto-generated dispatcher name.
  *
  *  @param i_module Module identifier declared by `PY_DECLARE_MODULE_*`
- *  @param f_cppFunction C++ function, `std::function` or lambda to export
+ *  @param f_cppFunction C++ function, `std::function`, lambda, or other callable to export
  *  @param s_name Python function name (const char* string with static storage duration)
  *  @param s_doc Function docstring (const char* string with static storage duration, or nullptr)
  *
@@ -787,7 +788,7 @@
  *  Wraps PY_MODULE_FUNCTION_NAME_DOC() with @a s_doc = `nullptr`.
  *
  *  @param i_module Module identifier declared by `PY_DECLARE_MODULE_*`
- *  @param f_cppFunction C++ function, `std::function` or lambda to export
+ *  @param f_cppFunction C++ function, `std::function`, lambda, or other callable to export
  *  @param s_name Python function name (const char* string with static storage duration)
  *
  *  @par Example
@@ -805,8 +806,8 @@
  *  Wraps PY_MODULE_FUNCTION_NAME_DOC() with @a s_name derived from @a f_cppFunction.
  *
  *  @param i_module Module identifier declared by `PY_DECLARE_MODULE_*`
- *  @param f_cppFunction C++ function, `std::function` or lambda to export (name will be used as
- *                       Python name)
+ *  @param f_cppFunction C++ function, `std::function`, lambda, or other callable to export
+ *                       (name will be used as Python name)
  *  @param s_doc Function documentation string (const char* string with static storage duration)
  *
  *  @par Example
@@ -824,8 +825,8 @@
  *  Wraps PY_MODULE_FUNCTION_NAME_DOC() with defaults.
  *
  *  @param i_module Module identifier declared by `PY_DECLARE_MODULE_*`
- *  @param f_cppFunction C++ function, `std::function` or lambda to export (name will be used as
- *                       Python name)
+ *  @param f_cppFunction C++ function, `std::function`, lambda, or other callable to export
+ *                       (name will be used as Python name)
  *
  *  @par Example
  *
@@ -1931,11 +1932,11 @@ $[
  *  - Simple macros in case there's no ambiguity what C++ free method is being exported
  *  - Qualified macros that help to disambiguate overloaded C++ free methods.
  *
- *  @par `std::function` and Lambda Expressions as Free Methods
+ *  @par `std::function`, Lambda Expressions, and Other Callables as Free Methods
  *
- *  Besides normal free functions, you can also export `std::function` objects or even lambda
- *  expressions as free methods. This only applies to the simple free method macros, not the
- *  qualified ones.
+ *  Besides normal free functions, you can also export `std::function` objects, lambda expressions
+ *  or any other callable as free methods. This *only* applies to the simple free method macros, not
+ *  the qualified ones.
  *
  *  @note `std::function` objects do not have parameter names, so you will end up with generic names
  *        like `_1`, `_2` as parameter names in the generated Python stubs. Lambda expressions do
@@ -1944,8 +1945,8 @@ $[
  *  @note Inline lambda expressions that contain commas must be wrapped in (parentheses), and you
  *        must explicitly provide a method name with one of the `_NAME` export macros.
  *
- *  @note Generic lambdas like `[](auto a, auto b) { return a + b; }` are not supported, as they
- *        have template `operator()`.
+ *  @note Callables with overloaded `operator()` are not supported, and neither are callables with
+ *        template `operator()` such as generic lambdas like `[](auto a, auto b) { return a + b; }`.
  *
  *  @par Overloading
  *
@@ -2599,12 +2600,13 @@ $[
  *  The basic form is:
  *
  *  ```cpp
- *  PY_CLASS_FREE_METHOD( t_cppClass, f_cppFreeMethod )
+ *  PY_CLASS_FREE_METHOD( i_cppClass, i_cppFreeMethod )
  *  ```
  *
  *  with:
- *  - @a  t_cppClass : C++ class containing the method, or its @ref ShadowClasses "shadow class"
- *  - @a  f_cppFreeMethod : C++ function, `std::function` or lambda to export as method
+ *  - @a  i_cppClass : C++ class containing the method, or its @ref ShadowClasses "shadow class"
+ *  - @a  i_cppFreeMethod : C++ function, `std::function`, lambda, or other callable to export as method
+ *                          (name will be used as Python name)
  *
  *  @par Common suffixes
  *
@@ -2618,10 +2620,12 @@ $[
  *  | `PY_CLASS_FREE_METHOD_NAME_DOC` | `i_cppClass`, `f_cppFreeMethod` | `s_methodName`, `s_doc`                 | Custom Python name + Docstring |
  *  | `PY_CLASS_FREE_METHOD_EX`       | `t_cppClass`, `f_cppFreeMethod` | `s_methodName`, `s_doc`, `i_dispatcher` | Custom dispatcher name         |
  *
- *  Besides normal C++ functions, you can also use these macros to export std::function objects or
- *  even lambda expressions as free methods. See above in @ref ClassMethods for more details.
- *
- *  See also in @ref ClassMethods for more details about overloading and special operators.
+ *  Besides normal C++ functions, you can also use these macros to export std::function objects,
+ *  lambda expressions, or any other callable as free methods.
+ * 
+ *  Overloading and special operators are also supported.
+ * 
+ *  See above in @ref ClassMethods for more details.
  *  @{
  */
 
@@ -2639,7 +2643,7 @@ $[
  *  Here you can use a fully qualified class name, at the cost of having to provide a unique suffix.
  *
  *  @param t_cppClass C++ class you're exporting the method for
- *  @param f_cppFreeMethod C++ function, `std::function` or lambda to export as method
+ *  @param f_cppFreeMethod C++ function, `std::function`, lambda, or other callable to export as method
  *  @param s_methodName Python method name (string literal), or special method from
  *                      lass::python::methods
  *  @param s_doc Method documentation string (null-terminated C string literal, may be nullptr)
@@ -2661,7 +2665,7 @@ $[
  *  Wraps PY_CLASS_FREE_METHOD_EX() with automatically generated dispatcher name.
  *
  *  @param i_cppClass C++ class you're exporting the method for
- *  @param f_cppFreeMethod C++ function, `std::function` or lambda to export as method
+ *  @param f_cppFreeMethod C++ function, `std::function`, lambda, or other callable to export as method
  *  @param s_methodName Python method name (string literal), or special method from
  *                      lass::python::methods
  *  @param s_doc Method documentation string (null-terminated C string literal, may be nullptr)
@@ -2682,7 +2686,7 @@ $[
  *  Wraps PY_CLASS_FREE_METHOD_NAME_DOC() with @a s_doc = `nullptr`.
  *
  *  @param i_cppClass C++ class you're exporting the method for
- *  @param f_cppFreeMethod C++ function, `std::function` or lambda to export as method
+ *  @param f_cppFreeMethod C++ function, `std::function`, lambda, or other callable to export as method
  *  @param s_methodName Python method name (string literal), or special method from
  *                      lass::python::methods
  *
@@ -2700,8 +2704,8 @@ $[
  *  Wraps PY_CLASS_FREE_METHOD_NAME_DOC() with @ s_methodName = `LASS_STRINGIFY(i_cppFreeMethod)`.
  *
  *  @param i_cppClass C++ class you're exporting the method for
- *  @param i_cppFreeMethod C++ function, `std::function` or lambda to export as method (must be
- *                         a valid identifier, used as Python name)
+ *  @param i_cppFreeMethod C++ function, `std::function`, lambda, or other callable to export as method
+ *                         (must be a valid identifier, used as Python name)
  *  @param s_doc Method documentation string (null-terminated C string literal, may be nullptr)
  *
  *  @par Example
@@ -2718,8 +2722,8 @@ $[
  *  Wraps PY_CLASS_FREE_METHOD_DOC() with @a s_doc = `nullptr`.
  *
  *  @param i_cppClass C++ class you're exporting the method for
- *  @param i_cppFreeMethod C++ function, `std::function` or lambda to export as method (must be
- *                         a valid identifier, used as Python name)
+ *  @param i_cppFreeMethod C++ function, `std::function`, lambda, or other callable to export as method
+ *                         (must be a valid identifier, used as Python name)
  *
  *  @par Example
  *  ```cpp
@@ -3324,13 +3328,13 @@ $[
  *
  *  There are no `_QUALIFIED` versions of these macros.
  * 
- *  @par Free functions, `std::function` and lambda expressions as static methods.
+ *  @par Free functions, `std::function`, lambdas, and other callables as static methods.
  * 
- *  Also free functions, `std::function` and lambda expressions can be exported as Python static
- *  methods, but you need to only use the `PY_CLASS_STATIC_METHOD_EX()`.
+ *  Also free functions, `std::function`, lambda expressions, and other callables can be exported as
+ *  Python static methods, but you need to *only* use the `PY_CLASS_STATIC_METHOD_EX()`.
  * 
- *  @note Generic lambdas like `[](auto a, auto b) { return a + b; }` are not supported, as they
- *        have template `operator()`.
+ *  @note Callables with overloaded `operator()` are not supported, and neither are callables with
+ *        template `operator()` such as generic lambdas like `[](auto a, auto b) { return a + b; }`.
  *
  *  @par Overloading Python static methods
  *
@@ -3374,8 +3378,8 @@ $[
  *  @note This is the only macro that allows you to export a free function as static method.
  *
  *  @param t_cppClass C++ class to add the static method to
- *  @param f_cppFunction C++ static method, C++ function, `std::function` or lambda that implements
- *                       the static method
+ *  @param f_cppFunction C++ static method, C++ function, `std::function`, lambda, or other callable
+ *                       that implements the static method
  *  @param s_methodName Python method name (null-terminated C string literal)
  *  @param s_doc Method documentation string (null-terminated C string literal, may be nullptr)
  *  @param i_dispatcher Unique identifier for the generated dispatcher function
