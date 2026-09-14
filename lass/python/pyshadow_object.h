@@ -23,7 +23,7 @@
  *  The Original Developer is the Initial Developer.
  *
  *  All portions of the code written by the Initial Developer are:
- *  Copyright (C) 2023-2025 the Initial Developer.
+ *  Copyright (C) 2023-2026 the Initial Developer.
  *  All Rights Reserved.
  *
  *  Contributor(s):
@@ -84,12 +84,78 @@ namespace lass
 namespace python
 {
 
+/** @defgroup ShadowClasses Python Shadow Classes
+ *  @brief Export C++ classes that don't derive from lass::python::PyObjectPlus
+ *  @ingroup Python
+ * 
+ *  Shadow classes are LASS' wrapper classes that allow you to export C++ classes that don't
+ *  derive from lass::python::PyObjectPlus to Python.
+ * 
+ *  They are defined by invoking two macros:
+ *
+ *  - PY_SHADOW_CLASS defines the shadow class. It's typical to name the shadow class by prefixing
+ *    the native C++ class with Py. For example, Spam becomes PySpam. This macro can be invoked in
+ *    any namespace.
+ *
+ *  - PY_SHADOW_CASTERS defines the ShadoweeTraits for the shadow class to make sure you can
+ *    translate from the native C++ class to the shadow class and vice-versa. This must be invoked
+ *    in the global namespace.
+ * 
+ *  Both macros are typically invoked in a header file (not necessarily the one that defines the
+ *  original C++ classes), as both macros must be seen by all exports that use this class as parameter
+ *  or return type.
+ * 
+ *  Once you have defined the Shadow class, you use the regular macros like PY_DECLARE_CLASS_NAME
+ *  or PY_CLASS_METHOD to fully define the Python export for this class. But instead of using the
+ *  C++ class as first argument, you use the shadow class.
+ * 
+ *  Here's a quick comparison between both techniques:
+ * 
+ *  ```cpp
+ *  // Direct Python class                         | // Shadow Python class
+ *                                                 |
+ *  // spam.h                                      | // spam.h
+ *                                                 |
+ *  class Spam: public lass::python::PyObjectPlus  | class Spam
+ *  {                                              | {
+ *      PY_HEADER(lass::python::PyObjectPlus)      | 
+ *  public:                                        | public:
+ *      void method(int a, int b);                 |     void method(int a, int b);
+ *  };                                             | };
+ *                                                 |
+ *  class Ham: public Spam                         | class Ham: public Spam
+ *  {                                              | {
+ *      PY_HEADER(Spam)                            | 
+ *  public:                                        | public:
+ *      void other(int c);                         |     void other(int c);
+ *  };                                             | };
+ *                                                 |
+ *                                                 | PY_SHADOW_CLASS(LASS_DLL_EXPORT, PySpam, Spam)
+ *                                                 | PY_SHADOW_CASTERS(PySpam)
+ *                                                 |
+ *                                                 | PY_SHADOW_CLASS_DERIVED(LASS_DLL_EXPORT, PyHam, Ham, PySpam)
+ *                                                 | PY_SHADOW_CASTERS(PyHam)
+ *                                                 |
+ *  // spam.cpp                                    | // spam.cpp
+ *                                                 |
+ *  PY_DECLARE_CLASS(Spam)                         | PY_DECLARE_CLASS_NAME(PySpam, "Spam")
+ *  PY_CLASS_METHOD(Spam, method)                  | PY_CLASS_METHOD(PySpam, method)
+ *                                                 |
+ *  PY_DECLARE_CLASS(Ham)                          | PY_DECLARE_CLASS_NAME(PyHam, "Ham")
+ *  PY_CLASS_METHOD(Ham, other)                    | PY_CLASS_METHOD(PyHam, other)
+ *  ```
+ */
+
+
+/** @ingroup ShadowClasses
+ *  @brief ID-type to uniquely identify shadowee instances in the shadow cache
+ */
 using TShadoweeID = num::TuintPtr;
 
 namespace impl
 {
 
-/** @ingroup Python
+/** @ingroup ShadowClasses
  *  @internal
  */
 enum ShadoweeConstness
@@ -98,7 +164,7 @@ enum ShadoweeConstness
 	scNonConst
 };
 
-/** @ingroup Python
+/** @ingroup ShadowClasses
  *  @internal
  */
 class LASS_PYTHON_DLL ShadowBaseCommon: public PyObjectPlus
@@ -132,7 +198,7 @@ private:
 	static TCache& cache();
 };
 
-/** @ingroup Python
+/** @ingroup ShadowClasses
  *  @internal
  */
 template <typename T>
@@ -140,7 +206,7 @@ struct IsShadowClass: public meta::IsDerived<T, ShadowBaseCommon>
 {
 };
 
-/** @ingroup Python
+/** @ingroup ShadowClasses
  *  @internal
  */
 template <typename T>
@@ -336,6 +402,9 @@ private:
 
 //template <typename T> typename ShadowTraits<T>::TImplicitConverterList* ShadowTraits<T>::implicitConverters_ = 0;
 
+/** @ingroup ShadowClasses
+ *  @internal
+ */
 template <typename ShadowType, typename DerivedMakers> 
 typename ShadowType::TShadowPtr makeShadow(
 		const typename ShadowType::TConstShadoweePtr& shadowee, const DerivedMakers* derivedMakers,
@@ -363,6 +432,9 @@ typename ShadowType::TShadowPtr makeShadow(
 	return TShadowPtr(impl::fixObjectType(new ShadowType(shadowee, constness)));
 }
 
+/** @ingroup ShadowClasses
+ *  @internal
+ */
 template <typename Makers, typename Maker> void registerMaker(Makers*& makers, Maker maker)
 {
 	if (!makers)
@@ -372,6 +444,9 @@ template <typename Makers, typename Maker> void registerMaker(Makers*& makers, M
 	makers->push_back(maker);
 }
 
+/** @ingroup ShadowClasses
+ *  @internal
+ */
 template <typename DestPyType, typename SourceCppType>
 int defaultConvertor(PyObject* object, typename lass::python::impl::ShadowTraits<DestPyType>::TCppClassPtr& p)
 {
@@ -389,36 +464,76 @@ int defaultConvertor(PyObject* object, typename lass::python::impl::ShadowTraits
 }
 
 
+/** @addtogroup ShadowClasses
+ *  
+ *  @par Pointer-traits
+ * 
+ *  Shadow-classes need a pointer type to store their shadowee instances. This is
+ *  defined by the pointer traits chosen for the shadow class.
+ * 
+ *  By default, the SharedPointerTraits is used with util::SharedPtr as shadowee pointer,
+ *  but you can specify a custom one using PY_SHADOW_CLASS_PTRTRAITS.
+ * 
+ *  Available pointer traits are:
+ *  - SharedPointerTraits
+ *  - NakedPointerTraits
+ *  - StdSharedPointerTraits
+ * 
+ *  To make your custom pointer traits, copy the pattern of these three.
+ * 
+ *  @note `id` must return an ID that uniquely identifies a shadowee instance for as long
+ *  as it is alive and at least one shadow pointer references it (when it's removed from
+ *  the shadow cache). Return 0 to opt-out from the shadow cache.
+ */
+
+/** @ingroup ShadowClasses
+ *  @brief Pointer-traits for Python Shadow classes that use lass::util::SharedPtr for storage
+ */
 template <typename T, template <typename, typename> class S = util::ObjectStorage, typename C = util::DefaultCounter>
 struct SharedPointerTraits
 {
+	/** Pointer to shadowee type */
 	typedef util::SharedPtr<T, S, C> TPtr;
+	
+	/** Rebind pointer traits to other shadowee type */
 	template <typename U> struct Rebind
 	{
 		typedef SharedPointerTraits<U, S, C> Type;
 	};
-	static void acquire(const TPtr&) {} // TPtr already handles ownership, so nothing to acquire.
+
+	/** util::SharedPtr already handles reference counts */
+	static void acquire(const TPtr&) {}
+	/** util::SharedPtr already handles reference counts */
 	static void release(const TPtr&) {}
-	static bool isEmpty(const TPtr& p) 
+
+	/** Return true when storing a nullptr */
+	static bool isEmpty(const TPtr& p)  
 	{ 
 		return p.isEmpty(); 
 	}
+	/** Get the raw pointer to the shadowee */
 	static T* get(const TPtr& p) 
 	{ 
 		return p.get(); 
 	}
-	static TShadoweeID id(const TPtr& p)
+
+	/** Convert shadowee pointer to ID for shadow cache */
+	static TShadoweeID id(const TPtr& p) 
 	{
 		return reinterpret_cast<TShadoweeID>(p.get());
 	}
-	template <typename U> static TPtr staticCast(const util::SharedPtr<U, S, C>& p)
+
+	/** Perform static cast on shadowee pointer */
+	template <typename U> static TPtr staticCast(const util::SharedPtr<U, S, C>& p) 
 	{
 		return p.template staticCast<T>();
 	}
-	template <typename U> static TPtr dynamicCast(const util::SharedPtr<U, S, C>& p)
+	/** Perform dynamic cast on shadowee pointer */
+	template <typename U> static TPtr dynamicCast(const util::SharedPtr<U, S, C>& p) 
 	{
 		return p.template dynamicCast<T>();
 	}
+	/** Perform const cast on shadowee pointer */
 	template <typename U> static TPtr constCast(const util::SharedPtr<U, S, C>& p)
 	{
 		return p.template constCast<T>();
@@ -426,36 +541,57 @@ struct SharedPointerTraits
 };
 
 
+/** @ingroup ShadowClasses
+ *  @brief Pointer-traits for Python Shadow classes that use raw `*` pointers for storage
+ * 
+ *  @warning The NakedPointerTraits does not govern the lifetime of the shadowee, so you
+ *           must make sure that it outlives every Python reference!
+ */
 template <typename T>
 struct NakedPointerTraits
 {
+	/** Pointer to shadowee type */
 	typedef T* TPtr;
+
+	/** Rebind pointer traits to other shadowee type */
 	template <typename U> struct Rebind
 	{
 		typedef NakedPointerTraits<U> Type;
 	};
-	static void acquire(TPtr) {} // no ownership rules, so nothing to acquire.
+
+	/** Raw pointers have no ownership rules */
+	static void acquire(TPtr) {} 
+	/** Raw pointers have no ownership rules */
 	static void release(TPtr) {}
-	static bool isEmpty(TPtr p) 
+
+	/** Return true when storing a nullptr */
+	static bool isEmpty(TPtr p)  
 	{ 
 		return p == 0; 
 	}
-	static T* get(TPtr p) 
+	/** Get the raw pointer to the shadowee */
+	static T* get(TPtr p)
 	{ 
 		return p; 
 	}
+
+	/** Convert shadowee pointer to ID for shadow cache */
 	static TShadoweeID id(TPtr p)
 	{
 		return reinterpret_cast<TShadoweeID>(p);
 	}
+
+	/** Perform static cast on shadowee pointer */
 	template <typename U> static TPtr staticCast(U* p)
 	{
 		return static_cast<TPtr>(p);
 	}
+	/** Perform dynamic cast on shadowee pointer */
 	template <typename U> static TPtr dynamicCast(U* p)
 	{
 		return dynamic_cast<TPtr>(p);
 	}
+	/** Perform const cast on shadowee pointer */
 	template <typename U> static TPtr constCast(U* p)
 	{
 		return const_cast<TPtr>(p);
@@ -463,36 +599,54 @@ struct NakedPointerTraits
 };
 
 
+/** @ingroup ShadowClasses
+ *  @brief Pointer-traits for Python Shadow classes that use `std::shared_ptr` for storage
+ */
 template <typename T>
 struct StdSharedPointerTraits
 {
+	/** Pointer to shadowee type */
 	typedef std::shared_ptr<T> TPtr;
+
+	/** Rebind pointer traits to other shadowee type */
 	template <typename U> struct Rebind
 	{
 		typedef StdSharedPointerTraits<U> Type;
 	};
-	static void acquire(const TPtr&) {} // TPtr already handles ownership, so nothing to acquire.
+
+	/** std::shared_ptr already handles reference counts */
+	static void acquire(const TPtr&) {}
+	/** std::shared_ptr already handles reference counts */
 	static void release(const TPtr&) {}
+	
+	/** Return true when storing a nullptr */
 	static bool isEmpty(const TPtr& p)
 	{
 		return !p;
 	}
+	/** Get the raw pointer to the shadowee */
 	static T* get(const TPtr& p)
 	{
 		return p.get();
 	}
+
+	/** Convert shadowee pointer to ID for shadow cache */
 	static TShadoweeID id(TPtr p)
 	{
 		return reinterpret_cast<TShadoweeID>(p.get());
 	}
+
+	/** Perform static cast on shadowee pointer */
 	template <typename U> static TPtr staticCast(const std::shared_ptr<U>& p)
 	{
 		return std::static_pointer_cast<T>(p);
 	}
+	/** Perform dynamic cast on shadowee pointer */
 	template <typename U> static TPtr dynamicCast(const std::shared_ptr<U>& p)
 	{
 		return std::dynamic_pointer_cast<T>(p);
 	}
+	/** Perform const cast on shadowee pointer */
 	template <typename U> static TPtr constCast(const std::shared_ptr<U>& p)
 	{
 		return std::const_pointer_cast<T>(p);
@@ -500,7 +654,9 @@ struct StdSharedPointerTraits
 };
 
 
-/** @ingroup Python
+
+/** @ingroup ShadowClasses
+ *  @internal
  */
 template 
 <
@@ -570,7 +726,10 @@ typename ShadowClass<S, T, P, PT>::TDerivedMakers* ShadowClass<S, T, P, PT>::der
 
 
 
-template 
+/** @ingroup ShadowClasses
+ *  @internal
+ */
+template
 <
 	typename ShadowType,
 	typename ShadoweeType, 
@@ -641,20 +800,27 @@ typename ShadowClass<S, T, PyObjectPlus, PT>::TDerivedMakers* ShadowClass<S, T, 
 
 
 
-/** @ingroup Python
+/** @ingroup ShadowClasses
  *  @brief Helper to get the pointer type holding the shadowee in a shadow object
  * 
- *  `ShadoweeType` is the C++ type being wrapped by a shadow object. This shadow object
- *  holds the wrapped shadowee in a pointer type. This pointer type is defined by the
- *  pointer traits passed to `PY_SHADOW_CLASS_EX` or `PY_SHADOW_CLASS_PTRTRAITS`.
- *  By default, this is `SharedPointerTraits<ShadoweeType>`.
+ *  @tparam ShadoweeType native C++ class, either the shadowee type being wrapped by
+ *                       a shadow class, or a direct exported type that derives from
+ *                       lass::python::PyObjectPlus.
  * 
- *  This helper will directly give you the pointer type used to store the shadowee in
- *  the shadow objects. Depending on the constness of the shadowee, you will either get
- *  a pointer to a non-const ShadoweeType or a pointer to a const ShadoweeType.
+ *  This helper gives you the correct pointer type to store a C++ class on the heap
+ *  (either a shadowee type, or a direct Python class) that is compatible with the
+ *  defined Python exports
+ *  
+ *  If @a ShadoweeType is a shadowee type, this will be the pointer type that holds
+ *  the shadowee object in the shadow object, and it's defined by the pointer traits
+ *  passed to PY_SHADOW_CLASS_EX() or PY_SHADOW_CLASS_PTRTRAITS()
+ *  (or `SharedPointerTraits<ShadoweeType>` if you use the default PY_SHADOW_CLASS() ).
+ *  Depending on the constness of the shadowee, you will either get a pointer to a
+ *  non-const @a ShadoweeType or a pointer to a const @a ShadoweeType.
  * 
- *  If `ShadoweeType` is _not_ a shadowed type but derives from `PyObjectPlus`, then
- *  the pointer type `PyObjectPtr<ShadoweeType>::Type`
+ *  If @a ShadoweeType is _not_ a shadowed type, but is instead a direct export and 
+ *  derives directly or indirectly from lass::python::PyObjectPlus, then the pointer
+ *  type is simply `lass::python::PyObjectPtr<ShadoweeType>::Type`.
  */
 template <typename ShadoweeType>
 using ShadoweePtr = std::conditional_t<std::is_const_v<ShadoweeType>,
@@ -666,7 +832,15 @@ using ShadoweePtr = std::conditional_t<std::is_const_v<ShadoweeType>,
 
 }
 
-/** @ingroup Python
+/** @ingroup ShadowClasses
+ *  @brief Declare Python shadow class with full control
+ *
+ *  @param dllInterface desired DLL-interface of shadow class
+ *  @param i_PyObjectShadowClass Unique C++ class identifier (unqualified name) of shadow class
+ *  @param t_CppClass typename of the shadowee, the native C++ class being shadowed
+ *  @param t_PyObjectParent the shadow's class parent (either another shadow class or lass::python::PyObjectPlus),
+ *                          this will be the base class of the Python type.
+ *  @param t_PointerTraits complete type of pointer-traits to be used for shadowee storage.
  */
 #define PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectParent, t_PointerTraits) \
 	class dllInterface i_PyObjectShadowClass : \
@@ -682,50 +856,85 @@ using ShadoweePtr = std::conditional_t<std::is_const_v<ShadoweeType>,
 	}; \
 	/**/
 
-/** @ingroup Python
+/** @ingroup ShadowClasses
+ *  @brief Declare Python shadow class with custom pointer traits
+ * 
+ *  The pointer-traits define how shadowee classes will be stored as pointer in the shadow class.
+ *  Only specify the pointer-traits template name, the macro will add @a t_CppClass as template argument.
+ * 
+ *  @param dllInterface desired DLL-interface of shadow class
+ *  @param i_PyObjectShadowClass Unique C++ class identifier (unqualified name) of shadow class
+ *  @param t_CppClass typename of the shadowee, the native C++ class being shadowed
+ *  @param pointerTraits shadowee pointer-traits template name
  */
 #define PY_SHADOW_CLASS_PTRTRAITS(dllInterface, i_PyObjectShadowClass, t_CppClass, pointerTraits)\
 	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::PyObjectPlus, pointerTraits < t_CppClass > )
 
-/** @ingroup Python
+/** @ingroup ShadowClasses
+ *  @brief Declare Python shadow class with util::SharedPtr as default shadowee pointer type
+ * 
+ *  @param dllInterface desired DLL-interface of shadow class
+ *  @param i_PyObjectShadowClass Unique C++ class identifier (unqualified name) of shadow class
+ *  @param t_CppClass typename of the shadowee, the native C++ class being shadowed
  */
 #define PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)\
 	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, ::lass::python::PyObjectPlus, ::lass::python::SharedPointerTraits< t_CppClass >)
 
+/** @ingroup ShadowClasses
+ *  @brief Declare Python shadow child class with a parent
+ * 
+ *  Register a derived shadow class to reflect the same polymorphic class hierarchy in Python as in C++.
+ *  If `Ham` derives from `Spam`, then a `SharedPtr<Spam>` pointer that contains a `Ham` instance will
+ *  properly be returned as a `Ham` object in Python.
+ * 
+ *  Derived shadow classes use the same pointer traits as the parent class, so you don't need to
+ *  specify it again.
+ * 
+ *  @param dllInterface desired DLL-interface of shadow class
+ *  @param i_PyObjectShadowClass Unique C++ class identifier (unqualified name) of shadow class
+ *  @param t_CppClass typename of the shadowee, the native C++ class being shadowed
+ *  @param t_PyObjectShadowParent the parent's shadow class, this will be the base class of the Python type.
+ */
 #define PY_SHADOW_CLASS_DERIVED(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)\
 	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent, t_PyObjectShadowParent::TPointerTraits::Rebind< t_CppClass >::Type )
 
-/** @ingroup Python
- *  @deprecated 
+/** @ingroup ShadowClasses
+ *  @brief Deprecated alias for PY_SHADOW_CLASS_EX
+ *  @deprecated Use PY_SHADOW_CLASS_EX instead, it's a direct 1:1 replacement
  */
 #define PY_SHADOW_CLASS_NOCONSTRUCTOR_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectBase, t_PyObjectParent)\
 	PY_SHADOW_CLASS_EX(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectBase, t_PyObjectParent)
 
-/** @ingroup Python
- *  @deprecated 
+/** @ingroup ShadowClasses
+ *  @brief Deprecated alias for PY_SHADOW_CLASS
+ *  @deprecated Use PY_SHADOW_CLASS instead, it's a direct 1:1 replacement
  */
 #define PY_SHADOW_CLASS_NOCONSTRUCTOR(dllInterface, i_PyObjectShadowClass, t_CppClass)\
 	PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)
 
-/** @ingroup Python
- *  @deprecated 
+/** @ingroup ShadowClasses
+ *  @brief Deprecated alias for PY_SHADOW_CLASS
+ *  @deprecated Use PY_SHADOW_CLASS instead, it's a direct 1:1 replacement
  */
 #define PY_WEAK_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)\
 	PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)
 
-/** @ingroup Python
- *  @deprecated 
+/** @ingroup ShadowClasses
+ *  @brief Deprecated alias for PY_SHADOW_CLASS
+ *  @deprecated Use PY_SHADOW_CLASS instead, it's a direct 1:1 replacement
  */
 #define PY_WEAK_SHADOW_CLASS_NOCONSTRUCTOR(dllInterface, i_PyObjectShadowClass, t_CppClass)\
 	PY_SHADOW_CLASS(dllInterface, i_PyObjectShadowClass, t_CppClass)
 
-/** @ingroup Python
- *  @deprecated 
+/** @ingroup ShadowClasses
+ *  @brief Deprecated
+ *  @deprecated This call has no effect and can be removed
  */
 #define PY_SHADOW_CLASS_ENABLE_AUTOMATIC_INVALIDATION(i_PyObjectShadowClass)
 
-/** @ingroup Python
- *  @deprecated 
+/** @ingroup ShadowClasses
+ *  @brief Deprecated alias for PY_SHADOW_CLASS_DERIVED
+ *  @deprecated Use PY_SHADOW_CLASS_DERIVED instead, it's a direct 1:1 replacement
  */
 #define PY_SHADOW_CLASS_DERIVED_NOCONSTRUCTOR(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)\
 	PY_SHADOW_CLASS_DERIVED(dllInterface, i_PyObjectShadowClass, t_CppClass, t_PyObjectShadowParent)
@@ -733,7 +942,21 @@ using ShadoweePtr = std::conditional_t<std::is_const_v<ShadoweeType>,
 
 
 
-/** @ingroup Python
+/** @ingroup ShadowClasses
+ *  @brief Define lass::python::ShadoweeTraits for shadow class
+ * 
+ *  This ensures that shadowee class becomes usable as parameter or return type.
+ *  If `PySpam` is @a t_ShadowObject, the shadow class of `Spam`, then `Spam`,
+ *  `const Spam&`, `Spam*`, `lass::util::SharedPtr<Spam>`, etc. all become
+ *  usable as parameter or return types.
+ * 
+ *  @param t_ShadowObject fully qualified typename of Python Shadow class
+ * 
+ *  @note This macro **MUST** be invoked in the global namespace
+ * 
+ *  @note This macro **MUST** be invoked in the same header that declares the
+ *        shadow class with PY_SHADOW_CLASS or similar. Every translation unit
+ *        that uses the shadow class must include it.
  */
 #define PY_SHADOW_CASTERS(t_ShadowObject)\
 namespace lass \
@@ -752,26 +975,135 @@ namespace python \
 
 
 
-/** @ingroup Python
- *  @deprecated 
+/** @ingroup ShadowClasses
+ *  @brief Deprecated alias for PY_SHADOW_CASTERS
+ *  @deprecated Use PY_SHADOW_CASTERS instead, it's a direct 1:1 replacement
  */
 #define PY_SHADOW_DOWN_CASTERS(t_ShadowObject)\
 	PY_SHADOW_CASTERS(t_ShadowObject)
 
-/** @ingroup Python
- *  @deprecated 
+/** @ingroup ShadowClasses
+ *  @brief Deprecated alias for PY_SHADOW_CASTERS
+ *  @deprecated Use PY_SHADOW_CASTERS instead, it's a direct 1:1 replacement
  */
 #define PY_SHADOW_DOWN_CASTERS_NOCONSTRUCTOR(t_ShadowObject)\
 	PY_SHADOW_CASTERS(t_ShadowObject)
 
 
 
-
-#define PY_CLASS_CONVERTOR_EX( t_ShadowObject, v_conversionFunction, i_uniqueName )\
+/** @ingroup ShadowClasses
+ *  @brief Add implicit conversion function to Python class
+ * 
+ *  Add a conversion function to a Python class to implicitly convert a Python object to the C++ class when it is being
+ *  passed as a parameter to a C++ function
+ * 
+ *  By default, you need to convert types by explicitly constructing an object in Python, or you must overload the
+ *  function on different types. By adding implicit convertors, they will automatically be attempted when
+ *  calling functions taking the native C++ class. If conversion is successful, the function is called.
+ * 
+ *  The conversion function must be of the following signature: `int f(PyObject* obj, ShadoweePtr<T>& val)`.
+ *  It receives a pointer to the Python object for which the conversion must be attempted.
+ *  If successful, you should construct a new instance on the heap of the native C++ class, assign it to the shadowee
+ *  pointer, and return 0. If failed, you should return 1, and a generic `TypeError` will be set.
+ * 
+ *  Conversions are attempted in the order of registration.
+ * 
+ *  This macro must be invoked in the same translation unit (*.cpp file) as `PY_DECLARE_CLASS_*`.
+ *
+ *  @param t_ShadowObject Python class (fully qualified) on which to add the convertor
+ *  @param f_conversionFunction conversion function
+ *  @param i_uniqueName identifier used to name the generated registration hook
+ *
+ *  @par Example:
+ *  
+ *  ```cpp
+ *  class Spam
+ *  {
+ *  public:
+ *      Spam(const std::string& s);
+ *  };
+ * 
+ *  int spamConversion(PyObject* obj, lass::python::ShadoweePtr<Spam>& spam)
+ *  {
+ *      std::string s;
+ *      if (::lass::python::pyGetSimpleObject(obj, s) == 0)
+ *      {
+ *          spam.reset(new Spam(s));
+ *          return 0; // conversion succeeded
+ *      }
+ *      return 1; // conversion failed
+ *  }
+ * 
+ *  PY_SHADOW_CLASS(LASS_DLL_EXPORT, PySpam, Spam)
+ *  PY_SHADOW_CASTERS(PySpam)
+ *  PY_DECLARE_CLASS_NAME(PySpam, "Spam")
+ *  PY_CLASS_CONSTRUCTOR_1(PySpam, const std::string&)
+ *  PY_CLASS_CONVERTOR_EX(PySpam, spamConversion, spam)
+ * 
+ *  void func(const Spam& spam);
+ *  PY_MODULE_CLASS(mod, PySpam)
+ *  PY_MODULE_FUNCTION(mod, func)
+ *  ```
+ * 
+ *  ```py
+ *  mod.func(mod.Spam("abc")) # explicit conversion using constructor
+ *  mod.func("abc")           # implicit conversion using convertor
+ *  ```
+ * 
+ *  @sa PY_CLASS_CONVERTOR for adding auto-convertors using the constructor
+ */
+#define PY_CLASS_CONVERTOR_EX( t_ShadowObject, f_conversionFunction, i_uniqueName )\
 	LASS_EXECUTE_BEFORE_MAIN_EX( LASS_CONCATENATE( lassPyClassConverter_, i_uniqueName ),\
-		lass::python::impl::ShadowTraits< t_ShadowObject >::addConverter( v_conversionFunction );\
+		lass::python::impl::ShadowTraits< t_ShadowObject >::addConverter( f_conversionFunction );\
 	)
 
+/** @ingroup ShadowClasses
+ *  @brief Add implicit auto-conversion to Python class
+ * 
+ *  Add an implicit convertor from @a t_sourceType to the Python class @a i_ShadowObject.
+ *  It is attempted when a Python object that is not already an instance of that class is passed
+ *  to a C++ function taking the C++ class as a parameter: the object is first converted to an
+ *  instance of @a t_sourceType, from which a new instance of the C++ class is constructed.
+ *  This assumes the C++ class has a matching constructor.
+ * 
+ *  Without it, you must convert the value explicitly in Python by constructing an instance of the
+ *  Python class, or the C++ function must be overloaded on @a t_sourceType.
+ * 
+ *  Conversions are attempted in the order of registration.
+ * 
+ *  This macro must be invoked in the same translation unit (*.cpp file) as `PY_DECLARE_CLASS_*`.
+ * 
+ *  @param i_ShadowObject Python class identifier (unqualified) on which to add the auto-convertor
+ *  @param t_sourceType type from which to convert. It must be default-constructible and be
+ *                      exported to Python as a class or with `PyExportTraits`.
+ * 
+ *  @par Example:
+ *  
+ *  ```cpp
+ *  class Spam
+ *  {
+ *  public:
+ *      Spam(const std::string& s);
+ *  };
+ * 
+ *  PY_SHADOW_CLASS(LASS_DLL_EXPORT, PySpam, Spam)
+ *  PY_SHADOW_CASTERS(PySpam)
+ *  PY_DECLARE_CLASS_NAME(PySpam, "Spam")
+ *  PY_CLASS_CONSTRUCTOR_1(PySpam, const std::string&)
+ *  PY_CLASS_CONVERTOR(PySpam, std::string)
+ * 
+ *  void func(const Spam& spam);
+ *  PY_MODULE_CLASS(mod, PySpam)
+ *  PY_MODULE_FUNCTION(mod, func)
+ *  ```
+ * 
+ *  ```py
+ *  mod.func(mod.Spam("abc")) # explicit conversion using constructor
+ *  mod.func("abc")           # implicit conversion using convertor
+ *  ```
+ *
+ *  @sa PY_CLASS_CONVERTOR_EX for adding convertors with custom conversion functions
+ */
 #define PY_CLASS_CONVERTOR( i_ShadowObject, t_sourceType )\
 	PY_CLASS_CONVERTOR_EX( i_ShadowObject, (::lass::python::impl::defaultConvertor< i_ShadowObject, t_sourceType >) , i_ShadowObject );
 
