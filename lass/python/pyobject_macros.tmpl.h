@@ -2904,9 +2904,7 @@ $[
 
 /** @ingroup ClassDefinition
  *  @brief Export free function accessors as read-write Python property.
- *  
- *  @deprecated Use member method-based macros like PY_CLASS_MEMBER_RW_EX() instead.
- *  
+ *
  *  Exports a pair of free functions as read/write Python property. Unlike member method-based
  *  macros, this uses standalone functions that take the object as their first parameter.
  *  
@@ -2960,9 +2958,7 @@ $[
 
 /** @ingroup ClassDefinition
  *  @brief Export free function accessors as read-write Python property with custom name and documentation.
- *  
- *  @deprecated Use member method-based macros like PY_CLASS_MEMBER_RW_NAME_DOC() instead.
- *  
+ *
  *  Convenience macro that wraps PY_CLASS_FREE_MEMBER_RW_EX() with auto-generated dispatcher name.
  *  
  *  @param t_cppClass C++ class to add the property to
@@ -2979,9 +2975,7 @@ $[
 
 /** @ingroup ClassDefinition
  *  @brief Export free function accessors as read-write Python property with custom name.
- *  
- *  @deprecated Use member method-based macros like PY_CLASS_MEMBER_RW_NAME() instead.
- *  
+ *
  *  Convenience macro that wraps PY_CLASS_FREE_MEMBER_RW_NAME_DOC() with no documentation.
  *  
  *  @param t_cppClass C++ class to add the property to
@@ -2996,9 +2990,7 @@ $[
 
 /** @ingroup ClassDefinition
  *  @brief Export free function accessors as read-write Python property using function name.
- *  
- *  @deprecated Use member method-based macros like PY_CLASS_MEMBER_RW_DOC() instead.
- *  
+ *
  *  Convenience macro that wraps PY_CLASS_FREE_MEMBER_RW_NAME_DOC() with function name as property name.
  *  
  *  @param t_cppClass C++ class to add the property to
@@ -3013,9 +3005,7 @@ $[
 
 /** @ingroup ClassDefinition
  *  @brief Export free function accessors as read-write Python property using function name.
- *  
- *  @deprecated Use member method-based macros like PY_CLASS_MEMBER_RW() instead.
- *  
+ *
  *  Convenience macro that wraps PY_CLASS_FREE_MEMBER_RW_DOC() with function name as property name
  *  and no documentation.
  *  
@@ -3032,9 +3022,7 @@ $[
 
 /** @ingroup ClassDefinition
  *  @brief Export free function accessor as read-only Python property.
- *  
- *  @deprecated Use member method-based macros like PY_CLASS_MEMBER_R_EX() instead.
- *  
+ *
  *  Exports a free function as read-only Python property. Unlike member method-based
  *  macros, this uses a standalone function that takes the object as its first parameter.
  *  
@@ -3078,9 +3066,7 @@ $[
 
 /** @ingroup ClassDefinition
  *  @brief Export free function accessor as read-only Python property with custom name and documentation.
- *  
- *  @deprecated Use member method-based macros like PY_CLASS_MEMBER_R_NAME_DOC() instead.
- *  
+ *
  *  Convenience macro that wraps PY_CLASS_FREE_MEMBER_R_EX() with auto-generated dispatcher name.
  *  
  *  @param t_cppClass C++ class to add the property to
@@ -3096,9 +3082,7 @@ $[
 
 /** @ingroup ClassDefinition
  *  @brief Export free function accessor as read-only Python property with custom name.
- *  
- *  @deprecated Use member method-based macros like PY_CLASS_MEMBER_R_NAME() instead.
- *  
+ *
  *  Convenience macro that wraps PY_CLASS_FREE_MEMBER_R_NAME_DOC() with no documentation.
  *  
  *  @param t_cppClass C++ class to add the property to
@@ -3112,9 +3096,7 @@ $[
 
 /** @ingroup ClassDefinition
  *  @brief Export free function accessor as read-only Python property using function name.
- *  
- *  @deprecated Use member method-based macros like PY_CLASS_MEMBER_R_DOC() instead.
- *  
+ *
  *  Convenience macro that wraps PY_CLASS_FREE_MEMBER_R_NAME_DOC() with function name as property name.
  *  
  *  @param t_cppClass C++ class to add the property to
@@ -3128,9 +3110,7 @@ $[
 
 /** @ingroup ClassDefinition
  *  @brief Export free function accessor as read-only Python property using function name.
- *  
- *  @deprecated Use member method-based macros like PY_CLASS_MEMBER_R() instead.
- *  
+ *
  *  Convenience macro that wraps PY_CLASS_FREE_MEMBER_R_DOC() with function name as property name
  *  and no documentation.
  *  
