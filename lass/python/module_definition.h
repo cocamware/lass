@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -58,22 +58,26 @@ namespace python
  *
  *  This module provides helper classes and macros to define Python modules that can contain
  *  C++ classes, functions, enums, and other objects exported to Python.
+ *
  * 
  *
- *  ### Module Components
+ *  @par Module Components
  * 
  *  A Python module can contain:
  * 
- *  - **Functions**: C++ functions exported with various signatures
- *  - **Classes**: C++ classes exported as Python classes
- *  - **Enums**: C++ enums exported as Python enum types
- *  - **Objects**: Arbitrary Python objects (constants, instances, etc.)
- *  - **Values**: Simple values like integers and strings
+ *  - @ref ModuleFunctions "Functions": C++ functions exported with various signatures
+ *  - @ref ClassDefinition "Classes": C++ classes exported as Python classes
+ *  - @ref EnumDefinition "Enums": C++ enums exported as Python enum types
+ *  - @ref ModuleMembers "Objects": Arbitrary Python objects (constants, instances, etc.)
+ *  - @ref ModuleMembers "Values": Simple values like integers and strings
  *
- *
- *  ### Usage Overview
+ *  But every module must also be @ref PyModuleDeclaration "declared", and have an
+ *  @ref PyModuleEntrypoint "entrypoint".
+ * 
+ *  @par Usage Overview
  * 
  *  To create a Python module, you typically use macros that work with ModuleDefinition:
+ *  Macro names follow a consistent grammar, see @ref PythonMacroName.
  *  
  *  ```cpp
  *  // Define module

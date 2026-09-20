@@ -66,21 +66,22 @@ namespace lass
 		 *
 		 *  A Python class can contain:
 		 *
-		 *  - **Constructors**: Multiple overloads via \_\_new__ dispatchers
-		 *  - **Methods**: Regular instance methods with overload support
-		 *  - **Free Methods**: Functions that operate on the instance but are not members
-		 *  - **Static Methods**: Class-level methods accessible without instances
-		 *  - **Operators**: Python special methods (\_\_add__, \_\_eq__, etc.)
-		 *  - **Properties**: Getter/setter pairs for attribute access
-		 *  - **Public Members**: Direct access to public member variables
-		 *  - **Static Constants**: Class-level constant values
-		 *  - **Nested Classes**: Inner classes defined within the outer class
-		 *  - **Nested Enums**: Enum types scoped to the class
+		 *  - @ref ClassConstructors "Constructors": Multiple overloads via \_\_new__ dispatchers
+		 *  - @ref ClassMethods "Methods": Regular instance methods with overload support
+		 *  - @ref ClassMethods "Free Methods": Functions that operate on the instance but are not members
+		 *  - @ref ClassStaticMethods "Static Methods": Class-level methods accessible without instances
+		 *  - @ref SpecialMethods "Operators": Python special methods (\_\_add__, \_\_eq__, etc.)
+		 *  - @ref ClassMembers "Properties": Getter/setter pairs for attribute access
+		 *  - @ref ClassMembers "Public Members": Direct access to public member variables
+		 *  - @ref ClassAttributes "Static Constants": Class-level constant values
+		 *  - @ref ClassAttributes "Nested Classes": Inner classes defined within the outer class
+		 *  - @ref EnumDefinition "Nested Enums": Enum types scoped to the class
 		 *
 		 *
 		 *  ### Usage Overview
 		 *
-		 *  To export a C++ class to Python, you typically use macros that work with ClassDefinition:
+		 *  To export a C++ class to Python, you typically use macros that work on a Python class.
+		 *  Macro names follow a consistent grammar, see @ref PythonMacroName.
 		 *
 		 *  ```cpp
 		 *  // Define class in header

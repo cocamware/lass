@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -50,23 +50,23 @@
  *  
  *  The lass::python namespace provides a comprehensive Python binding system that allows
  *  easy integration between C++ code and Python scripts. Lass Python bindings support
- *  both native Python-aware classes and shadow classes for existing C++ types.
+ *  both direct Python-aware C++ classes and shadow Python classes for existing C++ types.
  *
  *  **Key Components:**
  *
  *  - @ref ModuleDefinition "ModuleDefinition": Macros to create and configure Python modules
  *  - @ref ClassDefinition "ClassDefinition": Macros to export C++ classes as Python types
  *  - PyObjectPlus: Base class for Python-aware C++ objects
- *  - Shadow Classes: Wrapper system for existing non-Python-aware C++ classes
+ *  - Shadow Classes: Wrapper system for existing C++ classes that are not Python-aware
  *  - @ref PyExportTraits "PyExportTraits": Type conversion system between C++ and Python objects
  *  - Overload Resolution: Automatic dispatcher generation for overloaded functions/methods
  *
  *  **Class Export Approaches:**
  *
- *  1. **Native Python Classes**: C++ classes that inherit from PyObjectPlus
+ *  1. **Direct Python Classes**: C++ classes that inherit from PyObjectPlus
  *     and are designed to be Python-compatible from the start
  *
- *  2. **Shadow Classes**: Wrapper classes for existing C++ types using
+ *  2. **Shadow Python Classes**: Wrapper classes for existing C++ types using
  *     PY_SHADOW_CLASS macros - the shadow inherits from PyObjectPlus and
  *     wraps the original type
  *
@@ -80,6 +80,9 @@
  *  - Nested classes and enumerations
  *  - Automatic type conversion and argument validation
  *  - Exception mapping between C++ and Python
+ * 
+ *  To define these Python bindings, you typically use macros that define an export on
+ *  a module or class. These macro names follow a consistent grammar, see @ref PythonMacroName.
  */
 namespace lass::python
 {

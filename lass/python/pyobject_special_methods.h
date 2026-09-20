@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -146,7 +146,7 @@ namespace impl
 /** @namespace lass::python::methods
  *  
  *  Predefined constants for Python special methods (magic methods) that can be used as 
- *  method names in class export macros.
+ *  @ref ClassMethods "method names in class export macros".
  *  
  *  Available categories:
  *  - **Object Protocol**: `_call_`, `_repr_`, `_str_`
