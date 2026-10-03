@@ -59,6 +59,7 @@ namespace lass
 		PY_DECLARE_CLASS( Bar )
 		PY_CLASS_CONSTRUCTOR( Bar , meta::NullType );
 		PY_CLASS_CONSTRUCTOR_2( Bar, int, const std::string& );
+		PY_CLASS_FREE_CONSTRUCTOR_3(Bar, &Bar::makeBar, int, const std::string&, float)
 		PY_CLASS_STATIC_METHOD( Bar, aStaticMethod );
 		PY_CLASS_METHOD( Bar, aMoreComplexFunction )
 		PY_CLASS_METHOD( Bar, testAutomaticFunctionExport );
@@ -85,6 +86,7 @@ namespace lass
 		PY_CLASS_STATIC_METHOD_NAME(Bar, shapeOverload1, "shapeOverload");
 		PY_CLASS_STATIC_METHOD_NAME(Bar, shapeOverload2, "shapeOverload");
 		PY_CLASS_MEMBER_RW_NAME( Bar, getInt, setInt, "myInt" );
+		PY_CLASS_MEMBER_R_NAME(Bar, getString, "myString");
 		PY_CLASS_MEMBER_RW_NAME( Bar, getFoo, setFoo, "foo" );
 		PY_CLASS_MEMBER_RW_NAME( Bar, coolMember, coolMember, "cool" );
 		PY_CLASS_PUBLIC_MEMBER( Bar, publicInt );
@@ -192,6 +194,13 @@ namespace lass
 			publicInt = 42;
 		}
 
+		TBarPtr Bar::makeBar(int a, const std::string& b, float c)
+		{
+			TBarPtr bar(new Bar(a, b));
+			bar->coolMember_ = c;
+			return bar;
+		}
+
 		Bar::~Bar()
 		{
 
@@ -289,6 +298,11 @@ namespace lass
 		void Bar::setInt( int iArg ) noexcept
 		{
 			privateInt_ = iArg;
+		}
+
+		const std::string& Bar::getString() const
+		{
+			return privateString_;
 		}
 
 		const PythonFooPtr& Bar::getFoo() const

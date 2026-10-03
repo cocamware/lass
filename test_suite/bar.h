@@ -97,6 +97,8 @@ namespace test
 		Bar( int iA, const std::string& iB );
 		virtual ~Bar();
 
+		static TBarPtr makeBar( int a, const std::string& b, float c );
+
 		virtual float aMoreComplexFunction( float iA, float iB );
 		std::string testAutomaticFunctionExport( int iA, float iB );
 		std::string complexArguments( const std::string& iA );
@@ -122,6 +124,8 @@ namespace test
 		int getInt() const noexcept;
 		int getInt() noexcept;
 		void setInt( int iArg ) noexcept;
+
+		const std::string& getString() const;
 
 		const PythonFooPtr& getFoo() const;
 		void setFoo( const PythonFooPtr& iFoo);

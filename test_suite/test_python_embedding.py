@@ -854,10 +854,16 @@ class TestConstructors(unittest.TestCase):
 
         barB = embedding.Bar(5, "hello")
         self.assertEqual(barB.myInt, 5)
+        self.assertEqual(barB.myString, "hello")
 
     def testFreeConstructors(self) -> None:
         classB = embedding.ClassB(5)
         self.assertEqual(classB.properImagine, 5)
+
+        barC = embedding.Bar(2, "abc", 0.125)
+        self.assertEqual(barC.myInt, 2)
+        self.assertEqual(barC.myString, "abc")
+        self.assertEqual(barC.cool, 0.125)
 
 
 class TestShadowHierarchy(unittest.TestCase):

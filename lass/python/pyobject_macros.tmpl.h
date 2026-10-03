@@ -4329,6 +4329,9 @@ $[
  *  @par Example
  *
  *  ```cpp
+ *  class Parrot;
+ *  using TParrotPtr = lass::python::PyObjectPtr<Parrot>::Type;
+ *
  *  class Parrot
  *  {
  *      PY_HEADER(lass::python::PyObjectPlus)
@@ -4336,9 +4339,10 @@ $[
  *      Parrot();
  *      Parrot(const std::string& name);
  *      Parrot(const std::string& name, bool alive);
+ *      static TParrotPtr loadParrot(int id);
  *  };
  *
- *  Parrot makeParrot(bool alive);
+ *  TParrotPtr makeParrot(bool alive);
  *
  *  PY_DECLARE_CLASS(Parrot)
  *
@@ -4347,6 +4351,7 @@ $[
  *  PY_CLASS_CONSTRUCTOR_2(Parrot, const std::string&, bool) // p = Parrot("bird", False)
  *
  *  PY_CLASS_FREE_CONSTRUCTOR_1(Parrot, makeParrot, bool)    // p = Parrot(True)
+ *  PY_CLASS_FREE_CONSTRUCTOR_1(Parrot, &Parrot::loadParrot, int)  // p = Parrot(123)
  *  ```
  */
 
@@ -4484,7 +4489,8 @@ $[
  *  Export factory functions as Python class constructors. These macros allow C++ functions that
  *  return instances of a class to be used as Python constructors. This is useful when you need
  *  special construction logic or when the actual constructor is not accessible from Python. The
- *  functions must return an instance of the target class.
+ *  functions must return an instance of the target class, preferably as a PyObjectPtr for Python-
+ *  aware classes, or as a ShadoweePtr for shadow classes.
  *
  *  | Form                            | Fixed parameters              | Adds parameters                     |
  *  |---------------------------------|-------------------------------|-------------------------------------|
