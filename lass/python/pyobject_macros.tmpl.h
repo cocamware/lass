@@ -2720,7 +2720,7 @@ $[
  *  Here you can use a fully qualified class name, at the cost of having to provide a unique suffix.
  *
  *  @param t_cppClass C++ class you're exporting the method for
- *  @param f_cppFreeMethod C++ function to export (may be overloaded), or std::function
+ *  @param f_cppFreeMethod C++ function to export (may be overloaded)
  *  @param t_return Return type of the free function (for disambiguation)
  *  @param t_params Parameter types as lass::meta::TypeTuple (for disambiguation), first is `self`
  *  @param s_methodName Python method name (string literal), or special method from
@@ -2763,7 +2763,7 @@ $[
  *  Here you can use a fully qualified class name, at the cost of having to provide a unique suffix.
  *
  *  @param t_cppClass C++ class you're exporting the method for
- *  @param f_cppFreeMethod C++ function to export (may be overloaded), or std::function
+ *  @param f_cppFreeMethod C++ function to export (may be overloaded)
  *  @param t_return Return type of the free function (for disambiguation)
  *  @param s_methodName Python method name (string literal), or special method from
  *                      lass::python::methods
@@ -2784,7 +2784,7 @@ $[
  *  Here you can use a fully qualified class name, at the cost of having to provide a unique suffix.
  *
  *  @param t_cppClass C++ class you're exporting the method for
- *  @param f_cppFreeMethod C++ function to export (may be overloaded), or std::function
+ *  @param f_cppFreeMethod C++ function to export (may be overloaded)
  *  @param t_return Return type of the free function (for disambiguation)
  *  @param $(t_P$x)$ Parameter types for the free function (for disambiguation), @a t_P1 is `self`
  *  @param s_methodName Python method name (string literal), or special method from
@@ -2812,7 +2812,7 @@ $[
  *  Wraps PY_CLASS_FREE_METHOD_QUALIFIED_EX() with automatically generated dispatcher name.
  *
  *  @param i_cppClass C++ class you're exporting the method for
- *  @param f_cppFreeMethod C++ function to export (may be overloaded), or std::function
+ *  @param f_cppFreeMethod C++ function to export (may be overloaded)
  *  @param t_return Return type of the free function (for disambiguation)
  *  @param t_params Parameter types as lass::meta::TypeTuple (for disambiguation), first is `self`
  *  @param s_methodName Python method name (string literal), or special method from
@@ -2836,7 +2836,7 @@ $[
  *  Wraps PY_CLASS_FREE_METHOD_QUALIFIED_EX_0() with automatically generated dispatcher name.
  *
  *  @param i_cppClass C++ class you're exporting the method for
- *  @param f_cppFreeMethod C++ function to export (may be overloaded), or std::function
+ *  @param f_cppFreeMethod C++ function to export (may be overloaded)
  *  @param t_return Return type of the free function (for disambiguation)
  *  @param s_methodName Python method name (string literal), or special method from
  *                      lass::python::methods
@@ -2855,7 +2855,7 @@ $[
  *  Wraps PY_CLASS_FREE_METHOD_QUALIFIED_EX_$x() with automatically generated dispatcher name.
  *
  *  @param i_cppClass C++ class you're exporting the method for
- *  @param f_cppFreeMethod C++ function to export (may be overloaded), or std::function
+ *  @param f_cppFreeMethod C++ function to export (may be overloaded)
  *  @param t_return Return type of the free function (for disambiguation)
  *  @param $(t_P$x)$ Parameter types for the free function (for disambiguation), @a t_P1 is `self`
  *  @param s_methodName Python method name (string literal), or special method from
@@ -2879,7 +2879,7 @@ $[
  *  Wraps PY_CLASS_FREE_METHOD_QUALIFIED_NAME_DOC() with @a s_doc = `nullptr`.
  *
  *  @param i_cppClass C++ class you're exporting the method for
- *  @param f_cppFreeMethod C++ function to export (may be overloaded), or std::function
+ *  @param f_cppFreeMethod C++ function to export (may be overloaded)
  *  @param t_return Return type of the free function (for disambiguation)
  *  @param t_params Parameter types as lass::meta::TypeTuple (for disambiguation), first is `self`
  *  @param s_methodName Python method name (string literal), or special method from
@@ -2901,7 +2901,7 @@ $[
  *  Wraps PY_CLASS_FREE_METHOD_QUALIFIED_NAME_DOC_0() with @a s_doc = `nullptr`.
  *
  *  @param i_cppClass C++ class you're exporting the method for
- *  @param f_cppFreeMethod C++ function to export (may be overloaded), or std::function
+ *  @param f_cppFreeMethod C++ function to export (may be overloaded)
  *  @param t_return Return type of the free function (for disambiguation)
  *  @param s_methodName Python method name (string literal), or special method from
  *                      lass::python::methods
@@ -2918,7 +2918,7 @@ $[
  *  Wraps PY_CLASS_FREE_METHOD_QUALIFIED_NAME_DOC_$x() with @a s_doc = `nullptr`.
  *
  *  @param i_cppClass C++ class you're exporting the method for
- *  @param f_cppFreeMethod C++ function to export (may be overloaded), or std::function
+ *  @param f_cppFreeMethod C++ function to export (may be overloaded)
  *  @param t_return Return type of the free function (for disambiguation)
  *  @param $(t_P$x)$ Parameter types for the free function (for disambiguation), @a t_P1 is `self`
  *  @param s_methodName Python method name (string literal), or special method from
