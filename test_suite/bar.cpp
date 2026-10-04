@@ -61,6 +61,13 @@ namespace lass
 		PY_CLASS_CONSTRUCTOR( Bar , meta::NullType );
 		PY_CLASS_CONSTRUCTOR_2( Bar, int, const std::string& );
 		PY_CLASS_FREE_CONSTRUCTOR_3(Bar, &Bar::makeBar, int, const std::string&, float)
+		PY_CLASS_FREE_CONSTRUCTOR_1( Bar, ([](int a) { return TBarPtr(new Bar(a, "")); }), int)
+		std::function<TBarPtr(float)> makeCoolBar = [](float c) {
+			TBarPtr bar(new Bar());
+			bar->coolMember() = c;
+			return bar;
+		};
+		PY_CLASS_FREE_CONSTRUCTOR_1( Bar, makeCoolBar, float)
 		PY_CLASS_STATIC_METHOD( Bar, aStaticMethod );
 		PY_CLASS_METHOD( Bar, aMoreComplexFunction )
 		PY_CLASS_METHOD( Bar, testAutomaticFunctionExport );

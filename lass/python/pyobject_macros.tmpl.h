@@ -4421,6 +4421,7 @@ $[
  *
  *  PY_CLASS_FREE_CONSTRUCTOR_1(Parrot, makeParrot, bool)    // p = Parrot(True)
  *  PY_CLASS_FREE_CONSTRUCTOR_1(Parrot, &Parrot::loadParrot, int)  // p = Parrot(123)
+ *  PY_CLASS_FREE_CONSTRUCTOR_1(Parrot, ([](bool alive) { return TParrotPtr(new Parrot("Polly", alive)); }), bool)
  *  ```
  */
 
@@ -4567,6 +4568,14 @@ $[
  *  | `PY_CLASS_FREE_CONSTRUCTOR_EX`  | `t_cppClass`, `f_cppFunction` | `t_params`, `i_dispatcher`          |
  *  | `PY_CLASS_FREE_CONSTRUCTOR_<N>` | `i_cppClass`, `f_cppFunction` | `t_P1`, `t_P2`, ... `t_P<N>`        |
  *
+ *  @par `std::function`, Lambda Expressions, and Other Callables as Free Constructors
+ *
+ *  Besides normal C++ function, @a f_cppFunction may also be a C++ static method, `std::function`,
+ *  a lambda expression, or any other callable.
+ *
+ *  @note Callables with overloaded `operator()` are not supported, and neither are callables with
+ *        template `operator()` such as generic lambdas like `[](auto a, auto b) { return a + b; }`.
+ *
  *  @{
  */
 
@@ -4580,7 +4589,8 @@ $[
  *  Here you can use a fully qualified class name, at the cost of having to provide a unique suffix.
  *
  *  @param t_cppClass C++ class to add the constructor to
- *  @param f_cppFunction Free or static factory function that creates the class instance
+ *  @param f_cppFunction Free or static factory function, std::function, lambda expression, or
+ *                       other callable that creates the class instance (preferably on the heap)
  *  @param t_params Constructor parameter types as lass::meta::TypeTuple (empty for none)
  *  @param i_dispatcher Unique identifier for the generated dispatcher functions
  *
@@ -4620,7 +4630,8 @@ $[
  *  Wraps PY_CLASS_FREE_CONSTRUCTOR_EX() with auto-generated dispatcher name.
  *
  *  @param i_cppClass C++ class to add the constructor to (unqualified name)
- *  @param f_cppFunction Free or static factory function that creates the class instance
+ *  @param f_cppFunction Free or static factory function, std::function, lambda expression, or
+ *                       other callable that creates the class instance (preferably on the heap)
  *  @param t_params Constructor parameter types as lass::meta::TypeTuple (empty for none)
  *
  *  @par Example
@@ -4640,7 +4651,8 @@ $[
  *  Wraps PY_CLASS_FREE_CONSTRUCTOR() for exporting a factory function that takes no parameters.
  *
  *  @param i_cppClass C++ class to add the constructor to (unqualified name)
- *  @param f_cppFunction Free or static factory function that creates the class instance
+ *  @param f_cppFunction Free or static factory function, std::function, lambda expression, or
+ *                       other callable that creates the class instance (preferably on the heap)
  *
  *  @par Example
  *  ```cpp
@@ -4658,7 +4670,8 @@ $[
  *  parameters. Automatically creates the required lass::meta::TypeTuple from the parameter types.
  *
  *  @param i_cppClass C++ class to add the constructor to (unqualified name)
- *  @param f_cppFunction Free or static factory function that creates the class instance
+ *  @param f_cppFunction Free or static factory function, std::function, lambda expression, or
+ *                       other callable that creates the class instance (preferably on the heap)
  *  @param $(t_P$x)$ Parameter types for the constructor
  *
  *  @par Example

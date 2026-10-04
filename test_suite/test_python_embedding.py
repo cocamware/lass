@@ -886,6 +886,12 @@ class TestConstructors(unittest.TestCase):
         self.assertEqual(barC.myString, "abc")
         self.assertEqual(barC.cool, 0.125)
 
+        barD = embedding.Bar(42)
+        self.assertEqual(barD.myInt, 42)
+
+        barE = embedding.Bar(0.25)
+        self.assertEqual(barE.cool, 0.25)
+
 
 class TestShadowHierarchy(unittest.TestCase):
     def testBacon(self) -> None:

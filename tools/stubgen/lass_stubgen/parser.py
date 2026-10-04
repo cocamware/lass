@@ -674,7 +674,7 @@ class Parser:
 
         compound = ensure_last_child(dispatcher, CursorKind.COMPOUND_STMT)
         return_stmt = ensure_last_child(compound, CursorKind.RETURN_STMT)
-        call_expr = ensure_only_child(return_stmt, CursorKind.CALL_EXPR)
+        call_expr = _ensure_only_child_recursive(return_stmt, CursorKind.CALL_EXPR)
 
         if call_expr.spelling == "callConstructor":
             call_constructor_ptr = ensure_first_child(
@@ -702,18 +702,13 @@ class Parser:
             )
 
         elif call_expr.spelling == "callFunction":
-            # Free function as construtor
-            args = list(call_expr.get_arguments())
-            func = deref_decl_ref_expr(args[1])
-            cpp_signature = canonical_type(func).spelling
-            cpp_params = [
-                ParamInfo(arg.spelling, type_info(arg)) for arg in func.get_arguments()
-            ]
+            # Free function as constructor
+            disp_sig = self._parse_dispatcher_call_expr(call_expr)
 
             class_def.add_constructor(
                 ConstructorDefinition(
-                    cpp_params=cpp_params,
-                    cpp_signature=cpp_signature,
+                    cpp_params=disp_sig.cpp_params,
+                    cpp_signature=disp_sig.cpp_signature,
                     free=True,
                 )
             )
