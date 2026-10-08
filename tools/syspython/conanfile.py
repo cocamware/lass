@@ -70,7 +70,7 @@ class _Options(Protocol):
 
 class SysPython(ConanFile):  # type: ignore[misc]
     name = "syspython"
-    version = "1.0.8"
+    version = "1.0.9"
     user = "cocamware"
     channel = "stable"
     description = "Discovers your system's Python and allow to use it as a requirement"
@@ -201,7 +201,7 @@ class SysPython(ConanFile):  # type: ignore[misc]
             "sabi_library_dirs": self._python_sabi_library_dirs,
             "sabi_runtime_library": self._python_sabi_runtime_library,
             "sabi_runtime_library_dirs": self._python_sabi_runtime_library_dirs,
-            "sabi_found": bool(self._python_sabi_library),
+            "sabi_found": self._python_sabi_found,
             "include_dirs": self._python_include_dirs,
             "definitions": self._python_definitions,
             "link_libraries": self._python_link_libraries,
@@ -219,6 +219,7 @@ class SysPython(ConanFile):  # type: ignore[misc]
             "library_type": "SHARED" if self._python_shared else "STATIC",
             "sizeof_void_p": self._python_sizeof_void_p,
             "bitness": self._python_bitness,
+            "gil_disabled": self._python_gil_disabled,
         }
 
         for file in ["PythonConfig", "PythonConfigVersion"]:
@@ -295,10 +296,10 @@ class SysPython(ConanFile):  # type: ignore[misc]
         """Full path to python library you should link to"""
         if self.settings.os == "Windows":
             base = self._python_get_config_var("installed_platbase")
-            version = self._python_version_nodot_plat
-            return os.path.join(
-                base, "libs", f"python{version}{self._python_postfix}.lib"
-            )
+            version = self._python_get_config_var("py_version_nodot")
+            t = self._python_abi_thread
+            d = self._python_postfix
+            return os.path.join(base, "libs", f"python{version}{t}{d}.lib")
         else:
             hints: list[str] = []
             if self.options.shared:
@@ -330,8 +331,10 @@ class SysPython(ConanFile):  # type: ignore[misc]
     def _python_runtime_library(self) -> str | None:
         if self.settings.os == "Windows":
             base = self._python_get_config_var("installed_platbase")
-            version = self._python_version_nodot_plat
-            return os.path.join(base, f"python{version}{self._python_postfix}.dll")
+            version = self._python_get_config_var("py_version_nodot")
+            t = self._python_abi_thread
+            d = self._python_postfix
+            return os.path.join(base, f"python{version}{t}{d}.dll")
         return None
 
     @property
@@ -355,7 +358,9 @@ class SysPython(ConanFile):  # type: ignore[misc]
         if self.settings.os == "Windows":
             base = self._python_get_config_var("installed_platbase")
             major, _minor = self._python_get_config_var("py_version_short").split(".")
-            return os.path.join(base, f"python{major}{self._python_postfix}.lib")
+            t = self._python_abi_thread
+            d = self._python_postfix
+            return os.path.join(base, "libs", f"python{major}{t}{d}.lib")
         return None
 
     @property
@@ -369,7 +374,9 @@ class SysPython(ConanFile):  # type: ignore[misc]
         if self.settings.os == "Windows":
             base = self._python_get_config_var("installed_platbase")
             major, _minor = self._python_get_config_var("py_version_short").split(".")
-            return os.path.join(base, f"python{major}{self._python_postfix}.dll")
+            t = self._python_abi_thread
+            d = self._python_postfix
+            return os.path.join(base, f"python{major}{t}{d}.dll")
         return None
 
     @property
@@ -410,11 +417,8 @@ class SysPython(ConanFile):  # type: ignore[misc]
         return bool(int(output))
 
     @property
-    def _python_version_nodot_plat(self) -> str:
-        version = self._python_get_config_var("py_version_nodot_plat")
-        if not version:
-            version = self._python_get_config_var("py_version_nodot")
-        return version
+    def _python_abi_thread(self) -> str:
+        return self._python_get_config_var("abi_thread")
 
     @property
     def _python_soabi(self) -> str:
@@ -433,7 +437,18 @@ class SysPython(ConanFile):  # type: ignore[misc]
             return ""
         else:
             major, _minor = self._python_version_short.split(".")
-            return f"abi{major}"
+            return f"abi{major}{self._python_abi_thread}"  # never has d for debug
+
+    @property
+    def _python_sabi_found(self) -> bool:
+        if self._python_gil_disabled and self._python_version_short_int < (3, 15):
+            return False  # Free-threaded Python 3.13 and 3.14 have no Stable ABI
+        if self.settings.os == "Windows":
+            if sabi_library := self._python_sabi_library:
+                return os.path.isfile(sabi_library)
+            return False
+        else:
+            return True
 
     @property
     def _python_postfix(self) -> str:
