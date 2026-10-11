@@ -282,9 +282,6 @@ struct PyExportTraitsPrimAxis
 	}
 };
 
-LASS_PYTHON_DLL PyObject* LASS_CALL buildIndexVertex(size_t vertex, size_t normal, size_t uv);
-LASS_PYTHON_DLL int LASS_CALL getIndexVertex(PyObject* iIndices, size_t& vertex, size_t& normal, size_t& uv);
-
 }
 }
 }
@@ -734,42 +731,8 @@ struct PyExportTraits<prim::IndexTriangle>
 		"type _IndexVertex = tuple[int] | tuple[int, int | None] | tuple[int, int | None, int | None]\n"
 		"type _IndexTriangle = tuple[_IndexVertex, _IndexVertex, _IndexVertex]";
 
-	static PyObject* build(const prim::IndexTriangle& iTriangle)
-	{
-		TPyObjPtr triangle(PyTuple_New(3));
-		if (!triangle) return 0;
-		for (int k = 0; k < 3; ++k)
-		{
-			PyObject* vertex = impl::buildIndexVertex(
-				iTriangle.vertices[k], iTriangle.normals[k], iTriangle.uvs[k]);
-			if (!vertex) return 0;
-			if (PyTuple_SetItem(triangle.get(), k, vertex) != 0) return 0;
-		}
-		return fromSharedPtrToNakedCast(triangle);
-	}
-	static int get(PyObject* obj, prim::IndexTriangle& oTriangle)
-	{
-		const TPyObjPtr tuple(impl::checkedFastSequence(obj, 3));
-		if (!tuple)
-		{
-			impl::addMessageHeader("IndexTriangle");
-			return 1;
-		}
-		PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
-		prim::IndexTriangle result = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
-		for (int k = 0; k < 3; ++k)
-		{
-			if (impl::getIndexVertex(objects[k], result.vertices[k], result.normals[k], result.uvs[k]) != 0)
-			{
-				std::ostringstream buffer;
-				buffer << "IndexTriangle: " << (k + 1) << "th vertex";
-				impl::addMessageHeader(buffer.str().c_str());
-				return 1;
-			}
-		}
-		oTriangle = result;
-		return 0;
-	}
+	LASS_PYTHON_DLL static PyObject* build(const prim::IndexTriangle& triangle);
+	LASS_PYTHON_DLL static int get(PyObject* obj, prim::IndexTriangle& triangle);
 };
 
 #	endif

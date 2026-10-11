@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -87,13 +87,9 @@ PyObject* buildIndexVertex(size_t iVertex, size_t iNormal, size_t iUv)
 /** @ingroup Python
  *  @internal
  */
-int getIndexVertex(PyObject* iIndices, size_t& oVertex, size_t& oNormal, size_t& oUv)
+int getIndexVertex(PyObject* indices, size_t& vertex, size_t& normal, size_t& uv)
 {
-	size_t vertex = prim::IndexTriangle::null();
-	size_t normal = prim::IndexTriangle::null();
-	size_t uv = prim::IndexTriangle::null();
-
-	TPyObjPtr tuple(PySequence_Fast(iIndices, "expected a sequence (tuple, list, ...)"));
+	TPyObjPtr tuple(PySequence_Fast(indices, "expected a sequence (tuple, list, ...)"));
 	if (!tuple)
 	{
 		return 1;
@@ -122,6 +118,10 @@ int getIndexVertex(PyObject* iIndices, size_t& oVertex, size_t& oNormal, size_t&
 			return 1;
 		}
 	}
+	else
+	{
+		normal = prim::IndexTriangle::null();
+	}
 	if (size > 2 && objects[2] != Py_None)
 	{
 		if (pyGetSimpleObject(objects[2], uv) != 0)
@@ -130,14 +130,53 @@ int getIndexVertex(PyObject* iIndices, size_t& oVertex, size_t& oNormal, size_t&
 			return 1;
 		}
 	}
-	oVertex = vertex;
-	oNormal = normal;
-	oUv = uv;
+	else
+	{
+		uv = prim::IndexTriangle::null();
+	}
 	return 0;
 }
 
 
 }
+
+
+PyObject* PyExportTraits<prim::IndexTriangle>::build(const prim::IndexTriangle& iTriangle)
+{
+	TPyObjPtr triangle(PyTuple_New(3));
+	if (!triangle) return 0;
+	for (int k = 0; k < 3; ++k)
+	{
+		PyObject* vertex = impl::buildIndexVertex(
+			iTriangle.vertices[k], iTriangle.normals[k], iTriangle.uvs[k]);
+		if (!vertex) return 0;
+		if (PyTuple_SetItem(triangle.get(), k, vertex) != 0) return 0;
+	}
+	return fromSharedPtrToNakedCast(triangle);
+}
+
+int PyExportTraits<prim::IndexTriangle>::get(PyObject* obj, prim::IndexTriangle& triangle)
+{
+	const TPyObjPtr tuple(impl::checkedFastSequence(obj, 3));
+	if (!tuple)
+	{
+		impl::addMessageHeader("IndexTriangle");
+		return 1;
+	}
+	PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
+	for (int k = 0; k < 3; ++k)
+	{
+		if (impl::getIndexVertex(objects[k], triangle.vertices[k], triangle.normals[k], triangle.uvs[k]) != 0)
+		{
+			std::ostringstream buffer;
+			buffer << "IndexTriangle: " << (k + 1) << "th vertex";
+			impl::addMessageHeader(buffer.str().c_str());
+			return 1;
+		}
+	}
+	return 0;
+}
+
 }
 }
 
