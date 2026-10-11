@@ -181,6 +181,22 @@ Python_add_library(mymodule WITH_SOABI USE_SABI "${Lass_PYTHON_SABI}")
 target_link_libraries(mymodule PRIVATE Lass::lass_python)
 ```
 
+Lass provides a shorthand function for this. It sets `USE_SABI` to the same
+value as Lass if Lass was built for the Stable ABI, and also links to
+`Lass::lass_python`:
+
+```cmake
+Lass_Python_add_library(mymodule WITH_SOABI)
+```
+
+Lass also provides a function to define the `Py_LIMITED_API` macro on a target
+that already links to `Lass::lass_python` (or `Python::SABIModule`). It does
+nothing if Lass was not built for the Stable ABI:
+
+```cmake
+Lass_target_limited_api(mytarget)
+```
+
 
 Tested platforms
 ----------------
