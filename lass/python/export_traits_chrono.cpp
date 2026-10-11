@@ -42,42 +42,87 @@
 
 #include "python_common.h"
 #include "export_traits_chrono.h"
+#include "py_tuple.h"
 
-#include <datetime.h>
+namespace
+{
 
+using namespace lass::python;
+
+int getTimedeltaMod(PyObject* mod, PyObject* obj, int &days, int &secs, int &usecs)
+{
+	TPyObjPtr timedelta(PyObject_GetAttrString(mod, "timedelta"));
+	if (!timedelta)
+	{
+		return 1;
+	}
+
+	int isTimedelta = PyObject_IsInstance(obj, timedelta.get());
+	if (isTimedelta == -1)
+	{
+		return 1; // error
+	}
+	if (!isTimedelta)
+	{
+		PyErr_SetString(PyExc_TypeError, "must be a datetime.timedelta");
+		return 1;
+	}
+	TPyObjPtr daysObj{ PyObject_GetAttrString(obj, "days") };
+	if (!daysObj || PyExportTraits<int>::get(daysObj.get(), days) != 0)
+	{
+		return 1;
+	}
+	TPyObjPtr secsObj{ PyObject_GetAttrString(obj, "seconds") };
+	if (!secsObj || PyExportTraits<int>::get(secsObj.get(), secs) != 0)
+	{
+		return 1;
+	}
+	TPyObjPtr usecsObj{ PyObject_GetAttrString(obj, "microseconds") };
+	if (!usecsObj || PyExportTraits<int>::get(usecsObj.get(), usecs) != 0)
+	{
+		return 1;
+	}
+	return 0;
+}
+
+}
 
 namespace lass
 {
 namespace python
 {
-
 namespace impl
 {
 
 PyObject* buildTimedelta(int days, int secs, int usecs)
 {
-	if (!PyDateTimeAPI)
+	TPyObjPtr mod(PyImport_ImportModule("datetime"));
+	if (!mod)
 	{
-		PyDateTime_IMPORT;
+		return nullptr;
 	}
-	return PyDelta_FromDSU(days, secs, usecs);
+	TPyObjPtr timedelta(PyObject_GetAttrString(mod.get(), "timedelta"));
+	if (!timedelta)
+	{
+		return nullptr;
+	}
+
+	auto args = makeTuple(days, secs, usecs);
+	if (!args)
+	{
+		return nullptr;
+	}
+	return PyObject_CallObject(timedelta.get(), args.get());
 }
 
 int getTimedelta(PyObject* obj, int &days, int &secs, int &usecs)
 {
-	if (!PyDateTimeAPI)
+	TPyObjPtr mod(PyImport_ImportModule("datetime"));
+	if (!mod)
 	{
-		PyDateTime_IMPORT;
-	}
-	if (!PyDelta_Check(obj))
-	{
-		PyErr_SetString(PyExc_TypeError, "not a datetime.timedelta");
 		return 1;
 	}
-	days = PyDateTime_DELTA_GET_DAYS(obj);
-	secs = PyDateTime_DELTA_GET_SECONDS(obj);
-	usecs = PyDateTime_DELTA_GET_MICROSECONDS(obj);
-	return 0;
+	return getTimedeltaMod(mod.get(), obj, days, secs, usecs);
 }
 
 }
@@ -86,13 +131,18 @@ int getTimedelta(PyObject* obj, int &days, int &secs, int &usecs)
 
 PyObject* PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::build(const TTimePoint& v)
 {
-	using namespace std::chrono_literals;
-
-	if (!PyDateTimeAPI)
+	TPyObjPtr mod(PyImport_ImportModule("datetime"));
+	if (!mod)
 	{
-		PyDateTime_IMPORT;
+		return nullptr;
+	}
+	TPyObjPtr datetime(PyObject_GetAttrString(mod.get(), "datetime"));
+	if (!datetime)
+	{
+		return nullptr;
 	}
 
+	using namespace std::chrono_literals;
 	using TMicroSeconds = std::chrono::duration<int, std::micro>;
 
 	const TMicroSeconds uSec = std::chrono::duration_cast<TMicroSeconds>(v.time_since_epoch() % 1s);
@@ -112,7 +162,7 @@ PyObject* PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::bu
 		return nullptr;
 	}
 
-	return PyDateTime_FromDateAndTime(
+	auto args = makeTuple(
 		1900 + local.tm_year,
 		1 + local.tm_mon,
 		local.tm_mday,
@@ -121,21 +171,62 @@ PyObject* PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::bu
 		local.tm_sec,
 		uSec.count()
 	);
+	if (!args)
+	{
+		return nullptr;
+	}
+	return PyObject_CallObject(datetime.get(), args.get());
 }
 
 
 
 int PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::get(PyObject* obj, TTimePoint& v)
 {
+	using namespace std::chrono;
+
+	TPyObjPtr mod(PyImport_ImportModule("datetime"));
+	if (!mod)
+	{
+		return 1;
+	}
+	TPyObjPtr datetime(PyObject_GetAttrString(mod.get(), "datetime"));
+	if (!datetime)
+	{
+		return 1;
+	}
+	TPyObjPtr date(PyObject_GetAttrString(mod.get(), "date"));
+	if (!date)
+	{
+		return 1;
+	}
+
 	using namespace std::chrono_literals;
 
-	if (!PyDateTimeAPI)
+	int isDate = PyObject_IsInstance(obj, date.get());
+	if (isDate == -1)
 	{
-		PyDateTime_IMPORT;
+		return 1; // error
 	}
-	if (!PyDate_Check(obj))
+	if (!isDate)
 	{
-		PyErr_SetString(PyExc_TypeError, "not a datetime.date or datetime.datetime");
+		PyErr_SetString(PyExc_TypeError, "must be a datetime.datetime or a datetime.date");
+		return 1;
+	}
+
+	int year, month, day;
+	TPyObjPtr yearObj{ PyObject_GetAttrString(obj, "year") };
+	if (!yearObj || PyExportTraits<int>::get(yearObj.get(), year) != 0)
+	{
+		return 1;
+	}
+	TPyObjPtr monthObj{ PyObject_GetAttrString(obj, "month") };
+	if (!monthObj || PyExportTraits<int>::get(monthObj.get(), month) != 0)
+	{
+		return 1;
+	}
+	TPyObjPtr dayObj{ PyObject_GetAttrString(obj, "day") };
+	if (!dayObj || PyExportTraits<int>::get(dayObj.get(), day) != 0)
+	{
 		return 1;
 	}
 
@@ -143,9 +234,9 @@ int PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::get(PyOb
 		0, // tm_sec
 		0, // tm_min
 		0, // tm_hour
-		PyDateTime_GET_DAY(obj), // tm_mday
-		PyDateTime_GET_MONTH(obj) - 1, // tm_mon
-		PyDateTime_GET_YEAR(obj) - 1900, // tm_year
+		day, // tm_mday
+		month - 1, // tm_mon
+		year - 1900, // tm_year
 		0, // tm_wday
 		0, // tm_yday
 		-1, // tm_isdst
@@ -154,20 +245,47 @@ int PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::get(PyOb
 		nullptr, // tm_zone
 #endif
 	};
-	std::chrono::microseconds uSec{};
-	PyObject* tz = Py_None;
+	microseconds uSec{};
+	TPyObjPtr tz;
 
-	if (PyDateTime_Check(obj))
+	int isDatetime = PyObject_IsInstance(obj, datetime.get());
+	if (isDatetime == -1)
 	{
-		time.tm_hour = PyDateTime_DATE_GET_HOUR(obj);
-		time.tm_min = PyDateTime_DATE_GET_MINUTE(obj);
-		time.tm_sec = PyDateTime_DATE_GET_SECOND(obj);
-		uSec = std::chrono::microseconds(PyDateTime_DATE_GET_MICROSECOND(obj));
+		return 1; // error
+	}
+	if (isDatetime)
+	{
+		TPyObjPtr hourObj( PyObject_GetAttrString(obj, "hour") );
+		if (!hourObj || PyExportTraits<int>::get(hourObj.get(), time.tm_hour) != 0)
+		{
+			return 1;
+		}
+		TPyObjPtr minuteObj( PyObject_GetAttrString(obj, "minute") );
+		if (!minuteObj || PyExportTraits<int>::get(minuteObj.get(), time.tm_min) != 0)
+		{
+			return 1;
+		}
+		TPyObjPtr secObj( PyObject_GetAttrString(obj, "second") );
+		if (!secObj || PyExportTraits<int>::get(secObj.get(), time.tm_sec) != 0)
+		{
+			return 1;
+		}
+		int usec = 0;
+		TPyObjPtr usecObj( PyObject_GetAttrString(obj, "microsecond") );
+		if (!usecObj || PyExportTraits<int>::get(usecObj.get(), usec) != 0)
+		{
+			return 1;
+		}
+		uSec = microseconds(usec);
 
-		tz = PyDateTime_DATE_GET_TZINFO(obj);
+		tz = TPyObjPtr( PyObject_GetAttrString(obj, "tzinfo") );
+		if (!tz)
+		{
+			return 1;
+		}
 	}
 
-	if (tz == Py_None)
+	if (!tz || tz.get() == Py_None)
 	{
 		// naive datetime is assumed to be local time. dates are always naive too.
 		const std::time_t t = mktime(&time);
@@ -180,16 +298,21 @@ int PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::get(PyOb
 	}
 	else
 	{
-		TPyObjPtr timedelta{ PyObject_CallMethod(tz, "utcoffset", "O", obj) };
+		TPyObjPtr timedelta( PyObject_CallMethod(tz.get(), "utcoffset", "O", obj) );
 		if (!timedelta)
 		{
 			return 1;
 		}
-		std::chrono::system_clock::duration utcoffset{};
-		if (PyExportTraits<std::chrono::system_clock::duration>::get(timedelta.get(), utcoffset) != 0)
+		int days, secs, usecs;
+		if (getTimedeltaMod(mod.get(), timedelta.get(), days, secs, usecs) != 0)
 		{
 			return 1;
 		}
+		using TDays = duration<int, std::ratio<86400>>;
+		TDuration utcoffset = duration_cast<TDuration>(TDays(days)) +
+			duration_cast<TDuration>(seconds(secs)) +
+			duration_cast<TDuration>(microseconds(usecs));
+
 #if LASS_PLATFORM_TYPE == LASS_PLATFORM_TYPE_WIN32
 		const std::time_t t = _mkgmtime(&time);
 #else
@@ -200,6 +323,7 @@ int PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::get(PyOb
 			PyErr_SetString(PyExc_ValueError, "out of range");
 			return 1;
 		}
+
 		v = TClock::from_time_t(t) + uSec - utcoffset;
 	}
 
@@ -212,12 +336,28 @@ int PyExportTraits<std::chrono::time_point<std::chrono::system_clock>>::get(PyOb
 
 PyObject* PyExportTraits<std::chrono::utc_clock::time_point>::build(const std::chrono::utc_clock::time_point& v)
 {
-	using namespace std::chrono_literals;
-
-	if (!PyDateTimeAPI)
+	TPyObjPtr mod(PyImport_ImportModule("datetime"));
+	if (!mod)
 	{
-		PyDateTime_IMPORT;
+		return nullptr;
 	}
+	TPyObjPtr datetime(PyObject_GetAttrString(mod.get(), "datetime"));
+	if (!datetime)
+	{
+		return nullptr;
+	}
+	TPyObjPtr timezone(PyObject_GetAttrString(mod.get(), "timezone"));
+	if (!timezone)
+	{
+		return nullptr;
+	}
+	TPyObjPtr utc(PyObject_GetAttrString(timezone.get(), "utc"));
+	if (!utc)
+	{
+		return nullptr;
+	}
+
+	using namespace std::chrono_literals;
 
 	using TMicroSeconds = std::chrono::duration<int, std::micro>;
 
@@ -239,9 +379,7 @@ PyObject* PyExportTraits<std::chrono::utc_clock::time_point>::build(const std::c
 		return nullptr;
 	}
 
-	PyObject* tz = PyDateTime_TimeZone_UTC;
-
-	return PyDateTimeAPI->DateTime_FromDateAndTime(
+	auto args = makeTuple(
 		1900 + local.tm_year,
 		1 + local.tm_mon,
 		local.tm_mday,
@@ -249,9 +387,13 @@ PyObject* PyExportTraits<std::chrono::utc_clock::time_point>::build(const std::c
 		local.tm_min,
 		local.tm_sec,
 		uSec.count(),
-		tz,
-		PyDateTimeAPI->DateTimeType
+		utc
 	);
+	if (!args)
+	{
+		return nullptr;
+	}
+	return PyObject_CallObject(datetime.get(), args.get());
 }
 
 
@@ -334,35 +476,77 @@ int PyExportTraits<std::chrono::file_clock::time_point>::get(PyObject* obj, std:
 
 PyObject* PyExportTraits<std::chrono::year_month_day>::build(const std::chrono::year_month_day& v)
 {
-	if (!PyDateTimeAPI)
+	TPyObjPtr mod(PyImport_ImportModule("datetime"));
+	if (!mod)
 	{
-		PyDateTime_IMPORT;
+		return nullptr;
 	}
-	return PyDate_FromDate(
+	TPyObjPtr date(PyObject_GetAttrString(mod.get(), "date"));
+	if (!date)
+	{
+		return nullptr;
+	}
+
+	auto args = makeTuple(
 		static_cast<int>(v.year()),
 		static_cast<unsigned>(v.month()),
 		static_cast<unsigned>(v.day())
 	);
+	if (!args)
+	{
+		return nullptr;
+	}
+	return PyObject_CallObject(date.get(), args.get());
 }
 
 
 
 int PyExportTraits<std::chrono::year_month_day>::get(PyObject* obj, std::chrono::year_month_day& v)
 {
-	if (!PyDateTimeAPI)
+	TPyObjPtr mod(PyImport_ImportModule("datetime"));
+	if (!mod)
 	{
-		PyDateTime_IMPORT;
+		return 1;
 	}
-	if (!PyDate_Check(obj))
+	TPyObjPtr date(PyObject_GetAttrString(mod.get(), "date"));
+	if (!date)
 	{
-		PyErr_SetString(PyExc_TypeError, "not a datetime.date");
+		return 1;
+	}
+
+	int isDate = PyObject_IsInstance(obj, date.get());
+	if (isDate == -1)
+	{
+		return 1; // error
+	}
+	if (!isDate)
+	{
+		PyErr_SetString(PyExc_TypeError, "must be a datetime.date or datetime.datetime");
+		return 1;
+	}
+	int year;
+	TPyObjPtr yearObj{ PyObject_GetAttrString(obj, "year") };
+	if (!yearObj || PyExportTraits<int>::get(yearObj.get(), year) != 0)
+	{
+		return 1;
+	}
+	unsigned int month;
+	TPyObjPtr monthObj{ PyObject_GetAttrString(obj, "month") };
+	if (!monthObj || PyExportTraits<unsigned int>::get(monthObj.get(), month) != 0)
+	{
+		return 1;
+	}
+	unsigned int day;
+	TPyObjPtr dayObj{ PyObject_GetAttrString(obj, "day") };
+	if (!dayObj || PyExportTraits<unsigned int>::get(dayObj.get(), day) != 0)
+	{
 		return 1;
 	}
 	v = std::chrono::year_month_day
 	{
-		std::chrono::year{ PyDateTime_GET_YEAR(obj) },
-		std::chrono::month{ PyDateTime_GET_MONTH(obj) },
-		std::chrono::day{ PyDateTime_GET_DAY(obj) }
+		std::chrono::year{ year },
+		std::chrono::month{ month },
+		std::chrono::day{ day }
 	};
 	return 0;
 }
