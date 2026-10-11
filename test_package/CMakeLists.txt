@@ -7,6 +7,10 @@ add_executable(test_package main.cpp)
 
 target_link_libraries(test_package
     PRIVATE
-        Lass::lass_python  # also links to Python::Module
+        Lass::lass_python  # also links to Python::Module or Python::SABIModule
         Python::Python     # so we to add Python::Python for embedding
 )
+
+Lass_target_limited_api(test_package)
+
+Lass_Python_add_library(test_module WITH_SOABI module.cpp)
