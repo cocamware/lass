@@ -49,6 +49,8 @@
 #include "export_traits.h"
 #include "../util/shared_ptr.h"
 
+#include <cstring>
+
 namespace lass
 {
 	namespace python
