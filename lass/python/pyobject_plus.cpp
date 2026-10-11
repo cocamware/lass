@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2025 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -48,6 +48,29 @@
 #include "pyiteratorrange.h"
 #include <iostream>
 
+namespace
+{
+	/** @internal
+	 *  Init the PyObject header of a freshly constructed PyObjectPlus
+	 */
+	inline void initObjectHead(lass::python::PyObjectPlus* self, PyTypeObject* type)
+	{
+		// We used to call _Py_NewReference here, but that's part of the private API and not part of
+		// the limited API. PyObject_Init is the public equivalent (it calls _Py_NewReference
+		// internally), but it does *NOT* accept a null type. Therefore, we pass it 
+		// &PyBaseObject_Type (type of `object`) as placeholder type and clear it afterwards. 
+		// That's OK because before Python 3.12, `object` was a static type and PyObject_Init only 
+		// INCREFs on heap types; and starting from 3.12 `object` is an immortal type.
+		//
+		lass::python::LockGIL lock;
+		PyObject_Init(self, type ? type : &PyBaseObject_Type);
+		if (!type)
+		{
+			self->ob_type = nullptr;
+		}
+	}
+}
+
 namespace lass
 {
 namespace python
@@ -68,10 +91,7 @@ void PyObjectPlus::_lassPyClassRegisterHook()
 
 PyObjectPlus::PyObjectPlus()
 {
-	// initializing the type to NULL, when the object is exported to python the type is fixed
-	this->ob_type = NULL;
-	LockGIL lock;
-	_Py_NewReference( this );
+	initObjectHead(this, nullptr);
 };
 
 PyObjectPlus::~PyObjectPlus()
@@ -85,10 +105,7 @@ PyObjectPlus::~PyObjectPlus()
 
 PyObjectPlus::PyObjectPlus(const PyObjectPlus& other)
 {
-	LockGIL lock;
-	this->ob_type = other.ob_type;
-	Py_XINCREF(this->ob_type);
-	_Py_NewReference( this );
+	initObjectHead(this, other.ob_type);
 }
 
 PyObjectPlus& PyObjectPlus::operator =([[maybe_unused]] const PyObjectPlus& iOther)
