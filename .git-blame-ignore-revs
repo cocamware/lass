@@ -1,0 +1,9 @@
+# Ignore these commits in git blame
+#
+# This file is not automatically used (except by Github). 
+# To enable it, you need to explicitly configure it with following command:
+#
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Normalize line endings to LF
+054906a8bc7930b6d65efbd7a6f35c27c937cb22
