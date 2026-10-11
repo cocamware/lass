@@ -253,12 +253,11 @@ namespace impl
 				PyErr_SetString(PyExc_TypeError, "Not a mapping");
 				return 1;
 			}
-			TPyObjPtr fast = impl::checkedFastSequence(items.get(), size);
-			if (!fast)
+			impl::FastSequence pairs(items.get(), size);
+			if (!pairs)
 			{
 				return 1;
 			}
-			PyObject** pairs = PySequence_Fast_ITEMS(fast.get());
 			typedef ArgumentTraits<typename Container::key_type> TKeyArgTraits;
 			typedef ArgumentTraits<typename Container::mapped_type> TMappedArgTraits;
 			for (Py_ssize_t i = 0; i < size; ++i)

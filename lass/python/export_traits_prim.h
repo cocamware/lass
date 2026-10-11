@@ -78,17 +78,17 @@ struct PyExportTraitsVectorPoint
 
 	static int get(PyObject* obj, ObjectType& v)
 	{
-		const TPyObjPtr tuple = impl::checkedFastSequence(obj, dimension);
+		impl::FastSequence tuple(obj, dimension);
 		if (!tuple)
 		{
 			impl::addMessageHeader(ExportTraits::className());
 			return 1;
 		}
-		PyObject** objects = PySequence_Fast_ITEMS(tuple.get());
 		ObjectType result;
 		for (size_t k = 0; k < dimension; ++k)
 		{
-			if (!impl::decodeObject(objects[k], static_cast<Py_ssize_t>(k), result[k]))
+			Py_ssize_t kk = static_cast<Py_ssize_t>(k);
+			if (!impl::decodeObject(tuple[kk], kk, result[k]))
 			{
 				impl::addMessageHeader(ExportTraits::className());
 				return 1;
@@ -191,17 +191,16 @@ struct PyExportTraitsPrimTransformation
 
 	static int get(PyObject* obj, TTransformation& transfo)
 	{
-		TPyObjPtr tuple = impl::checkedFastSequence(obj, size);
-		if (!tuple)
+		impl::FastSequence rows(obj, size);
+		if (!rows)
 		{
 			impl::addMessageHeader(ExporTraits::className());
 			return 1;
 		}
-		PyObject** rows = PySequence_Fast_ITEMS(tuple.get());
 		TValue values[size * size];
 		for (int i = 0; i < size; ++i)
 		{
-			TPyObjPtr row = impl::checkedFastSequence(rows[i], size);
+			impl::FastSequence row(rows[i], size);
 			if (!row)
 			{
 				std::ostringstream buffer;
@@ -209,10 +208,9 @@ struct PyExportTraitsPrimTransformation
 				impl::addMessageHeader(buffer.str().c_str());
 				return 1;
 			}
-			PyObject** objects = PySequence_Fast_ITEMS(row.get());
 			for (int j = 0; j < size; ++j)
 			{
-				if (pyGetSimpleObject(objects[j], values[size * i + j]) != 0)
+				if (pyGetSimpleObject(row[j], values[size * i + j]) != 0)
 				{
 					std::ostringstream buffer;
 					buffer << ExporTraits::className() << ": row " << i << ", column " << j;
