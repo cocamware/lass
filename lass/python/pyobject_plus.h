@@ -211,6 +211,32 @@ namespace lass
 #endif
 				Py_ssize_t size_;
 			};
+
+#if (PY_VERSION_HEX < 0x030e0000) || (defined(LASS_PY_LIMITED_API) && LASS_PY_LIMITED_API+0 < 0x030e0000) // < 3.14
+			struct PyTypeObjectShim
+			{
+				PyObject_VAR_HEAD
+					const char* tp_name;
+				Py_ssize_t tp_basicsize;
+				Py_ssize_t tp_itemsize;
+				destructor tp_dealloc;
+				Py_ssize_t tp_vectorcall_offset;
+				getattrfunc tp_getattr;
+				setattrfunc tp_setattr;
+				void* tp_as_async;
+				reprfunc tp_repr;
+				void* tp_as_number;
+				void* tp_as_sequence;
+				void* tp_as_mapping;
+				hashfunc tp_hash;
+				ternaryfunc tp_call;
+				reprfunc tp_str;
+				getattrofunc tp_getattro;
+				setattrofunc tp_setattro;
+				void* tp_as_buffer;
+				unsigned long tp_flags;
+			};
+#endif
 		}
 	}
 }

@@ -73,9 +73,9 @@ namespace impl
 		if (object && object->ob_type != LASS_ENFORCE_POINTER(type))
 		{
 			LockGIL lock;
-			Py_XINCREF(type);
+			Py_XINCREF(_PyObject_CAST(type));
 			std::swap(object->ob_type, type);
-			Py_XDECREF(type);
+			Py_XDECREF(_PyObject_CAST(type));
 		}
 	}
 

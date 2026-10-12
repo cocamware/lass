@@ -83,7 +83,7 @@ bool decrementReference(PyObject* pointee)
 		if (--pointee->ob_refcnt == 0)
 		{
 			PyTypeObject* type = Py_TYPE(pointee);
-			destructor dealloc = type->tp_dealloc;
+			destructor dealloc = reinterpret_cast<destructor>(PyType_GetSlot(type, Py_tp_dealloc));
 			(*dealloc)(pointee);
 		}
 #endif

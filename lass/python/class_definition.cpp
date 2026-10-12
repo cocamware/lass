@@ -432,6 +432,13 @@ PyObject* ClassDefinition::freezeDefinition(PyObject* module, const char* scopeN
 
 	PyObject* type = type_.get();
 
+#if (PY_VERSION_HEX < 0x030e0000) || (defined(LASS_PY_LIMITED_API) && LASS_PY_LIMITED_API+0 < 0x030e0000) // < 3.14
+	// check a few assumptions
+	auto typeShim = reinterpret_cast<impl::PyTypeObjectShim*>(type);
+	LASS_ENFORCE(typeShim->tp_dealloc == &dealloc);
+	LASS_ENFORCE(typeShim->tp_flags == PyType_GetFlags(reinterpret_cast<PyTypeObject*>(type)));
+#endif
+
 	const char* qualname = className_;
 	std::string scopedQualname;
 	if (scopeName)
@@ -489,9 +496,12 @@ PyObject* ClassDefinition::freezeDefinition(PyObject* module, const char* scopeN
 
 int ClassDefinition::freezeType()
 {
-	PyTypeObject* type = reinterpret_cast<PyTypeObject*>(type_.get());
-#if PY_VERSION_HEX >= 0x030e0000 // >= 3.14
-	if (!PyType_HasFeature(type, Py_TPFLAGS_IMMUTABLETYPE))
+#if (PY_VERSION_HEX < 0x030e0000) || (defined(LASS_PY_LIMITED_API) && LASS_PY_LIMITED_API+0 < 0x030e0000) // < 3.14
+	auto typeShim = reinterpret_cast<impl::PyTypeObjectShim*>(type());
+	typeShim->tp_flags |= Py_TPFLAGS_IMMUTABLETYPE;
+#else
+	PyTypeObject* typ = type();
+	if (!PyType_HasFeature(typ, Py_TPFLAGS_IMMUTABLETYPE))
 	{
 		if (parent_ && !PyType_HasFeature(parent_->type(), Py_TPFLAGS_IMMUTABLETYPE))
 		{
@@ -499,7 +509,7 @@ int ClassDefinition::freezeType()
 			LASS_ASSERT(std::find(parent_->subClasses_.begin(), parent_->subClasses_.end(), this) != parent_->subClasses_.end());
 			return 0;
 		}
-		if (PyType_Freeze(type) != 0)
+		if (PyType_Freeze(typ) != 0)
 		{
 			return -1;
 		}
@@ -516,8 +526,6 @@ int ClassDefinition::freezeType()
 		}
 		LASS_ASSERT(PyType_HasFeature(subClass->type(), Py_TPFLAGS_IMMUTABLETYPE));
 	}
-#else
-	type->tp_flags |= Py_TPFLAGS_IMMUTABLETYPE;
 #endif
 	return 0;
 }
