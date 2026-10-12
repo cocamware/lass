@@ -176,7 +176,12 @@ namespace impl
 				{
 					return nullptr;
 				}
+#ifdef LASS_PY_LIMITED_API
+				[[maybe_unused]] auto ret = PyList_SetItem(s.get(), i, item);
+				LASS_ASSERT(ret == 0); // can never fail: new container, index in range
+#else
 				PyList_SET_ITEM(s.get(), i, item);
+#endif
 			}
 			return fromSharedPtrToNakedCast(s);
 		}
@@ -432,7 +437,11 @@ namespace impl
 			for (Py_ssize_t i = 0; i < size; ++i)
 			{
 				typename TArgTraits::TStorage temp;
+#ifdef LASS_PY_LIMITED_API
+				TPyObjPtr item( PySequence_GetItem(obj, i) );
+#else
 				TPyObjPtr item( PySequence_ITEM(obj, i) );
+#endif
 				if (pyGetSimpleObject( item.get() , temp ) != 0)
 				{
 					std::ostringstream buffer;

@@ -44,6 +44,10 @@ Lass uses the CMake build system.
     Python, set this variable *before* running CMake for the first time
     in an empty build directory. It accepts both `<major>.<minor>` and exact
     `<major>.<minor>.<patch>` versions.
+-   **`Lass_PYTHON_SABI`** (`STRING`): If set, build for Python's Stable ABI.
+    Set this variable to the string `<major>.<minor>` of the minimum Python
+    version you want the binaries to be compatible with. It should not be lower
+    than `3.10` or higher than the Python version you're building with.
 -   **`Python_EXECUTABLE`** (`FILEPATH`): If CMake cannot find the Python
     requested, you need to help it by specifying the full path to Python
     executable. Set this variable *before* running CMake for the first time
@@ -139,6 +143,43 @@ tags, not from a source archive.
     CMake option to generate Python *.pyi stubs. If `"auto"`, then this will
     depend on the Python version and availability of libclang. `"auto"` by
     default.
+-   **`py_stable_abi`** (`False`, `"<major>.<minor>"`): if not `False`, set
+    the `Lass_PYTHON_SABI` CMake option to build for the Stable ABI. `False` by
+    default.
+
+
+Python Stable ABI (Limited C API)
+---------------------------------
+
+Lass can be built to only use [Python's Stable ABI](https://docs.python.org/3/c-api/stable.html)
+to be compatible with multiple Python versions at once. To accomplish this, Lass
+will be restricted to use Python's Limited C API. Code outside the Limited C API
+is replaced by alternative calls that may be slower. Normal builds use the full
+Python C API to not sacrifice performance.
+
+To enable this, you must specify the minimum Python version you want the
+binaries to be compatible with, either using the CMake option `Lass_PYTHON_SABI`
+or the Conan option `py_stable_abi`. This version is specified as a string of
+the format `<major>.<minor>` and cannot be lower than the oldest Python version
+supported by Lass (currently Python 3.10), or higher than the Python version
+you're using to build Lass.
+
+**NOTE**: This requires CMake >= 3.26
+
+**NOTE**: The Stable ABI is not supported on free-threaded Python builds (and
+Lass itself does not support free-threaded Python yet anyway).
+
+**NOTE**: By default, Lass will _not_ be built for the Stable ABI, but uses the
+full width of the Python API.
+
+**NOTE**: Building Lass against the Stable ABI does _not_ imply that the
+extension modules built with Lass will also target the Stable ABI. You must
+explicitly pass the same Stable ABI version when defining the module in CMake:
+
+```cmake
+Python_add_library(mymodule WITH_SOABI USE_SABI "${Lass_PYTHON_SABI}")
+target_link_libraries(mymodule PRIVATE Lass::lass_python)
+```
 
 
 Tested platforms

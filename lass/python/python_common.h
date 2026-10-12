@@ -93,6 +93,14 @@ namespace lass::python
 
 }
 
+#ifdef Py_LIMITED_API
+#	ifndef LASS_PY_LIMITED_API
+#		error "Lass was not built against the Limited API"
+#	elif Py_LIMITED_API + 0 < LASS_PY_LIMITED_API + 0
+#		error "Py_LIMITED_API is older than the floor Lass was built for; raise Py_LIMITED_API to at least Lass's floor"
+#	endif
+#endif
+
 #ifdef LASS_PYTHON_DLL
 #	undef LASS_PYTHON_DLL
 #endif
@@ -147,6 +155,10 @@ namespace lass::python
 
 #if LASS_COMPILER_TYPE == LASS_COMPILER_TYPE_MSVC
 #	pragma warning(pop)
+#endif
+
+#if defined(Py_LIMITED_API) && defined(Py_GIL_DISABLED)
+#	error "Lass does not support the Stable ABI on free-threaded Python"
 #endif
 
 // oh r'ly? Because of some issue lost to ancient history, pyport.h will

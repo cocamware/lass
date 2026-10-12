@@ -176,6 +176,75 @@ PyObject* buildStringImpl(const char32_t* v, size_t size)
 	return PyUnicode_DecodeUTF32(reinterpret_cast<const char*>(v), static_cast<Py_ssize_t>(size * 4), nullptr, nullptr);
 }
 
+
+#ifdef LASS_PY_LIMITED_API
+
+int getComplexImpl(PyObject* obj, double& real, double& imag)
+{
+#	if LASS_PY_LIMITED_API+0 < 0x030d0000 // < 3.13
+
+	// PyComplex_RealAsDouble and PyComplex_ImagAsDouble ignore __complex__ until 3.13
+	if (!PyComplex_Check(obj))
+	{
+		// fast path for float and long objects (to avoid __complex__ lookup)
+		if (PyFloat_CheckExact(obj) || PyLong_CheckExact(obj))
+		{
+			real = PyFloat_AsDouble(obj);
+			if (real == -1.0 && PyErr_Occurred())
+			{
+				return 1;
+			}
+			imag = 0.0;
+			return 0;
+		}
+
+		TPyObjPtr meth(PyObject_GetAttrString(obj, "__complex__"));
+		if (meth)
+		{
+			TPyObjPtr c(PyObject_CallNoArgs(meth.get()));
+			if (!c)
+			{
+				return 1;
+			}
+			if (!PyComplex_Check(c.get()))
+			{
+				PyErr_SetString(PyExc_TypeError, "__complex__ should return a complex object");
+				return 1;
+			}
+			return getComplexImpl(c.get(), real, imag);
+		}
+		else if (!PyErr_ExceptionMatches(PyExc_AttributeError))
+		{
+			return 1; // some other error
+		}
+		PyErr_Clear();
+
+		// last resort ...
+		real = PyFloat_AsDouble(obj);
+		if (real == -1.0 && PyErr_Occurred())
+		{
+			return 1;
+		}
+		imag = 0.0;
+		return 0;
+	}
+#	endif
+
+	real = PyComplex_RealAsDouble(obj);
+	if (real == -1.0 && PyErr_Occurred())
+	{
+		return 1;
+	}
+	imag = PyComplex_ImagAsDouble(obj);
+	if (imag == -1.0 && PyErr_Occurred())
+	{
+		return 1;
+	}
+	return 0;
+}
+
+#endif
+
 }
 
 
@@ -440,6 +509,7 @@ int PyExportTraits<std::u16string>::get(PyObject* obj, std::u16string& v)
 		PyErr_SetString(PyExc_TypeError, "not a string");
 		return 1;
 	}
+#	ifndef LASS_PY_LIMITED_API
 	if (PyUnicode_READY(obj) != 0)
 	{
 		return 1;
@@ -450,6 +520,7 @@ int PyExportTraits<std::u16string>::get(PyObject* obj, std::u16string& v)
 		v = std::u16string(reinterpret_cast<char16_t*>(PyUnicode_2BYTE_DATA(obj)), static_cast<size_t>(PyUnicode_GET_LENGTH(obj)));
 		return 0;
 	}
+#	endif
 	TPyObjPtr bytes(PyUnicode_AsUTF16String(obj));
 	if (!bytes)
 	{

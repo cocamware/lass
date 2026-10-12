@@ -23,7 +23,7 @@
 *	The Original Developer is the Initial Developer.
 *
 *	All portions of the code written by the Initial Developer are:
-*	Copyright (C) 2022-2024 the Initial Developer.
+*	Copyright (C) 2022-2026 the Initial Developer.
 *	All Rights Reserved.
 *
 *	Contributor(s):
@@ -57,7 +57,7 @@ int getBytes(PyObject* obj, std::string& v)
 	{
 		return 1;
 	}
-	const Py_ssize_t size = PyBytes_GET_SIZE(obj);
+	const Py_ssize_t size = PyBytes_Size(obj);
 	v = std::string{ data, static_cast<size_t>(size) };
 	return 0;
 }

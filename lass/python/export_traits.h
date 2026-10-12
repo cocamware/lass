@@ -318,6 +318,10 @@ namespace impl
 #endif
 	LASS_PYTHON_DLL PyObject* buildStringImpl(const char16_t* s, size_t n);
 	LASS_PYTHON_DLL PyObject* buildStringImpl(const char32_t* s, size_t n);
+
+#ifdef LASS_PY_LIMITED_API
+	LASS_PYTHON_DLL int getComplexImpl(PyObject* obj, double& real, double& imag);
+#endif
 }
 
 /** by copy, general case assumes shadow type or PyObjectPlus based type.
@@ -1019,6 +1023,7 @@ struct PyExportTraitsFloat
 	static int get(PyObject* obj, Float& v)
 	{
 		double x;
+#ifndef LASS_PY_LIMITED_API
 		if (PyFloat_CheckExact(obj))
 		{
 			x = PyFloat_AS_DOUBLE(obj);
@@ -1032,6 +1037,7 @@ struct PyExportTraitsFloat
 			}
 		}
 		else
+#endif
 		{
 			x = PyFloat_AsDouble(obj);
 			if (x == -1.0 && PyErr_Occurred())
@@ -1128,12 +1134,21 @@ struct PyExportTraits< std::complex<T> >
 	}
 	static int get(PyObject* obj, std::complex<T>& v)
 	{
+#ifdef LASS_PY_LIMITED_API
+		double re, im;
+		if (impl::getComplexImpl(obj, re, im) != 0)
+		{
+			return 1;
+		}
+		v = std::complex<T>(static_cast<T>(re), static_cast<T>(im));
+#else
 		Py_complex c = PyComplex_AsCComplex(obj);
 		if (c.real == -1.0 && PyErr_Occurred())
 		{
 			return 1;
 		}
 		v = std::complex<T>(static_cast<T>(c.real), static_cast<T>(c.imag));
+#endif
 		return 0;
 	}
 };

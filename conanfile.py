@@ -77,6 +77,7 @@ class _Options(Protocol):
     without_iterator_debugging: _PackageOption
     have_avx: _PackageOption
     with_stubgen: _PackageOption
+    py_stable_abi: _PackageOption
 
     def get_safe(self, name: str, default: Any = None) -> _PackageOption | None: ...
     def rm_safe(self, name: str) -> None: ...
@@ -142,6 +143,7 @@ class LassConan(ConanFile):  # type: ignore[misc]
         "without_iterator_debugging": [True, False],
         "have_avx": [True, False],
         "with_stubgen": [True, False, "auto"],
+        "py_stable_abi": [False, "ANY"],  # False or "<major>.<minor>"
     }
     default_options: ClassVar[dict[str, Any]] = {
         "shared": True,
@@ -150,6 +152,7 @@ class LassConan(ConanFile):  # type: ignore[misc]
         "without_iterator_debugging": False,
         "have_avx": True,
         "with_stubgen": "auto",
+        "py_stable_abi": False,
     }
     requires = "syspython/1.0.9@cocamware/stable"
 
@@ -202,6 +205,28 @@ class LassConan(ConanFile):  # type: ignore[misc]
                 )
         elif compiler in ["msvc"]:
             check_min_vs(self, "193")  # require VS 2019 as minimum
+        python = self.dependencies["syspython"]
+        if py_stable_abi := str(self.options.get_safe("py_stable_abi") or ""):
+            if not re.fullmatch(r"\d+\.\d+", py_stable_abi):
+                raise ConanInvalidConfiguration(
+                    "py_stable_abi is not of the format <major>.<minor>: "
+                    + py_stable_abi
+                )
+            free_threaded = python.options.get_safe("python_free_threaded")
+            if free_threaded:
+                raise ConanInvalidConfiguration(
+                    "Lass does not support the Stable ABI on free-threaded Python"
+                )
+            if _int_version(py_stable_abi) < [3, 10]:
+                raise ConanInvalidConfiguration(
+                    f"py_stable_abi cannot be lower than 3.10: {py_stable_abi}"
+                )
+            py_version = str(python.options.python_version)
+            if _int_version(py_stable_abi) > _int_version(py_version):
+                raise ConanInvalidConfiguration(
+                    "py_stable_abi must be less than or equal to the Python version: "
+                    f"{py_stable_abi} > {py_version}"
+                )
 
     def layout(self) -> None:
         cmake_layout(self)
@@ -248,6 +273,9 @@ class LassConan(ConanFile):  # type: ignore[misc]
             self.options.without_iterator_debugging
         )
         tc.cache_variables["Lass_PYTHON_VERSION"] = python.options.python_version
+        tc.cache_variables["Lass_PYTHON_SABI"] = self.options.get_safe(
+            "py_stable_abi", False
+        )
         tc.cache_variables["BUILD_TESTING"] = True
         tc.cache_variables["Lass_HAVE_AVX"] = self.options.get_safe("have_avx", False)
         if self.options.with_stubgen != "auto":
