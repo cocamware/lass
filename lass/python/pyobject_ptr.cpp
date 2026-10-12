@@ -23,7 +23,7 @@
  *	The Original Developer is the Initial Developer.
  *	
  *	All portions of the code written by the Initial Developer are:
- *	Copyright (C) 2004-2011 the Initial Developer.
+ *	Copyright (C) 2004-2026 the Initial Developer.
  *	All Rights Reserved.
  *	
  *	Contributor(s):
@@ -57,6 +57,38 @@ void doFixObjectType(PyObjectPlus* object)
 	{
 		forceObjectType(object, object->_lassPyGetClassDef()->type());
 	}
+}
+
+bool decrementReference(PyObject* pointee)
+{
+	LASS_ASSERT(pointee);
+	bool r = false;
+	if (Py_IsInitialized())
+	{
+		LockGIL lock;
+#ifdef Py_GIL_DISABLED
+		r = PyUnstable_Object_IsUniquelyReferenced(pointee);
+#else
+		r = Py_REFCNT(pointee) <=1;
+#endif
+		Py_DECREF(pointee);
+	}
+	else
+	{
+#ifdef Py_GIL_DISABLED
+		// there's nothing we can do here anymore, we'll have to leak the object ...
+#else
+		// fingers crossed!
+		r = pointee->ob_refcnt <= 1;
+		if (--pointee->ob_refcnt == 0)
+		{
+			PyTypeObject* type = Py_TYPE(pointee);
+			destructor dealloc = type->tp_dealloc;
+			(*dealloc)(pointee);
+		}
+#endif
+	}
+	return r;
 }
 
 }
