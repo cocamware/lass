@@ -150,7 +150,7 @@ class Parser:
             raise ParseError(errors)
 
         self.stubdata.add_included_files(
-            path, (include.location.file.name for include in tu.get_includes())
+            path, (include.include.name for include in tu.get_includes())
         )
 
         if save_pch:
