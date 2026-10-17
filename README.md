@@ -33,8 +33,8 @@ Requirements
 -   Optional: [Conan](https://conan.io/) >=2.12.0
 
 
-Building
---------
+Building with CMake
+-------------------
 
 Lass uses the CMake build system.
 
@@ -58,6 +58,11 @@ Lass uses the CMake build system.
     option. It dramatically improves performance of a *Debug* build, but it
     is not ABI compatibily with binaries that don't use this setting. So, it is
     `OFF` by default.
+-   **`Lass_HAVE_AVX`** (`BOOL`): Optimize some algorithms using the [AVX
+    instruction set](https://en.wikipedia.org/wiki/Advanced_Vector_Extensions)
+    (not AVX2 or AVX-512). Requires a compatible x86 processor (Intel Sandy
+    Bridge or newer, AMD Bulldozer or newer). `ON` by default for x86/x86-64
+    architectures.
 -   **`Lass_WITH_STUBGEN`** (`BOOL`): Generate Python *.pyi stubs and add
     `lass_stubgen` and `LassStubgen.cmake` to the installation.
     `ON` if Python version >= 3.10 and libclang(.dll|.so) can be found.
@@ -72,6 +77,68 @@ Lass uses the CMake build system.
 -   **`BUILD_SHARED_LIBS`** (`BOOL`): Build Lass as shared libraries instead
     of static libraries. `ON` by default.
 -   **`BUILD_TESTING`** (`BOOL`): `ON` by default.
+
+
+Building with Conan
+-------------------
+
+Lass has a Conan 2 compatible recipe and can be used to build Lass locally, or
+integrate it in your build system.
+
+### Getting started
+
+Lass finds Python through `syspython`, a small helper recipe that exists in this
+repository. Export it once to your local Conan cache:
+
+```sh
+conan export tools/syspython
+```
+
+To build Lass locally and run the unit tests (add `-c tools.build:skip_test=True`
+to skip them):
+
+```sh
+conan build .
+```
+
+To create a Lass package in your local Conan cache, and verify it with
+`test_package`:
+
+```sh
+conan create .
+```
+
+Lass requires `compiler.cppstd=17` or newer: add it to your Conan profile or
+pass it explicitly as `-s compiler.cppstd=17`.
+
+By default, Python is found on your `PATH` (`python.exe` on Windows, `python3`
+elsewhere). To use another Python, pass the full path to its executable:
+
+```sh
+conan build . -o "syspython/*:python_executable=/path/to/python"
+```
+
+The recipe derives its version from git tags, so build from a git clone with
+tags, not from a source archive.
+
+### Options
+
+-   **`shared`** (`True`, `False`): Sets the `BUILD_SHARED_LIBS` CMake option.
+    `True` by default.
+-   **`fPIC`** (`True`, `False`): This option doesn't exist if `os` is
+    `"Windows"`, and only has effect if `shared` is `False`. It sets the
+    `CMAKE_POSITION_INDEPENDENT_CODE` CMake option. `True` by default.
+-   **`simd_aligned`** (`True`, `False`): Sets the `BUILD_SIMD_ALIGNED` CMake
+    option to align some structures on 16-byte boundaries. `False` by default.
+-   **`without_iterator_debugging`** (`True`, `False`): sets the
+    `BUILD_WITHOUT_ITERATOR_DEBUGGING` CMake option. `False` by default.
+-   **`have_avx`** (`True`, `False`): This option only exists if `arch` is
+    `"x86"` or `"x86_64"`. It sets the `Lass_HAVE_AVX` CMake option to enable
+    the AVX instruction set. `True` by default.
+-   **`with_stubgen`** (`True`, `False`, `"auto"`): Sets the `Lass_WITH_STUBGEN`
+    CMake option to generate Python *.pyi stubs. If `"auto"`, then this will
+    depend on the Python version and availability of libclang. `"auto"` by
+    default.
 
 
 Tested platforms
