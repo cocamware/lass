@@ -180,4 +180,11 @@ if (Lass_WITH_STUBGEN)
 	# Add a test for the generated stubs by testing mypy and ruff on test_python_embedding.py
 	add_test(NAME "test_python_embedding_mypy" COMMAND "${_venv_python}" -m mypy "${CMAKE_CURRENT_SOURCE_DIR}/test_python_embedding.py")
 	add_test(NAME "test_python_embedding_ruff" COMMAND "${_venv_python}" -m ruff check "${CMAKE_CURRENT_SOURCE_DIR}/test_python_embedding.py")
+
+	# Test that the stub generator's depfiles list every header it parses
+	Lass_find_libclang(_libclang_library _libclang_version _libclang_system_include_dir)
+	add_test(NAME "test_stubgen_depfile"
+		COMMAND "${CMAKE_COMMAND}" -E env "PYTHONPATH=${_Lass_stubgen_pythonpath}"
+			"${_venv_python}" "${CMAKE_CURRENT_SOURCE_DIR}/test_stubgen_depfile.py" "${_libclang_library}"
+	)
 endif()

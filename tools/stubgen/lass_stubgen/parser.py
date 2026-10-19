@@ -39,6 +39,8 @@
 
 from __future__ import annotations
 
+import ctypes
+import os
 import re
 import sysconfig
 from collections.abc import Collection, Iterator
@@ -136,10 +138,9 @@ class Parser:
             args += ["-include-pch", str(self.pch_path)]
 
         index = cindex.Index.create()
-        try:
-            tu = index.parse(path, args=args)
-        except cindex.TranslationUnitLoadError as err:
-            raise ParseError(str(err)) from None
+        tu = _parse_translation_unit(
+            index, path, args, pch_path=None if save_pch else self.pch_path
+        )
 
         errors = [
             str(diag)
@@ -149,8 +150,12 @@ class Parser:
         if errors:
             raise ParseError(errors)
 
+        # Record the included file, not include.location.file: that is the file
+        # containing the #include directive. Headers whose own #includes are all
+        # skipped by include guards never show up as includers, but clang still
+        # validates them when loading the PCH.
         self.stubdata.add_included_files(
-            path, (include.location.file.name for include in tu.get_includes())
+            path, (include.include.name for include in tu.get_includes())
         )
 
         if save_pch:
@@ -1337,6 +1342,66 @@ reference to a class defined in another file.
         assert node.spelling == call_expr.spelling
 
         return cls._parse_dispatcher_call_expr(node, depth + 1)
+
+
+_CX_ERROR_MESSAGES = {
+    1: "Error parsing translation unit.",
+    2: "libclang crashed while parsing the translation unit.",
+    3: "Invalid arguments for parsing the translation unit.",
+    4: "Error reading an AST file.",
+}
+_CX_ERROR_AST_READ_ERROR = 4
+
+
+def _parse_translation_unit(
+    index: cindex.Index,
+    path: StrPath,
+    args: list[str],
+    *,
+    pch_path: StrPath | None,
+) -> cindex.TranslationUnit:
+    """
+    Like index.parse(path, args=args), but report why the translation unit failed.
+
+    When libclang cannot load a precompiled header (for example because one of its
+    input files changed after it was built), it returns no translation unit and
+    no diagnostics; only the error code of clang_parseTranslationUnit2 tells.
+    """
+    parse2 = cindex.conf.lib.clang_parseTranslationUnit2
+    parse2.argtypes = [
+        cindex.Index,
+        ctypes.c_char_p,
+        ctypes.c_void_p,
+        ctypes.c_int,
+        ctypes.c_void_p,
+        ctypes.c_uint,
+        ctypes.c_uint,
+        ctypes.POINTER(cindex.c_object_p),
+    ]
+    parse2.restype = ctypes.c_int
+
+    c_args = (ctypes.c_char_p * len(args))(*(arg.encode() for arg in args))
+    tu_ptr = cindex.c_object_p()
+    error = parse2(
+        index,
+        os.fspath(path).encode(),
+        c_args,
+        len(args),
+        None,
+        0,
+        0,
+        ctypes.byref(tu_ptr),
+    )
+    if error == 0 and tu_ptr:
+        return cindex.TranslationUnit(tu_ptr, index=index)
+
+    if error == _CX_ERROR_AST_READ_ERROR and pch_path:
+        raise ParseError(
+            f"Failed to load precompiled header {pch_path}. It is probably out of "
+            + "date: one of its input files changed after it was built. Delete it "
+            + "and rebuild."
+        )
+    raise ParseError(_CX_ERROR_MESSAGES.get(error, f"libclang error code {error}."))
 
 
 class ParseError(Exception):
